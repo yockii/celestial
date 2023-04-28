@@ -1,0 +1,13 @@
+package domain
+
+import (
+	"github.com/yockii/celestial/internal/module/project/model"
+	"github.com/yockii/ruomu-core/server"
+)
+
+type ProjectListRequest struct {
+	model.Project
+	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
+	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
+	OrderBy             string                `json:"orderBy"`
+}

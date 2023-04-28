@@ -1,0 +1,17 @@
+userTokenExpire=86400
+
+[server]
+port=8080
+
+[database]
+driver="mysql"
+host="localhost"
+user="root"
+password="root"
+db="celestial"
+port=3306
+prefix="t_"
+showSql=true
+
+[logger]
+level="info"
