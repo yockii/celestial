@@ -97,62 +97,6 @@ func InitService() {
 			HttpMethod:   "DELETE|POST",
 		})
 	}
-	// 项目任务
-	{
-		resources = append(resources, &ucModel.Resource{
-			ResourceName: "项目任务",
-			ResourceCode: constant.ResourceProjectTask,
-			HttpMethod:   "ALL",
-		}, &ucModel.Resource{
-			ResourceName: "项目任务列表",
-			ResourceCode: constant.ResourceProjectTaskList,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "项目任务详情",
-			ResourceCode: constant.ResourceProjectTaskInstance,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "添加项目任务",
-			ResourceCode: constant.ResourceProjectTaskAdd,
-			HttpMethod:   "POST",
-		}, &ucModel.Resource{
-			ResourceName: "修改项目任务",
-			ResourceCode: constant.ResourceProjectTaskUpdate,
-			HttpMethod:   "PUT|POST",
-		}, &ucModel.Resource{
-			ResourceName: "删除项目任务",
-			ResourceCode: constant.ResourceProjectTaskDelete,
-			HttpMethod:   "DELETE|POST",
-		})
-	}
-	// 项目任务成员
-	{
-		resources = append(resources, &ucModel.Resource{
-			ResourceName: "项目任务成员",
-			ResourceCode: constant.ResourceProjectTaskMember,
-			HttpMethod:   "ALL",
-		}, &ucModel.Resource{
-			ResourceName: "项目任务成员列表",
-			ResourceCode: constant.ResourceProjectTaskMemberList,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "项目任务成员详情",
-			ResourceCode: constant.ResourceProjectTaskMemberInstance,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "添加项目任务成员",
-			ResourceCode: constant.ResourceProjectTaskMemberAdd,
-			HttpMethod:   "POST",
-		}, &ucModel.Resource{
-			ResourceName: "修改项目任务成员",
-			ResourceCode: constant.ResourceProjectTaskMemberUpdate,
-			HttpMethod:   "PUT|POST",
-		}, &ucModel.Resource{
-			ResourceName: "删除项目任务成员",
-			ResourceCode: constant.ResourceProjectTaskMemberDelete,
-			HttpMethod:   "DELETE|POST",
-		})
-	}
 	// 项目变更
 	{
 		resources = append(resources, &ucModel.Resource{
@@ -265,87 +209,59 @@ func InitService() {
 			HttpMethod:   "DELETE|POST",
 		})
 	}
-	// 项目测试
+	// 项目需求
 	{
 		resources = append(resources, &ucModel.Resource{
-			ResourceName: "项目测试",
-			ResourceCode: constant.ResourceProjectTest,
+			ResourceName: "项目需求",
+			ResourceCode: constant.ResourceProjectRequirement,
 			HttpMethod:   "ALL",
 		}, &ucModel.Resource{
-			ResourceName: "项目测试列表",
-			ResourceCode: constant.ResourceProjectTestList,
+			ResourceName: "项目需求列表",
+			ResourceCode: constant.ResourceProjectRequirementList,
 			HttpMethod:   "GET",
 		}, &ucModel.Resource{
-			ResourceName: "项目测试详情",
-			ResourceCode: constant.ResourceProjectTestInstance,
+			ResourceName: "项目需求详情",
+			ResourceCode: constant.ResourceProjectRequirementInstance,
 			HttpMethod:   "GET",
 		}, &ucModel.Resource{
-			ResourceName: "添加项目测试",
-			ResourceCode: constant.ResourceProjectTestAdd,
+			ResourceName: "添加项目需求",
+			ResourceCode: constant.ResourceProjectRequirementAdd,
 			HttpMethod:   "POST",
 		}, &ucModel.Resource{
-			ResourceName: "修改项目测试",
-			ResourceCode: constant.ResourceProjectTestUpdate,
+			ResourceName: "修改项目需求",
+			ResourceCode: constant.ResourceProjectRequirementUpdate,
 			HttpMethod:   "PUT|POST",
 		}, &ucModel.Resource{
-			ResourceName: "删除项目测试",
-			ResourceCode: constant.ResourceProjectTestDelete,
+			ResourceName: "删除项目需求",
+			ResourceCode: constant.ResourceProjectRequirementDelete,
 			HttpMethod:   "DELETE|POST",
 		})
 	}
-	// 项目测试用例
+	// 项目计划
 	{
 		resources = append(resources, &ucModel.Resource{
-			ResourceName: "项目测试用例",
-			ResourceCode: constant.ResourceProjectTestCase,
+			ResourceName: "项目计划",
+			ResourceCode: constant.ResourceProjectPlan,
 			HttpMethod:   "ALL",
 		}, &ucModel.Resource{
-			ResourceName: "项目测试用例列表",
-			ResourceCode: constant.ResourceProjectTestCaseList,
+			ResourceName: "项目计划列表",
+			ResourceCode: constant.ResourceProjectPlanList,
 			HttpMethod:   "GET",
 		}, &ucModel.Resource{
-			ResourceName: "项目测试用例详情",
-			ResourceCode: constant.ResourceProjectTestCaseInstance,
+			ResourceName: "项目计划详情",
+			ResourceCode: constant.ResourceProjectPlanInstance,
 			HttpMethod:   "GET",
 		}, &ucModel.Resource{
-			ResourceName: "添加项目测试用例",
-			ResourceCode: constant.ResourceProjectTestCaseAdd,
+			ResourceName: "添加项目计划",
+			ResourceCode: constant.ResourceProjectPlanAdd,
 			HttpMethod:   "POST",
 		}, &ucModel.Resource{
-			ResourceName: "修改项目测试用例",
-			ResourceCode: constant.ResourceProjectTestCaseUpdate,
+			ResourceName: "修改项目计划",
+			ResourceCode: constant.ResourceProjectPlanUpdate,
 			HttpMethod:   "PUT|POST",
 		}, &ucModel.Resource{
-			ResourceName: "删除项目测试用例",
-			ResourceCode: constant.ResourceProjectTestCaseDelete,
-			HttpMethod:   "DELETE|POST",
-		})
-	}
-	// 项目测试用例步骤
-	{
-		resources = append(resources, &ucModel.Resource{
-			ResourceName: "项目测试用例步骤",
-			ResourceCode: constant.ResourceProjectTestCaseStep,
-			HttpMethod:   "ALL",
-		}, &ucModel.Resource{
-			ResourceName: "项目测试用例步骤列表",
-			ResourceCode: constant.ResourceProjectTestCaseStepList,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "项目测试用例步骤详情",
-			ResourceCode: constant.ResourceProjectTestCaseStepInstance,
-			HttpMethod:   "GET",
-		}, &ucModel.Resource{
-			ResourceName: "添加项目测试用例步骤",
-			ResourceCode: constant.ResourceProjectTestCaseStepAdd,
-			HttpMethod:   "POST",
-		}, &ucModel.Resource{
-			ResourceName: "修改项目测试用例步骤",
-			ResourceCode: constant.ResourceProjectTestCaseStepUpdate,
-			HttpMethod:   "PUT|POST",
-		}, &ucModel.Resource{
-			ResourceName: "删除项目测试用例步骤",
-			ResourceCode: constant.ResourceProjectTestCaseStepDelete,
+			ResourceName: "删除项目计划",
+			ResourceCode: constant.ResourceProjectPlanDelete,
 			HttpMethod:   "DELETE|POST",
 		})
 	}

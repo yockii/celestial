@@ -11,7 +11,7 @@ matchConfigurations 配置，用来匹配统一用户中心的用户，json中�
     "realName": "真实姓名的字段",
     "mobile": "手机号字段",
     "email": "邮箱字段",
-    "match": ["realName", "mobile", "email"] // 用于匹配的字段
+    "match": ["realName", "mobile", "email"]
 }
 ```
 ### 钉钉

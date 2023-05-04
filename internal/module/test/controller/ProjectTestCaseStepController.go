@@ -3,18 +3,18 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/project/domain"
-	"github.com/yockii/celestial/internal/module/project/model"
-	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/internal/module/test/domain"
+	"github.com/yockii/celestial/internal/module/test/model"
+	"github.com/yockii/celestial/internal/module/test/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
-var ProjectTestController = new(projectTestController)
+var ProjectTestCaseStepController = new(projectTestCaseStepController)
 
-type projectTestController struct{}
+type projectTestCaseStepController struct{}
 
-func (c *projectTestController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTest)
+func (c *projectTestCaseStepController) Add(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseStep)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -24,14 +24,14 @@ func (c *projectTestController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.Name == "" || instance.ProjectID == 0 {
+	if instance.CaseID == 0 || instance.OrderNum == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
+			Msg:  server.ResponseMsgParamNotEnough + " caseId & orderNum",
 		})
 	}
 
-	duplicated, success, err := service.ProjectTestService.Add(instance)
+	duplicated, success, err := service.ProjectTestCaseStepService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -55,8 +55,8 @@ func (c *projectTestController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTest)
+func (c *projectTestCaseStepController) Update(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseStep)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -73,7 +73,7 @@ func (c *projectTestController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestService.Update(instance)
+	success, err := service.ProjectTestCaseStepService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -86,8 +86,8 @@ func (c *projectTestController) Update(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestController) Delete(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTest)
+func (c *projectTestCaseStepController) Delete(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseStep)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -104,7 +104,7 @@ func (c *projectTestController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestService.Delete(instance.ID)
+	success, err := service.ProjectTestCaseStepService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -117,8 +117,8 @@ func (c *projectTestController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestController) List(ctx *fiber.Ctx) error {
-	instance := new(domain.ProjectTestListRequest)
+func (c *projectTestCaseStepController) List(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectTestCaseStepListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -147,7 +147,7 @@ func (c *projectTestController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectTestService.PaginateBetweenTimes(&instance.ProjectTest, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.ProjectTestCaseStepService.PaginateBetweenTimes(&instance.ProjectTestCaseStep, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -164,8 +164,8 @@ func (c *projectTestController) List(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestController) Instance(ctx *fiber.Ctx) error {
-	condition := new(model.ProjectTest)
+func (c *projectTestCaseStepController) Instance(ctx *fiber.Ctx) error {
+	condition := new(model.ProjectTestCaseStep)
 	if err := ctx.QueryParser(condition); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -179,7 +179,7 @@ func (c *projectTestController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.ProjectTestService.Instance(condition.ID)
+	dept, err := service.ProjectTestCaseStepService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

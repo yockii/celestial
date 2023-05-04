@@ -50,26 +50,6 @@ const (
 	ResourceProjectRequirementInstance = "projectRequirement:instance"
 )
 
-// 项目任务
-const (
-	ResourceProjectTask         = "projectTask"
-	ResourceProjectTaskAdd      = "projectTask:add"
-	ResourceProjectTaskDelete   = "projectTask:delete"
-	ResourceProjectTaskUpdate   = "projectTask:update"
-	ResourceProjectTaskList     = "projectTask:list"
-	ResourceProjectTaskInstance = "projectTask:instance"
-)
-
-// 项目任务成员
-const (
-	ResourceProjectTaskMember         = "projectTaskMember"
-	ResourceProjectTaskMemberAdd      = "projectTaskMember:add"
-	ResourceProjectTaskMemberDelete   = "projectTaskMember:delete"
-	ResourceProjectTaskMemberUpdate   = "projectTaskMember:update"
-	ResourceProjectTaskMemberList     = "projectTaskMember:list"
-	ResourceProjectTaskMemberInstance = "projectTaskMember:instance"
-)
-
 // 项目变更
 const (
 	ResourceProjectChange         = "projectChange"
@@ -108,34 +88,4 @@ const (
 	ResourceProjectAssetUpdate   = "projectAsset:update"
 	ResourceProjectAssetList     = "projectAsset:list"
 	ResourceProjectAssetInstance = "projectAsset:instance"
-)
-
-// 项目测试
-const (
-	ResourceProjectTest         = "projectTest"
-	ResourceProjectTestAdd      = "projectTest:add"
-	ResourceProjectTestDelete   = "projectTest:delete"
-	ResourceProjectTestUpdate   = "projectTest:update"
-	ResourceProjectTestList     = "projectTest:list"
-	ResourceProjectTestInstance = "projectTest:instance"
-)
-
-// 项目测试用例
-const (
-	ResourceProjectTestCase         = "projectTestCase"
-	ResourceProjectTestCaseAdd      = "projectTestCase:add"
-	ResourceProjectTestCaseDelete   = "projectTestCase:delete"
-	ResourceProjectTestCaseUpdate   = "projectTestCase:update"
-	ResourceProjectTestCaseList     = "projectTestCase:list"
-	ResourceProjectTestCaseInstance = "projectTestCase:instance"
-)
-
-// 项目测试用例步骤
-const (
-	ResourceProjectTestCaseStep         = "projectTestCaseStep"
-	ResourceProjectTestCaseStepAdd      = "projectTestCaseStep:add"
-	ResourceProjectTestCaseStepDelete   = "projectTestCaseStep:delete"
-	ResourceProjectTestCaseStepUpdate   = "projectTestCaseStep:update"
-	ResourceProjectTestCaseStepList     = "projectTestCaseStep:list"
-	ResourceProjectTestCaseStepInstance = "projectTestCaseStep:instance"
 )

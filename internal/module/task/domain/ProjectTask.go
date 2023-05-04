@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/yockii/celestial/internal/module/project/model"
+	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/server"
 )
 

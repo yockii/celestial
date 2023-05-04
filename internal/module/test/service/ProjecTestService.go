@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/project/model"
+	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"

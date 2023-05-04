@@ -3,28 +3,27 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/project/model"
+	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
 	"time"
 )
 
-var ProjectTaskMemberService = new(projectTaskMemberService)
+var ProjectTaskService = new(projectTaskService)
 
-type projectTaskMemberService struct{}
+type projectTaskService struct{}
 
 // Add 添加资源
-func (s *projectTaskMemberService) Add(instance *model.ProjectTaskMember) (duplicated bool, success bool, err error) {
-	if instance.TaskID == 0 || instance.ProjectID == 0 || instance.UserID == 0 {
-		err = errors.New("taskId / projectId / userId is required")
+func (s *projectTaskService) Add(instance *model.ProjectTask) (duplicated bool, success bool, err error) {
+	if instance.ProjectID == 0 || instance.TaskName == "" {
+		err = errors.New("task Name and projectId is required")
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
 		ProjectID: instance.ProjectID,
-		TaskID:    instance.TaskID,
-		UserID:    instance.UserID,
+		TaskName:  instance.TaskName,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -46,17 +45,24 @@ func (s *projectTaskMemberService) Add(instance *model.ProjectTaskMember) (dupli
 }
 
 // Update 更新资源基本信息
-func (s *projectTaskMemberService) Update(instance *model.ProjectTaskMember) (success bool, err error) {
+func (s *projectTaskService) Update(instance *model.ProjectTask) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	err = database.DB.Where(&model.ProjectTaskMember{ID: instance.ID}).Updates(&model.ProjectTaskMember{
+	err = database.DB.Where(&model.ProjectTask{ID: instance.ID}).Updates(&model.ProjectTask{
 		ProjectID:        instance.ProjectID,
-		TaskID:           instance.TaskID,
-		UserID:           instance.UserID,
-		RoleID:           instance.RoleID,
+		StageID:          instance.StageID,
+		ParentID:         instance.ParentID,
+		TaskName:         instance.TaskName,
+		TaskDesc:         instance.TaskDesc,
+		StartTime:        instance.StartTime,
+		EndTime:          instance.EndTime,
+		Priority:         instance.Priority,
+		OwnerID:          instance.OwnerID,
+		ActualStartTime:  instance.ActualStartTime,
+		ActualEndTime:    instance.ActualEndTime,
 		EstimateDuration: instance.EstimateDuration,
 		ActualDuration:   instance.ActualDuration,
 		Status:           instance.Status,
@@ -70,12 +76,12 @@ func (s *projectTaskMemberService) Update(instance *model.ProjectTaskMember) (su
 }
 
 // Delete 删除资源
-func (s *projectTaskMemberService) Delete(id uint64) (success bool, err error) {
+func (s *projectTaskService) Delete(id uint64) (success bool, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.ProjectTaskMember{ID: id}).Delete(&model.ProjectTaskMember{}).Error
+	err = database.DB.Where(&model.ProjectTask{ID: id}).Delete(&model.ProjectTask{}).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -85,8 +91,8 @@ func (s *projectTaskMemberService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *projectTaskMemberService) PaginateBetweenTimes(condition *model.ProjectTaskMember, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTaskMember, err error) {
-	tx := database.DB.Model(&model.ProjectTaskMember{}).Limit(100)
+func (s *projectTaskService) PaginateBetweenTimes(condition *model.ProjectTask, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTask, err error) {
+	tx := database.DB.Model(&model.ProjectTask{}).Limit(100)
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}
@@ -111,17 +117,18 @@ func (s *projectTaskMemberService) PaginateBetweenTimes(condition *model.Project
 	}
 
 	if condition != nil {
-		//if condition.Name != "" {
-		//	tx = tx.Where("name like ?", "%"+condition.Name+"%")
-		//}
+		if condition.TaskName != "" {
+			tx = tx.Where("task_name like ?", "%"+condition.TaskName+"%")
+		}
 	}
 
-	err = tx.Find(&list, &model.ProjectTaskMember{
+	err = tx.Find(&list, &model.ProjectTask{
 		ProjectID: condition.ProjectID,
-		TaskID:    condition.TaskID,
-		UserID:    condition.UserID,
-		RoleID:    condition.RoleID,
+		ParentID:  condition.ParentID,
+		StageID:   condition.StageID,
 		Status:    condition.Status,
+		Priority:  condition.Priority,
+		OwnerID:   condition.OwnerID,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -131,13 +138,13 @@ func (s *projectTaskMemberService) PaginateBetweenTimes(condition *model.Project
 }
 
 // Instance 获取资源实例
-func (s *projectTaskMemberService) Instance(id uint64) (instance *model.ProjectTaskMember, err error) {
+func (s *projectTaskService) Instance(id uint64) (instance *model.ProjectTask, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	instance = &model.ProjectTaskMember{}
-	if err = database.DB.Where(&model.ProjectTaskMember{ID: id}).First(instance).Error; err != nil {
+	instance = &model.ProjectTask{}
+	if err = database.DB.Where(&model.ProjectTask{ID: id}).First(instance).Error; err != nil {
 		logger.Errorln(err)
 		return
 	}

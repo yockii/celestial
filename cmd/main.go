@@ -4,6 +4,8 @@ import (
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
+	taskController "github.com/yockii/celestial/internal/module/task/controller"
+	testController "github.com/yockii/celestial/internal/module/test/controller"
 	ucController "github.com/yockii/celestial/internal/module/uc/controller"
 	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
@@ -30,6 +32,10 @@ func main() {
 	ucController.InitRouter()
 	// 项目管理模块
 	projectController.InitRouter()
+	// 任务管理模块
+	taskController.InitRouter()
+	// 测试管理模块
+	testController.InitRouter()
 
 	for {
 		err := server.Start()
