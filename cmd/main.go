@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	assetController "github.com/yockii/celestial/internal/module/asset/controller"
+	logController "github.com/yockii/celestial/internal/module/log/controller"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
 	taskController "github.com/yockii/celestial/internal/module/task/controller"
 	testController "github.com/yockii/celestial/internal/module/test/controller"
@@ -36,6 +38,10 @@ func main() {
 	taskController.InitRouter()
 	// 测试管理模块
 	testController.InitRouter()
+	// 日志管理模块
+	logController.InitRouter()
+	// 资产管理模块
+	assetController.InitRouter()
 
 	for {
 		err := server.Start()

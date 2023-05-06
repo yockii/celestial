@@ -2,11 +2,15 @@ package provider
 
 import (
 	"github.com/yockii/celestial/internal/module/asset/model"
+	"io"
 	"strings"
 )
 
 type OsManager interface {
 	Auth() error
+	Close() error
+	PutObject(objName string, reader io.Reader) error
+	GetObject(objName string) (io.ReadCloser, error)
 }
 
 func GetProvider(c *model.OssConfig) (m OsManager) {

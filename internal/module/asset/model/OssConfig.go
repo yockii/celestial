@@ -13,7 +13,7 @@ type OssConfig struct {
 	Region          string `json:"region,omitempty" gorm:"size:50;comment:Region"`
 	Secure          int    `json:"secure,omitempty" gorm:"comment:是否使用HTTPS 1-是 2-否"`
 	SelfDomain      int    `json:"selfDomain,omitempty" gorm:"comment:是否自定义域名 1-是 2-否"`
-	CreateTime      int64  `json:"createTime,omitempty" gorm:"comment:创建时间"`
+	CreateTime      int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 }
 
 func (_ *OssConfig) TableComment() string {

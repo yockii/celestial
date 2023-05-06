@@ -6,6 +6,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/asset/model"
+	"io"
 )
 
 type Minio struct {
@@ -38,4 +39,26 @@ func (o *Minio) Auth() error {
 	}
 	o.Client = client
 	return nil
+}
+
+func (o *Minio) Close() error {
+	return nil
+}
+
+func (o *Minio) PutObject(objName string, reader io.Reader) error {
+	_, err := o.Client.PutObject(context.Background(), o.BucketName, objName, reader, -1, minio.PutObjectOptions{})
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (o *Minio) GetObject(objName string) (io.ReadCloser, error) {
+	object, err := o.Client.GetObject(context.Background(), o.BucketName, objName, minio.GetObjectOptions{})
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return object, nil
 }

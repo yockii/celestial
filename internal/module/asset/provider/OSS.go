@@ -4,6 +4,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/asset/model"
+	"io"
 )
 
 type OSS struct {
@@ -28,4 +29,26 @@ func (o *OSS) Auth() error {
 	o.Client = client
 	o.Bucket = bucket
 	return nil
+}
+
+func (o *OSS) Close() error {
+	return nil
+}
+
+func (o *OSS) PutObject(objName string, reader io.Reader) error {
+	err := o.Bucket.PutObject(objName, reader)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (o *OSS) GetObject(objName string) (io.ReadCloser, error) {
+	body, err := o.Bucket.GetObject(objName)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return body, nil
 }

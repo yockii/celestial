@@ -1,6 +1,9 @@
 package provider
 
-import "github.com/yockii/celestial/internal/module/asset/model"
+import (
+	"github.com/yockii/celestial/internal/module/asset/model"
+	"io"
+)
 
 type Azure struct {
 	model.OssConfig
@@ -8,4 +11,16 @@ type Azure struct {
 
 func (o *Azure) Auth() error {
 	return nil
+}
+
+func (o *Azure) Close() error {
+	return nil
+}
+
+func (o *Azure) PutObject(objName string, reader io.Reader) error {
+	return nil
+}
+
+func (o *Azure) GetObject(objName string) (io.ReadCloser, error) {
+	return nil, nil
 }

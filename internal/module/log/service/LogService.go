@@ -52,6 +52,8 @@ func (s *stageService) PaginateBetweenTimes(condition *model.Log, limit int, off
 	}
 	if orderBy != "" {
 		tx = tx.Order(orderBy)
+	} else {
+		tx = tx.Order("create_time desc")
 	}
 
 	// 处理时间字段，在某段时间之间

@@ -8,7 +8,7 @@ type AssetCategory struct {
 	Name       string `json:"name,omitempty" gorm:"index;size:50;comment:名称"`
 	Type       int    `json:"type,omitempty" gorm:"comment:类型 1-公共资产 2-项目资产 9-个人资产"`
 	CreatorID  uint64 `json:"creatorId,omitempty,string" gorm:"index;comment:创建人ID"`
-	CreateTime int64  `json:"createTime,omitempty" gorm:"comment:创建时间"`
+	CreateTime int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 }
 
 func (*AssetCategory) TableComment() string {
