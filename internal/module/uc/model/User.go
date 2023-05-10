@@ -29,6 +29,8 @@ func (u *User) UnmarshalJSON(b []byte) error {
 	u.Username = j.Get("username").String()
 	u.Password = j.Get("password").String()
 	u.RealName = j.Get("realName").String()
+	u.Email = j.Get("email").String()
+	u.Mobile = j.Get("mobile").String()
 	u.Status = int(j.Get("status").Int())
 
 	return nil

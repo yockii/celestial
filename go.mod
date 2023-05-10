@@ -18,6 +18,7 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
+	github.com/tjfoc/gmsm v1.4.1
 	github.com/yockii/ruomu-core v0.0.0-20221123012554-afb30eda8622
 	golang.org/x/crypto v0.6.0
 	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11

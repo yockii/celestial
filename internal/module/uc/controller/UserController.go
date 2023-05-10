@@ -6,6 +6,7 @@ import (
 	"github.com/yockii/celestial/internal/module/uc/domain"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
+	"github.com/yockii/celestial/pkg/crypto"
 	"strconv"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -89,9 +90,21 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 	if instance.Username == "" || instance.Password == "" {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " username or password",
+			Msg:  server.ResponseMsgParamNotEnough + ": 用户名及密码",
 		})
 	}
+
+	// 解析密码
+	if pwd, err := crypto.Sm2Decrypt(instance.Password); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + "密码不准确",
+		})
+	} else {
+		instance.Password = pwd
+	}
+
 	isStrong := util.PasswordStrengthCheck(8, 50, 4, instance.Password)
 	if !isStrong {
 		return ctx.JSON(&server.CommonResponse{
@@ -110,7 +123,7 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 	if notMatch {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDataNotMatch,
-			Msg:  server.ResponseMsgDataNotMatch,
+			Msg:  "用户名与密码" + server.ResponseMsgDataNotMatch,
 		})
 	}
 

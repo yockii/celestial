@@ -21,7 +21,7 @@ type ProjectTask struct {
 	ActualEndTime    int64          `json:"actualEndTime,omitempty" gorm:"comment:实际结束时间"`
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
-	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 0-未开始 1-进行中 2-已完成"`
+	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 0-未开始 1-已确认 2-进行中 9-已完成"`
 	CreatorID        uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime       int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`

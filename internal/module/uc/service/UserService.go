@@ -36,6 +36,7 @@ func (s *userService) LoginWithUsernameAndPassword(username, password string) (i
 	err = bcrypt.CompareHashAndPassword([]byte(instance.Password), []byte(password))
 	if err != nil {
 		passwordNotMatch = true
+		err = nil
 		return
 	}
 	// 完成后密码置空
@@ -86,6 +87,8 @@ func (s *userService) Update(instance *model.User) (success bool, err error) {
 	err = database.DB.Where(&model.User{ID: instance.ID}).Updates(&model.User{
 		RealName: instance.RealName,
 		Status:   instance.Status,
+		Email:    instance.Email,
+		Mobile:   instance.Mobile,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -133,6 +136,8 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 
 	if orderBy != "" {
 		tx.Order(orderBy)
+	} else {
+		tx.Order("update_time desc")
 	}
 
 	// 处理时间字段，在某段时间之间
