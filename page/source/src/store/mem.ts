@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import {renderIcon} from "../utils/Render";
-import {Folders, Home, RuleTest, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
+import {Folders, Home, ToolKit, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
 import {ProjectOutlined} from "@vicons/antd";
 import {MenuOption} from "naive-ui";
 import {renderLinkedLabel} from '../utils/Render'
@@ -34,7 +34,7 @@ export const useMemStore = defineStore("mem", {
             {
             label: "测试",
             key: "Test",
-            icon: renderIcon(RuleTest)
+            icon: renderIcon(ToolKit)
         },
             {
             label: "资产",
