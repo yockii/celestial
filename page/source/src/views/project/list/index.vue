@@ -29,6 +29,9 @@ const refresh = () => {
         total.value = res.total;
     })
 }
+const getStageName = (stageId: string) => {
+    return stageList.value.find(item => item.id === stageId)?.name || "";
+}
 const projectStatistics = ref<ProjectStageStatistics[]>([])
 const findStageProjectCount = (stageId: string) => {
     return projectStatistics.value.find(item => item.stageId === stageId)?.count || 0;
@@ -152,7 +155,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                     </n-gi>
                     <n-gi :span="4">
                         <n-text depth="3">
-                            当前阶段: {{project.stageId}}
+                            当前阶段: {{getStageName(project.stageId)}}
                         </n-text>
                     </n-gi>
                     <n-gi :span="6" :offset="6" class="flex flex-justify-end">
