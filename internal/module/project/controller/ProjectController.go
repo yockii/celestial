@@ -226,3 +226,18 @@ func (_ *projectController) Instance(ctx *fiber.Ctx) error {
 		Data: instance,
 	})
 }
+
+// StatisticsByStage 统计项目阶段
+func (_ *projectController) StatisticsByStage(ctx *fiber.Ctx) error {
+	result, err := service.ProjectService.StatisticsByStage()
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: result,
+	})
+}

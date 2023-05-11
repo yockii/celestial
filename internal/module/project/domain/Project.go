@@ -16,3 +16,8 @@ type ProjectWithMembers struct {
 	model.Project
 	Members []*ProjectMemberLite `json:"members"`
 }
+
+type ProjectCountByStage struct {
+	StageID uint64 `json:"stageId"`
+	Count   int64  `json:"count"`
+}

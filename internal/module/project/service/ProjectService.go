@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
@@ -152,6 +153,16 @@ func (s *projectService) Instance(id uint64) (instance *model.Project, err error
 	}
 	instance = &model.Project{}
 	if err = database.DB.Where(&model.Project{ID: id}).First(instance).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
+// StatisticsByStage 统计各阶段的项目数量
+func (s *projectService) StatisticsByStage() (list []*domain.ProjectCountByStage, err error) {
+	err = database.DB.Model(&model.Project{}).Select("stage_id, count(*) as count").Group("stage_id").Scan(&list).Error
+	if err != nil {
 		logger.Errorln(err)
 		return
 	}

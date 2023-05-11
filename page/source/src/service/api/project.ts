@@ -21,6 +21,11 @@ export type ProjectCondition = {
     limit?: number;
 }
 
+export type ProjectStageStatistics = {
+    stageId: string;
+    count: number;
+}
+
 /**
  * 获取项目列表
  * @param condition - 查询条件
@@ -37,4 +42,11 @@ export function getProjectList(condition: ProjectCondition) {
  */
 export function addProject(project: Project) {
     return request.post<boolean>("/project/add", project)
+}
+
+/**
+ * 获取项目根据阶段统计信息
+ */
+export function getProjectStageStatistics() {
+    return request.get<ProjectStageStatistics[]>("/project/statisticsByStage")
 }

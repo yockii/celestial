@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import {ref, onMounted, computed} from "vue";
-import {getProjectList, addProject} from "../../../service/api/project";
+import {
+    getProjectList,
+    addProject,
+    ProjectStageStatistics,
+    getProjectStageStatistics
+} from "../../../service/api/project";
 import type {Project,ProjectCondition} from "../../../service/api/project";
 import {Search} from "@vicons/carbon"
 import {getStageList, type Stage} from "../../../service/api/stage";
-import {NButton} from "naive-ui";
+import {NButton, FormInst} from "naive-ui";
 import moment from "moment";
 import NameAvatar from "../../../components/NameAvatar.vue";
 
@@ -24,10 +29,17 @@ const refresh = () => {
         total.value = res.total;
     })
 }
-
+const projectStatistics = ref<ProjectStageStatistics[]>([])
+const findStageProjectCount = (stageId: string) => {
+    return projectStatistics.value.find(item => item.stageId === stageId)?.count || 0;
+}
 onMounted(() => {
-    getStageList().then(res => {
+    getStageList({limit: 100, name: "", offset: 0, status: 0}).then(res => {
         stageList.value = res.items;
+    })
+    // 获取项目的阶段统计数据
+    getProjectStageStatistics().then(res => {
+        projectStatistics.value = res;
     })
     refresh()
 })
@@ -51,19 +63,29 @@ const projectRules = {
         { pattern: /^\D\w{2,19}$/, message: '长度在 3 到 20 个英文/数字/下划线，且不能以数字开头', trigger: 'blur' }
     ]
 }
+const handleNewProject = () => {
+    resetNewProject()
+    drawerActive.value = true
+}
 const resetNewProject = () => {
     newProject.value = {
         id: "",
         name: "",
         code: "",
         description: "",
-        stageId: "",
+        stageId: stageList.value[0]?.id || "",
     }
 }
+const formRef = ref<FormInst>()
 const handleCommitNewProject = () => {
-    addProject(newProject.value).then((/* res */) => {
-        drawerActive.value = false;
-        refresh();
+    formRef.value?.validate(errors => {
+        if (errors) {
+            return
+        }
+        addProject(newProject.value).then((/* res */) => {
+            drawerActive.value = false;
+            refresh();
+        })
     })
 }
 // 项目参与人
@@ -94,14 +116,14 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                           </n-input>
                       </n-gi>
                       <n-gi :span="1" class="flex flex-justify-end">
-                          <n-button type="primary" @click="drawerActive = true">新建项目</n-button>
+                          <n-button type="primary" @click="handleNewProject">新建项目</n-button>
                       </n-gi>
                     </n-grid>
                     <n-grid :cols="1">
                   <n-gi style="margin-bottom: -12px;">
                       <n-tabs type="line">
                           <n-tab name="all">全部</n-tab>
-                          <n-tab name="stage.id" v-for="stage in stageList" :key="stage.id">
+                          <n-tab v-for="stage in stageList" :name="stage.id" :key="stage.id">
                               {{stage.name}}
                           </n-tab>
                       </n-tabs>
@@ -134,7 +156,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                         </n-text>
                     </n-gi>
                     <n-gi :span="6" :offset="6" class="flex flex-justify-end">
-                        <n-avatar-group :options="projectMemberNames(project.members || [])" :size="24" :max="5">
+                        <n-avatar-group :options="projectMemberNames(project.members)" :size="24" :max="5">
                             <template #avatar="{ option: {src} }">
                                 <n-tooltip>
                                     <template #trigger>
@@ -159,27 +181,17 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
         <n-grid :cols="1" y-gap="8">
             <n-gi class="">
                 <n-card embedded size="small">
-                    <n-text class="font-700">项目统计</n-text>
+                    <n-text class="font-700">项目阶段统计</n-text>
                     <n-grid :cols="3" class="mt-8px">
                         <n-gi>
-                            <n-text class="list-item ml-20px text-lg text-gray">所有项目</n-text>
+                            <n-text class="list-item ml-20px text-1em text-gray">所有项目</n-text>
                             <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">{{total}}</n-text>
                         </n-gi>
-                        <n-gi>
-                            <n-text class="list-item ml-20px text-lg text-gray">XX阶段</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                        </n-gi>
-                        <n-gi>
-                            <n-text class="list-item ml-20px text-lg text-gray">YY阶段</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                        </n-gi>
-                        <n-gi>
-                            <n-text class="list-item ml-20px text-lg text-gray">ZZ阶段</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                        </n-gi>
-                        <n-gi>
-                            <n-text class="list-item ml-20px text-lg text-gray">AA阶段</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                        <n-gi v-for="stage in stageList"  :key="stage.id">
+                            <n-text class="list-item ml-20px text-1em text-gray">{{ stage.name }}</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">
+                                {{ findStageProjectCount(stage.id) }}
+                            </n-text>
                         </n-gi>
                     </n-grid>
                 </n-card>
@@ -199,6 +211,15 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
               </n-form-item>
               <n-form-item label="项目描述" path="description">
                   <n-input type="textarea" v-model:value="newProject.description" placeholder="请输入项目描述" />
+              </n-form-item>
+              <n-form-item label="项目阶段" path="stageId">
+                  <n-select
+                      v-model:value="newProject.stageId"
+                      placeholder="请选择项目阶段"
+                      :options="stageList"
+                      label-field="name"
+                      value-field="id"
+                  />
               </n-form-item>
           </n-form>
           <template #footer>
