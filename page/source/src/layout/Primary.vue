@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import HeadNav from "./components/HeadNav.vue"
 import Sider from "./components/Sider.vue"
-import FootInfo from "./components/FootInfo.vue"
+// import FootInfo from "./components/FootInfo.vue"
 import {useMemStore} from "../store/mem";
 import {computed} from "vue";
 import {useAppStore} from "../store/app";

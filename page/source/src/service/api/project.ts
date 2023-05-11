@@ -12,11 +12,11 @@ export type Project = {
         id:string;
         username: string;
         realName: string;
-    };
+    }[];
 }
 export type ProjectCondition = {
-    name?: string;
-    stageId?: string;
+    name: string;
+    stageId: string;
     offset?: number;
     limit?: number;
 }

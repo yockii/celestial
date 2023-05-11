@@ -10,7 +10,7 @@ import type {Project,ProjectCondition} from "../../../service/api/project";
 import {Search} from "@vicons/carbon"
 import {getStageList, type Stage} from "../../../service/api/stage";
 import {NButton, FormInst} from "naive-ui";
-import moment from "moment";
+import dayjs from "dayjs";
 import NameAvatar from "../../../components/NameAvatar.vue";
 
 const condition = ref<ProjectCondition>({
@@ -26,7 +26,6 @@ const projectList = ref<Project[]>([]);
 const refresh = () => {
     getProjectList(condition.value).then(res => {
         projectList.value = res.items;
-        total.value = res.total;
     })
 }
 const getStageName = (stageId: string) => {
@@ -43,9 +42,18 @@ onMounted(() => {
     // 获取项目的阶段统计数据
     getProjectStageStatistics().then(res => {
         projectStatistics.value = res;
+        total.value = res.reduce((total, item) => total + item.count, 0)
     })
     refresh()
 })
+
+// 切换stage
+const selectedStageId = ref<string>('all')
+const stageSelected = (stageId: string) => {
+    selectedStageId.value = stageId
+    condition.value.stageId = stageId === 'all' ? '' : stageId;
+    refresh()
+}
 
 // 新建项目
 const drawerActive = ref(false)
@@ -92,7 +100,7 @@ const handleCommitNewProject = () => {
     })
 }
 // 项目参与人
-const projectMemberNames = (members: {id: string; username: string; realName: string}[]) : {src:string}[] => {
+const projectMemberNames = (members: {id: string; username: string; realName: string}[] | undefined) : {src:string}[] => {
     return members ? members.map((item) => {
         return {src: item.realName}
     }): []
@@ -102,6 +110,9 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
     key: option.src,
     label: option.src
 }))
+
+// 计算时间
+const timeBefore = computed(() => (t) => dayjs(t).fromNow())
 </script>
 
 <template>
@@ -114,7 +125,9 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                       <n-gi :span="1">
                           <n-input v-model:value="condition.name" placeholder="输入项目名称进行搜索" @keydown.enter.prevent="refresh">
                               <template #suffix>
-                                  <n-icon :component="Search" class="cursor-pointer" @click="refresh"></n-icon>
+                                  <n-icon class="cursor-pointer" @click="refresh">
+                                      <Search />
+                                  </n-icon>
                               </template>
                           </n-input>
                       </n-gi>
@@ -124,7 +137,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                     </n-grid>
                     <n-grid :cols="1">
                   <n-gi style="margin-bottom: -12px;">
-                      <n-tabs type="line">
+                      <n-tabs type="line" :on-update:value="stageSelected" :value="selectedStageId">
                           <n-tab name="all">全部</n-tab>
                           <n-tab v-for="stage in stageList" :name="stage.id" :key="stage.id">
                               {{stage.name}}
@@ -150,7 +163,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                     </n-gi>
                     <n-gi :span="4">
                         <n-text depth="3">
-                            创建时间: {{moment(project.createTime).fromNow()}}
+                            创建时间: {{timeBefore(project.createTime)}}
                         </n-text>
                     </n-gi>
                     <n-gi :span="4">
@@ -186,13 +199,13 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                 <n-card embedded size="small">
                     <n-text class="font-700">项目阶段统计</n-text>
                     <n-grid :cols="3" class="mt-8px">
-                        <n-gi>
-                            <n-text class="list-item ml-20px text-1em text-gray">所有项目</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">{{total}}</n-text>
+                        <n-gi @click="stageSelected('all')">
+                            <n-text class="cursor-pointer list-item ml-20px text-1em text-gray" :type="selectedStageId == 'all' ? 'success' : 'default'">所有项目</n-text>
+                            <n-text tag="div" class="cursor-pointer font-500 text-2.5em w-full pl-20px" :type="selectedStageId == 'all' ? 'success' : 'default'">{{total}}</n-text>
                         </n-gi>
-                        <n-gi v-for="stage in stageList"  :key="stage.id">
-                            <n-text class="list-item ml-20px text-1em text-gray">{{ stage.name }}</n-text>
-                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">
+                        <n-gi v-for="stage in stageList" :key="stage.id" @click="stageSelected(stage.id)">
+                            <n-text class="cursor-pointer list-item ml-20px text-1em text-gray" :type="selectedStageId == stage.id ? 'success' : 'default'">{{ stage.name }}</n-text>
+                            <n-text tag="div" class="cursor-pointer font-500 text-2.5em w-full pl-20px" :type="selectedStageId == stage.id ? 'success' : 'default'">
                                 {{ findStageProjectCount(stage.id) }}
                             </n-text>
                         </n-gi>

@@ -2,7 +2,7 @@
 import {ref, reactive, computed, onMounted, h} from 'vue'
 import {type UserCondition, type User, getUserList, updateUser, addUser, deleteUser} from '../../../service/api/user'
 import {Search} from '@vicons/carbon'
-import moment from "moment";
+import dayjs from "dayjs";
 import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";
 const message = useMessage()
 const condition = ref<UserCondition>({
@@ -73,6 +73,15 @@ const statusColumn = reactive({
         }
     ]
 })
+const createTimeColumn = reactive({
+    title: '创建时间',
+    key: 'createTime',
+    // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
+    render: row => dayjs(row.createTime).fromNow(),
+    // 排序
+    sorter: true,
+    sortOrder: false,
+})
 const columns = [
     {
         title: '用户名',
@@ -93,12 +102,7 @@ const columns = [
         render: (row) => row.mobile?.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
     },
     statusColumn,
-    {
-        title: '创建时间',
-        key: 'createTime',
-        // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-        render: row => moment(row.createTime).fromNow()
-    },
+    createTimeColumn,
     {
         title: '操作',
         key: 'operation',
@@ -150,6 +154,16 @@ const handleFiltersChange = (filters) => {
         const filterValues = filters.status || []
         condition.value.status = filterValues[0] || 0
         refresh()
+    }
+}
+const handleSorterChange = (sorter) => {
+    if (!loading.value) {
+        const {columnKey, order} = sorter
+        if (columnKey === 'createTime') {
+            createTimeColumn.sortOrder = order
+            condition.value.orderBy = 'create_time ' + (order === 'ascend' ? 'asc' : 'desc')
+            refresh()
+        }
     }
 }
 const handleEditData = (row) => {
@@ -252,6 +266,7 @@ const rules = {
         }
     ]
 }
+
 </script>
 
 <template>
@@ -314,6 +329,7 @@ const rules = {
               :on-update:page="handlePageChange"
               :on-update:page-size="handlePageSizeChange"
               :on-update:filters="handleFiltersChange"
+              :on-update:sorter="handleSorterChange"
               :columns="columns" />
         </n-gi>
     </n-grid>

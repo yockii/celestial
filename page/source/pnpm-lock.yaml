@@ -7,9 +7,9 @@ dependencies:
   axios:
     specifier: ^1.4.0
     version: registry.npmmirror.com/axios@1.4.0
-  moment:
-    specifier: ^2.29.4
-    version: registry.npmmirror.com/moment@2.29.4
+  dayjs:
+    specifier: ^1.11.7
+    version: registry.npmmirror.com/dayjs@1.11.7
   normalize.css:
     specifier: ^8.0.1
     version: registry.npmmirror.com/normalize.css@8.0.1
@@ -1954,6 +1954,12 @@ packages:
       '@babel/runtime': registry.npmmirror.com/@babel/runtime@7.21.5
     dev: true
 
+  registry.npmmirror.com/dayjs@1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/dayjs/-/dayjs-1.11.7.tgz}
+    name: dayjs
+    version: 1.11.7
+    dev: false
+
   registry.npmmirror.com/de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/de-indent/-/de-indent-1.0.2.tgz}
     name: de-indent
@@ -3435,12 +3441,6 @@ packages:
       pkg-types: registry.npmmirror.com/pkg-types@1.0.3
       ufo: registry.npmmirror.com/ufo@1.1.2
     dev: true
-
-  registry.npmmirror.com/moment@2.29.4:
-    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/moment/-/moment-2.29.4.tgz}
-    name: moment
-    version: 2.29.4
-    dev: false
 
   registry.npmmirror.com/mrmime@1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/mrmime/-/mrmime-1.0.1.tgz}

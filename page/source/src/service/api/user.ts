@@ -20,6 +20,7 @@ export type UserCondition = {
     status: number;
     offset: number;
     limit: number;
+    orderBy?: string;
 }
 
 /**

@@ -5,7 +5,6 @@
 <script setup lang="ts">
 import {computed} from "vue"
 import {useMemStore} from "../../store/mem";
-import {useRoute} from "vue-router";
 import {useAppStore} from "../../store/app";
 
 const memStore = useMemStore()

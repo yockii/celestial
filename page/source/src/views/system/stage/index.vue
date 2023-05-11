@@ -2,7 +2,7 @@
 import {ref, reactive, computed, onMounted, h} from 'vue'
 import {type StageCondition, type Stage, getStageList, updateStage, addStage, deleteStage} from '../../../service/api/stage'
 import {Search} from '@vicons/carbon'
-import moment from "moment";
+import dayjs from "dayjs";
 import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";
 const message = useMessage()
 const condition = ref<StageCondition>({
@@ -84,7 +84,7 @@ const columns = [
         title: '创建时间',
         key: 'createTime',
         // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-        render: row => moment(row.createTime).fromNow()
+        render: row => dayjs(row.createTime).fromNow()
     },
     {
         title: '操作',

@@ -28,7 +28,7 @@ export class Request {
         this.instance.interceptors.request.use((config) => {
             const token = userStore.token
             if (token && token !== '') {
-                config.headers!.Authorization = 'Bearer ' + token;
+                config.headers.Authorization = 'Bearer ' + token;
             }
             return config;
         }, (error: any) => {
