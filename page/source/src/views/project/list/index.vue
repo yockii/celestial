@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import {ref, onMounted} from "vue";
-import {getProjectList} from "../../../service/api/project";
+import {getProjectList, addProject} from "../../../service/api/project";
 import type {Project,ProjectCondition} from "../../../service/api/project";
 import {Search} from "@vicons/carbon"
 import {getStageList, type Stage} from "../../../service/api/stage";
+import {NButton} from "naive-ui";
+import moment from "moment";
 
 const condition = ref<ProjectCondition>({
     offset: 0,
@@ -28,6 +30,43 @@ onMounted(() => {
     })
     refresh()
 })
+
+// 新建项目
+const drawerActive = ref(false)
+const newProject = ref<Project>({
+    id: "",
+    name: "",
+    code: "",
+    description: "",
+    stageId: "",
+    createTime: 0,
+})
+const projectRules = {
+    name: [
+        { required: true, message: '请输入项目名称', trigger: 'blur' },
+        { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+    ],
+    code: [
+        { required: true, message: '请输入项目代码', trigger: 'blur' },
+        { pattern: /^\D\w{2,19}$/, message: '长度在 3 到 20 个英文/数字/下划线，且不能以数字开头', trigger: 'blur' }
+    ]
+}
+const resetNewProject = () => {
+    newProject.value = {
+        id: "",
+        name: "",
+        code: "",
+        description: "",
+        stageId: "",
+        createTime: 0,
+    }
+}
+const handleCommitNewProject = () => {
+    addProject(newProject.value).then(res => {
+        drawerActive.value = false;
+        refresh();
+    })
+}
 </script>
 
 <template>
@@ -44,7 +83,7 @@ onMounted(() => {
                       </n-input>
                   </n-gi>
                   <n-gi :span="1" class="flex flex-justify-end">
-                      <n-button type="primary" >新建项目</n-button>
+                      <n-button type="primary" @click="drawerActive = true">新建项目</n-button>
                   </n-gi>
               </n-grid>
               <n-grid :cols="1">
@@ -59,7 +98,29 @@ onMounted(() => {
               </n-grid>
             </n-gi>
             <n-gi class="bg-gray-100 pa-8px" v-for="project in projectList" :key="project.id">
-                {{project.name}}
+                <n-grid :cols="20" x-gap="8" y-gap="8">
+                    <n-gi :span="12" class="font-bold text-lg">
+                        {{project.name}}
+                    </n-gi>
+                    <n-gi :span="8" class="flex flex-justify-end">
+                        <n-text depth="3">
+                            已用工时: 0小时
+                        </n-text>
+                    </n-gi>
+                    <n-gi :span="20">
+                        <n-ellipsis>{{project.description}}</n-ellipsis>
+                    </n-gi>
+                    <n-gi :span="4">
+                        <n-text depth="3">
+                            创建时间: {{moment(project.createTime).fromNow()}}
+                        </n-text>
+                    </n-gi>
+                    <n-gi :span="4">
+                        <n-text depth="3">
+                            当前阶段: {{project.stageId}}
+                        </n-text>
+                    </n-gi>
+                </n-grid>
             </n-gi>
         </n-grid>
       </n-gi>
@@ -67,6 +128,26 @@ onMounted(() => {
 
       </n-gi>
   </n-grid>
+
+  <n-drawer v-model:show="drawerActive" :width="401">
+      <n-drawer-content title="新建项目" closable>
+          <n-form ref="formRef" :model="newProject" :rules="projectRules" label-width="100px" label-placement="left">
+              <n-form-item label="项目名称" path="name">
+                  <n-input v-model:value="newProject.name" placeholder="请输入项目名称" />
+              </n-form-item>
+              <n-form-item label="项目代码" path="code">
+                  <n-input v-model:value="newProject.code" placeholder="请输入项目代码" />
+              </n-form-item>
+              <n-form-item label="项目描述" path="description">
+                  <n-input type="textarea" v-model:value="newProject.description" placeholder="请输入项目描述" />
+              </n-form-item>
+          </n-form>
+          <template #footer>
+              <n-button class="mr-a" @click="resetNewProject">重置</n-button>
+              <n-button type="primary" @click="handleCommitNewProject">提交</n-button>
+          </template>
+      </n-drawer-content>
+  </n-drawer>
 </template>
 
 <style scoped>

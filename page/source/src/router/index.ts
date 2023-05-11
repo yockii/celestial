@@ -13,6 +13,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/index",
     name: "Home",
+    alias: "/",
     component: Primary,
     redirect: {name: "Dashboard"},
     children: [

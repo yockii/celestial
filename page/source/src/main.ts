@@ -15,7 +15,7 @@ import 'animate.css'
 import 'virtual:svg-icons-register'
 import svgIcon from './components/SvgIcon.vue'
 import moment from "moment";
-
+import 'moment/dist/locale/zh-cn'
 moment.locale('zh-cn')
 
 const app = createApp(App)

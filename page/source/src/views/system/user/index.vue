@@ -322,16 +322,16 @@ const rules = {
         <n-drawer-content :title="drawerTitle" closable>
             <n-form ref="formRef" :model="checkedData" :rules="rules" label-width="100px" label-placement="left">
                 <n-form-item label="用户名" path="username">
-                    <n-input :disabled="isUpdate" v-model:value="checkedData.username" placeholder="用户名"/>
+                    <n-input :disabled="isUpdate" v-model:value="checkedData.username" placeholder="请输入用户名"/>
                 </n-form-item>
                 <n-form-item label="姓名" path="realName">
-                    <n-input v-model:value="checkedData.realName" placeholder="姓名"/>
+                    <n-input v-model:value="checkedData.realName" placeholder="请输入姓名"/>
                 </n-form-item>
                 <n-form-item label="邮箱" path="email">
-                    <n-input v-model:value="checkedData.email" placeholder="邮箱"/>
+                    <n-input v-model:value="checkedData.email" placeholder="请输入邮箱"/>
                 </n-form-item>
                 <n-form-item label="手机" path="mobile">
-                    <n-input v-model:value="checkedData.mobile" placeholder="手机"/>
+                    <n-input v-model:value="checkedData.mobile" placeholder="请输入手机"/>
                 </n-form-item>
                 <n-form-item v-if="isUpdate" label="状态" required>
                     <n-radio-group v-model:value="checkedData.status">
@@ -340,7 +340,7 @@ const rules = {
                     </n-radio-group>
                 </n-form-item>
                 <n-form-item v-if="!isUpdate" label="密码" path="password">
-                    <n-input type="password" show-password-on="mousedown" :minlength="5" v-model:value="checkedData.password" placeholder="密码"/>
+                    <n-input type="password" show-password-on="mousedown" :minlength="5" v-model:value="checkedData.password" placeholder="请输入密码"/>
                 </n-form-item>
             </n-form>
             <template #footer>
