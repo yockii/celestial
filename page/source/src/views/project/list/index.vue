@@ -67,9 +67,9 @@ const handleCommitNewProject = () => {
     })
 }
 // 项目参与人
-const projectMemberNames = (members: {username: string}[]) : {src:string}[] => {
+const projectMemberNames = (members: {id: string; username: string; realName: string}[]) : {src:string}[] => {
     return members ? members.map((item) => {
-        return {src: item.username}
+        return {src: item.realName}
     }): []
 }
 const createDropdownOptions = (options: Array<{ src:string }>) =>
@@ -86,7 +86,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
             <n-gi class="bg-gray-100 pa-16px !pb-0">
               <n-grid :cols="2">
                   <n-gi :span="1">
-                      <n-input v-model="condition.name" placeholder="输入项目名称进行搜索" @keydown.enter.prevent="refresh">
+                      <n-input v-model:value="condition.name" placeholder="输入项目名称进行搜索" @keydown.enter.prevent="refresh">
                           <template #suffix>
                               <n-icon :component="Search" class="cursor-pointer" @click="refresh"></n-icon>
                           </template>
@@ -131,7 +131,7 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                         </n-text>
                     </n-gi>
                     <n-gi :span="6" :offset="6" class="flex flex-justify-end">
-                        <n-avatar-group :options="projectMemberNames(project.members)" :size="40" :max="5">
+                        <n-avatar-group :options="projectMemberNames(project.members || [])" :size="24" :max="5">
                             <template #avatar="{ option: {src} }">
                                 <n-tooltip>
                                     <template #trigger>
@@ -146,14 +146,39 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                                 </n-dropdown>
                             </template>
                         </n-avatar-group>
-
                     </n-gi>
                 </n-grid>
             </n-gi>
         </n-grid>
       </n-gi>
-      <n-gi :span="2" class="bg-red h-200px">
-
+      <n-gi :span="2">
+        <n-grid :cols="1" y-gap="8">
+            <n-gi class="bg-gray-100 pa-8px">
+                <n-text class="font-700">项目统计</n-text>
+                <n-grid :cols="3" class="mt-8px">
+                    <n-gi>
+                        <n-text class="list-item ml-20px text-lg text-gray">所有项目</n-text>
+                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">{{total}}</n-text>
+                    </n-gi>
+                    <n-gi>
+                        <n-text class="list-item ml-20px text-lg text-gray">XX阶段</n-text>
+                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                    </n-gi>
+                    <n-gi>
+                        <n-text class="list-item ml-20px text-lg text-gray">YY阶段</n-text>
+                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                    </n-gi>
+                    <n-gi>
+                        <n-text class="list-item ml-20px text-lg text-gray">ZZ阶段</n-text>
+                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                    </n-gi>
+                    <n-gi>
+                        <n-text class="list-item ml-20px text-lg text-gray">AA阶段</n-text>
+                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                    </n-gi>
+                </n-grid>
+            </n-gi>
+        </n-grid>
       </n-gi>
   </n-grid>
 

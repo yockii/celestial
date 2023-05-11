@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/ruomu-core/server"
+	"sync"
 )
 
 var ProjectController = new(projectController)
@@ -166,19 +167,25 @@ func (_ *projectController) List(ctx *fiber.Ctx) error {
 
 	var resultList []*domain.ProjectWithMembers
 	// 获取关联数据
+	var wg sync.WaitGroup
 	for _, project := range list {
 		p := &domain.ProjectWithMembers{
 			Project: *project,
 		}
 		resultList = append(resultList, p)
-		// 获取项目成员
-		members, err := service.ProjectMemberService.ListLiteByProjectID(p.ID)
-		if err != nil {
-			logger.Errorln(err)
-			continue
-		}
-		p.Members = members
+		wg.Add(1)
+		go func(proj *domain.ProjectWithMembers) {
+			defer wg.Done()
+			// 获取项目成员
+			members, err := service.ProjectMemberService.ListLiteByProjectID(proj.ID)
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+			proj.Members = members
+		}(p)
 	}
+	wg.Wait()
 
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{

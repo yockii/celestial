@@ -10,7 +10,8 @@ export type Project = {
     createTime?: number;
     members?: {
         id:string;
-        username: string
+        username: string;
+        realName: string;
     };
 }
 export type ProjectCondition = {
