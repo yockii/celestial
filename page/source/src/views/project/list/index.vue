@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import {ref, onMounted} from "vue";
+import {ref, onMounted, computed} from "vue";
 import {getProjectList, addProject} from "../../../service/api/project";
 import type {Project,ProjectCondition} from "../../../service/api/project";
 import {Search} from "@vicons/carbon"
 import {getStageList, type Stage} from "../../../service/api/stage";
 import {NButton} from "naive-ui";
 import moment from "moment";
+import NameAvatar from "../../../components/NameAvatar.vue";
 
 const condition = ref<ProjectCondition>({
     offset: 0,
@@ -39,7 +40,6 @@ const newProject = ref<Project>({
     code: "",
     description: "",
     stageId: "",
-    createTime: 0,
 })
 const projectRules = {
     name: [
@@ -58,15 +58,25 @@ const resetNewProject = () => {
         code: "",
         description: "",
         stageId: "",
-        createTime: 0,
     }
 }
 const handleCommitNewProject = () => {
-    addProject(newProject.value).then(res => {
+    addProject(newProject.value).then((/* res */) => {
         drawerActive.value = false;
         refresh();
     })
 }
+// 项目参与人
+const projectMemberNames = (members: {username: string}[]) : {src:string}[] => {
+    return members ? members.map((item) => {
+        return {src: item.username}
+    }): []
+}
+const createDropdownOptions = (options: Array<{ src:string }>) =>
+    options.map((option) => ({
+    key: option.src,
+    label: option.src
+}))
 </script>
 
 <template>
@@ -119,6 +129,24 @@ const handleCommitNewProject = () => {
                         <n-text depth="3">
                             当前阶段: {{project.stageId}}
                         </n-text>
+                    </n-gi>
+                    <n-gi :span="6" :offset="6" class="flex flex-justify-end">
+                        <n-avatar-group :options="projectMemberNames(project.members)" :size="40" :max="5">
+                            <template #avatar="{ option: {src} }">
+                                <n-tooltip>
+                                    <template #trigger>
+                                        <name-avatar :name="src"  />
+                                    </template>
+                                    {{ src }}
+                                </n-tooltip>
+                            </template>
+                            <template #rest="{ options: restOptions, rest }">
+                                <n-dropdown :options="createDropdownOptions(restOptions)" placement="top">
+                                    <n-avatar>+{{ rest }}</n-avatar>
+                                </n-dropdown>
+                            </template>
+                        </n-avatar-group>
+
                     </n-gi>
                 </n-grid>
             </n-gi>

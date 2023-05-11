@@ -10,3 +10,9 @@ type ProjectMemberListRequest struct {
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ProjectMemberLite struct {
+	UserID   uint64 `json:"userId,string"`
+	Username string `json:"username"`
+	RealName string `json:"realName"`
+}

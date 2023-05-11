@@ -7,7 +7,11 @@ export type Project = {
     code: string;
     description: string;
     stageId: string;
-    createTime: number;
+    createTime?: number;
+    members?: {
+        id:string;
+        username: string
+    };
 }
 export type ProjectCondition = {
     name?: string;

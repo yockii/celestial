@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gomodule/redigo/redis"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/uc/domain"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
@@ -460,15 +461,8 @@ func (c *userController) UpdateSelf(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
-	// 获取当前登录的用户
-	uidStr, _ := ctx.Locals(shared.JwtClaimUserId).(string)
-	if uidStr == "" {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " user id",
-		})
-	}
-	uid, err := strconv.ParseUint(uidStr, 10, 64)
+	// 获取当前登录的用户ID
+	uid, err := helper.GetCurrentUserID(ctx)
 	if err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{

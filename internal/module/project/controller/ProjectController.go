@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -30,6 +31,18 @@ func (_ *projectController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " name",
 		})
 	}
+
+	// 当前登录用户作为项目拥有者
+	// 获取当前登录的用户ID
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	instance.OwnerID = uid
 
 	duplicated, success, err := service.ProjectService.Add(instance)
 	if err != nil {
@@ -150,10 +163,27 @@ func (_ *projectController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	var resultList []*domain.ProjectWithMembers
+	// 获取关联数据
+	for _, project := range list {
+		p := &domain.ProjectWithMembers{
+			Project: *project,
+		}
+		resultList = append(resultList, p)
+		// 获取项目成员
+		members, err := service.ProjectMemberService.ListLiteByProjectID(p.ID)
+		if err != nil {
+			logger.Errorln(err)
+			continue
+		}
+		p.Members = members
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,
-			Items:  list,
+			Items:  resultList,
 			Limit:  paginate.Limit,
 			Offset: paginate.Offset,
 		},

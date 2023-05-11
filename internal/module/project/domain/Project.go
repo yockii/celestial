@@ -11,3 +11,8 @@ type ProjectListRequest struct {
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ProjectWithMembers struct {
+	model.Project
+	Members []*ProjectMemberLite `json:"members"`
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -33,10 +34,23 @@ func (s *projectService) Add(instance *model.Project) (duplicated bool, success 
 
 	instance.ID = util.SnowflakeId()
 
-	if err = database.DB.Create(instance).Error; err != nil {
-		logger.Errorln(err)
-		return
-	}
+	// 事务处理
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Create(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 将创建者添加到项目成员中
+		if err = tx.Create(&model.ProjectMember{
+			ID:        util.SnowflakeId(),
+			ProjectID: instance.ID,
+			UserID:    instance.OwnerID,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	})
 	success = true
 	return
 }

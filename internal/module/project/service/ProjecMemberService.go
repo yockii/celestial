@@ -3,10 +3,13 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
+	userModel "github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -130,6 +133,24 @@ func (s *projectMemberService) Instance(id uint64) (instance *model.ProjectMembe
 	}
 	instance = &model.ProjectMember{}
 	if err = database.DB.Where(&model.ProjectMember{ID: id}).First(instance).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
+// ListLiteByProjectID 获取某项目的所有成员，仅获取id/username/realName字段信息
+func (s *projectMemberService) ListLiteByProjectID(projectID uint64) (list []*domain.ProjectMemberLite, err error) {
+	if projectID == 0 {
+		err = errors.New("projectID is required")
+		return
+	}
+	stmt := &gorm.Statement{DB: database.DB}
+	_ = stmt.Parse(&userModel.User{})
+	userTableName := stmt.Schema.Table
+	err = database.DB.Model(&model.ProjectMember{}).Select("user_id, username, real_name").
+		Joins("left join " + userTableName + " on user_id = " + userTableName + ".id").Where(&model.ProjectMember{ProjectID: projectID}).Scan(&list).Error
+	if err != nil {
 		logger.Errorln(err)
 		return
 	}
