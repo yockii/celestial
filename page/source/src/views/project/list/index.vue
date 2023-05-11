@@ -83,21 +83,22 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
   <n-grid x-gap="12" :cols="7">
       <n-gi :span="5">
         <n-grid :cols="1" y-gap="12">
-            <n-gi class="bg-gray-100 pa-16px !pb-0">
-              <n-grid :cols="2">
-                  <n-gi :span="1">
-                      <n-input v-model:value="condition.name" placeholder="输入项目名称进行搜索" @keydown.enter.prevent="refresh">
-                          <template #suffix>
-                              <n-icon :component="Search" class="cursor-pointer" @click="refresh"></n-icon>
-                          </template>
-                      </n-input>
-                  </n-gi>
-                  <n-gi :span="1" class="flex flex-justify-end">
-                      <n-button type="primary" @click="drawerActive = true">新建项目</n-button>
-                  </n-gi>
-              </n-grid>
-              <n-grid :cols="1">
-                  <n-gi>
+            <n-gi>
+                <n-card embedded size="small">
+                    <n-grid :cols="2">
+                      <n-gi :span="1">
+                          <n-input v-model:value="condition.name" placeholder="输入项目名称进行搜索" @keydown.enter.prevent="refresh">
+                              <template #suffix>
+                                  <n-icon :component="Search" class="cursor-pointer" @click="refresh"></n-icon>
+                              </template>
+                          </n-input>
+                      </n-gi>
+                      <n-gi :span="1" class="flex flex-justify-end">
+                          <n-button type="primary" @click="drawerActive = true">新建项目</n-button>
+                      </n-gi>
+                    </n-grid>
+                    <n-grid :cols="1">
+                  <n-gi style="margin-bottom: -12px;">
                       <n-tabs type="line">
                           <n-tab name="all">全部</n-tab>
                           <n-tab name="stage.id" v-for="stage in stageList" :key="stage.id">
@@ -106,9 +107,11 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                       </n-tabs>
                   </n-gi>
               </n-grid>
+                </n-card>
             </n-gi>
-            <n-gi class="bg-gray-100 pa-8px" v-for="project in projectList" :key="project.id">
-                <n-grid :cols="20" x-gap="8" y-gap="8">
+            <n-gi class="" v-for="project in projectList" :key="project.id">
+                <n-card embedded size="small">
+                    <n-grid :cols="20" x-gap="8" y-gap="8">
                     <n-gi :span="12" class="font-bold text-lg">
                         {{project.name}}
                     </n-gi>
@@ -148,35 +151,38 @@ const createDropdownOptions = (options: Array<{ src:string }>) =>
                         </n-avatar-group>
                     </n-gi>
                 </n-grid>
+                </n-card>
             </n-gi>
         </n-grid>
       </n-gi>
       <n-gi :span="2">
         <n-grid :cols="1" y-gap="8">
-            <n-gi class="bg-gray-100 pa-8px">
-                <n-text class="font-700">项目统计</n-text>
-                <n-grid :cols="3" class="mt-8px">
-                    <n-gi>
-                        <n-text class="list-item ml-20px text-lg text-gray">所有项目</n-text>
-                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">{{total}}</n-text>
-                    </n-gi>
-                    <n-gi>
-                        <n-text class="list-item ml-20px text-lg text-gray">XX阶段</n-text>
-                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                    </n-gi>
-                    <n-gi>
-                        <n-text class="list-item ml-20px text-lg text-gray">YY阶段</n-text>
-                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                    </n-gi>
-                    <n-gi>
-                        <n-text class="list-item ml-20px text-lg text-gray">ZZ阶段</n-text>
-                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                    </n-gi>
-                    <n-gi>
-                        <n-text class="list-item ml-20px text-lg text-gray">AA阶段</n-text>
-                        <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
-                    </n-gi>
-                </n-grid>
+            <n-gi class="">
+                <n-card embedded size="small">
+                    <n-text class="font-700">项目统计</n-text>
+                    <n-grid :cols="3" class="mt-8px">
+                        <n-gi>
+                            <n-text class="list-item ml-20px text-lg text-gray">所有项目</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">{{total}}</n-text>
+                        </n-gi>
+                        <n-gi>
+                            <n-text class="list-item ml-20px text-lg text-gray">XX阶段</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                        </n-gi>
+                        <n-gi>
+                            <n-text class="list-item ml-20px text-lg text-gray">YY阶段</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                        </n-gi>
+                        <n-gi>
+                            <n-text class="list-item ml-20px text-lg text-gray">ZZ阶段</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                        </n-gi>
+                        <n-gi>
+                            <n-text class="list-item ml-20px text-lg text-gray">AA阶段</n-text>
+                            <n-text tag="div" class="font-500 text-2.5em w-full pl-40px">0</n-text>
+                        </n-gi>
+                    </n-grid>
+                </n-card>
             </n-gi>
         </n-grid>
       </n-gi>
