@@ -6,8 +6,12 @@ import {MenuOption} from "naive-ui";
 import {renderLinkedLabel} from '../utils/Render'
 import {useAppStore} from "./app";
 
+// const TICKER_INTERVAL = 30 * 1000;
+// let tickerPointer:number;
+
 export const useMemStore = defineStore("mem", {
     state: () => ({
+        // now: new Date,
         menus: [
             {
             label: renderLinkedLabel("首页", "Dashboard", true),
@@ -88,5 +92,16 @@ export const useMemStore = defineStore("mem", {
         }
     },
     actions: {
+        // startTicker() {
+        //     if (!tickerPointer) {
+        //         tickerPointer = window.setInterval(() => {
+        //             this.now = new Date
+        //         }, TICKER_INTERVAL)
+        //     }
+        // },
+        // haltTicker() {
+        //     window.clearInterval(tickerPointer)
+        //     tickerPointer = 0
+        // }
     }
 })
