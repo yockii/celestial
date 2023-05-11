@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import {renderIcon} from "../utils/Render";
-import {Folders, Home, ToolKit, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
+import {SkillLevelIntermediate, Folders, Home, ToolKit, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
 import {ProjectOutlined} from "@vicons/antd";
 import {MenuOption} from "naive-ui";
 import {renderLinkedLabel} from '../utils/Render'
@@ -10,7 +10,7 @@ export const useMemStore = defineStore("mem", {
     state: () => ({
         menus: [
             {
-            label: renderLinkedLabel("首页", "Dashboard"),
+            label: renderLinkedLabel("首页", "Dashboard", true),
             key: "Home",
             icon: renderIcon(Home),
             children: [
@@ -22,7 +22,7 @@ export const useMemStore = defineStore("mem", {
             ]
         },
             {
-            label: renderLinkedLabel("项目", "ProjectList"),
+            label: renderLinkedLabel("项目", "ProjectList", true),
             key: "ProjectList",
             icon: renderIcon(ProjectOutlined)
         },
@@ -42,14 +42,19 @@ export const useMemStore = defineStore("mem", {
             icon: renderIcon(Folders)
         },
             {
-                label: renderLinkedLabel("系统", "User"),
+                label: renderLinkedLabel("系统", "User", true),
                 key: "System",
                 icon: renderIcon(SettingsServices),
                 children: [
                     {
-                        label: "用户管理",
+                        label: renderLinkedLabel("用户管理", "User"),
                         key: "User",
                         icon: renderIcon(UserMultiple)
+                    },
+                    {
+                        label: renderLinkedLabel("阶段管理", "Stage"),
+                        key: "Stage",
+                        icon: renderIcon(SkillLevelIntermediate)
                     }
                 ]
             }

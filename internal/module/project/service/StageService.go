@@ -51,6 +51,7 @@ func (s *stageService) Update(instance *model.Stage) (success bool, err error) {
 	err = database.DB.Where(&model.Stage{ID: instance.ID}).Updates(&model.Stage{
 		Name:     instance.Name,
 		OrderNum: instance.OrderNum,
+		Status:   instance.Status,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)

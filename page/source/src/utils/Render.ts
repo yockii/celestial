@@ -8,14 +8,19 @@ export function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
-export function renderLinkedLabel(menuName: string, routeName: string) {
+export function renderLinkedLabel(menuName: string, routeName: string, mainMenu = false) {
   return () => {
-      useAppStore().activeSubMenuKey = routeName
+
       return h(
           RouterLink,
           {
               to: {
                   name: routeName
+              },
+              onClick: () => {
+                  if (mainMenu) {
+                      useAppStore().activeSubMenuKey = routeName
+                  }
               }
           },
           {

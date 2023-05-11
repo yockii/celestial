@@ -7,8 +7,6 @@ import {computed} from "vue"
 import {useMemStore} from "../../store/mem";
 import {useRoute} from "vue-router";
 import {useAppStore} from "../../store/app";
-// const activeKey = ref<string>("")
-// const route = useRoute()
 
 const memStore = useMemStore()
 const appStore = useAppStore()

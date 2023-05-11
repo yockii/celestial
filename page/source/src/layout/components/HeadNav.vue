@@ -3,7 +3,7 @@
     <svg-icon name="logo" :style="{height: '26px', width: '40px', color: logoColor}"/>
     <span style="margin-left: 10px;">项目管理</span>
   </n-text>
-  <n-menu :value="activeKey" mode="horizontal" :options="menuOptions" :on-update:value="changeMainMenuKey"/>
+  <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">
     <n-switch size="small" :value="themeMode" :on-update:value="changeTheme">
       <template #checked>
@@ -45,11 +45,7 @@ const changeTheme = (value: boolean) => {
   appStore.setTheme(value ? "dark" : "light")
 }
 
-const activeKey = computed(() => appStore.activeMenuKey)
 const menuOptions: MenuOption[] = memStore.mainMenus
-const changeMainMenuKey = (key: string) => {
-    appStore.activeMenuKey = key
-}
 
 onMounted(() => {
   const hour = new Date().getHours()

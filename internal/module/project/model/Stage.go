@@ -24,7 +24,9 @@ func (s *Stage) UnmarshalJSON(b []byte) error {
 	s.ID = j.Get("id").Uint()
 	s.Name = j.Get("name").String()
 	s.OrderNum = int(j.Get("orderNum").Int())
-
+	s.Status = int(j.Get("status").Int())
+	s.CreateTime = j.Get("createTime").Int()
+	s.UpdateTime = j.Get("updateTime").Int()
 	return nil
 }
 

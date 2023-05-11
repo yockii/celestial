@@ -127,6 +127,9 @@ func (s *projectService) PaginateBetweenTimes(condition *model.Project, limit in
 		if condition.Code != "" {
 			tx = tx.Where("code like ?", "%"+condition.Code+"%")
 		}
+		if condition.ParentID == 0 {
+			tx = tx.Where("parent_id = ?", condition.ParentID)
+		}
 	}
 
 	err = tx.Find(&list, &model.Project{
