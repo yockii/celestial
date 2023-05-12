@@ -27,6 +27,6 @@ export const useUserStore = defineStore("user", {
   },
   persist: {
     key: "user",
-    storage: sessionStorage
+    storage: localStorage // sessionStorage
   }
 })

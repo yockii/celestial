@@ -150,8 +150,12 @@ const timeBefore = computed(() => (t) => dayjs(t).fromNow())
             <n-gi class="" v-for="project in projectList" :key="project.id">
                 <n-card embedded size="small">
                     <n-grid :cols="20" x-gap="8" y-gap="8">
-                    <n-gi :span="12" class="font-bold text-lg">
-                        {{project.name}}
+                    <n-gi :span="12">
+                        <router-link class="decoration-none" :to="{name: 'ProjectDetail', params: {id: project.id}}">
+                            <n-text type="success" class="font-bold text-lg">
+                            {{project.name}}
+                            </n-text>
+                        </router-link>
                     </n-gi>
                     <n-gi :span="8" class="flex flex-justify-end">
                         <n-text depth="3">

@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Avatar: typeof import('./src/components/Avatar.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    NA: typeof import('naive-ui')['NA']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NAvatarGroup: typeof import('naive-ui')['NAvatarGroup']

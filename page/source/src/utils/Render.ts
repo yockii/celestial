@@ -10,7 +10,6 @@ export function renderIcon(icon: Component) {
 
 export function renderLinkedLabel(menuName: string, routeName: string, mainMenu = false) {
   return () => {
-
       return h(
           RouterLink,
           {
