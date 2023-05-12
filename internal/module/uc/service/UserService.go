@@ -195,17 +195,28 @@ func (s *userService) Delete(id uint64) (success bool, err error) {
 	return
 }
 
-// RoleIds 获取用户的角色ID列表
-func (s *userService) RoleIds(userId uint64) (roleIds []uint64, err error) {
-	var list []*model.UserRole
-	err = database.DB.Where(&model.UserRole{UserID: userId}).Find(&list).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
-	for _, v := range list {
-		roleIds = append(roleIds, v.RoleID)
-	}
+// Roles 获取用户的角色列表
+func (s *userService) Roles(userId uint64) (roles []*model.Role, err error) {
+	// 获取用户ID对应的所有角色信息
+	sm := gorm.Statement{DB: database.DB}
+	_ = sm.Parse(&model.Role{})
+	ruleTableName := sm.Schema.Table
+	err = database.DB.Model(&model.UserRole{}).
+		Select(ruleTableName + ".*").
+		Joins("left join " + ruleTableName + " on " + ruleTableName + ".id = role_id").
+		Where(&model.UserRole{UserID: userId}).Scan(&roles).Error
+
+	//var list []*model.UserRole
+	//err = database.DB.Where(&model.UserRole{UserID: userId}).Find(&list).Error
+	//if err != nil {
+	//	logger.Errorln(err)
+	//	return
+	//}
+	//var roleIds []uint64
+	//for _, v := range list {
+	//	roleIds = append(roleIds, v.RoleID)
+	//}
+
 	return
 }
 

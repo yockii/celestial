@@ -30,12 +30,14 @@ func InitService() {
 
 	// 初始化一个超级管理员角色
 	superAdminRole := &model.Role{
-		ID:       constant.SuperAdminRoleId,
-		RoleType: -1,
+		ID:             constant.SuperAdminRoleId,
+		Type:           model.RoleTypeSuperAdmin,
+		DataPermission: model.RoleDataPermissionAll,
+		Status:         model.RoleStatusNormal,
 	}
 	{
 		if err := database.DB.Where(superAdminRole).Attrs(&model.Role{
-			RoleName: "超级管理员",
+			Name: "超级管理员",
 		}).FirstOrCreate(superAdminRole).Error; err != nil {
 			logger.Errorln(err)
 		}

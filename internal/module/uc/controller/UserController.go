@@ -160,12 +160,16 @@ func (c *userController) GetUserRoleIds(ctx *fiber.Ctx) error {
 		})
 	}
 	// 获取用户对应的权限和角色
-	roleIds, err := service.UserService.RoleIds(uid)
+	roles, err := service.UserService.Roles(uid)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+	var roleIds []string
+	for _, role := range roles {
+		roleIds = append(roleIds, strconv.FormatUint(role.ID, 10))
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: roleIds,

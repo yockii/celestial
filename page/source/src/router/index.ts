@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
 import { useUserStore } from "@/store/user"
 import { createDiscreteApi } from "naive-ui"
-import Primary from "@/layout/Primary.vue"
 const { loadingBar } = createDiscreteApi(["loadingBar"])
 
 const routes: Array<RouteRecordRaw> = [
@@ -14,7 +13,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/index",
     name: "Home",
     alias: "/",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     redirect: { name: "Dashboard" },
     children: [
       {
@@ -27,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/project",
     name: "Project",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
@@ -39,7 +38,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/task",
     name: "Task",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
@@ -51,7 +50,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/test",
     name: "Test",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
@@ -63,7 +62,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/asset",
     name: "Asset",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
@@ -75,12 +74,17 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/system",
     name: "System",
-    component: () => Primary,
+    component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "user",
         name: "User",
         component: () => import("@/views/system/user/index.vue")
+      },
+      {
+        path: "role",
+        name: "Role",
+        component: () => import("@/views/system/role/index.vue")
       },
       {
         path: "stage",

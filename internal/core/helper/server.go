@@ -3,6 +3,7 @@ package helper
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/uc/constant"
 	"github.com/yockii/ruomu-core/shared"
 	"strconv"
 )
@@ -19,4 +20,10 @@ func GetCurrentUserID(ctx *fiber.Ctx) (uint64, error) {
 		return 0, err
 	}
 	return uid, nil
+}
+
+func GetCurrentUserDataPermit(ctx *fiber.Ctx) (int, error) {
+	// 获取当前登录用户的数据权限
+	permit, _ := ctx.Locals(constant.JwtClaimUserDataPerm).(int)
+	return permit, nil
 }

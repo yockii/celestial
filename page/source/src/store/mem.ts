@@ -1,9 +1,9 @@
 import { defineStore } from "pinia"
-import {renderIcon} from "../utils/Render";
-import {SkillLevelIntermediate, Folders, Home, ToolKit, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
+import {renderIcon} from "@/utils/Render";
+import {IdManagement, SkillLevelIntermediate, Folders, Home, ToolKit, SettingsServices, TaskView, Dashboard, UserMultiple} from "@vicons/carbon";
 import {ProjectOutlined} from "@vicons/antd";
 import {MenuOption} from "naive-ui";
-import {renderLinkedLabel} from '../utils/Render'
+import {renderLinkedLabel} from '@/utils/Render'
 import {useAppStore} from "./app";
 
 // const TICKER_INTERVAL = 30 * 1000;
@@ -54,6 +54,11 @@ export const useMemStore = defineStore("mem", {
                         label: renderLinkedLabel("用户管理", "User"),
                         key: "User",
                         icon: renderIcon(UserMultiple)
+                    },
+                    {
+                        label: renderLinkedLabel("角色管理", "Role"),
+                        key: "Role",
+                        icon: renderIcon(IdManagement)
                     },
                     {
                         label: renderLinkedLabel("阶段管理", "Stage"),

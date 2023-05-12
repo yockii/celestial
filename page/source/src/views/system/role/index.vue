@@ -1,0 +1,431 @@
+<script setup lang="ts">
+import {ref, reactive, computed, onMounted, h} from 'vue'
+import {type RoleCondition, type Role, getRoleList, updateRole, addRole, deleteRole} from '@/service/api/role'
+import {Search} from '@vicons/carbon'
+import dayjs from "dayjs";
+import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";
+const message = useMessage()
+const condition = ref<RoleCondition>({
+    name: '',
+    dataPermission: 0,
+    type: 0,
+    status: 0,
+    offset: 0,
+    limit: 10
+})
+const list = ref<Role[]>([])
+const loading = ref(false)
+const refresh = () => {
+    loading.value = true
+    getRoleList(condition.value).then(res => {
+        list.value = res.items
+        paginationReactive.itemCount = res.total
+        paginationReactive.pageCount = Math.ceil(res.total / condition.value.limit)
+        paginationReactive.page = Math.ceil(condition.value.offset / condition.value.limit) + 1
+        statusColumn.filterOptionValues = [condition.value.status || 0]
+    }).finally(() => {
+        loading.value = false
+    })
+}
+
+const paginationReactive = reactive({
+    itemCount: 0,
+    page: 1,
+    pageCount: 1,
+    pageSize: 10,
+    prefix ({itemCount}) {
+        return `共${itemCount}条`
+    }
+})
+const handlePageChange = (page:number) => {
+    condition.value.offset = (page - 1) * condition.value.limit
+    refresh()
+}
+const handlePageSizeChange = (pageSize:number) => {
+    condition.value.limit = pageSize
+    refresh()
+}
+const statusColumn = reactive({
+    title: '状态',
+    key: 'status',
+    render: (row) => {
+        switch (row.status) {
+            case 1:
+                return '正常'
+            case 2:
+                return '禁用'
+            default:
+                return '未知'
+        }
+    },
+    filter: true,
+    filterMultiple: false,
+    filterOptionValues: [0],
+    filterOptions: [
+        {
+            label: '正常',
+            value: 1
+        },
+        {
+            label: '禁用',
+            value: 2
+        }
+    ]
+})
+const typeColumn = reactive({
+    title: '类型',
+    key: 'type',
+    render: (row) => {
+        switch (row.type) {
+            case 1:
+                return '普通'
+            case 2:
+                return '项目'
+            case -1:
+                return '超级管理员'
+            default:
+                return '未知'
+        }
+    },
+    filter: true,
+    filterMultiple: false,
+    filterOptionValues: [0],
+    filterOptions: [
+        {
+            label: '普通',
+            value: 1
+        },
+        {
+            label: '项目',
+            value: 2
+        },
+        {
+            label: '超级管理员',
+            value: -1
+        }
+    ]
+})
+const dataPermColumn = reactive({
+    title: '数据权限',
+    key: 'dataPermission',
+    render: (row) => {
+        switch (row.dataPermission) {
+            case 1:
+                return '所有数据'
+            case 2:
+                return '本级及子级数据'
+            case 3:
+                return '仅自己的数据'
+            default:
+                return '未知'
+        }
+    },
+    filter: true,
+    filterMultiple: false,
+    filterOptionValues: [0],
+    filterOptions: [
+        {
+            label: '所有数据',
+            value: 1
+        },
+        {
+            label: '本级及子级数据',
+            value: 2
+        },
+        {
+            label: '仅自己的数据',
+            value: 3
+        }
+    ]
+})
+// 排序字段
+const createTimeColumn = reactive({
+    title: '创建时间',
+    key: 'createTime',
+    // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
+    render: row => dayjs(row.createTime).fromNow(),
+    // 排序
+    sorter: true,
+    sortOrder: false,
+})
+const columns = [
+    {
+        title: '角色名称',
+        key: 'name',
+    },
+    typeColumn,
+    dataPermColumn,
+    statusColumn,
+    createTimeColumn,
+    {
+        title: '操作',
+        key: 'operation',
+        // 返回VNode, 用于渲染操作按钮
+        render: row => {
+            return h(
+                NButtonGroup,
+                {},
+                () => [
+                    h(
+                        NButton,
+                        {
+                            size: 'small',
+                            secondary: true,
+                            type: 'primary',
+                            onClick: () => handleEditData(row)
+                        },
+                        {
+                            default: () => '编辑'
+                        }
+                    ),
+                    h(
+                        NPopconfirm,
+                        {
+                            onPositiveClick: () => handleDeleteData(row.id)
+                        },
+                        {
+                            default: () => '确认删除',
+                            trigger: () => h(
+                                NButton,
+                                {
+                                    size: 'small',
+                                    disabled: row.username === 'admin',
+                                    type: 'error'
+                                },
+                                {
+                                    default: () => '删除'
+                                }
+                            )
+                        }
+                    )
+                ]
+            )
+        }
+    }
+]
+const handleFiltersChange = (filters) => {
+    if (!loading.value) {
+        const statusValues = filters.status || []
+        condition.value.status = statusValues[0] || 0
+        const typeValues = filters.type || []
+        condition.value.type = typeValues[0] || 0
+        const dpValues = filters.dataPermission || []
+        condition.value.dataPermission = dpValues[0] || 0
+        refresh()
+    }
+}
+
+const handleSorterChange = (sorter) => {
+    if (!loading.value) {
+        const {columnKey, order} = sorter
+        if (columnKey === 'createTime') {
+            createTimeColumn.sortOrder = order
+            condition.value.orderBy = 'create_time ' + (order === 'ascend' ? 'asc' : 'desc')
+            refresh()
+        }
+    }
+}
+const handleEditData = (row) => {
+    checkedData.value = Object.assign({}, row)
+    drawerActive.value = true
+}
+const handleDeleteData = (id) => {
+    deleteRole(id).then(res => {
+        message.success("删除成功")
+        refresh()
+    })
+}
+onMounted(() => {
+    refresh()
+})
+const resetRoleData = () => {
+    checkedData.value = {
+        dataPermission: 3,
+        desc: "",
+        type: 1,
+        id:"",
+        name: "",
+        status: 1
+    }
+}
+const handleAddRole = () => {
+    resetRoleData()
+    drawerActive.value = true
+}
+// 抽屉相关逻辑，用于新增/修改
+const drawerActive = ref(false)
+const isUpdate = computed(() => !!checkedData.value?.id)
+const drawerTitle = computed(() => isUpdate.value ? '修改用户' : '新增用户')
+const checkedData = ref<Role>({dataPermission: 0, desc: "", type: 0, id:"", status: 1, name: ""})
+const formRef = ref<FormInst | null>(null)
+const handleCommitData = () => {
+    formRef.value?.validate(errors => {
+        if (errors) {
+            return
+        }
+        if (isUpdate.value) {
+            // 更新数据
+            updateRole(checkedData.value).then(res => {
+                message.success("修改成功")
+                refresh()
+                drawerActive.value = false
+            })
+        } else {
+            // 新增数据
+            addRole(checkedData.value).then(res => {
+                message.success("新增成功")
+                refresh()
+                drawerActive.value = false
+            })
+        }
+    })
+}
+// 规则定义
+const rules = {
+    name: {
+        required: true,
+        message: "请输入角色名称",
+        min: 2,
+        max: 10,
+        trigger: "blur"
+    }
+}
+</script>
+
+<template>
+    <n-grid :cols="1" y-gap="8">
+        <n-gi>
+            <n-grid :cols="2">
+                <n-gi>
+                    <n-h3>角色管理</n-h3>
+                </n-gi>
+                <n-gi class="flex flex-justify-end">
+                    <n-button size="small" type="primary" @click="handleAddRole">新增角色</n-button>
+                </n-gi>
+            </n-grid>
+        </n-gi>
+        <n-gi>
+            <n-grid :cols="8" x-gap="8">
+                <n-gi :span="2">
+                    <n-input size="small" placeholder="角色名称" v-model:value="condition.name" @keydown.enter.prevent="refresh" />
+                </n-gi>
+                <n-gi>
+                    <!-- 类型条件 -->
+                    <n-select size="small" placeholder="类型" v-model:value="condition.type" @update:value="refresh"
+                      :options="[
+                        {
+                            label: '全部',
+                            value: 0
+                        },
+                        {
+                            label: '普通',
+                            value: 1
+                        },
+                        {
+                            label: '项目',
+                            value: 2
+                        },
+                        {
+                            label: '超级管理员',
+                            value: -1
+                        }
+                    ]">
+                    </n-select>
+                </n-gi>
+                <n-gi>
+                    <!-- 状态条件 -->
+                    <n-select size="small" placeholder="状态" v-model:value="condition.status" @update:value="refresh"
+                      :options="[
+                        {
+                            label: '全部',
+                            value: 0
+                        },
+                        {
+                            label: '正常',
+                            value: 1
+                        },
+                        {
+                            label: '禁用',
+                            value: 2
+                        }
+                    ]">
+                    </n-select>
+                </n-gi>
+
+              <n-gi :offset="3" class="flex flex-justify-end">
+                  <n-button size="small" @click="refresh">
+                      <template #icon>
+                          <n-icon><search /></n-icon>
+                      </template>
+                  </n-button>
+              </n-gi>
+            </n-grid>
+        </n-gi>
+        <n-gi>
+            <n-data-table
+              size="small"
+              remote
+              :data="list"
+              :loading="loading"
+              :row-key="row => row.id"
+              :pagination="paginationReactive"
+              :on-update:page="handlePageChange"
+              :on-update:page-size="handlePageSizeChange"
+              :on-update:filters="handleFiltersChange"
+              :columns="columns"
+              :on-update:sorter="handleSorterChange"
+            />
+        </n-gi>
+    </n-grid>
+
+    <n-drawer v-model:show="drawerActive" :width="401">
+        <n-drawer-content :title="drawerTitle" closable>
+            <n-form ref="formRef" :model="checkedData" :rules="rules" label-width="100px" label-placement="left">
+                <n-form-item label="角色名称" path="name">
+                    <n-input v-model:value="checkedData.name" placeholder="请输入角色名称"/>
+                </n-form-item>
+                <n-form-item label="描述" >
+                    <n-input type="textarea" v-model:value="checkedData.desc" placeholder="请输入描述信息"/>
+                </n-form-item>
+                <n-form-item label="类型" required>
+                    <n-select
+                        v-model:value="checkedData.type"
+                        :options="[{
+                            label: '普通',
+                            value: 1
+                        },
+                        {
+                            label: '项目',
+                            value: 2
+                        },
+                        {
+                            label: '超级管理员',
+                            value: -1
+                        }]"
+                    />
+                </n-form-item>
+                <n-form-item label="数据权限" required>
+                    <n-radio-group v-model:value="checkedData.dataPermission">
+                        <n-radio :value="1">所有数据</n-radio>
+                        <n-radio :value="2">本部门及以下</n-radio>
+                        <n-radio :value="3">仅本人</n-radio>
+                    </n-radio-group>
+                </n-form-item>
+                <n-form-item v-if="isUpdate" label="状态" required>
+                    <n-radio-group v-model:value="checkedData.status">
+                        <n-radio :value="1">正常</n-radio>
+                        <n-radio :value="2">禁用</n-radio>
+                    </n-radio-group>
+                </n-form-item>
+            </n-form>
+            <template #footer>
+                <n-button class="mr-a" v-if="!isUpdate" @click="resetRoleData">重置</n-button>
+                <n-button type="primary" @click="handleCommitData">提交</n-button>
+            </template>
+        </n-drawer-content>
+    </n-drawer>
+</template>
+
+<style scoped>
+
+</style>

@@ -58,7 +58,7 @@ func (_ *roleController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.RoleName == "" {
+	if instance.Name == "" {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " role name",

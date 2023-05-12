@@ -54,13 +54,13 @@ func (*UC) Initial(params map[string]string) error {
 
 	// 初始化一个超级管理员角色
 	superAdminRole := &model.Role{
-		RoleType: -1,
+		Type: -1,
 	}
 	{
 		if err := database.DB.First(superAdminRole).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				superAdminRole.ID = constant.SuperAdminRoleId
-				superAdminRole.RoleName = "超级管理员"
+				superAdminRole.Name = "超级管理员"
 				_ = database.DB.Create(superAdminRole)
 			} else {
 				logger.Errorln(err)

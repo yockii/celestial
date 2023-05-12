@@ -17,12 +17,12 @@ type roleService struct{}
 
 // Add 添加角色
 func (s *roleService) Add(instance *model.Role) (duplicated bool, success bool, err error) {
-	if instance.RoleName == "" {
+	if instance.Name == "" {
 		err = errors.New("roleName is required")
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.Role{}).Where(&model.Role{RoleName: instance.RoleName}).Count(&c).Error
+	err = database.DB.Model(&model.Role{}).Where(&model.Role{Name: instance.Name}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -33,8 +33,8 @@ func (s *roleService) Add(instance *model.Role) (duplicated bool, success bool, 
 	}
 
 	// 设置默认值
-	if instance.RoleType == 0 {
-		instance.RoleType = 1
+	if instance.Type == 0 {
+		instance.Type = 1
 	}
 
 	instance.ID = util.SnowflakeId()
@@ -55,9 +55,9 @@ func (s *roleService) Update(instance *model.Role) (success bool, err error) {
 		return
 	}
 	err = database.DB.Where(&model.Role{ID: instance.ID}).Updates(&model.Role{
-		RoleName: instance.RoleName,
-		RoleDesc: instance.RoleDesc,
-		RoleType: instance.RoleType,
+		Name: instance.Name,
+		Desc: instance.Desc,
+		Type: instance.Type,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -110,13 +110,15 @@ func (s *roleService) PaginateBetweenTimes(condition *model.Role, limit int, off
 
 	// 模糊查询
 	if condition != nil {
-		if condition.RoleName != "" {
-			tx = tx.Where("role_name like ?", "%"+condition.RoleName+"%")
+		if condition.Name != "" {
+			tx = tx.Where("role_name like ?", "%"+condition.Name+"%")
 		}
 	}
 	err = tx.Find(&list, &model.Role{
-		ID:       condition.ID,
-		RoleType: condition.RoleType,
+		ID:             condition.ID,
+		Type:           condition.Type,
+		DataPermission: condition.DataPermission,
+		Status:         condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
