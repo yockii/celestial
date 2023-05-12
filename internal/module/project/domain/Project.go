@@ -18,6 +18,6 @@ type ProjectWithMembers struct {
 }
 
 type ProjectCountByStage struct {
-	StageID uint64 `json:"stageId"`
+	StageID uint64 `json:"stageId,string"`
 	Count   int64  `json:"count"`
 }
