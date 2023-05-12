@@ -231,7 +231,9 @@ const handleEditData = (row) => {
 }
 const handleDeleteData = (id) => {
     deleteRole(id).then(res => {
-        message.success("删除成功")
+        if (res) {
+            message.success("删除成功")
+        }
         refresh()
     })
 }
@@ -255,10 +257,11 @@ const handleAddRole = () => {
 // 抽屉相关逻辑，用于新增/修改
 const drawerActive = ref(false)
 const isUpdate = computed(() => !!checkedData.value?.id)
-const drawerTitle = computed(() => isUpdate.value ? '修改用户' : '新增用户')
+const drawerTitle = computed(() => isUpdate.value ? '修改角色' : '新增角色')
 const checkedData = ref<Role>({dataPermission: 0, desc: "", type: 0, id:"", status: 1, name: ""})
 const formRef = ref<FormInst | null>(null)
 const handleCommitData = () => {
+    console.log(checkedData.value)
     formRef.value?.validate(errors => {
         if (errors) {
             return

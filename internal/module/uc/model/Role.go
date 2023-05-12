@@ -21,7 +21,7 @@ const (
 )
 
 type Role struct {
-	ID             uint64 `json:"ID,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	ID             uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	Name           string `json:"name,omitempty" gorm:"size:50;comment:角色名称"`
 	Desc           string `json:"desc,omitempty" gorm:"size:200;comment:角色描述"`
 	Type           int    `json:"type,omitempty" gorm:"comment:角色类型 1-普通角色 2-项目角色 -1-超级管理员角色"`

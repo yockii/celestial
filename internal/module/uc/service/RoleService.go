@@ -55,9 +55,11 @@ func (s *roleService) Update(instance *model.Role) (success bool, err error) {
 		return
 	}
 	err = database.DB.Where(&model.Role{ID: instance.ID}).Updates(&model.Role{
-		Name: instance.Name,
-		Desc: instance.Desc,
-		Type: instance.Type,
+		Name:           instance.Name,
+		Desc:           instance.Desc,
+		Type:           instance.Type,
+		DataPermission: instance.DataPermission,
+		Status:         instance.Status,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
