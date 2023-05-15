@@ -222,8 +222,11 @@ func (_ *projectController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	members, _ := service.ProjectMemberService.ListLiteByProjectID(instance.ID)
+
 	return ctx.JSON(&server.CommonResponse{
-		Data: instance,
+		Data: &domain.ProjectWithMembers{Project: *instance, Members: members},
 	})
 }
 

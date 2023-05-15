@@ -45,6 +45,14 @@ export function addProject(project: Project) {
 }
 
 /**
+ * 获取项目详情
+ * @param id - 项目id
+ */
+export function getProjectDetail(id: string) {
+    return request.get<Project>(`/project/instance?id=${id}`)
+}
+
+/**
  * 获取项目根据阶段统计信息
  */
 export function getProjectStageStatistics() {

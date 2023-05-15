@@ -7,7 +7,7 @@
       <n-layout-sider v-if="needSidebar" bordered :collapsed-width="60" :width="180" collapse-mode="width" :collapsed="collapsed" show-trigger @collapse="appStore.collapsed = true" @expand="appStore.collapsed = false">
         <Sider />
       </n-layout-sider>
-      <n-layout-content class="pa-16px">
+      <n-layout-content content-style="padding: 16px;">
         <RouterView />
       </n-layout-content>
     </n-layout>
