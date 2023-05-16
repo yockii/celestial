@@ -20,10 +20,14 @@ export default defineConfig({
     AutoImport({
       imports: [
         "vue",
+        "vue-router",
         {
           "naive-ui": ["useDialog", "useMessage", "useNotification", "useLoadingBar"]
         }
-      ]
+      ],
+      eslintrc: {
+        enabled: false,
+      }
     }),
     Components({
       resolvers: [NaiveUiResolver()]
