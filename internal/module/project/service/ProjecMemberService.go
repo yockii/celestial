@@ -148,7 +148,7 @@ func (s *projectMemberService) ListLiteByProjectID(projectID uint64) (list []*do
 	stmt := &gorm.Statement{DB: database.DB}
 	_ = stmt.Parse(&userModel.User{})
 	userTableName := stmt.Schema.Table
-	err = database.DB.Model(&model.ProjectMember{}).Select("user_id, username, real_name").
+	err = database.DB.Model(&model.ProjectMember{}).Select("user_id, username, real_name, role_id").
 		Joins("left join " + userTableName + " on user_id = " + userTableName + ".id").Where(&model.ProjectMember{ProjectID: projectID}).Scan(&list).Error
 	if err != nil {
 		logger.Errorln(err)

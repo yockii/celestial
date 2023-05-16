@@ -190,3 +190,34 @@ func (c *projectRiskController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+// CalculateRiskByProject 计算项目风险
+func (c *projectRiskController) CalculateRiskByProject(ctx *fiber.Ctx) error {
+	condition := new(model.ProjectRisk)
+	if err := ctx.QueryParser(condition); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if condition.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " projectId",
+		})
+	}
+	riskScore, maxRiskInfo, err := service.ProjectRiskService.CalculateRiskByProject(condition.ProjectID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: &domain.ProjectRiskCoefficient{
+			RiskCoefficient: riskScore,
+			MaxRisk:         maxRiskInfo,
+		},
+	})
+}

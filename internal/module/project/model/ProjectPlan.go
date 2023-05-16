@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ProjectPlanStatusAbandoned = -1
+	ProjectPlanStatusNotStart  = 1
+	ProjectPlanStatusStarted   = 2
+	ProjectPlanStatusFinished  = 3
+)
+
 type ProjectPlan struct {
 	ID           uint64          `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ProjectID    uint64          `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`

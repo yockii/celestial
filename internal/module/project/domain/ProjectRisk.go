@@ -13,3 +13,8 @@ type ProjectRiskListRisk struct {
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ProjectRiskCoefficient struct {
+	RiskCoefficient float64            `json:"riskCoefficient"`
+	MaxRisk         *model.ProjectRisk `json:"maxRisk,omitempty"`
+}

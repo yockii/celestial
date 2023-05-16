@@ -148,3 +148,39 @@ func (s *projectRiskService) Instance(id uint64) (instance *model.ProjectRisk, e
 	}
 	return
 }
+
+func (s *projectRiskService) CalculateRiskByProject(id uint64) (float64, *model.ProjectRisk, error) {
+	// 计算项目风险系数，将该项目下所有除了已解决的风险的 概率、影响、等级 乘积求和
+	var total float64
+	var list []*model.ProjectRisk
+	err := database.DB.Model(&model.ProjectRisk{}).Where("status <> ?", model.ProjectRiskStatusSolved).Where(&model.ProjectRisk{
+		ProjectID: id,
+	}).Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return total, nil, err
+	}
+	var maxRisk *model.ProjectRisk
+	for _, v := range list {
+		riskScore := float64(v.RiskProbability * v.RiskImpact * v.RiskLevel)
+		// 根据风险状态，计算风险系数
+		switch v.Status {
+		// 已识别的风险，分数系数设置为0.5
+		case model.ProjectRiskStatusIdentified:
+			riskScore = riskScore * 0.5
+		// 已应对的风险，分数系数设置为0.3
+		case model.ProjectRiskStatusResponded:
+			riskScore = riskScore * 0.3
+		// 已发生的风险，分数系数设置为1
+		case model.ProjectRiskStatusOccurred:
+			riskScore = riskScore * 1
+		default:
+			riskScore = 0
+		}
+		total += riskScore
+		if maxRisk == nil || (maxRisk.RiskProbability+maxRisk.RiskImpact+maxRisk.RiskLevel <= v.RiskProbability+v.RiskImpact+v.RiskLevel) {
+			maxRisk = v
+		}
+	}
+	return total, maxRisk, nil
+}

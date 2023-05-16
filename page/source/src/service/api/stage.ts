@@ -51,3 +51,13 @@ export function getStageList(condition: StageCondition) {
         params: condition
     })
 }
+
+/**
+ * 获取阶段详情
+ * @param id - 阶段id
+ */
+export function getStageDetail(id: string) {
+    return request.get<Stage>("stage/instance", {
+        params: {id}
+    })
+}

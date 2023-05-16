@@ -61,6 +61,7 @@ func InitRouter() {
 		projectPlan.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectPlanUpdate), ProjectPlanController.Update)
 		projectPlan.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectPlanList), ProjectPlanController.List)
 		projectPlan.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance), ProjectPlanController.Instance)
+		projectPlan.Get("/executing", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance), ProjectPlanController.ExecutingPlanByProject)
 
 		// 对于禁用put和delete方法时的处理
 		projectPlan.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectPlanDelete), ProjectPlanController.Delete)
@@ -117,6 +118,7 @@ func InitRouter() {
 		projectRisk.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
 		projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
 		projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
+		projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
 
 		// 对于禁用put和delete方法时的处理
 		projectRisk.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)

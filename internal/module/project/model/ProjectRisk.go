@@ -5,6 +5,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ProjectRiskStatusIdentified = 1
+	ProjectRiskStatusResponded  = 2
+	ProjectRiskStatusOccurred   = 3
+	ProjectRiskStatusSolved     = 4
+)
+
 type ProjectRisk struct {
 	ID              uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ProjectID       uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`

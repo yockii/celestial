@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -134,13 +135,16 @@ func (s *projectPlanService) PaginateBetweenTimes(condition *model.ProjectPlan, 
 }
 
 // Instance 获取资源实例
-func (s *projectPlanService) Instance(id uint64) (instance *model.ProjectPlan, err error) {
-	if id == 0 {
-		err = errors.New("id is required")
+func (s *projectPlanService) Instance(condition *model.ProjectPlan) (instance *model.ProjectPlan, err error) {
+	if condition.ID == 0 && (condition.ProjectID == 0 || condition.Status != model.ProjectPlanStatusStarted) {
+		err = errors.New("id is required or projectId with status started missing")
 		return
 	}
 	instance = &model.ProjectPlan{}
-	if err = database.DB.Where(&model.ProjectPlan{ID: id}).First(instance).Error; err != nil {
+	if err = database.DB.Where(condition).First(instance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		logger.Errorln(err)
 		return
 	}

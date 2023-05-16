@@ -15,4 +15,5 @@ type ProjectMemberLite struct {
 	UserID   uint64 `json:"userId,string"`
 	Username string `json:"username"`
 	RealName string `json:"realName"`
+	RoleID   uint64 `json:"roleID,string"`
 }

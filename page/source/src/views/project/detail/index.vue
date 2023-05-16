@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {useRoute} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import {ref, onMounted} from "vue";
 import {getProjectDetail, type Project} from '@/service/api/project'
 import {KeyboardBackspaceOutlined} from '@vicons/material'
 import Dashboard from './dashboard/index.vue'
+const router = useRouter()
 const id = useRoute().params.id as string
 const project = ref<Project | null>(null)
 const projectTab = ref<string>('项目总览')
@@ -20,7 +21,7 @@ onMounted(() => {
         <n-layout-header bordered class="h-48px py-4px px-20px">
             <n-grid :cols="24">
                 <n-gi :span="2" class="flex flex-items-center">
-                    <n-icon class="text-1.5em cursor-pointer">
+                    <n-icon class="text-1.5em cursor-pointer" @click="router.back()">
                         <KeyboardBackspaceOutlined />
                     </n-icon>
                     <n-button text icon-placement="right" class="text-1.2em ml-16px">
@@ -43,7 +44,7 @@ onMounted(() => {
             </n-grid>
         </n-layout-header>
         <n-layout-content content-style="margin: 16px;">
-            <dashboard v-if="projectTab == '项目总览'" :project="project" />
+            <dashboard v-if="project&&projectTab == '项目总览'  " :project="project" />
         </n-layout-content>
     </n-layout>
 </template>

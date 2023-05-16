@@ -179,7 +179,7 @@ func (c *projectPlanController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.ProjectPlanService.Instance(condition.ID)
+	dept, err := service.ProjectPlanService.Instance(condition)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -188,5 +188,34 @@ func (c *projectPlanController) Instance(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
+	})
+}
+
+// ExecutingPlanByProject 通过项目ID获取正在执行的计划
+func (c *projectPlanController) ExecutingPlanByProject(ctx *fiber.Ctx) error {
+	condition := new(model.ProjectPlan)
+	if err := ctx.QueryParser(condition); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if condition.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " projectId",
+		})
+	}
+	condition.Status = model.ProjectPlanStatusStarted
+	plan, err := service.ProjectPlanService.Instance(condition)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: plan,
 	})
 }
