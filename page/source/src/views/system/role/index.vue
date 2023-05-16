@@ -287,16 +287,20 @@ const handleCommitData = () => {
         if (isUpdate.value) {
             // 更新数据
             updateRole(checkedData.value).then(res => {
-                message.success("修改成功")
-                refresh()
-                drawerActive.value = false
+                if (res) {
+                    message.success("修改成功")
+                    refresh()
+                    drawerActive.value = false
+                }
             })
         } else {
             // 新增数据
             addRole(checkedData.value).then(res => {
-                message.success("新增成功")
-                refresh()
-                drawerActive.value = false
+                if (res) {
+                    message.success("新增成功")
+                    refresh()
+                    drawerActive.value = false
+                }
             })
         }
     })
@@ -409,9 +413,9 @@ const selectedThemeValue = computed(() => {
     // 返回bgColor的值在presetBgColors中的索引
     return presetBgColors.value.findIndex(item => item === bgColor.value)
 })
-const themeOptions = ref<Array<SelectOption | SelectGroupOption>>()
+const themeOptions = ref<Array<SelectOption | SelectGroupOption>>([])
 
-const themeRenderer = (option: SelectOption | SelectGroupOption):VNodeChild => {
+const themeRenderer = (option: (SelectOption | SelectGroupOption), selected: boolean) => {
     return [
         h(
             NTag,
