@@ -6,6 +6,7 @@ export type Role = {
     name: string;
     desc: string;
     type: number;
+    style?: string;
     dataPermission: number;
     status: number;
     createTime?: number;

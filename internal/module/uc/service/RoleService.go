@@ -60,6 +60,7 @@ func (s *roleService) Update(instance *model.Role) (success bool, err error) {
 		Type:           instance.Type,
 		DataPermission: instance.DataPermission,
 		Status:         instance.Status,
+		Style:          instance.Style,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)

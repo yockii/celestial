@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import {ref, reactive, computed, onMounted, h} from 'vue'
+import {ref, reactive, computed, onMounted, h, VNodeChild} from 'vue'
 import {type RoleCondition, type Role, getRoleList, updateRole, addRole, deleteRole} from '@/service/api/role'
 import {Search} from '@vicons/carbon'
 import dayjs from "dayjs";
-import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";
+import {
+    NTag,
+    NButtonGroup,
+    NButton,
+    NPopconfirm,
+    FormInst,
+    useMessage,
+    SelectOption,
+    SelectGroupOption
+} from "naive-ui";
 const message = useMessage()
 const condition = ref<RoleCondition>({
     name: '',
@@ -44,6 +53,21 @@ const handlePageChange = (page:number) => {
 const handlePageSizeChange = (pageSize:number) => {
     condition.value.limit = pageSize
     refresh()
+}
+const nameColumn = {
+    title: '角色名称',
+    key: 'name',
+    render: row => {
+        return h(
+            NTag,
+            {
+                color: row.style ? JSON.parse(row.style): undefined
+            },
+            {
+                default: () => row.name
+            }
+        )
+    }
 }
 const statusColumn = reactive({
     title: '状态',
@@ -149,10 +173,7 @@ const createTimeColumn = reactive({
     sortOrder: false,
 })
 const columns = [
-    {
-        title: '角色名称',
-        key: 'name',
-    },
+    nameColumn,
     typeColumn,
     dataPermColumn,
     statusColumn,
@@ -237,9 +258,6 @@ const handleDeleteData = (id) => {
         refresh()
     })
 }
-onMounted(() => {
-    refresh()
-})
 const resetRoleData = () => {
     checkedData.value = {
         dataPermission: 3,
@@ -293,6 +311,139 @@ const rules = {
         trigger: "blur"
     }
 }
+// 角色样式调色
+const presetBgColors = ref<string[]>([
+    "",
+    "rgba(245, 63, 63, .16)",
+    "rgba(246, 114, 52, .16)",
+    "rgba(247, 186, 31, .16)",
+    "rgba(159, 219, 29, .16)",
+    "rgba(53, 180, 42, .16)",
+    "rgba(65, 201, 201, .16)",
+    "rgba(53, 145, 250, .16)",
+    "rgba(153, 80, 255, .16)",
+    "rgba(217, 27, 217, .16)",
+    "rgba(245, 49, 157, .16)",
+    "rgba(134, 144, 156, .16)",
+])
+const presetTextColors = ref<string[]>([
+    "",
+    "rgba(245, 63, 63, 1)",
+    "rgba(246, 114, 52, 1)",
+    "rgba(247, 186, 31, 1)",
+    "rgba(159, 219, 29, 1)",
+    "rgba(53, 180, 42, 1)",
+    "rgba(65, 201, 201, 1)",
+    "rgba(53, 145, 250, 1)",
+    "rgba(153, 80, 255, 1)",
+    "rgba(217, 27, 217, 1)",
+    "rgba(245, 49, 157, 1)",
+    "rgba(134, 144, 156, 1)",
+])
+const presetBorderColors = ref<string[]>([
+    "",
+    "rgba(245, 63, 63, .6)",
+    "rgba(246, 114, 52, .6)",
+    "rgba(247, 186, 31, .6)",
+    "rgba(159, 219, 29, .6)",
+    "rgba(53, 180, 42, .6)",
+    "rgba(65, 201, 201, .6)",
+    "rgba(53, 145, 250, .6)",
+    "rgba(153, 80, 255, .6)",
+    "rgba(217, 27, 217, .6)",
+    "rgba(245, 49, 157, .6)",
+    "rgba(134, 144, 156, .6)",
+])
+const bgColor = computed({
+    get: () => {
+        if (checkedData.value?.style) {
+            return JSON.parse(checkedData.value.style).color
+        }
+        return ""
+    },
+    set: (val) => {
+        if (checkedData.value?.style) {
+            const sJson = JSON.parse(checkedData.value.style)
+            sJson.color = val
+            checkedData.value.style = JSON.stringify(sJson)
+        } else {
+            checkedData.value.style = JSON.stringify({color: val})
+        }
+    }
+})
+const textColor = computed({
+    get: () => {
+        if (checkedData.value?.style) {
+            return JSON.parse(checkedData.value.style).textColor
+        }
+        return ""
+    },
+    set: (val) => {
+        if (checkedData.value?.style) {
+            const sJson = JSON.parse(checkedData.value.style)
+            sJson.textColor = val
+            checkedData.value.style = JSON.stringify(sJson)
+        } else {
+            checkedData.value.style = JSON.stringify({textColor: val})
+        }
+    }
+})
+const borderColor = computed({
+    get: () => {
+        if (checkedData.value?.style) {
+            return JSON.parse(checkedData.value.style).borderColor
+        }
+        return ""
+    },
+    set: (val) => {
+        if (checkedData.value?.style) {
+            const sJson = JSON.parse(checkedData.value.style)
+            sJson.borderColor = val
+            checkedData.value.style = JSON.stringify(sJson)
+        } else {
+            checkedData.value.style = JSON.stringify({borderColor: val})
+        }
+    }
+})
+const selectedThemeValue = computed(() => {
+    // 返回bgColor的值在presetBgColors中的索引
+    return presetBgColors.value.findIndex(item => item === bgColor.value)
+})
+const themeOptions = ref<Array<SelectOption | SelectGroupOption>>()
+
+const themeRenderer = (option: SelectOption | SelectGroupOption):VNodeChild => {
+    return [
+        h(
+            NTag,
+            {
+                color: {
+                    color: presetBgColors.value[option.value as number],
+                    textColor: presetTextColors.value[option.value as number],
+                    borderColor: presetBorderColors.value[option.value as number]
+                }
+            },
+
+            {default: () => "示例"}
+        ),
+    ]
+}
+const changeTheme = (value: number) => {
+    bgColor.value = presetBgColors.value[value]
+    textColor.value = presetTextColors.value[value]
+    borderColor.value = presetBorderColors.value[value]
+}
+
+onMounted(() => {
+    // 给themeOptions赋值, 将presetBgColors转换为SelectOption数组
+    themeOptions.value = presetBgColors.value.map((item, index) => {
+        return {
+            label: item,
+            value: index
+        }
+    })
+
+    refresh()
+})
 </script>
 
 <template>
@@ -419,6 +570,18 @@ const rules = {
                         <n-radio :value="1">正常</n-radio>
                         <n-radio :value="2">禁用</n-radio>
                     </n-radio-group>
+                </n-form-item>
+                <n-form-item label="主题样式">
+                    <n-select :value="selectedThemeValue" :options="themeOptions" :render-label="themeRenderer" @update:value="changeTheme"/>
+                </n-form-item>
+                <n-form-item label="背景色">
+                    <n-color-picker v-model:value="bgColor" :swatches="presetBgColors"/>
+                </n-form-item>
+                <n-form-item label="文字色">
+                    <n-color-picker v-model:value="textColor" :swatches="presetTextColors"/>
+                </n-form-item>
+                <n-form-item label="边框色">
+                    <n-color-picker v-model:value="borderColor" :swatches="presetBorderColors"/>
                 </n-form-item>
             </n-form>
             <template #footer>
