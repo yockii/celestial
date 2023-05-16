@@ -156,3 +156,82 @@ func (s *projectMemberService) ListLiteByProjectID(projectID uint64) (list []*do
 	}
 	return
 }
+
+// BatchAdd 批量添加项目成员
+func (s *projectMemberService) BatchAdd(projectID uint64, roleIdList []uint64, userIdList []uint64) error {
+	if len(roleIdList) == 0 || len(userIdList) == 0 {
+		return errors.New("roleIdList and userIdList is required")
+	}
+	var projectMemberList []*model.ProjectMember
+	if len(roleIdList) == 1 {
+		roleId := roleIdList[0]
+		// 事务处理，先删除该项目该角色所有用户
+		err := database.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Where(&model.ProjectMember{ProjectID: projectID, RoleID: roleId}).Delete(&model.ProjectMember{}).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			for _, userId := range userIdList {
+				projectMemberList = append(projectMemberList, &model.ProjectMember{
+					ID:        util.SnowflakeId(),
+					ProjectID: projectID,
+					UserID:    userId,
+					RoleID:    roleId,
+				})
+			}
+			if err := tx.Create(projectMemberList).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		})
+		return err
+	} else if len(userIdList) == 1 {
+		userId := userIdList[0]
+		// 事务处理，删除该项目该用户的所有角色
+		err := database.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Where(&model.ProjectMember{ProjectID: projectID, UserID: userId}).Delete(&model.ProjectMember{}).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			for _, roleId := range roleIdList {
+				projectMemberList = append(projectMemberList, &model.ProjectMember{
+					ID:        util.SnowflakeId(),
+					ProjectID: projectID,
+					UserID:    userId,
+					RoleID:    roleId,
+				})
+			}
+			if err := tx.Create(projectMemberList).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		})
+		return err
+	} else {
+		// 事务，删除项目所有用户角色，重新关联
+		err := database.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Where(&model.ProjectMember{ProjectID: projectID}).Delete(&model.ProjectMember{}).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			for _, roleId := range roleIdList {
+				for _, userId := range userIdList {
+					projectMemberList = append(projectMemberList, &model.ProjectMember{
+						ID:        util.SnowflakeId(),
+						ProjectID: projectID,
+						UserID:    userId,
+						RoleID:    roleId,
+					})
+				}
+			}
+			if err := tx.Create(projectMemberList).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		})
+		return err
+	}
+}

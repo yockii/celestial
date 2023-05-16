@@ -155,8 +155,12 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 
 	// 模糊查找
 	if condition.Username != "" {
-		tx.Where("username like ?", condition.Username+"%")
+		tx.Where("username like ?", "%"+condition.Username+"%")
 		condition.Username = ""
+	}
+	if condition.RealName != "" {
+		tx.Where("real_name like ?", "%"+condition.RealName+"%")
+		condition.RealName = ""
 	}
 	err = tx.Omit("password").Find(&list, condition).Limit(-1).Offset(-1).Count(&total).Error
 	if err != nil {

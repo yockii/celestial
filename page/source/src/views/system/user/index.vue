@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref, reactive, computed, onMounted, h} from 'vue'
-import {type UserCondition, type User, getUserList, updateUser, addUser, deleteUser} from '../../../service/api/user'
+import {type UserCondition, type User, getUserList, updateUser, addUser, deleteUser} from '@/service/api/user'
 import {Search} from '@vicons/carbon'
 import dayjs from "dayjs";
 import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";
@@ -172,8 +172,10 @@ const handleEditData = (row) => {
 }
 const handleDeleteData = (id) => {
     deleteUser(id).then(res => {
-        message.success("删除成功")
-        refresh()
+        if(res) {
+            message.success("删除成功")
+            refresh()
+        }
     })
 }
 onMounted(() => {
@@ -200,16 +202,20 @@ const handleCommitData = () => {
         if (isUpdate.value) {
             // 更新数据
             updateUser(checkedData.value).then(res => {
-                message.success("修改成功")
-                refresh()
-                drawerActive.value = false
+               if (res) {
+                   message.success("修改成功")
+                   refresh()
+                   drawerActive.value = false
+               }
             })
         } else {
             // 新增数据
             addUser(checkedData.value).then(res => {
-                message.success("新增成功")
-                refresh()
-                drawerActive.value = false
+                if (res) {
+                    message.success("新增成功")
+                    refresh()
+                    drawerActive.value = false
+                }
             })
         }
     })

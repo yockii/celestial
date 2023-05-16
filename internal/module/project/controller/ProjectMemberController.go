@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/ruomu-core/server"
+	"strconv"
 )
 
 var ProjectMemberController = new(projectMemberController)
@@ -52,6 +53,35 @@ func (c *projectMemberController) Add(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
+	})
+}
+
+// BatchAdd 批量添加
+func (c *projectMemberController) BatchAdd(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectMemberBatchAddRequest)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if len(instance.RoleIdList) == 0 || len(instance.UserIdList) == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " roleIdList/userIdList",
+		})
+	}
+	// service处理
+	err := service.ProjectMemberService.BatchAdd(instance.ProjectID, instance.RoleIdList, instance.UserIdList)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: true,
 	})
 }
 
@@ -117,6 +147,39 @@ func (c *projectMemberController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
+// ListLiteByProjectId 根据projectId获取列表
+func (c *projectMemberController) ListLiteByProjectId(ctx *fiber.Ctx) error {
+	projectIdStr := ctx.Query("projectId")
+	projectID, err := strconv.ParseUint(projectIdStr, 10, 64)
+	if err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + " projectID",
+		})
+	}
+
+	// 处理必填
+	if projectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " projectID",
+		})
+	}
+
+	list, err := service.ProjectMemberService.ListLiteByProjectID(projectID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}
+
 func (c *projectMemberController) List(ctx *fiber.Ctx) error {
 	instance := new(domain.ProjectMemberListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
@@ -151,6 +214,7 @@ func (c *projectMemberController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,

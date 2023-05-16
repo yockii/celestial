@@ -44,7 +44,9 @@ onMounted(() => {
             </n-grid>
         </n-layout-header>
         <n-layout-content content-style="margin: 16px;">
-            <dashboard v-if="project&&projectTab == '项目总览'  " :project="project" />
+            <keep-alive>
+                <dashboard v-if="project&&projectTab == '项目总览'  " :project="project" />
+            </keep-alive>
         </n-layout-content>
     </n-layout>
 </template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 
-import {Project} from "@/service/api/project";
+import {getProjectMembers, Project} from "@/service/api/project";
 import {getProjectRiskCoefficient, ProjectRiskCoefficient} from "@/service/api/projectRisk";
 import {getStageDetail, Stage} from "@/service/api/stage";
 import {getExecutingProjectPlanByProjectId, ProjectPlan} from "@/service/api/projectPlan";
 import {getRoleList, Role} from "@/service/api/role";
+import Members from "./members/index.vue"
 
 const props = defineProps<{
     project: Project | null
@@ -38,6 +39,15 @@ const projectStage = ref<Stage>({})
 // 项目角色信息 //////////////////////////////
 const projectRoles = ref<Role[]>([])
 
+// 项目成员信息 //////////////////////////////
+const refreshProjectMembers = () => {
+    if (props.project) {
+        getProjectMembers(props.project.id as string).then(res => {
+            props.project!.members = res
+        })
+    }
+}
+
 onMounted(() => {
     // 加载所有项目角色
     getRoleList({
@@ -69,17 +79,20 @@ onMounted(() => {
         <n-gi>
           <n-grid :cols="3" x-gap="1">
               <n-gi>
-                  <n-card embedded size="small" :title="project?.name" class="h-120px">
-                        <n-ellipsis :line-clamp="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{project?.description}}</n-ellipsis>
+                  <n-card embedded size="small" class="h-120px">
+                    <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">{{ project?.name }}</n-text>
+                    <n-ellipsis :line-clamp="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{project?.description}}</n-ellipsis>
                   </n-card>
               </n-gi>
               <n-gi>
-                  <n-card embedded size="small" title="健康度" class="h-120px">
+                  <n-card embedded size="small" class="h-120px">
+                      <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">健康度</n-text>
                       <n-text :type="riskType" class="text-2.5em">{{soh}} %</n-text>
                   </n-card>
               </n-gi>
               <n-gi>
-                  <n-card embedded size="small" title="当前阶段" class="h-120px">
+                  <n-card embedded size="small" class="h-120px">
+                      <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">当前阶段</n-text>
                     {{projectStage.name || "未建立项目计划"}}
                   </n-card>
               </n-gi>
@@ -88,12 +101,13 @@ onMounted(() => {
         <n-gi>
             <n-grid :cols="2" x-gap="16">
                 <n-gi>
-                    <n-card embedded size="small" title="项目组成员" class="h-120px">
-
+                    <n-card embedded size="small" class="h-160px">
+                        <members :members="project?.members || []" :roles="projectRoles || []"  :project="project || {}" @project-member-changed="refreshProjectMembers"/>
                     </n-card>
                 </n-gi>
                 <n-gi>
-                    <n-card embedded size="small" title="工作填报" class="h-120px">
+                    <n-card embedded size="small" class="h-160px">
+                        <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">工作填报</n-text>
 
                     </n-card>
                 </n-gi>

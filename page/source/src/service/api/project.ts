@@ -1,6 +1,13 @@
 import {request} from "../request";
 import type {Paginate} from "../request/request"
 
+export type ProjectMember = {
+    userId:string;
+    username: string;
+    realName: string;
+    roleId: string;
+}
+
 export type Project = {
     id: string;
     name: string;
@@ -8,11 +15,7 @@ export type Project = {
     description: string;
     stageId: string;
     createTime?: number;
-    members?: {
-        id:string;
-        username: string;
-        realName: string;
-    }[];
+    members?: ProjectMember[];
 }
 export type ProjectCondition = {
     name: string;
@@ -57,4 +60,30 @@ export function getProjectDetail(id: string) {
  */
 export function getProjectStageStatistics() {
     return request.get<ProjectStageStatistics[]>("/project/statisticsByStage")
+}
+
+/**
+ * 批量添加项目成员
+ * @param projectId - 项目id
+ * @param roleIdList - 用户id列表
+ * @param userIdList - 角色id列表
+ */
+export function addProjectMembers(projectId: string, roleIdList: string[], userIdList: string[]) {
+    return request.post<boolean>("/projectMember/batchAdd", {
+        projectId,
+        roleIdList,
+        userIdList
+    })
+}
+
+/**
+ * 获取项目成员
+ * @param projectId - 项目id
+ */
+export function getProjectMembers(projectId: string) {
+    return request.get<ProjectMember[]>("/projectMember/listByProject", {
+        params: {
+            projectId
+        }
+    })
 }

@@ -43,9 +43,11 @@ func InitRouter() {
 	{
 		projectMember := server.Group("/api/v1/projectMember")
 		projectMember.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectMemberAdd), ProjectMemberController.Add)
+		projectMember.Post("/batchAdd", middleware.NeedAuthorization(constant.ResourceProjectAdd), ProjectMemberController.BatchAdd)
 		projectMember.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectMemberDelete), ProjectMemberController.Delete)
 		projectMember.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectMemberUpdate), ProjectMemberController.Update)
 		projectMember.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.List)
+		projectMember.Get("/listByProject", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.ListLiteByProjectId)
 		projectMember.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectMemberInstance), ProjectMemberController.Instance)
 
 		// 对于禁用put和delete方法时的处理
