@@ -10,6 +10,7 @@ type ProjectTask struct {
 	ProjectID        uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
 	RequirementID    uint64         `json:"requirementId,omitempty,string" gorm:"index;comment:关联的需求ID"`
 	StageID          uint64         `json:"stageId,omitempty,string" gorm:"index;comment:阶段ID"`
+	ModuleID         uint64         `json:"moduleId,omitempty,string" gorm:"index;comment:模块ID"`
 	ParentID         uint64         `json:"parentId,omitempty,string" gorm:"index;comment:父任务ID"`
 	TaskName         string         `json:"taskName,omitempty" gorm:"comment:任务名称"`
 	StartTime        int64          `json:"startTime,omitempty" gorm:"comment:开始时间"`
@@ -38,6 +39,7 @@ func (pt *ProjectTask) UnmarshalJSON(b []byte) error {
 	pt.ProjectID = j.Get("projectId").Uint()
 	pt.Priority = int(j.Get("priority").Int())
 	pt.StageID = j.Get("stageId").Uint()
+	pt.ModuleID = j.Get("moduleId").Uint()
 	pt.OwnerID = j.Get("ownerId").Uint()
 	pt.ParentID = j.Get("parentId").Uint()
 	pt.TaskName = j.Get("taskName").String()
