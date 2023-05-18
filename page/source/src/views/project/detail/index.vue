@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from 'vue-router'
 import {ref, onMounted} from "vue";
-import {deleteProject, getProjectDetail, type Project, updateProject} from '@/service/api/project'
+import {Project} from "@/types/project"
+import {deleteProject, getProjectDetail, updateProject} from '@/service/api/project'
 import {KeyboardBackspaceOutlined} from '@vicons/material'
 import Dashboard from './dashboard/index.vue'
 import Plan from './plan/index.vue'

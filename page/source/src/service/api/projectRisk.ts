@@ -1,27 +1,6 @@
 import {request} from "../request";
 import type {Paginate} from "../request/request"
-
-export type ProjectRisk = {
-    id: string;
-    projectId: string;
-    stageId: string;
-    riskName: string;
-    riskProbability: number;
-    riskImpact: number;
-    riskLevel: number;
-    status: number;
-    response: string;
-    startTime: number;
-    endTime: number;
-    result: string;
-    createTime?: number;
-}
-export type ProjectRiskCondition = {
-    name: string;
-    stageId: string;
-    offset?: number;
-    limit?: number;
-}
+import {ProjectRisk, ProjectRiskCondition} from "@/types/project"
 
 /**
  * 获取项目风险列表

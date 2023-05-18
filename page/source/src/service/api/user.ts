@@ -1,27 +1,6 @@
 import {request} from "../request";
-import {Paginate} from "../request/request";
-
-export type User = {
-    id: string;
-    username: string;
-    realName: string;
-    password: string;
-    email: string;
-    mobile: string;
-    status: number;
-    createTime: number;
-}
-
-export type UserCondition = {
-    username: string;
-    realName: string;
-    email: string;
-    mobile: string;
-    status: number;
-    offset: number;
-    limit: number;
-    orderBy?: string;
-}
+import {Paginate} from "@/types/common";
+import {User, UserCondition} from "@/types/user";
 
 /**
  * 用户列表

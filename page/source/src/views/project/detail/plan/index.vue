@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Project} from "@/service/api/project";
+import {ProjectPlan, ProjectPlanCondition,Project} from "@/types/project";
 import {computed, h, reactive, ref} from "vue";
 import dayjs from "dayjs";
 import {FormInst, FormItemRule, NButton, NButtonGroup, NGrid, NGridItem, NPopconfirm} from "naive-ui";
@@ -7,13 +7,18 @@ import {
   addProjectPlan,
   deleteProjectPlan,
   getProjectPlanList,
-  ProjectPlan,
-  ProjectPlanCondition, updateProjectPlan
+  updateProjectPlan
 } from "@/service/api/projectPlan";
+import {useProjectStore} from "@/store/project";
+import {storeToRefs} from "pinia";
 
 const props = defineProps<{
   project: Project
 }>()
+
+const projectStore = useProjectStore()
+const {stageList, stageListWithNone} = storeToRefs(projectStore)
+
 
 const expandColumn = reactive({
   key: "expand",
@@ -361,7 +366,13 @@ onMounted(() => {
           </n-gi>
           <n-gi>
             <n-form-item label="所处阶段：">
-              <n-input  v-model:value="instance.stageId" placeholder="阶段"/>
+                <n-select
+                    v-model:value="instance.stageId"
+                    placeholder="请选择项目阶段"
+                    :options="stageListWithNone"
+                    label-field="name"
+                    value-field="id"
+                />
             </n-form-item>
           </n-gi>
           <n-gi>

@@ -1,20 +1,9 @@
 import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
-import {useUserStore} from "../../store/user";
+import {useUserStore} from "@/store/user";
 import {createDiscreteApi} from "naive-ui";
+import {Result} from "@/types/common";
 const {message} = createDiscreteApi(['message']);
 
-type Result<T> = {
-    code: number;
-    msg: string;
-    data: T;
-}
-
-export type Paginate<T> = {
-    total: number;
-    items: T[];
-}
-
-const userStore = useUserStore();
 export class Request {
     instance: AxiosInstance;
     baseConfig: AxiosRequestConfig = {
@@ -26,7 +15,7 @@ export class Request {
         this.instance = axios.create(Object.assign(this.baseConfig, config));
 
         this.instance.interceptors.request.use((config) => {
-            const token = userStore.token
+            const token = useUserStore().token
             if (token && token !== '') {
                 config.headers.Authorization = 'Bearer ' + token;
             }

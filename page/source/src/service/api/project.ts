@@ -1,33 +1,6 @@
 import {request} from "../request";
-import type {Paginate} from "../request/request"
-
-export type ProjectMember = {
-    userId:string;
-    username: string;
-    realName: string;
-    roleId: string;
-}
-
-export type Project = {
-    id: string;
-    name: string;
-    code: string;
-    description: string;
-    stageId: string;
-    createTime?: number;
-    members?: ProjectMember[];
-}
-export type ProjectCondition = {
-    name: string;
-    stageId: string;
-    offset?: number;
-    limit?: number;
-}
-
-export type ProjectStageStatistics = {
-    stageId: string;
-    count: number;
-}
+import type {Paginate} from "@/types/common"
+import {Project, ProjectCondition, ProjectStageStatistics, ProjectMember} from "@/types/project"
 
 /**
  * 获取项目列表

@@ -1,34 +1,6 @@
 import {request} from "../request";
-import type {Paginate} from "../request/request"
-
-export type ProjectPlan = {
-    id: string;
-    projectId: string;
-    stageId?: string;
-    planName: string;
-    planDesc?: number;
-    startTime: number;
-    endTime: number;
-    target?: string;
-    scope?: string;
-    schedule?: string;
-    resource?: string;
-    budget?: number;
-    status: number;
-    actualStartTime?: number;
-    actualEndTime?: number;
-    createTime?: number;
-    updateTime?: number;
-}
-export type ProjectPlanCondition = {
-    projectId: string;
-    planName?: string;
-    stageId?: string;
-    status?: number;
-    offset?: number;
-    limit?: number;
-    orderBy?: string;
-}
+import type {Paginate} from "@/types/common"
+import {ProjectPlan, ProjectPlanCondition} from "@/types/project";
 
 /**
  * 获取项目计划列表

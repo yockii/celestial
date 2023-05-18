@@ -3,15 +3,19 @@ import {ref, onMounted, computed} from "vue";
 import {
     getProjectList,
     addProject,
-    ProjectStageStatistics,
-    getProjectStageStatistics, ProjectMember
-} from "../../../service/api/project";
-import type {Project,ProjectCondition} from "../../../service/api/project";
+    getProjectStageStatistics,
+} from "@/service/api/project";
+import {Project,ProjectCondition,ProjectMember, ProjectStageStatistics} from "@/types/project";
 import {Search} from "@vicons/carbon"
-import {getStageList, type Stage} from "../../../service/api/stage";
 import {NButton, FormInst} from "naive-ui";
 import dayjs from "dayjs";
-import NameAvatar from "../../../components/NameAvatar.vue";
+import NameAvatar from "@/components/NameAvatar.vue";
+import {useProjectStore} from "@/store/project";
+import {storeToRefs} from "pinia";
+
+const projectStore = useProjectStore()
+
+const {stageList, stageListWithNone} = storeToRefs(projectStore)
 
 const condition = ref<ProjectCondition>({
     offset: 0,
@@ -19,7 +23,6 @@ const condition = ref<ProjectCondition>({
     name: "",
     stageId: "",
 })
-const stageList = ref<Stage[]>([])
 const total = ref(0)
 const projectList = ref<Project[]>([]);
 
@@ -29,16 +32,13 @@ const refresh = () => {
     })
 }
 const getStageName = (stageId: string) => {
-    return stageList.value.find(item => item.id === stageId)?.name || "";
+    return stageList.value.find(item => item.id === stageId)?.name || "无";
 }
 const projectStatistics = ref<ProjectStageStatistics[]>([])
 const findStageProjectCount = (stageId: string) => {
     return projectStatistics.value.find(item => item.stageId === stageId)?.count || 0;
 }
 onMounted(() => {
-    getStageList({limit: 100, name: "", offset: 0, status: 0}).then(res => {
-        stageList.value = res.items;
-    })
     // 获取项目的阶段统计数据
     getProjectStageStatistics().then(res => {
         projectStatistics.value = res;
@@ -245,7 +245,7 @@ const timeBefore = computed(() => (t) => dayjs(t).fromNow())
                   <n-select
                       v-model:value="newProject.stageId"
                       placeholder="请选择项目阶段"
-                      :options="stageList"
+                      :options="stageListWithNone"
                       label-field="name"
                       value-field="id"
                   />

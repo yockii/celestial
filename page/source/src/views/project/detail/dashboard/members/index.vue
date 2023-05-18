@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {addProjectMembers, Project, ProjectMember} from "@/service/api/project";
-import {Role} from "@/service/api/role";
+import {addProjectMembers } from "@/service/api/project";
+import {Role} from "@/types/user";
+import {Project, ProjectMember} from "@/types/project"
 import {computed} from "vue";
 import {UserFollow, IdManagement} from '@vicons/carbon'
 import {rgbToHex} from "@/utils/Render";

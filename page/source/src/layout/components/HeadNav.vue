@@ -25,9 +25,9 @@
 import { MenuOption } from "naive-ui"
 import { ref, computed, onMounted } from "vue"
 import { Sunny, Moon } from "@vicons/ionicons5"
-import { useAppStore } from "../../store/app"
-import {useUserStore} from "../../store/user";
-import {useMemStore} from "../../store/mem";
+import { useAppStore } from "@/store/app"
+import {useUserStore} from "@/store/user";
+import {useMemStore} from "@/store/mem";
 const appStore = useAppStore()
 const userStore = useUserStore()
 const memStore = useMemStore()

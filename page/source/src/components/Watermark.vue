@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useUserStore} from "../store/user";
+import {useUserStore} from "@/store/user";
 const userStore= useUserStore()
 const realName = computed(() => userStore.user?.username || "")
 const show = computed(() => realName.value && realName.value !== "")

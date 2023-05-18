@@ -1,8 +1,5 @@
 import { defineStore } from "pinia"
-
-export interface User {
-  username: string
-}
+import {User} from "@/types/user"
 
 export const useUserStore = defineStore("user", {
   state: (): {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {FormInst, FormItemInst, FormItemRule, FormRules, useMessage} from "naive-ui";
+import {FormInst, FormItemInst, FormRules, useMessage} from "naive-ui";
 import {UserPlus} from "@vicons/tabler";
-import {login} from "../../../service/api/auth";
-import {useUserStore} from "../../../store/user";
+import {login} from "@/service";
+import {useUserStore} from "@/store/user";
 import { useRouter} from "vue-router";
 const formRef = ref<FormInst | null>(null)
 const rPasswordFormItemRef = ref<FormItemInst | null>(null)

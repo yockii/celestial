@@ -1,10 +1,11 @@
 <script setup lang="ts">
-
-import {getProjectMembers, Project} from "@/service/api/project";
+import {Project, Stage, ProjectPlan} from "@/types/project";
+import {Role} from "@/types/user"
+import {getProjectMembers } from "@/service/api/project";
 import {getProjectRiskCoefficient, ProjectRiskCoefficient} from "@/service/api/projectRisk";
-import {getStageDetail, Stage} from "@/service/api/stage";
-import {getExecutingProjectPlanByProjectId, ProjectPlan} from "@/service/api/projectPlan";
-import {getRoleList, Role} from "@/service/api/role";
+import {getStageDetail } from "@/service/api/stage";
+import {getExecutingProjectPlanByProjectId } from "@/service/api/projectPlan";
+import {getRoleList } from "@/service/api/role";
 import Members from "./members/index.vue"
 import Invest from "./invest/index.vue"
 import Requirement from "./requirement/index.vue"
@@ -42,7 +43,7 @@ const projectPlan = ref<ProjectPlan>({})
 const projectStage = ref<Stage>({})
 
 // 项目角色信息 //////////////////////////////
-const projectRoles = ref<Role[]>([])
+const projectRoles = ref<Array<Role>>([])
 
 // 项目成员信息 //////////////////////////////
 const refreshProjectMembers = () => {

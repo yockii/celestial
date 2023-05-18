@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, reactive, computed, onMounted, h} from 'vue'
-import {type StageCondition, type Stage, getStageList, updateStage, addStage, deleteStage} from '../../../service/api/stage'
+import {getStageList, updateStage, addStage, deleteStage} from '@/service/api/stage'
+import {Stage, StageCondition} from "@/types/project"
 import {Search} from '@vicons/carbon'
 import dayjs from "dayjs";
 import {NButtonGroup, NButton, NPopconfirm, FormInst, useMessage} from "naive-ui";

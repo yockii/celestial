@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {getUserList, User} from "@/service/api/user";
+import {getUserList} from "@/service/api/user";
+import {User} from "@/types/user"
 import {Search} from '@vicons/carbon'
 const emits = defineEmits(['userSelectedChanged'])
 const props = defineProps<{

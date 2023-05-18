@@ -1,20 +1,6 @@
 import {request} from "../request";
-import {Paginate} from "../request/request";
-
-export type Stage = {
-    id: string;
-    name: string;
-    orderNum: number;
-    status: number;
-    createTime?: number;
-}
-
-export type StageCondition = {
-    name: string;
-    status: number;
-    offset: number;
-    limit: number;
-}
+import {Paginate} from "@/types/common";
+import {Stage, StageCondition} from "@/types/project"
 
 /**
  * 新增阶段

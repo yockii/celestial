@@ -1,12 +1,6 @@
 import {request} from "../request";
-import type {Paginate} from "../request/request"
+import type {ProjectTaskWorkTimeStatistics} from "@/types/project"
 
-export type ProjectTaskWorkTimeStatistics = {
-    projectId: string;
-    taskCount: number;
-    estimateDuration: number;
-    actualDuration: number;
-}
 /**
  * 获取项目工时统计
  * @param projectId - 项目id

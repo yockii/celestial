@@ -1,26 +1,6 @@
 import {request} from "../request";
-import {Paginate} from "../request/request";
-
-export type Role = {
-    id: string;
-    name: string;
-    desc: string;
-    type: number;
-    style?: string;
-    dataPermission: number;
-    status: number;
-    createTime?: number;
-}
-
-export type RoleCondition = {
-    name: string;
-    type: number;
-    dataPermission: number;
-    status: number;
-    offset: number;
-    limit: number;
-    orderBy?: string;
-}
+import {Paginate} from "@/types/common";
+import type {Role, RoleCondition} from "@/types/user"
 
 /**
  * 新增阶段

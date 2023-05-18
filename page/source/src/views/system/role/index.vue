@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, reactive, computed, onMounted, h, VNodeChild} from 'vue'
-import {type RoleCondition, type Role, getRoleList, updateRole, addRole, deleteRole} from '@/service/api/role'
+import {getRoleList, updateRole, addRole, deleteRole} from '@/service/api/role'
+import {RoleCondition, Role} from "@/types/user"
 import {Search} from '@vicons/carbon'
 import dayjs from "dayjs";
 import {

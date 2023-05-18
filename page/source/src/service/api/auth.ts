@@ -1,11 +1,7 @@
 import {request} from "../request";
 import {sm2} from "sm-crypto";
-import type { User} from '../../store/user'
+import {LoginResponse} from "@/types/user";
 
-interface LoginResponse {
-    token: string;
-    user: User;
-}
 /**
  * 登录
  * @param username - 用户名

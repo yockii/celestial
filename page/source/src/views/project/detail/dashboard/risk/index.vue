@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {Project} from "@/service/api/project";
+import {Project} from "@/types/project";
 
 const props = defineProps<{
     project: Project,
