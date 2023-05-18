@@ -4,23 +4,30 @@ import type {Paginate} from "../request/request"
 export type ProjectPlan = {
     id: string;
     projectId: string;
-    stageId: string;
-    riskName: string;
-    riskProbability: number;
-    riskImpact: number;
-    riskLevel: number;
-    status: number;
-    response: string;
+    stageId?: string;
+    planName: string;
+    planDesc?: number;
     startTime: number;
     endTime: number;
-    result: string;
+    target?: string;
+    scope?: string;
+    schedule?: string;
+    resource?: string;
+    budget?: number;
+    status: number;
+    actualStartTime?: number;
+    actualEndTime?: number;
     createTime?: number;
+    updateTime?: number;
 }
 export type ProjectPlanCondition = {
-    name: string;
-    stageId: string;
+    projectId: string;
+    planName?: string;
+    stageId?: string;
+    status?: number;
     offset?: number;
     limit?: number;
+    orderBy?: string;
 }
 
 /**
@@ -59,4 +66,22 @@ export function getExecutingProjectPlanByProjectId(projectId: string) {
     return request.get<ProjectPlan>("/projectPlan/executing", {
         params: {projectId},
     })
+}
+
+/**
+ * 删除项目计划
+ * @param id - 项目计划id
+ */
+export function deleteProjectPlan(id: string) {
+    return request.delete<boolean>("/projectPlan/delete", {
+        params: {id},
+    })
+}
+
+/**
+ * 更新项目计划
+ * @param projectPlan - 项目计划信息
+ */
+export function updateProjectPlan(projectPlan: ProjectPlan) {
+    return request.put<boolean>("/projectPlan/update", projectPlan)
 }

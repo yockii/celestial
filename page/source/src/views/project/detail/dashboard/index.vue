@@ -13,7 +13,7 @@ import Plan from "./plan/index.vue"
 import Risk from "./risk/index.vue"
 
 const props = defineProps<{
-    project: Project | null
+    project: Project
 }>()
 
 // 健康度/风险分析内容 ///////////////////////
@@ -107,7 +107,7 @@ onMounted(() => {
             <n-grid :cols="2" x-gap="16">
                 <n-gi>
                     <n-card embedded size="small" class="h-160px">
-                        <members :members="project?.members || []" :roles="projectRoles || []"  :project="project" @project-member-changed="refreshProjectMembers"/>
+                        <members :members="project?.members || []" :roles="projectRoles"  :project="project" @project-member-changed="refreshProjectMembers"/>
                     </n-card>
                 </n-gi>
                 <n-gi>

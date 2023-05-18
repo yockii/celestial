@@ -36,6 +36,7 @@ func (s *projectPlanService) Add(instance *model.ProjectPlan) (duplicated bool, 
 	}
 
 	instance.ID = util.SnowflakeId()
+	instance.Status = 1
 
 	if err = database.DB.Create(instance).Error; err != nil {
 		logger.Errorln(err)
@@ -121,6 +122,9 @@ func (s *projectPlanService) PaginateBetweenTimes(condition *model.ProjectPlan, 
 			tx = tx.Where("plan_name like ?", "%"+condition.PlanName+"%")
 		}
 	}
+
+	// 大字段不加载
+	//tx.Omit("plan_desc", "target", "scope", "schedule", "resource")
 
 	err = tx.Find(&list, &model.ProjectPlan{
 		ProjectID: condition.ProjectID,

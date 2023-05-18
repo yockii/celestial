@@ -4,7 +4,8 @@ import {ref, onMounted} from "vue";
 import {deleteProject, getProjectDetail, type Project, updateProject} from '@/service/api/project'
 import {KeyboardBackspaceOutlined} from '@vicons/material'
 import Dashboard from './dashboard/index.vue'
-import {NButton} from "naive-ui";
+import Plan from './plan/index.vue'
+import {FormInst, NButton} from "naive-ui";
 const router = useRouter()
 const id = useRoute().params.id as string
 const project = ref<Project | null>(null)
@@ -30,15 +31,21 @@ const projectRules = {
 const resetUpdateProject = () => {
     copiedProject.value = JSON.parse(JSON.stringify(project.value))
 }
-const handleCommitProject = () => {
-    if (copiedProject.value) {
-        updateProject(copiedProject.value as Project).then(res => {
+const formRef = ref<FormInst>()
+const handleCommitProject = (e: MouseEvent) => {
+    e.preventDefault()
+    formRef.value?.validate(errors => {
+      if (!errors) {
+        if (copiedProject.value) {
+          updateProject(copiedProject.value as Project).then(res => {
             if (res) {
-                project.value = copiedProject.value
-                showSettings.value = false
+              project.value = copiedProject.value
+              showSettings.value = false
             }
-        })
-    }
+          })
+        }
+      }
+    })
 }
 
 // 删除项目 ////////////////////////////
@@ -87,7 +94,7 @@ onMounted(() => {
                     </n-tabs>
                 </n-gi>
                 <n-gi :span="2" :offset="4" class="flex flex-justify-end flex-items-center">
-                    <n-button type="primary" @click="showProjectSettings">项目设置</n-button>
+                    <n-button v-if="projectTab == '项目总览'" size="small" type="primary" @click="showProjectSettings">项目设置</n-button>
                 </n-gi>
                 </template>
                 <n-gi v-else :span="18" class="flex flex-justify-center flex-items-center h-full">
@@ -99,6 +106,10 @@ onMounted(() => {
             <template v-if="project?.id">
             <keep-alive>
                 <dashboard v-if="project&&projectTab == '项目总览'  " :project="project" />
+            </keep-alive>
+
+            <keep-alive>
+                <plan v-if="project&&projectTab == '项目计划'  " :project="project" />
             </keep-alive>
             </template>
         </n-layout-content>
