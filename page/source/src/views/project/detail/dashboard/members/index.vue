@@ -2,7 +2,7 @@
 import {addProjectMembers, Project, ProjectMember} from "@/service/api/project";
 import {Role} from "@/service/api/role";
 import {computed} from "vue";
-import {UserFollow} from '@vicons/carbon'
+import {UserFollow, IdManagement} from '@vicons/carbon'
 import {rgbToHex} from "@/utils/Render";
 import UserSelectDrawerContent from "@/components/user/UserSelectDrawerContent.vue";
 import {NButton} from "naive-ui";
@@ -116,7 +116,14 @@ onMounted(() => {
   <n-grid :cols="2" class="mb-16px">
     <n-gi class="text-1.2em op-90 font-500">项目组</n-gi>
     <n-gi class="flex flex-justify-end">
-        <n-button size="small" @click="manageActive = true">管理</n-button>
+        <n-button size="small" @click="manageActive = true">
+            <template #icon>
+                <n-icon>
+                    <IdManagement />
+                </n-icon>
+            </template>
+            管理
+        </n-button>
     </n-gi>
   </n-grid>
   <n-grid :cols="5">
@@ -127,7 +134,7 @@ onMounted(() => {
       <n-gi :span="4">
           <n-text tag="div" class="mb-4px">项目组成员： </n-text>
           <n-text v-if="noChargerMembers.length === 0">无</n-text>
-          <n-space  v-else>
+          <n-space v-else>
             <n-tag v-for="member in noChargerMembers" :key="member.userId" :color="roleColor(member.roleId)">
               {{member.realName}}
             </n-tag>

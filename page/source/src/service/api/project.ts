@@ -48,6 +48,26 @@ export function addProject(project: Project) {
 }
 
 /**
+ * 删除项目
+ * @param id - 项目id
+ */
+export function deleteProject(id: string) {
+    return request.delete<boolean>("/project/delete", {
+        params: {
+            id
+        }
+    })
+}
+
+/**
+ * 更新项目信息
+ * @param project - 项目信息
+ */
+export function updateProject(project: Project) {
+    return request.put<boolean>("/project/update", project)
+}
+
+/**
  * 获取项目详情
  * @param id - 项目id
  */

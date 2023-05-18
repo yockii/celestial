@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
@@ -145,6 +146,33 @@ func (s *projectTaskService) Instance(id uint64) (instance *model.ProjectTask, e
 	}
 	instance = &model.ProjectTask{}
 	if err = database.DB.Where(&model.ProjectTask{ID: id}).First(instance).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
+func (s *projectTaskService) TaskDurationByProject(projectID uint64, tcList map[string]*server.TimeCondition) (result *domain.ProjectTaskWorkTimeStatistics, err error) {
+	result = &domain.ProjectTaskWorkTimeStatistics{
+		ProjectID: projectID,
+	}
+	tx := database.DB.Model(&model.ProjectTask{})
+	for tc, tr := range tcList {
+		if tc != "" {
+			if !tr.Start.IsZero() && !tr.End.IsZero() {
+				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+			} else if tr.Start.IsZero() && !tr.End.IsZero() {
+				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+			} else if !tr.Start.IsZero() && tr.End.IsZero() {
+				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+			}
+		}
+	}
+
+	err = tx.Select("count(1) as task_count,sum(actual_duration) as actual_duration, sum(estimate_duration) as estimate_duration").Where(&model.ProjectTask{
+		ProjectID: projectID,
+	}).Scan(result).Error
+	if err != nil {
 		logger.Errorln(err)
 		return
 	}

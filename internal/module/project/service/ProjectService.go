@@ -153,6 +153,9 @@ func (s *projectService) Instance(id uint64) (instance *model.Project, err error
 	}
 	instance = &model.Project{}
 	if err = database.DB.Where(&model.Project{ID: id}).First(instance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		logger.Errorln(err)
 		return
 	}

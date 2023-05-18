@@ -18,6 +18,7 @@ func InitRouter() {
 		projectTask.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectTaskUpdate), ProjectTaskController.Update)
 		projectTask.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTaskList), ProjectTaskController.List)
 		projectTask.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTaskInstance), ProjectTaskController.Instance)
+		projectTask.Get("/statisticsByProject", middleware.NeedAuthorization(constant.ResourceProjectTaskList), ProjectTaskController.TaskDurationByProject)
 
 		// 对于禁用put和delete方法时的处理
 		projectTask.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectTaskDelete), ProjectTaskController.Delete)

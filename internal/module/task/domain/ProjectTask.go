@@ -15,3 +15,13 @@ type ProjectTaskListTask struct {
 	UpdateTimeCondition      *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy                  string                `json:"orderBy"`
 }
+
+type ProjectTaskWorkTimeStatistics struct {
+	ProjectID uint64 `json:"projectId,string"`
+	// 任务总数
+	TaskCount int `json:"taskCount"`
+	// 任务预计总工时
+	EstimateDuration int64 `json:"estimateDuration"`
+	// 任务实际总工时
+	ActualDuration int64 `json:"actualDuration"`
+}

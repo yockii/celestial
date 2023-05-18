@@ -4,7 +4,7 @@ import {
     getProjectList,
     addProject,
     ProjectStageStatistics,
-    getProjectStageStatistics
+    getProjectStageStatistics, ProjectMember
 } from "../../../service/api/project";
 import type {Project,ProjectCondition} from "../../../service/api/project";
 import {Search} from "@vicons/carbon"
@@ -100,10 +100,19 @@ const handleCommitNewProject = () => {
     })
 }
 // 项目参与人
-const projectMemberNames = (members: {id: string; username: string; realName: string}[] | undefined) : {src:string}[] => {
-    return members ? members.map((item) => {
-        return {src: item.realName}
-    }): []
+const projectMemberNames = (members: ProjectMember[] | undefined) : {src:string}[] => {
+    if (members) {
+        const map = new Map()
+        const tmp = []
+        for (let i = 0; i < members.length; i++) {
+            if (!map.has(members[i].userId)) {
+                map.set(members[i].userId, true)
+                tmp.push({src: members[i].realName})
+            }
+        }
+        return tmp
+    }
+    return   []
 }
 const createDropdownOptions = (options: Array<{ src:string }>) =>
     options.map((option) => ({

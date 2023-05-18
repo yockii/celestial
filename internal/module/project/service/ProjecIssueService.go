@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -141,6 +142,9 @@ func (s *projectIssueService) Instance(id uint64) (instance *model.ProjectIssue,
 	}
 	instance = &model.ProjectIssue{}
 	if err = database.DB.Where(&model.ProjectIssue{ID: id}).First(instance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		logger.Errorln(err)
 		return
 	}

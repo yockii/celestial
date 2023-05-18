@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/ruomu-core/server"
+	"strings"
 	"sync"
 )
 
@@ -44,6 +45,8 @@ func (_ *projectController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 	instance.OwnerID = uid
+
+	instance.Name = strings.TrimSpace(instance.Name)
 
 	duplicated, success, err := service.ProjectService.Add(instance)
 	if err != nil {
@@ -85,6 +88,7 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
+	instance.Name = strings.TrimSpace(instance.Name)
 	success, err := service.ProjectService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -223,10 +227,13 @@ func (_ *projectController) Instance(ctx *fiber.Ctx) error {
 		})
 	}
 
-	members, _ := service.ProjectMemberService.ListLiteByProjectID(instance.ID)
-
+	result := &domain.ProjectWithMembers{}
+	if instance != nil {
+		result.Project = *instance
+		result.Members, _ = service.ProjectMemberService.ListLiteByProjectID(instance.ID)
+	}
 	return ctx.JSON(&server.CommonResponse{
-		Data: &domain.ProjectWithMembers{Project: *instance, Members: members},
+		Data: result,
 	})
 }
 

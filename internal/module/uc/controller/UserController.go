@@ -9,6 +9,7 @@ import (
 	"github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/celestial/pkg/crypto"
 	"strconv"
+	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
 	logger "github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ func (*userController) Register(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
-
+	instance.Username = strings.TrimSpace(instance.Username)
 	// 处理必填
 	if instance.Username == "" || instance.Password == "" {
 		return ctx.JSON(&server.CommonResponse{

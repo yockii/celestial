@@ -190,3 +190,44 @@ func (c *projectTaskController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+// TaskDurationByProject 项目下任务耗时统计
+func (c *projectTaskController) TaskDurationByProject(ctx *fiber.Ctx) error {
+	condition := new(domain.ProjectTaskListTask)
+	if err := ctx.QueryParser(condition); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 项目ID必须传入
+	if condition.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " projectId",
+		})
+	}
+
+	tcList := make(map[string]*server.TimeCondition)
+	if condition.CreateTimeCondition != nil {
+		tcList["create_time"] = condition.CreateTimeCondition
+	}
+	if condition.UpdateTimeCondition != nil {
+		tcList["update_time"] = condition.UpdateTimeCondition
+	}
+
+	// 获取预计工时和实际工时的统计
+	result, err := service.ProjectTaskService.TaskDurationByProject(condition.ProjectID, tcList)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: result,
+	})
+}

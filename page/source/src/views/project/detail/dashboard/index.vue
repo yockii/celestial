@@ -6,6 +6,11 @@ import {getStageDetail, Stage} from "@/service/api/stage";
 import {getExecutingProjectPlanByProjectId, ProjectPlan} from "@/service/api/projectPlan";
 import {getRoleList, Role} from "@/service/api/role";
 import Members from "./members/index.vue"
+import Invest from "./invest/index.vue"
+import Requirement from "./requirement/index.vue"
+import Task from "./task/index.vue"
+import Plan from "./plan/index.vue"
+import Risk from "./risk/index.vue"
 
 const props = defineProps<{
     project: Project | null
@@ -77,7 +82,7 @@ onMounted(() => {
 <template>
     <n-grid :cols="1" y-gap="16">
         <n-gi>
-          <n-grid :cols="3" x-gap="1">
+          <n-grid :cols="3">
               <n-gi>
                   <n-card embedded size="small" class="h-120px">
                     <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">{{ project?.name }}</n-text>
@@ -102,13 +107,40 @@ onMounted(() => {
             <n-grid :cols="2" x-gap="16">
                 <n-gi>
                     <n-card embedded size="small" class="h-160px">
-                        <members :members="project?.members || []" :roles="projectRoles || []"  :project="project || {}" @project-member-changed="refreshProjectMembers"/>
+                        <members :members="project?.members || []" :roles="projectRoles || []"  :project="project" @project-member-changed="refreshProjectMembers"/>
                     </n-card>
                 </n-gi>
                 <n-gi>
                     <n-card embedded size="small" class="h-160px">
-                        <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">工作填报</n-text>
-
+                        <invest :members="project?.members || []"  :project="project" />
+                    </n-card>
+                </n-gi>
+            </n-grid>
+        </n-gi>
+        <n-gi>
+            <n-grid :cols="2" x-gap="16">
+                <n-gi>
+                    <n-card embedded size="small" class="h-180px">
+                        <plan :project="project" />
+                    </n-card>
+                </n-gi>
+                <n-gi>
+                    <n-card embedded size="small" class="h-180px">
+                        <requirement :project="project" />
+                    </n-card>
+                </n-gi>
+            </n-grid>
+        </n-gi>
+        <n-gi>
+            <n-grid :cols="2" x-gap="16">
+                <n-gi>
+                    <n-card embedded size="small" class="h-180px">
+                        <task :project="project" />
+                    </n-card>
+                </n-gi>
+                <n-gi>
+                    <n-card embedded size="small" class="h-180px">
+                        <risk :project="project" />
                     </n-card>
                 </n-gi>
             </n-grid>
