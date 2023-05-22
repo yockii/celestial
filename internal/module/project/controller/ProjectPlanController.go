@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -30,6 +31,15 @@ func (c *projectPlanController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
 		})
 	}
+
+	userID, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + err.Error(),
+		})
+	}
+	instance.CreateUserID = userID
 
 	duplicated, success, err := service.ProjectPlanService.Add(instance)
 	if err != nil {
