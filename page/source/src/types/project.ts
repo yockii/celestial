@@ -1,3 +1,8 @@
+type Condition = {
+    offset?: number;
+    limit?: number;
+    orderBy?: string;
+}
 
 export type ProjectMember = {
     userId:string;
@@ -15,11 +20,9 @@ export type Project = {
     createTime?: number;
     members?: ProjectMember[];
 }
-export type ProjectCondition = {
+export type ProjectCondition = Condition & {
     name: string;
     stageId: string;
-    offset?: number;
-    limit?: number;
 }
 
 export type ProjectStageStatistics = {
@@ -32,7 +35,7 @@ export type ProjectPlan = {
     projectId: string;
     stageId?: string;
     planName: string;
-    planDesc?: number;
+    planDesc?: string;
     startTime: number;
     endTime: number;
     target?: string;
@@ -46,14 +49,11 @@ export type ProjectPlan = {
     createTime?: number;
     updateTime?: number;
 }
-export type ProjectPlanCondition = {
+export type ProjectPlanCondition = Condition & {
     projectId: string;
     planName?: string;
     stageId?: string;
     status?: number;
-    offset?: number;
-    limit?: number;
-    orderBy?: string;
 }
 
 export type ProjectRisk = {
@@ -71,11 +71,9 @@ export type ProjectRisk = {
     result: string;
     createTime?: number;
 }
-export type ProjectRiskCondition = {
+export type ProjectRiskCondition = Condition & {
     name: string;
     stageId: string;
-    offset?: number;
-    limit?: number;
 }
 
 export type ProjectTaskWorkTimeStatistics = {
@@ -92,9 +90,25 @@ export type Stage = {
     createTime?: number;
 }
 
-export type StageCondition = {
+export type StageCondition = Condition & {
     name: string;
     status: number;
-    offset: number;
-    limit: number;
+}
+
+export type ProjectModule = {
+    id: string;
+    projectId: string;
+    parentId?: string;
+    name: string;
+    alias?: string;
+    remark?: string;
+    status: number;
+    createTime?: number;
+}
+
+export type ProjectModuleCondition = Condition & {
+    projectId: string;
+    parentId?: string;
+    name: string;
+    status: number;
 }

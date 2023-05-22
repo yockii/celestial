@@ -89,9 +89,10 @@ onMounted(() => {
                         <n-tab name="项目计划"></n-tab>
                         <n-tab name="项目需求"></n-tab>
                         <n-tab name="工作任务"></n-tab>
-                        <n-tab name="项目资产"></n-tab>
                         <n-tab name="测试用例"></n-tab>
+                        <n-tab name="项目缺陷"></n-tab>
                         <n-tab name="项目风险"></n-tab>
+                        <n-tab name="项目资产"></n-tab>
                     </n-tabs>
                 </n-gi>
                 <n-gi :span="2" :offset="4" class="flex flex-justify-end flex-items-center">
