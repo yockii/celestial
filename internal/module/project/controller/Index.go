@@ -70,6 +70,20 @@ func InitRouter() {
 		projectPlan.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectPlanUpdate), ProjectPlanController.Update)
 	}
 
+	// 项目模块
+	{
+		projectModule := server.Group("/api/v1/projectModule")
+		projectModule.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectModuleAdd), ProjectModuleController.Add)
+		projectModule.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectModuleDelete), ProjectModuleController.Delete)
+		projectModule.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectModuleUpdate), ProjectModuleController.Update)
+		projectModule.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectModuleList), ProjectModuleController.List)
+		projectModule.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectModuleInstance), ProjectModuleController.Instance)
+
+		// 对于禁用put和delete方法时的处理
+		projectModule.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectModuleDelete), ProjectModuleController.Delete)
+		projectModule.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectModuleUpdate), ProjectModuleController.Update)
+	}
+
 	// 项目需求
 	{
 		projectRequirement := server.Group("/api/v1/projectRequirement")

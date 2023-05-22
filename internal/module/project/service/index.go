@@ -209,6 +209,34 @@ func InitService() {
 			HttpMethod:   "DELETE|POST",
 		})
 	}
+	// 项目模块
+	{
+		resources = append(resources, &ucModel.Resource{
+			ResourceName: "项目模块",
+			ResourceCode: constant.ResourceProjectModule,
+			HttpMethod:   "ALL",
+		}, &ucModel.Resource{
+			ResourceName: "项目模块列表",
+			ResourceCode: constant.ResourceProjectModuleList,
+			HttpMethod:   "GET",
+		}, &ucModel.Resource{
+			ResourceName: "项目模块详情",
+			ResourceCode: constant.ResourceProjectModuleInstance,
+			HttpMethod:   "GET",
+		}, &ucModel.Resource{
+			ResourceName: "添加项目模块",
+			ResourceCode: constant.ResourceProjectModuleAdd,
+			HttpMethod:   "POST",
+		}, &ucModel.Resource{
+			ResourceName: "修改项目模块",
+			ResourceCode: constant.ResourceProjectModuleUpdate,
+			HttpMethod:   "PUT|POST",
+		}, &ucModel.Resource{
+			ResourceName: "删除项目模块",
+			ResourceCode: constant.ResourceProjectModuleDelete,
+			HttpMethod:   "DELETE|POST",
+		})
+	}
 	// 项目需求
 	{
 		resources = append(resources, &ucModel.Resource{

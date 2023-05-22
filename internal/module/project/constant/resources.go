@@ -40,6 +40,16 @@ const (
 	ResourceProjectPlanInstance = "projectPlan:instance"
 )
 
+// 项目模块
+const (
+	ResourceProjectModule         = "projectModule"
+	ResourceProjectModuleAdd      = "projectModule:add"
+	ResourceProjectModuleDelete   = "projectModule:delete"
+	ResourceProjectModuleUpdate   = "projectModule:update"
+	ResourceProjectModuleList     = "projectModule:list"
+	ResourceProjectModuleInstance = "projectModule:instance"
+)
+
 // 项目需求
 const (
 	ResourceProjectRequirement         = "projectRequirement"
