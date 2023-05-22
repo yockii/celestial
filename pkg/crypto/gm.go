@@ -35,3 +35,13 @@ func Sm2Decrypt(encrypted string) (string, error) {
 
 	return string(rs), nil
 }
+
+func Sm2EncryptHex(origin string, publickKey string) (string, error) {
+	pk, _ := x509.ReadPublicKeyFromHex(publickKey)
+	rs, err := sm2.Encrypt(pk, []byte(origin), nil, sm2.C1C3C2)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(rs), nil
+}
