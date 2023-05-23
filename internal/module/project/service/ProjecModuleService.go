@@ -21,6 +21,16 @@ func (s *projectModuleService) Add(instance *model.ProjectModule) (duplicated bo
 		err = errors.New("name and projectId is required")
 		return
 	}
+
+	var parent *model.ProjectModule
+	if instance.ParentID != 0 {
+		parent = &model.ProjectModule{ID: instance.ParentID}
+		if err = database.DB.Where(parent).First(parent).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+	}
+
 	var c int64
 	err = database.DB.Model(&model.ProjectModule{}).Where(&model.ProjectModule{
 		ProjectID: instance.ProjectID,
@@ -38,8 +48,23 @@ func (s *projectModuleService) Add(instance *model.ProjectModule) (duplicated bo
 
 	instance.ID = util.SnowflakeId()
 
-	if err = database.DB.Create(instance).Error; err != nil {
-		logger.Errorln(err)
+	// 事务处理，更新父级的子数量、获取父级的路径
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if parent != nil {
+			if err = tx.Model(parent).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			instance.FullPath = parent.FullPath + "/" + instance.Name
+		} else {
+			instance.FullPath = "/" + instance.Name
+		}
+		if err = tx.Create(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
@@ -53,17 +78,65 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 		return
 	}
 
-	err = database.DB.Where(&model.ProjectModule{ID: instance.ID}).Updates(&model.ProjectModule{
-		Name:      instance.Name,
-		ParentID:  instance.ParentID,
-		Alias:     instance.Alias,
-		Remark:    instance.Remark,
-		CreatorID: instance.CreatorID,
-		Status:    instance.Status,
-	}).Error
-	if err != nil {
+	// 检查parentId与原来的是否一致
+	var oldParentID uint64
+	if err = database.DB.Model(&model.ProjectModule{ID: instance.ID}).Select("parent_id").First(&oldParentID).Error; err != nil {
 		logger.Errorln(err)
 		return
+	}
+	if oldParentID != instance.ParentID {
+		// 不一致则需要更新父级的子数量以及更新自己的路径
+		var parent *model.ProjectModule
+		if instance.ParentID != 0 {
+			parent = &model.ProjectModule{ID: instance.ParentID}
+			if err = database.DB.Where(parent).First(parent).Error; err != nil {
+				logger.Errorln(err)
+				return
+			}
+			instance.FullPath = parent.FullPath + "/" + instance.Name
+		} else {
+			instance.FullPath = "/" + instance.Name
+		}
+		if err = database.DB.Transaction(func(tx *gorm.DB) error {
+			if parent != nil {
+				if err = tx.Model(parent).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+				// 旧的父级的子数量减1
+				if err = tx.Model(&model.ProjectModule{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			}
+			if err = tx.Model(&model.ProjectModule{ID: instance.ID}).Updates(&model.ProjectModule{
+				ParentID:  instance.ParentID,
+				FullPath:  instance.FullPath,
+				Name:      instance.Name,
+				Alias:     instance.Alias,
+				Remark:    instance.Remark,
+				CreatorID: instance.CreatorID,
+				Status:    instance.Status,
+			}).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		}); err != nil {
+			return
+		}
+	} else {
+		// 一致则只更新基本信息
+		if err = database.DB.Model(&model.ProjectModule{ID: instance.ID}).Updates(&model.ProjectModule{
+			Name:      instance.Name,
+			Alias:     instance.Alias,
+			Remark:    instance.Remark,
+			CreatorID: instance.CreatorID,
+			Status:    instance.Status,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
 	}
 	success = true
 	return

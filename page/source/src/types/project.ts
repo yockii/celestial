@@ -102,6 +102,7 @@ export type ProjectModule = {
     name: string;
     alias?: string;
     remark?: string;
+    childrenCount?: number;
     status: number;
     createTime?: number;
 }
@@ -109,6 +110,6 @@ export type ProjectModule = {
 export type ProjectModuleCondition = Condition & {
     projectId: string;
     parentId?: string;
-    name: string;
-    status: number;
+    name?: string;
+    status?: number;
 }
