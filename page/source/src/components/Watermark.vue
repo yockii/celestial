@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useUserStore} from "@/store/user";
+import {storeToRefs} from "pinia";
 const userStore= useUserStore()
-const realName = computed(() => userStore.user?.username || "")
+
+const {username: realName} = storeToRefs(userStore)
 const show = computed(() => realName.value && realName.value !== "")
 </script>
 
