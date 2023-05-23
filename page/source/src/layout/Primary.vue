@@ -24,12 +24,24 @@ import Sider from "./components/Sider.vue"
 import {useMemStore} from "@/store/mem";
 import {computed} from "vue";
 import {useAppStore} from "@/store/app";
+import {getStageList} from "@/service/api/stage";
+import {useProjectStore} from "@/store/project";
 
 const memStore = useMemStore()
 const appStore = useAppStore()
 const collapsed = computed(() => appStore.collapsed)
 
 const needSidebar = computed(() => memStore.sideMenus.length > 0)
+
+const projectStore = useProjectStore()
+onMounted(() => {
+  // memStore.startTicker()
+  getStageList({limit: 100, name: "", offset: 0, status: 0}).then(res => {
+    if (res) {
+      projectStore.stageList = res.items
+    }
+  })
+})
 </script>
 
 <style scoped>
