@@ -6,16 +6,18 @@ import (
 )
 
 type ProjectModule struct {
-	ID         uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	ProjectID  uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
-	ParentID   uint64         `json:"parentId,omitempty,string" gorm:"index;comment:父模块ID"`
-	Name       string         `json:"name,omitempty" gorm:"size:50;comment:模块名称"`
-	Alias      string         `json:"alias,omitempty" gorm:"size:50;comment:模块别名"`
-	Remark     string         `json:"remark,omitempty" gorm:"size:200;comment:备注"`
-	CreatorID  uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
-	Status     int            `json:"status,omitempty" gorm:"comment:状态 1-待评审 2-待开发 9-已完成 -1-废弃"`
-	CreateTime int64          `json:"createTime" gorm:"autoCreateTime:milli"`
-	DeleteTime gorm.DeletedAt `json:"deleteTime" gorm:"index"`
+	ID            uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	ProjectID     uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	ParentID      uint64         `json:"parentId,omitempty,string" gorm:"index;comment:父模块ID"`
+	Name          string         `json:"name,omitempty" gorm:"size:50;comment:模块名称"`
+	Alias         string         `json:"alias,omitempty" gorm:"size:50;comment:模块别名"`
+	Remark        string         `json:"remark,omitempty" gorm:"size:200;comment:备注"`
+	ChildrenCount int            `json:"childrenCount,omitempty" gorm:"comment:子模块数量"`
+	FullPath      string         `json:"fullPath,omitempty" gorm:"comment:全路径"`
+	CreatorID     uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
+	Status        int            `json:"status,omitempty" gorm:"comment:状态 1-待评审 2-待开发 9-已完成 -1-废弃"`
+	CreateTime    int64          `json:"createTime" gorm:"autoCreateTime:milli"`
+	DeleteTime    gorm.DeletedAt `json:"deleteTime" gorm:"index"`
 }
 
 func (_ *ProjectModule) TableComment() string {
@@ -30,8 +32,15 @@ func (pm *ProjectModule) UnmarshalJSON(b []byte) error {
 	pm.Name = j.Get("name").String()
 	pm.Alias = j.Get("alias").String()
 	pm.Remark = j.Get("remark").String()
+	pm.ChildrenCount = int(j.Get("childrenCount").Int())
+	pm.FullPath = j.Get("fullPath").String()
 	pm.CreatorID = j.Get("creatorId").Uint()
 	pm.CreateTime = j.Get("createTime").Int()
+	pm.Status = int(j.Get("status").Int())
 
 	return nil
+}
+
+func init() {
+	Models = append(Models, &ProjectModule{})
 }

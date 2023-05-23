@@ -149,7 +149,7 @@ func (_ *projectController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
-	if paginate.Limit <= 0 {
+	if paginate.Limit == 0 {
 		paginate.Limit = 10
 	}
 

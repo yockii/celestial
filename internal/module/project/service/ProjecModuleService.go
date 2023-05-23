@@ -18,7 +18,7 @@ type projectModuleService struct{}
 // Add 添加资源
 func (s *projectModuleService) Add(instance *model.ProjectModule) (duplicated bool, success bool, err error) {
 	if instance.Name == "" || instance.ProjectID == 0 {
-		err = errors.New("assetName and projectId is required")
+		err = errors.New("name and projectId is required")
 		return
 	}
 	var c int64

@@ -115,6 +115,9 @@ func (s *projectRequirementService) PaginateBetweenTimes(condition *model.Projec
 		if condition.Name != "" {
 			tx = tx.Where("name like ?", "%"+condition.Name+"%")
 		}
+		if condition.FullPath != "" {
+			tx = tx.Where("full_path like ?", condition.FullPath+"%")
+		}
 	}
 
 	err = tx.Find(&list, &model.ProjectRequirement{
