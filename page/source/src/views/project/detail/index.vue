@@ -84,7 +84,7 @@ onMounted(() => {
           </n-button>
         </n-gi>
         <template v-if="project?.id">
-          <n-gi :span="14" :offset="2">
+          <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" v-model:value="projectTab" type="line" justify-content="space-between">
               <n-tab name="项目总览"></n-tab>
               <n-tab name="项目计划"></n-tab>
