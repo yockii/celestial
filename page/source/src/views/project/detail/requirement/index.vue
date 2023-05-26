@@ -3,7 +3,7 @@ import { getProjectModuleList } from "@/service/api/projectModule"
 import { deleteProjectRequirement, getProjectRequirementList } from "@/service/api/projectReqirement"
 import { useProjectStore } from "@/store/project"
 import { Project, ProjectModule, ProjectRequirement, ProjectRequirementCondition } from "@/types/project"
-import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps } from "naive-ui"
+import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
@@ -45,17 +45,20 @@ const handlePageSizeChange = (pageSize: number) => {
 }
 const refresh = () => {
   loading.value = true
-  getProjectRequirementList(condition.value).then((res) => {
-    if (res) {
-      list.value = res.items
-      paginationReactive.itemCount = res.total
-      paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
-      paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
-      statusColumn.filterOptionValues = [condition.value.status || 0]
-      feasibilityColumn.filterOptionValues = [condition.value.feasibility || 0]
-    }
-    loading.value = false
-  })
+  getProjectRequirementList(condition.value)
+    .then((res) => {
+      if (res) {
+        list.value = res.items
+        paginationReactive.itemCount = res.total
+        paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
+        paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
+        statusColumn.filterOptionValues = [condition.value.status || 0]
+        feasibilityColumn.filterOptionValues = [condition.value.feasibility || 0]
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 const expandColumn = reactive({
   key: "expand",
@@ -88,7 +91,7 @@ const typeColumn = reactive({
   },
   filter: true,
   filterMultiple: false,
-  filterOptionValues: [0],
+  filterOptionValue: 0,
   filterOptions: [
     {
       label: "功能",
@@ -137,7 +140,7 @@ const statusColumn = reactive({
   },
   filter: true,
   filterMultiple: false,
-  filterOptionValues: [0],
+  filterOptionValue: 0,
   filterOptions: [
     {
       label: "待评审",
@@ -172,7 +175,7 @@ const feasibilityColumn = reactive({
   },
   filter: true,
   filterMultiple: false,
-  filterOptionValues: [0],
+  filterOptionValue: 0,
   filterOptions: [
     {
       label: "不可行",
@@ -255,6 +258,38 @@ const columns = [
     }
   }
 ]
+const handleFiltersChange = (filters: DataTableFilterState, sourceColumn: DataTableBaseColumn) => {
+  if (!loading.value) {
+    switch (sourceColumn.key) {
+      case "status":
+        if (filters["status"] instanceof Array) {
+          statusColumn.filterOptionValue = (filters["status"][0] as number) || 0
+        } else {
+          statusColumn.filterOptionValue = filters["status"] as number
+        }
+        condition.value.status = statusColumn.filterOptionValue
+        break
+      case "feasibility":
+        if (filters["feasibility"] instanceof Array) {
+          feasibilityColumn.filterOptionValue = (filters["feasibility"][0] as number) || 0
+        } else {
+          feasibilityColumn.filterOptionValue = filters["feasibility"] as number
+        }
+        condition.value.feasibility = feasibilityColumn.filterOptionValue
+        break
+      case "type":
+        if (filters["type"] instanceof Array) {
+          typeColumn.filterOptionValue = (filters["type"][0] as number) || 0
+        } else {
+          typeColumn.filterOptionValue = filters["type"] as number
+        }
+        condition.value.type = typeColumn.filterOptionValue
+        break
+    }
+
+    refresh()
+  }
+}
 
 const drawerActive = ref(false)
 const currentData = ref<ProjectRequirement>({
@@ -340,6 +375,7 @@ const loadModules = () => {
             :row-key="(row: ProjectRequirement) => row.id"
             :on-update:page="handlePageChange"
             :on-update:page-size="handlePageSizeChange"
+            :on-update:filters="handleFiltersChange"
           />
         </n-gi>
       </n-grid>

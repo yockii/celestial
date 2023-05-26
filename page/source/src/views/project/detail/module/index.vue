@@ -270,9 +270,13 @@ const condition = ref<ProjectModuleCondition>({
 })
 const refresh = () => {
   loading.value = true
-  getProjectModuleList(condition.value).then((res) => {
-    list.value = res.items
-  })
+  getProjectModuleList(condition.value)
+    .then((res) => {
+      list.value = res.items
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 // 抽屉

@@ -155,10 +155,12 @@ func (s *projectRequirementService) PaginateBetweenTimes(condition *model.Projec
 	err = tx.Find(&list, &model.ProjectRequirement{
 		ProjectID:   condition.ProjectID,
 		StageID:     condition.StageID,
+		Type:        condition.Type,
 		Priority:    condition.Priority,
 		Source:      condition.Source,
 		OwnerID:     condition.OwnerID,
 		Feasibility: condition.Feasibility,
+		Status:      condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
