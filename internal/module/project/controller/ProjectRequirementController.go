@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -29,6 +30,16 @@ func (c *projectRequirementController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
 		})
+	}
+
+	if currentUserId, err := helper.GetCurrentUserID(ctx); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " user info",
+		})
+	} else {
+		instance.OwnerID = currentUserId
 	}
 
 	duplicated, success, err := service.ProjectRequirementService.Add(instance)

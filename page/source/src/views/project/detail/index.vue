@@ -7,11 +7,14 @@ import { KeyboardBackspaceOutlined } from "@vicons/material"
 import Dashboard from "./dashboard/index.vue"
 import Plan from "./plan/index.vue"
 import Module from "./module/index.vue"
+import Requirement from "./requirement/index.vue"
 import { FormInst, NButton } from "naive-ui"
+import { useProjectStore } from "@/store/project"
+import { storeToRefs } from "pinia"
+
 const router = useRouter()
 const id = useRoute().params.id as string
-const project = ref<Project | null>(null)
-const projectTab = ref<string>("项目总览")
+const { project, tab } = storeToRefs(useProjectStore())
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
@@ -85,7 +88,7 @@ onMounted(() => {
         </n-gi>
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
-            <n-tabs id="project-tabs" v-model:value="projectTab" type="line" justify-content="space-between">
+            <n-tabs id="project-tabs" v-model:value="tab" type="line" justify-content="space-between">
               <n-tab name="项目总览"></n-tab>
               <n-tab name="项目计划"></n-tab>
               <n-tab name="功能模块"></n-tab>
@@ -98,7 +101,7 @@ onMounted(() => {
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
-            <n-button v-if="projectTab == '项目总览'" size="small" type="primary" @click="showProjectSettings">项目设置</n-button>
+            <n-button v-if="tab == '项目总览'" size="small" type="primary" @click="showProjectSettings">项目设置</n-button>
           </n-gi>
         </template>
         <n-gi v-else :span="18" class="flex flex-justify-center flex-items-center h-full">
@@ -109,15 +112,16 @@ onMounted(() => {
     <n-layout-content content-style="margin: 16px;">
       <template v-if="project?.id">
         <keep-alive>
-          <dashboard v-if="project && projectTab == '项目总览'" :project="project" />
+          <dashboard v-if="project && tab == '项目总览'" :project="project" />
         </keep-alive>
-
         <keep-alive>
-          <plan v-if="project && projectTab == '项目计划'" :project="project" />
+          <plan v-if="project && tab == '项目计划'" :project="project" />
         </keep-alive>
-
         <keep-alive>
-          <module v-if="project && projectTab == '功能模块'" :project="project" />
+          <module v-if="project && tab == '功能模块'" :project="project" />
+        </keep-alive>
+        <keep-alive>
+          <requirement v-if="project && tab == '项目需求'" :project="project" />
         </keep-alive>
       </template>
     </n-layout-content>
@@ -127,13 +131,13 @@ onMounted(() => {
     <n-drawer-content>
       <n-form ref="formRef" :model="copiedProject" :rules="projectRules" label-width="100px" label-placement="left">
         <n-form-item label="项目名称" path="name">
-          <n-input v-model:value="copiedProject.name" placeholder="请输入项目名称" />
+          <n-input v-model:value="copiedProject!.name" placeholder="请输入项目名称" />
         </n-form-item>
         <n-form-item label="项目代码" path="code">
-          <n-input v-model:value="copiedProject.code" placeholder="请输入项目代码" />
+          <n-input v-model:value="copiedProject!.code" placeholder="请输入项目代码" />
         </n-form-item>
         <n-form-item label="项目描述" path="description">
-          <n-input type="textarea" v-model:value="copiedProject.description" placeholder="请输入项目描述" />
+          <n-input type="textarea" v-model:value="copiedProject!.description" placeholder="请输入项目描述" />
         </n-form-item>
       </n-form>
       <template #footer>

@@ -2,7 +2,18 @@
 import { ProjectPlan, ProjectPlanCondition, Project } from "@/types/project"
 import { computed, h, reactive, ref } from "vue"
 import dayjs from "dayjs"
-import { FormInst, FormItemRule, NButton, NButtonGroup, NGrid, NGridItem, NPopconfirm, PaginationProps } from "naive-ui"
+import {
+  DataTableFilterState,
+  DataTableSortState,
+  FormInst,
+  FormItemRule,
+  NButton,
+  NButtonGroup,
+  NGrid,
+  NGridItem,
+  NPopconfirm,
+  PaginationProps
+} from "naive-ui"
 import { addProjectPlan, deleteProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/projectPlan"
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
@@ -204,31 +215,33 @@ const handlePageSizeChange = (pageSize: number) => {
   condition.value.limit = pageSize
   refresh()
 }
-const handleFiltersChange = (filters) => {
+const handleFiltersChange = (filters: DataTableFilterState) => {
   if (!loading.value) {
     const filterValues = filters.status || []
-    condition.value.status = filterValues[0] || 0
+    if (filterValues instanceof Array) {
+      condition.value.status = (filterValues[0] as number) || 0
+    }
     refresh()
   }
 }
-const handleSorterChange = (sorter) => {
+const handleSorterChange = (sorter: DataTableSortState) => {
   if (!loading.value) {
     const { columnKey, order } = sorter
     let field = "start_time"
     if (columnKey === "createTime") {
-      createTimeColumn.sortOrder = order
+      createTimeColumn.sortOrder = order === "ascend"
       field = "create_time"
     } else if (columnKey === "startTime") {
-      startTimeColumn.sortOrder = order
+      startTimeColumn.sortOrder = order === "ascend"
       field = "start_time"
     } else if (columnKey === "endTime") {
-      endTimeColumn.sortOrder = order
+      endTimeColumn.sortOrder = order === "ascend"
       field = "end_time"
     } else if (columnKey === "actualStartTime") {
-      actualStartTimeColumn.sortOrder = order
+      actualStartTimeColumn.sortOrder = order === "ascend"
       field = "actual_start_time"
     } else if (columnKey === "actualEndTime") {
-      actualEndTimeColumn.sortOrder = order
+      actualEndTimeColumn.sortOrder = order === "ascend"
       field = "actual_end_time"
     }
     condition.value.orderBy = field + (order === "ascend" ? " asc" : " desc")

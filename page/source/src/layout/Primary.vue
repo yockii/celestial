@@ -46,11 +46,13 @@ const needSidebar = computed(() => memStore.sideMenus.length > 0)
 const stageStore = useStageStore()
 onMounted(() => {
   // memStore.startTicker()
-  getStageList({ limit: 100, name: "", offset: 0, status: 0 }).then((res) => {
-    if (res) {
-      stageStore.stageList = res.items
-    }
-  })
+  if (stageStore.stageList.length === 0) {
+    getStageList({ limit: 100, name: "", offset: 0, status: 1 }).then((res) => {
+      if (res) {
+        stageStore.stageList = res.items
+      }
+    })
+  }
 })
 </script>
 

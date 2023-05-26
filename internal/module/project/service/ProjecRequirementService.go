@@ -35,7 +35,18 @@ func (s *projectRequirementService) Add(instance *model.ProjectRequirement) (dup
 		return
 	}
 
+	// 如果有对应的模块ID，则获取模块的fullPath
+	if instance.ModuleID != 0 {
+		module := &model.ProjectModule{ID: instance.ModuleID}
+		if err = database.DB.Model(module).First(&module).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.FullPath = module.FullPath
+	}
+
 	instance.ID = util.SnowflakeId()
+	instance.Status = model.ProjectRequirementStatusPendingReview
 
 	if err = database.DB.Create(instance).Error; err != nil {
 		logger.Errorln(err)
@@ -52,9 +63,29 @@ func (s *projectRequirementService) Update(instance *model.ProjectRequirement) (
 		return
 	}
 
+	// 对比原来的模块ID和新的模块ID是否一致，不一致则需要更新fullPath
+	var oldModuleID uint64
+	err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: instance.ID}).Select("module_id").First(&oldModuleID).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Errorln(err)
+			return
+		}
+	}
+	if oldModuleID != instance.ModuleID {
+		module := &model.ProjectModule{ID: instance.ModuleID}
+		if err = database.DB.Model(module).First(&module).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.FullPath = module.FullPath
+	}
+
 	err = database.DB.Where(&model.ProjectRequirement{ID: instance.ID}).Updates(&model.ProjectRequirement{
 		ProjectID:   instance.ProjectID,
+		ModuleID:    instance.ModuleID,
 		StageID:     instance.StageID,
+		Type:        instance.Type,
 		Name:        instance.Name,
 		Detail:      instance.Detail,
 		Priority:    instance.Priority,
@@ -66,6 +97,7 @@ func (s *projectRequirementService) Update(instance *model.ProjectRequirement) (
 		logger.Errorln(err)
 		return
 	}
+
 	success = true
 	return
 }

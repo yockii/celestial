@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { Project, ProjectModule, ProjectModuleCondition } from "@/types/project"
-import { Ref, ComputedRef, computed, ref } from "vue"
+import { Project, ProjectModule, ProjectModuleCondition, ProjectRequirement } from "@/types/project"
+import { ComputedRef, computed, ref, RendererElement, RendererNode } from "vue"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage } from "naive-ui"
-import { addProjectModule, getProjectModuleList, updateProjectModule } from "@/service/api/projectModule"
-const message = useMessage()
+import { addProjectModule, deleteProjectModule, getProjectModuleList, updateProjectModule } from "@/service/api/projectModule"
+import { storeToRefs } from "pinia"
+import { useProjectStore } from "@/store/project"
+import Drawer from "../requirement/drawer/index.vue"
 
+const message = useMessage()
+const projectStore = useProjectStore()
 const props = defineProps<{
   project: Project
 }>()
@@ -20,7 +24,8 @@ type CombinedModule = {
   lv4Module?: ProjectModule
   [key: string]: unknown
 }
-const list: Ref<ProjectModule[]> = ref([])
+const { modules: list } = storeToRefs(projectStore)
+// const list: Ref<ProjectModule[]> = ref([])
 const data: ComputedRef<CombinedModule[]> = computed(() => {
   const combinedModules: CombinedModule[] = []
   const lv1Modules = list.value.filter((item) => !item.parentId || item.parentId === "")
@@ -142,7 +147,6 @@ const countModules = (lv: number, cm: CombinedModule) => {
       (item[moduleName] as ProjectModule).parentId === (cm[moduleName] as ProjectModule).parentId &&
       item[columnName] === cm[columnName]
   ).length
-  console.log(columnName, cm[columnName], l)
   return l
 }
 const columns = [
@@ -191,17 +195,22 @@ const columns = [
     key: "operation",
     render: (rowData: CombinedModule) => {
       let module = rowData.lv4Module ? rowData.lv4Module : rowData.lv3Module ? rowData.lv3Module : rowData.lv2Module ? rowData.lv2Module : rowData.lv1Module
-      return h(NButtonGroup, {}, () => [
-        h(
-          NButton,
-          {
-            size: "small",
-            onClick: () => handleNewRequirement(module)
-          },
-          {
-            default: () => "新增需求"
-          }
-        ),
+      const btnGroup: globalThis.VNode<RendererNode, RendererElement, { [key: string]: unknown }>[] = []
+      if (module.status === 2) {
+        btnGroup.push(
+          h(
+            NButton,
+            {
+              size: "small",
+              onClick: () => handleNewRequirement(module)
+            },
+            {
+              default: () => "新增需求"
+            }
+          )
+        )
+      }
+      btnGroup.push(
         h(
           NButton,
           {
@@ -234,7 +243,9 @@ const columns = [
               )
           }
         )
-      ])
+      )
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]
@@ -247,7 +258,9 @@ const handleEditData = (module: ProjectModule) => {
   drawerActive.value = true
 }
 const handleDeleteData = (id: string) => {
-  console.log(id)
+  deleteProjectModule(id).then(() => {
+    refresh()
+  })
 }
 const loading = ref(false)
 const condition = ref<ProjectModuleCondition>({
@@ -320,14 +333,23 @@ const rules = {
   }
 }
 
-// 新增需求
+// TODO 新增需求
+const showNewRequirement = ref(false)
+const requirementData = ref<ProjectRequirement>({
+  id: "",
+  name: "",
+  projectId: props.project.id
+})
 const handleNewRequirement = (module: ProjectModule) => {
-  console.log(module)
+  requirementData.value.moduleId = module.id
+  showNewRequirement.value = true
 }
 
 // 加载动作
 onMounted(() => {
-  refresh()
+  if (list.value.length === 0) {
+    refresh()
+  }
 })
 </script>
 
@@ -370,6 +392,8 @@ onMounted(() => {
       </template>
     </n-drawer-content>
   </n-drawer>
+
+  <drawer :project-id="project.id" v-model:drawer-active="showNewRequirement" :data="requirementData" />
 </template>
 
 <style scoped></style>
