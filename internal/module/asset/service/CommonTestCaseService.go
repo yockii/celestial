@@ -10,21 +10,20 @@ import (
 	"time"
 )
 
-var AssetFileService = new(assetFileService)
+var CommonTestCaseService = new(commonTestCaseService)
 
-type assetFileService struct{}
+type commonTestCaseService struct{}
 
-// Add 添加资源
-func (s *assetFileService) Add(instance *model.File) (duplicated bool, success bool, err error) {
-	if instance.Name == "" || instance.CategoryID == 0 || instance.OssConfigID == 0 {
-		err = errors.New("Name and CategoryID and oss config is required ")
+// Add 添加测试用例
+func (s *commonTestCaseService) Add(instance *model.CommonTestCase) (duplicated bool, success bool, err error) {
+	if instance.Name == "" || instance.CategoryID == 0 {
+		err = errors.New("Name and categoryID is required ")
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.File{}).Where(&model.File{
+	err = database.DB.Model(&model.CommonTestCase{}).Where(&model.CommonTestCase{
 		CategoryID: instance.CategoryID,
 		Name:       instance.Name,
-		Suffix:     instance.Suffix,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -45,17 +44,16 @@ func (s *assetFileService) Add(instance *model.File) (duplicated bool, success b
 	return
 }
 
-// Update 更新资源基本信息
-func (s *assetFileService) Update(instance *model.File) (success bool, err error) {
+// Update 更新测试用例基本信息
+func (s *commonTestCaseService) Update(instance *model.CommonTestCase) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	err = database.DB.Where(&model.File{ID: instance.ID}).Updates(&model.File{
+	err = database.DB.Where(&model.CommonTestCase{ID: instance.ID}).Updates(&model.CommonTestCase{
 		CategoryID: instance.CategoryID,
 		Name:       instance.Name,
-		Suffix:     instance.Suffix,
 		CreatorID:  instance.CreatorID,
 	}).Error
 	if err != nil {
@@ -66,13 +64,13 @@ func (s *assetFileService) Update(instance *model.File) (success bool, err error
 	return
 }
 
-// Delete 删除资源
-func (s *assetFileService) Delete(id uint64) (success bool, err error) {
+// Delete 删除测试用例
+func (s *commonTestCaseService) Delete(id uint64) (success bool, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.File{ID: id}).Delete(&model.File{}).Error
+	err = database.DB.Where(&model.CommonTestCase{ID: id}).Delete(&model.CommonTestCase{}).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -82,8 +80,8 @@ func (s *assetFileService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.File, err error) {
-	tx := database.DB.Model(&model.File{}).Limit(100)
+func (s *commonTestCaseService) PaginateBetweenTimes(condition *model.CommonTestCase, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.CommonTestCase, err error) {
+	tx := database.DB.Model(&model.CommonTestCase{}).Limit(100)
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}
@@ -111,12 +109,9 @@ func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int
 		if condition.Name != "" {
 			tx = tx.Where("name like ?", "%"+condition.Name+"%")
 		}
-		if condition.Suffix != "" {
-			tx = tx.Where("suffix like ?", "%"+condition.Suffix+"%")
-		}
 	}
 
-	err = tx.Find(&list, &model.File{
+	err = tx.Find(&list, &model.CommonTestCase{
 		CategoryID: condition.CategoryID,
 		CreatorID:  condition.CreatorID,
 	}).Offset(-1).Limit(-1).Count(&total).Error
@@ -127,14 +122,14 @@ func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int
 	return
 }
 
-// Instance 获取资源实例
-func (s *assetFileService) Instance(id uint64) (instance *model.File, err error) {
+// Instance 获取测试用例实例
+func (s *commonTestCaseService) Instance(id uint64) (instance *model.CommonTestCase, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	instance = &model.File{}
-	if err = database.DB.Where(&model.File{ID: id}).First(instance).Error; err != nil {
+	instance = &model.CommonTestCase{}
+	if err = database.DB.Where(&model.CommonTestCase{ID: id}).First(instance).Error; err != nil {
 		logger.Errorln(err)
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AssetFile struct {
+type File struct {
 	ID          uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	CategoryID  uint64         `json:"categoryId,omitempty,string" gorm:"index;comment:分类ID"`
 	OssConfigID uint64         `json:"ossConfigId,omitempty,string" gorm:"comment:OSS配置ID"`
@@ -19,11 +19,11 @@ type AssetFile struct {
 	DeleteTime  gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 
-func (*AssetFile) TableComment() string {
+func (*File) TableComment() string {
 	return `资产文件表`
 }
 
-func (af *AssetFile) UnmarshalJSON(b []byte) error {
+func (af *File) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
 	af.ID = j.Get("id").Uint()
 	af.CategoryID = j.Get("categoryId").Uint()
@@ -39,5 +39,5 @@ func (af *AssetFile) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &AssetFile{})
+	Models = append(Models, &File{})
 }

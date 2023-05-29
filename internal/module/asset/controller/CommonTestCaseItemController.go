@@ -9,12 +9,12 @@ import (
 	"github.com/yockii/ruomu-core/server"
 )
 
-var AssetFileController = new(assetFileController)
+var CommonTestCaseItemController = new(commonTestCaseItemController)
 
-type assetFileController struct{}
+type commonTestCaseItemController struct{}
 
-func (c *assetFileController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.File)
+func (c *commonTestCaseItemController) Add(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCaseItem)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -24,14 +24,14 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.Name == "" {
+	if instance.Content == "" {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " name",
+			Msg:  server.ResponseMsgParamNotEnough + " content",
 		})
 	}
 
-	duplicated, success, err := service.AssetFileService.Add(instance)
+	duplicated, success, err := service.CommonTestCaseItemService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -55,39 +55,8 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.File)
-	if err := ctx.BodyParser(instance); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-
-	// 处理必填
-	if instance.ID == 0 {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " id",
-		})
-	}
-
-	success, err := service.AssetFileService.Update(instance)
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
-		})
-	}
-
-	return ctx.JSON(&server.CommonResponse{
-		Data: success,
-	})
-}
-
-func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
-	instance := new(model.File)
+func (c *commonTestCaseItemController) Delete(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCaseItem)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -104,7 +73,7 @@ func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.AssetFileService.Delete(instance.ID)
+	success, err := service.CommonTestCaseItemService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -117,8 +86,8 @@ func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) List(ctx *fiber.Ctx) error {
-	instance := new(domain.AssetFileListRequest)
+func (c *commonTestCaseItemController) List(ctx *fiber.Ctx) error {
+	instance := new(domain.CommonTestCaseItemListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -144,7 +113,7 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 		tcList["create_time"] = instance.CreateTimeCondition
 	}
 
-	total, list, err := service.AssetFileService.PaginateBetweenTimes(&instance.File, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.CommonTestCaseItemService.PaginateBetweenTimes(&instance.CommonTestCaseItem, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -161,8 +130,8 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) Instance(ctx *fiber.Ctx) error {
-	condition := new(model.File)
+func (c *commonTestCaseItemController) Instance(ctx *fiber.Ctx) error {
+	condition := new(model.CommonTestCaseItem)
 	if err := ctx.QueryParser(condition); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -176,7 +145,7 @@ func (c *assetFileController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.AssetFileService.Instance(condition.ID)
+	dept, err := service.CommonTestCaseItemService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

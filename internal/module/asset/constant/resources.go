@@ -12,12 +12,12 @@ const (
 
 // 资产文件
 const (
-	ResourceAssetFile         = "assetFile"
-	ResourceAssetFileAdd      = "assetFile:add"
-	ResourceAssetFileDelete   = "assetFile:delete"
-	ResourceAssetFileUpdate   = "assetFile:update"
-	ResourceAssetFileList     = "assetFile:list"
-	ResourceAssetFileInstance = "assetFile:instance"
+	ResourceFile         = "file"
+	ResourceFileAdd      = "file:add"
+	ResourceFileDelete   = "file:delete"
+	ResourceFileUpdate   = "file:update"
+	ResourceFileList     = "file:list"
+	ResourceFileInstance = "file:instance"
 )
 
 // 对象存储配置
@@ -28,4 +28,23 @@ const (
 	ResourceOssConfigUpdate   = "ossConfig:update"
 	ResourceOssConfigList     = "ossConfig:list"
 	ResourceOssConfigInstance = "ossConfig:instance"
+)
+
+// 通用测试用例
+const (
+	ResourceCommonTestCase         = "commonTestCase"
+	ResourceCommonTestCaseAdd      = "commonTestCase:add"
+	ResourceCommonTestCaseDelete   = "commonTestCase:delete"
+	ResourceCommonTestCaseUpdate   = "commonTestCase:update"
+	ResourceCommonTestCaseList     = "commonTestCase:list"
+	ResourceCommonTestCaseInstance = "commonTestCase:instance"
+)
+
+// 通用测试用例项
+const (
+	ResourceCommonTestCaseItem         = "commonTestCaseItem"
+	ResourceCommonTestCaseItemAdd      = "commonTestCaseItem:add"
+	ResourceCommonTestCaseItemDelete   = "commonTestCaseItem:delete"
+	ResourceCommonTestCaseItemList     = "commonTestCaseItem:list"
+	ResourceCommonTestCaseItemInstance = "commonTestCaseItem:instance"
 )

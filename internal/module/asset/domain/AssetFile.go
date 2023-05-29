@@ -6,7 +6,7 @@ import (
 )
 
 type AssetFileListRequest struct {
-	model.AssetFile
+	model.File
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	DeleteTimeCondition *server.TimeCondition `json:"deleteTimeCondition"`
 	OrderBy             string                `json:"orderBy"`

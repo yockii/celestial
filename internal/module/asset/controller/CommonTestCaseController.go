@@ -9,12 +9,12 @@ import (
 	"github.com/yockii/ruomu-core/server"
 )
 
-var AssetFileController = new(assetFileController)
+var CommonTestCaseController = new(commonTestCaseController)
 
-type assetFileController struct{}
+type commonTestCaseController struct{}
 
-func (c *assetFileController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.File)
+func (c *commonTestCaseController) Add(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCase)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -31,7 +31,7 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	duplicated, success, err := service.AssetFileService.Add(instance)
+	duplicated, success, err := service.CommonTestCaseService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -55,8 +55,8 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.File)
+func (c *commonTestCaseController) Update(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCase)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -73,7 +73,7 @@ func (c *assetFileController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.AssetFileService.Update(instance)
+	success, err := service.CommonTestCaseService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -86,8 +86,8 @@ func (c *assetFileController) Update(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
-	instance := new(model.File)
+func (c *commonTestCaseController) Delete(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCase)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -104,7 +104,7 @@ func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.AssetFileService.Delete(instance.ID)
+	success, err := service.CommonTestCaseService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -117,8 +117,8 @@ func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) List(ctx *fiber.Ctx) error {
-	instance := new(domain.AssetFileListRequest)
+func (c *commonTestCaseController) List(ctx *fiber.Ctx) error {
+	instance := new(domain.CommonTestCaseListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -144,7 +144,7 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 		tcList["create_time"] = instance.CreateTimeCondition
 	}
 
-	total, list, err := service.AssetFileService.PaginateBetweenTimes(&instance.File, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.CommonTestCaseService.PaginateBetweenTimes(&instance.CommonTestCase, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -161,8 +161,8 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *assetFileController) Instance(ctx *fiber.Ctx) error {
-	condition := new(model.File)
+func (c *commonTestCaseController) Instance(ctx *fiber.Ctx) error {
+	condition := new(model.CommonTestCase)
 	if err := ctx.QueryParser(condition); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -176,7 +176,7 @@ func (c *assetFileController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.AssetFileService.Instance(condition.ID)
+	dept, err := service.CommonTestCaseService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
