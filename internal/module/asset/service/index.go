@@ -45,27 +45,27 @@ func InitService() {
 	{
 		resources = append(resources, &ucModel.Resource{
 			ResourceName: "资产文件",
-			ResourceCode: constant.ResourceAssetFile,
+			ResourceCode: constant.ResourceFile,
 			HttpMethod:   "ALL",
 		}, &ucModel.Resource{
 			ResourceName: "资产文件添加",
-			ResourceCode: constant.ResourceAssetFileAdd,
+			ResourceCode: constant.ResourceFileAdd,
 			HttpMethod:   "POST",
 		}, &ucModel.Resource{
 			ResourceName: "资产文件删除",
-			ResourceCode: constant.ResourceAssetFileDelete,
+			ResourceCode: constant.ResourceFileDelete,
 			HttpMethod:   "DELETE|POST",
 		}, &ucModel.Resource{
 			ResourceName: "资产文件修改",
-			ResourceCode: constant.ResourceAssetFileUpdate,
+			ResourceCode: constant.ResourceFileUpdate,
 			HttpMethod:   "PUT|POST",
 		}, &ucModel.Resource{
 			ResourceName: "资产文件列表",
-			ResourceCode: constant.ResourceAssetFileList,
+			ResourceCode: constant.ResourceFileList,
 			HttpMethod:   "GET",
 		}, &ucModel.Resource{
 			ResourceName: "资产文件详情",
-			ResourceCode: constant.ResourceAssetFileInstance,
+			ResourceCode: constant.ResourceFileInstance,
 			HttpMethod:   "GET",
 		})
 	}
