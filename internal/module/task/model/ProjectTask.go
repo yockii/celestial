@@ -5,6 +5,14 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ProjectTaskStatusCancel    = -1
+	ProjectTaskStatusNotStart  = 1
+	ProjectTaskStatusConfirmed = 2
+	ProjectTaskStatusDoing     = 3
+	ProjectTaskStatusDone      = 9
+)
+
 type ProjectTask struct {
 	ID               uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ProjectID        uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
@@ -12,7 +20,7 @@ type ProjectTask struct {
 	StageID          uint64         `json:"stageId,omitempty,string" gorm:"index;comment:阶段ID"`
 	ModuleID         uint64         `json:"moduleId,omitempty,string" gorm:"index;comment:模块ID"`
 	ParentID         uint64         `json:"parentId,omitempty,string" gorm:"index;comment:父任务ID"`
-	TaskName         string         `json:"taskName,omitempty" gorm:"comment:任务名称"`
+	Name             string         `json:"name,omitempty" gorm:"size:50;comment:任务名称"`
 	StartTime        int64          `json:"startTime,omitempty" gorm:"comment:开始时间"`
 	EndTime          int64          `json:"endTime,omitempty" gorm:"comment:结束时间"`
 	TaskDesc         string         `json:"taskDesc,omitempty" gorm:"comment:任务描述"`
@@ -22,8 +30,9 @@ type ProjectTask struct {
 	ActualEndTime    int64          `json:"actualEndTime,omitempty" gorm:"comment:实际结束时间"`
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
-	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 0-未开始 1-已确认 2-进行中 9-已完成"`
+	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成"`
 	CreatorID        uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
+	FullPath         string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径, 需求全路径 + / + 需求名 + / + 任务名"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime       int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime       gorm.DeletedAt `json:"deleteTime" gorm:"index"`
@@ -37,12 +46,13 @@ func (pt *ProjectTask) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
 	pt.ID = j.Get("id").Uint()
 	pt.ProjectID = j.Get("projectId").Uint()
+	pt.RequirementID = j.Get("requirementId").Uint()
 	pt.Priority = int(j.Get("priority").Int())
 	pt.StageID = j.Get("stageId").Uint()
 	pt.ModuleID = j.Get("moduleId").Uint()
 	pt.OwnerID = j.Get("ownerId").Uint()
 	pt.ParentID = j.Get("parentId").Uint()
-	pt.TaskName = j.Get("taskName").String()
+	pt.Name = j.Get("name").String()
 	pt.StartTime = j.Get("startTime").Int()
 	pt.EndTime = j.Get("endTime").Int()
 	pt.TaskDesc = j.Get("taskDesc").String()
@@ -51,6 +61,10 @@ func (pt *ProjectTask) UnmarshalJSON(b []byte) error {
 	pt.EstimateDuration = j.Get("estimateDuration").Int()
 	pt.ActualDuration = j.Get("actualDuration").Int()
 	pt.Status = int(j.Get("status").Int())
+	pt.CreatorID = j.Get("creatorId").Uint()
+	pt.FullPath = j.Get("fullPath").String()
+	pt.CreateTime = j.Get("createTime").Int()
+	pt.UpdateTime = j.Get("updateTime").Int()
 
 	return nil
 }

@@ -3,7 +3,7 @@ import { ProjectRequirement } from "@/types/project"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import { useMessage, FormInst, FormItemRule } from "naive-ui"
-import { addProjectRequirement, updateProjectRequirement } from "@/service/api/projectReqirement"
+import { addProjectRequirement, updateProjectRequirement } from "@/service/api/projectRequirement"
 const message = useMessage()
 const projectStore = useProjectStore()
 const { moduleTree } = storeToRefs(projectStore)

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
@@ -24,11 +25,23 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.TaskName == "" || instance.ProjectID == 0 {
+	if instance.Name == "" || instance.ProjectID == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
 		})
+	}
+
+	// 获取当前用户id作为ownerId和creatorId
+	if currentUserId, err := helper.GetCurrentUserID(ctx); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " user info",
+		})
+	} else {
+		instance.OwnerID = currentUserId
+		instance.CreatorID = currentUserId
 	}
 
 	duplicated, success, err := service.ProjectTaskService.Add(instance)
@@ -147,7 +160,7 @@ func (c *projectTaskController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectTaskService.PaginateBetweenTimes(&instance.ProjectTask, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.ProjectTaskService.PaginateBetweenTimes(&instance.ProjectTask, instance.OnlyParent, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

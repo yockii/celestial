@@ -136,3 +136,40 @@ export type ProjectRequirementCondition = Condition & {
   priority?: number
   fullPath?: string
 }
+
+export type ProjectTask = {
+  id: string
+  projectId: string
+  moduleId?: string
+  requirementId?: string
+  name: string
+  stageId?: string
+  parentId?: string
+  startTime?: number
+  endTime?: number
+  taskDesc?: string
+  priority?: number
+  ownerId?: string
+  status?: number
+  actualStartTime?: number
+  actualEndTime?: number
+  estimateDuration?: number
+  actualDuration?: number
+  createTime?: number
+  updateTime?: number
+  creatorId?: string
+}
+
+export type ProjectTaskCondition = Condition & {
+  projectId: string
+  onlyParent?: boolean
+  name?: string
+  moduleId?: string
+  requirementId?: string
+  status?: number
+  priority?: number
+  ownerId?: string
+  stageId?: string
+  parentId?: string
+  fullPath?: string
+}

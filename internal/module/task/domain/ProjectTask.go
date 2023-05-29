@@ -7,6 +7,7 @@ import (
 
 type ProjectTaskListTask struct {
 	model.ProjectTask
+	OnlyParent               bool                  `json:"onlyParent"`
 	StartTimeCondition       *server.TimeCondition `json:"startTimeCondition"`
 	EndTimeCondition         *server.TimeCondition `json:"endTimeCondition"`
 	ActualStartTimeCondition *server.TimeCondition `json:"actualStartTimeCondition"`

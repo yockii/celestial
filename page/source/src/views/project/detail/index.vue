@@ -9,6 +9,7 @@ import Plan from "./plan/index.vue"
 import Module from "./module/index.vue"
 import Requirement from "./requirement/index.vue"
 import Task from "./task/index.vue"
+import Test from "./test/index.vue"
 import { FormInst, NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
@@ -126,6 +127,9 @@ onMounted(() => {
         </keep-alive>
         <keep-alive>
           <task v-if="project && tab == '工作任务'" :project="project" />
+        </keep-alive>
+        <keep-alive>
+          <test v-if="project && tab == '测试用例'" :project="project" />
         </keep-alive>
       </template>
     </n-layout-content>

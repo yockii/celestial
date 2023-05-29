@@ -13,7 +13,7 @@ type ProjectModule struct {
 	Alias         string         `json:"alias,omitempty" gorm:"size:50;comment:模块别名"`
 	Remark        string         `json:"remark,omitempty" gorm:"size:200;comment:备注"`
 	ChildrenCount int            `json:"childrenCount,omitempty" gorm:"comment:子模块数量"`
-	FullPath      string         `json:"fullPath,omitempty" gorm:"comment:全路径"`
+	FullPath      string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径"`
 	CreatorID     uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	Status        int            `json:"status,omitempty" gorm:"comment:状态 1-待评审 2-待开发 9-已完成 -1-废弃"`
 	CreateTime    int64          `json:"createTime" gorm:"autoCreateTime:milli"`

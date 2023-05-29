@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { getProjectModuleList } from "@/service/api/projectModule"
-import { deleteProjectRequirement, getProjectRequirementList } from "@/service/api/projectRequirement"
+import { deleteProjectTask, getProjectTaskList } from "@/service/api/projectTask"
 import { useProjectStore } from "@/store/project"
-import { Project, ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
-import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
+import { Project, ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
+import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NBadge } from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
-import TaskDrawer from "../task/drawer/index.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
 const props = defineProps<{
   project: Project
 }>()
-const condition = ref<ProjectRequirementCondition>({
-  projectId: props.project.id
+const condition = ref<ProjectTaskCondition>({
+  projectId: props.project.id,
+  onlyParent: false
 })
-const list = ref<ProjectRequirement[]>([])
+const list = ref<ProjectTask[]>([])
 
 const { modules, moduleTree } = storeToRefs(projectStore)
 const treeSelected = (keys: string[], modules: ProjectModule[]) => {
@@ -46,7 +46,7 @@ const handlePageSizeChange = (pageSize: number) => {
 }
 const refresh = () => {
   loading.value = true
-  getProjectRequirementList(condition.value)
+  getProjectTaskList(condition.value)
     .then((res) => {
       if (res) {
         list.value = res.items
@@ -54,8 +54,7 @@ const refresh = () => {
         paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
         paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
         statusColumn.filterOptionValue = condition.value.status || 0
-        feasibilityColumn.filterOptionValue = condition.value.feasibility || 0
-        typeColumn.filterOptionValue = condition.value.type || 0
+        priorityColumn.filterOptionValue = condition.value.priority || 0
       }
     })
     .finally(() => {
@@ -65,76 +64,40 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: (row: ProjectRequirement) => row.detail && row.detail !== "",
-  renderExpand: (row: ProjectRequirement) => h("div", {}, { default: () => row.detail })
+  expandable: (row: ProjectTask) => row.taskDesc && row.taskDesc !== "",
+  renderExpand: (row: ProjectTask) => h("div", {}, { default: () => row.taskDesc })
 })
-const typeColumn = reactive({
-  title: "类型",
-  key: "type",
-  render: (row: ProjectRequirement) => {
-    switch (row.type) {
-      case 1:
-        return "功能"
-      case 2:
-        return "接口"
-      case 3:
-        return "性能"
-      case 4:
-        return "安全"
-      case 5:
-        return "体验"
-      case 6:
-        return "改进"
-      case 7:
-        return "其他"
-      default:
-        return "未知"
-    }
-  },
-  filter: true,
-  filterMultiple: false,
-  filterOptionValue: 0,
-  filterOptions: [
-    {
-      label: "功能",
-      value: 1
-    },
-    {
-      label: "接口",
-      value: 2
-    },
-    {
-      label: "性能",
-      value: 3
-    },
-    {
-      label: "安全",
-      value: 4
-    },
-    {
-      label: "体验",
-      value: 5
-    },
-    {
-      label: "改进",
-      value: 6
-    },
-    {
-      label: "其他",
-      value: 7
-    }
-  ]
+const nameColumn = reactive({
+  title: "任务名称",
+  key: "name",
+  render: (row: ProjectTask) => {
+    return h(
+      NBadge,
+      {
+        value: row.parentId ? "子" : "主",
+        offset: [10, 0],
+        type: row.parentId ? "info" : "success"
+      },
+      {
+        default: () => row.name
+      }
+    )
+  }
 })
 const statusColumn = reactive({
   title: "状态",
   key: "status",
-  render: (row: ProjectRequirement) => {
+  render: (row: ProjectTask) => {
     switch (row.status) {
+      case -1:
+        return "已取消"
       case 1:
-        return "待评审"
+        return "未开始"
       case 2:
-        return "已评审"
+        return "已确认"
       case 3:
+        return "进行中"
+      case 9:
         return "已完成"
       default:
         return "未知"
@@ -145,26 +108,34 @@ const statusColumn = reactive({
   filterOptionValue: 0,
   filterOptions: [
     {
-      label: "待评审",
+      label: "已取消",
+      value: -1
+    },
+    {
+      label: "未开始",
       value: 1
     },
     {
-      label: "已评审",
+      label: "已确认",
       value: 2
     },
     {
-      label: "已完成",
+      label: "进行中",
       value: 3
+    },
+    {
+      label: "已完成",
+      value: 9
     }
   ]
 })
-const feasibilityColumn = reactive({
-  title: "可行性",
-  key: "feasibility",
-  render: (row: ProjectRequirement) => {
-    switch (row.feasibility) {
-      case -1:
-        return "不可行"
+const priorityColumn = reactive({
+  title: "优先级",
+  key: "priority",
+  render: (row: ProjectTask) => {
+    switch (row.priority) {
+      case 0:
+        return "未评估"
       case 1:
         return "低"
       case 2:
@@ -180,8 +151,8 @@ const feasibilityColumn = reactive({
   filterOptionValue: 0,
   filterOptions: [
     {
-      label: "不可行",
-      value: -1
+      label: "未评估",
+      value: 0
     },
     {
       label: "低",
@@ -199,25 +170,21 @@ const feasibilityColumn = reactive({
 })
 const columns = [
   expandColumn,
-  {
-    title: "需求名称",
-    key: "name"
-  },
-  typeColumn,
-  feasibilityColumn,
+  nameColumn,
+  priorityColumn,
   statusColumn,
   {
     title: "操作",
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
-    render: (row: ProjectRequirement) => {
+    render: (row: ProjectTask) => {
       return h(NButtonGroup, {}, () => [
         h(
           NButton,
           {
             size: "small",
             onClick: () => {
-              handleAddProjectTask(row)
+              console.log(1)
             }
           },
           {
@@ -271,21 +238,13 @@ const handleFiltersChange = (filters: DataTableFilterState, sourceColumn: DataTa
         }
         condition.value.status = statusColumn.filterOptionValue
         break
-      case "feasibility":
-        if (filters["feasibility"] instanceof Array) {
-          feasibilityColumn.filterOptionValue = (filters["feasibility"][0] as number) || 0
+      case "priority":
+        if (filters["priority"] instanceof Array) {
+          priorityColumn.filterOptionValue = (filters["priority"][0] as number) || 0
         } else {
-          feasibilityColumn.filterOptionValue = filters["feasibility"] as number
+          priorityColumn.filterOptionValue = filters["priority"] as number
         }
-        condition.value.feasibility = feasibilityColumn.filterOptionValue
-        break
-      case "type":
-        if (filters["type"] instanceof Array) {
-          typeColumn.filterOptionValue = (filters["type"][0] as number) || 0
-        } else {
-          typeColumn.filterOptionValue = filters["type"] as number
-        }
-        condition.value.type = typeColumn.filterOptionValue
+        condition.value.priority = priorityColumn.filterOptionValue
         break
     }
 
@@ -294,49 +253,31 @@ const handleFiltersChange = (filters: DataTableFilterState, sourceColumn: DataTa
 }
 
 const drawerActive = ref(false)
-const currentData = ref<ProjectRequirement>({
+const currentData = ref<ProjectTask>({
   id: "",
   name: "",
   projectId: props.project.id
 })
 
-const handleEditData = (row: ProjectRequirement) => {
+const handleEditData = (row: ProjectTask) => {
   currentData.value = Object.assign({}, row)
   drawerActive.value = true
 }
 const handleDeleteData = (id: string) => {
-  deleteProjectRequirement(id).then((res) => {
+  deleteProjectTask(id).then((res) => {
     if (res) {
       message.success("删除成功")
       refresh()
     }
   })
 }
-const handleAddProjectRequirement = () => {
+const handleAddProjectTask = () => {
   currentData.value = {
     id: "",
     name: "",
     projectId: props.project.id
   }
   drawerActive.value = true
-}
-
-// 需求任务分解
-const taskDrawerActive = ref(false)
-const currentTaskData = ref<ProjectTask>({
-  id: "",
-  name: "",
-  projectId: ""
-})
-const handleAddProjectTask = (requirement: ProjectRequirement) => {
-  currentTaskData.value = {
-    id: "",
-    name: "",
-    projectId: props.project.id,
-    moduleId: requirement.moduleId,
-    requirementId: requirement.id
-  }
-  taskDrawerActive.value = true
 }
 
 // 加载页面
@@ -382,7 +323,13 @@ const loadModules = () => {
     <n-gi :span="5">
       <n-grid :cols="1" y-gap="16">
         <n-gi>
-          <n-button type="primary" @click="handleAddProjectRequirement">新增需求</n-button>
+          <n-space>
+            <n-switch v-model:value="condition.onlyParent" :round="false" @update:value="refresh" size="small" :loading="loading">
+              <template #checked>仅显示主任务</template>
+              <template #unchecked>显示所有任务</template>
+            </n-switch>
+            <n-button type="primary" @click="handleAddProjectTask">新增任务</n-button>
+          </n-space>
         </n-gi>
         <n-gi>
           <n-data-table
@@ -392,7 +339,7 @@ const loadModules = () => {
             :loading="loading"
             :columns="columns"
             :pagination="paginationReactive"
-            :row-key="(row: ProjectRequirement) => row.id"
+            :row-key="(row: ProjectTask) => row.id"
             :on-update:page="handlePageChange"
             :on-update:page-size="handlePageSizeChange"
             :on-update:filters="handleFiltersChange"
@@ -403,8 +350,4 @@ const loadModules = () => {
   </n-grid>
 
   <drawer :project-id="project.id" v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
-
-  <task-drawer :project-id="project.id" v-model:drawer-active="taskDrawerActive" v-model:data="currentTaskData" />
 </template>
-
-<style scoped></style>
