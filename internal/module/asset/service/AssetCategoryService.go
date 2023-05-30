@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -37,7 +38,18 @@ func (s *assetCategoryService) Add(instance *model.AssetCategory) (duplicated bo
 
 	instance.ID = util.SnowflakeId()
 
-	if err = database.DB.Create(instance).Error; err != nil {
+	// 事务处理，创建资源的同时，更新父级的子级数量
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Create(instance).Error; err != nil {
+			return err
+		}
+		if instance.ParentID != 0 {
+			if err = tx.Model(&model.AssetCategory{ID: instance.ParentID}).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
 		logger.Errorln(err)
 		return
 	}
@@ -52,16 +64,36 @@ func (s *assetCategoryService) Update(instance *model.AssetCategory) (success bo
 		return
 	}
 
-	err = database.DB.Where(&model.AssetCategory{ID: instance.ID}).Updates(&model.AssetCategory{
-		ParentID:  instance.ParentID,
-		Name:      instance.Name,
-		Type:      instance.Type,
-		CreatorID: instance.CreatorID,
-	}).Error
-	if err != nil {
+	// 检查parentId是否与旧数据相同，不同则更新各自的parent的子级数量
+	var oldParentID uint64
+	if err = database.DB.Model(&model.AssetCategory{ID: instance.ID}).Select("parent_id").Scan(&oldParentID).Error; err != nil {
 		logger.Errorln(err)
 		return
 	}
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if oldParentID != instance.ParentID {
+			if err = tx.Model(&model.AssetCategory{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if err = tx.Model(&model.AssetCategory{ID: instance.ParentID}).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		if err = tx.Where(&model.AssetCategory{ID: instance.ID}).Select("parent_id", "name", "type").Updates(&model.AssetCategory{
+			ParentID: instance.ParentID,
+			Name:     instance.Name,
+			Type:     instance.Type,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	}); err != nil {
+		return
+	}
+
 	success = true
 	return
 }
@@ -82,7 +114,7 @@ func (s *assetCategoryService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *assetCategoryService) PaginateBetweenTimes(condition *model.AssetCategory, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.AssetCategory, err error) {
+func (s *assetCategoryService) PaginateBetweenTimes(condition *model.AssetCategory, onlyParent bool, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.AssetCategory, err error) {
 	tx := database.DB.Model(&model.AssetCategory{}).Limit(100)
 	if limit > -1 {
 		tx = tx.Limit(limit)
@@ -111,6 +143,10 @@ func (s *assetCategoryService) PaginateBetweenTimes(condition *model.AssetCatego
 		if condition.Name != "" {
 			tx = tx.Where("name like ?", "%"+condition.Name+"%")
 		}
+	}
+
+	if condition.ParentID == 0 && onlyParent {
+		tx = tx.Where("parent_id = 0")
 	}
 
 	err = tx.Find(&list, &model.AssetCategory{

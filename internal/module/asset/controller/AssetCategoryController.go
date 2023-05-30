@@ -144,7 +144,7 @@ func (c *assetCategoryController) List(ctx *fiber.Ctx) error {
 		tcList["create_time"] = instance.CreateTimeCondition
 	}
 
-	total, list, err := service.AssetCategoryService.PaginateBetweenTimes(&instance.AssetCategory, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.AssetCategoryService.PaginateBetweenTimes(&instance.AssetCategory, instance.OnlyParent, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

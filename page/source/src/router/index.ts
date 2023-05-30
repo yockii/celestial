@@ -70,9 +70,14 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
-        path: "list",
-        name: "AssetList",
-        component: () => import("@/views/project/list/index.vue")
+        path: "file",
+        name: "File",
+        component: () => import("@/views/asset/file/index.vue")
+      },
+      {
+        path: "testcaselib",
+        name: "TestCaseLib",
+        component: () => import("@/views/asset/testCaseLib/index.vue")
       }
     ]
   },
@@ -95,6 +100,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "stage",
         name: "Stage",
         component: () => import("@/views/system/stage/index.vue")
+      },
+      {
+        path: "assetCategory",
+        name: "AssetCategory",
+        component: () => import("@/views/system/assetCategory/index.vue")
       }
     ]
   }

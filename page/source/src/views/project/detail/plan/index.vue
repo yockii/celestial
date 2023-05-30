@@ -23,7 +23,7 @@ const props = defineProps<{
 }>()
 
 const stageStore = useStageStore()
-const { stageList, stageListWithNone } = storeToRefs(stageStore)
+const { stageListWithNone } = storeToRefs(stageStore)
 
 const expandColumn = reactive({
   key: "expand",
