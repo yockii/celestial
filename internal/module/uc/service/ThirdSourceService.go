@@ -17,12 +17,12 @@ type thirdSourceService struct{}
 // Add 添加第三方登录源
 func (s *thirdSourceService) Add(instance *model.ThirdSource) (duplicated bool, success bool, err error) {
 	// 判断必填
-	if instance.SourceName == "" || instance.SourceCode == "" {
+	if instance.Name == "" || instance.Code == "" {
 		err = errors.New("必填项不能为空")
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.ThirdSource{}).Where(&model.ThirdSource{SourceName: instance.SourceName, SourceCode: instance.SourceCode}).Count(&c).Error
+	err = database.DB.Model(&model.ThirdSource{}).Where(&model.ThirdSource{Name: instance.Name, Code: instance.Code}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -51,8 +51,8 @@ func (s *thirdSourceService) Update(instance *model.ThirdSource) (success bool, 
 		return
 	}
 	err = database.DB.Where(&model.ThirdSource{ID: instance.ID}).Updates(&model.ThirdSource{
-		SourceName:    instance.SourceName,
-		SourceCode:    instance.SourceCode,
+		Name:          instance.Name,
+		Code:          instance.Code,
 		Configuration: instance.Configuration,
 		MatchConfig:   instance.MatchConfig,
 	}).Error
@@ -107,11 +107,11 @@ func (s *thirdSourceService) PaginateBetweenTimes(condition *model.ThirdSource, 
 
 	// 模糊查询
 	if condition != nil {
-		if condition.SourceName != "" {
-			tx = tx.Where("source_name like ?", "%"+condition.SourceName+"%")
+		if condition.Name != "" {
+			tx = tx.Where("source_name like ?", "%"+condition.Name+"%")
 		}
-		if condition.SourceCode != "" {
-			tx = tx.Where("source_code like ?", "%"+condition.SourceCode+"%")
+		if condition.Code != "" {
+			tx = tx.Where("source_code like ?", "%"+condition.Code+"%")
 		}
 	}
 	err = tx.Omit("configuration", "matchConfig").Find(&list, &model.ThirdSource{

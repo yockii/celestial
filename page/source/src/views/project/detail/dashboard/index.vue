@@ -36,10 +36,22 @@ const riskType = computed(() => {
 })
 // ///////////////////////////////////////////
 // 项目计划信息
-const projectPlan = ref<ProjectPlan>({})
+const projectPlan = ref<ProjectPlan>({
+  id: "",
+  projectId: "",
+  planName: "",
+  startTime: 0,
+  endTime: 0,
+  status: 0
+})
 
 // 阶段信息 //////////////////////////////////
-const projectStage = ref<Stage>({})
+const projectStage = ref<Stage>({
+  id: "",
+  name: "",
+  orderNum: 0,
+  status: 0
+})
 
 // 项目角色信息 //////////////////////////////
 const projectRoles = ref<Array<Role>>([])

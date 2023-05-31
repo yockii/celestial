@@ -33,7 +33,7 @@ func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept b
 	}
 	if err = database.DB.Where(user).Attrs(model.ThirdUser{
 		ID:         util.SnowflakeId(),
-		SourceCode: source.SourceCode,
+		SourceCode: source.Code,
 		Status:     model.UserStatusNormal,
 	}).FirstOrCreate(user).Error; err != nil {
 		logger.Error(err)

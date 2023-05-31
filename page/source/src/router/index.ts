@@ -105,6 +105,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "assetCategory",
         name: "AssetCategory",
         component: () => import("@/views/system/assetCategory/index.vue")
+      },
+      {
+        path: "thirdSource",
+        name: "ThirdSource",
+        component: () => import("@/views/system/thirdSource/index.vue")
       }
     ]
   }

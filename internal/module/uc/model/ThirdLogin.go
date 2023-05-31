@@ -4,8 +4,8 @@ import "github.com/tidwall/gjson"
 
 type ThirdSource struct {
 	ID            uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	SourceName    string `json:"sourceName,omitempty" gorm:"size:50;comment:第三方来源名称"`        // 第三方来源名称
-	SourceCode    string `json:"sourceCode,omitempty" gorm:"size:50;comment:第三方来源代码"`        // 第三方来源代码
+	Name          string `json:"name,omitempty" gorm:"size:50;comment:第三方来源名称"`              // 第三方来源名称
+	Code          string `json:"code,omitempty" gorm:"size:50;comment:第三方来源代码"`              // 第三方来源代码
 	CorpId        string `json:"corpId,omitempty" gorm:"size:50;comment:第三方企业ID"`            // 第三方企业ID
 	Configuration string `json:"configuration,omitempty" gorm:"size:1000;comment:第三方json配置"` // 第三方json配置
 	MatchConfig   string `json:"matchConfig,omitempty" gorm:"size:1000;comment:第三方匹配配置"`     // 第三方匹配配置
@@ -19,8 +19,8 @@ func (_ *ThirdSource) TableComment() string {
 func (s *ThirdSource) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
 	s.ID = j.Get("id").Uint()
-	s.SourceName = j.Get("sourceName").String()
-	s.SourceCode = j.Get("sourceCode").String()
+	s.Name = j.Get("name").String()
+	s.Code = j.Get("code").String()
 	s.Configuration = j.Get("configuration").String()
 	return nil
 }

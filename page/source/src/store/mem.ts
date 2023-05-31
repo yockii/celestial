@@ -10,7 +10,8 @@ import {
   TaskView,
   Dashboard,
   UserMultiple,
-  CategoryNewEach
+  CategoryNewEach,
+  LicenseGlobal
 } from "@vicons/carbon"
 import { ProjectOutlined } from "@vicons/antd"
 import { Files, TestPipe } from "@vicons/tabler"
@@ -93,6 +94,11 @@ export const useMemStore = defineStore("mem", {
             label: renderLinkedLabel("资产目录", "AssetCategory"),
             key: "AssetCategory",
             icon: renderIcon(CategoryNewEach)
+          },
+          {
+            label: renderLinkedLabel("登录源管理", "ThirdSource"),
+            key: "ThirdSource",
+            icon: renderIcon(LicenseGlobal)
           }
         ]
       }

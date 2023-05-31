@@ -3,12 +3,12 @@ import { Condition } from "./common"
 export type User = {
   id: string
   username: string
-  realName: string
-  password: string
-  email: string
-  mobile: string
+  realName?: string
+  password?: string
+  email?: string
+  mobile?: string
   status: number
-  createTime: number
+  createTime?: number
 }
 
 export type UserCondition = Condition & {

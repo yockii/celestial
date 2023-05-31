@@ -542,7 +542,7 @@ onMounted(() => {
         remote
         :data="list"
         :loading="loading"
-        :row-key="(row) => row.id"
+        :row-key="(row: Role) => row.id"
         :pagination="paginationReactive"
         :on-update:page="handlePageChange"
         :on-update:page-size="handlePageSizeChange"
