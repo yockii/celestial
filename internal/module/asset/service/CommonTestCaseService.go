@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -16,14 +17,13 @@ type commonTestCaseService struct{}
 
 // Add 添加测试用例
 func (s *commonTestCaseService) Add(instance *model.CommonTestCase) (duplicated bool, success bool, err error) {
-	if instance.Name == "" || instance.CategoryID == 0 {
-		err = errors.New("Name and categoryID is required ")
+	if instance.Name == "" {
+		err = errors.New("Name is required ")
 		return
 	}
 	var c int64
 	err = database.DB.Model(&model.CommonTestCase{}).Where(&model.CommonTestCase{
-		CategoryID: instance.CategoryID,
-		Name:       instance.Name,
+		Name: instance.Name,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -52,9 +52,8 @@ func (s *commonTestCaseService) Update(instance *model.CommonTestCase) (success 
 	}
 
 	err = database.DB.Where(&model.CommonTestCase{ID: instance.ID}).Updates(&model.CommonTestCase{
-		CategoryID: instance.CategoryID,
-		Name:       instance.Name,
-		CreatorID:  instance.CreatorID,
+		Name:      instance.Name,
+		CreatorID: instance.CreatorID,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -70,9 +69,18 @@ func (s *commonTestCaseService) Delete(id uint64) (success bool, err error) {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.CommonTestCase{ID: id}).Delete(&model.CommonTestCase{}).Error
-	if err != nil {
-		logger.Errorln(err)
+	// 删除用例的同时，删除用例项
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Where(&model.CommonTestCase{ID: id}).Delete(&model.CommonTestCase{}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if err = tx.Where(&model.CommonTestCaseItem{TestCaseID: id}).Delete(&model.CommonTestCaseItem{}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
@@ -112,8 +120,7 @@ func (s *commonTestCaseService) PaginateBetweenTimes(condition *model.CommonTest
 	}
 
 	err = tx.Find(&list, &model.CommonTestCase{
-		CategoryID: condition.CategoryID,
-		CreatorID:  condition.CreatorID,
+		CreatorID: condition.CreatorID,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)

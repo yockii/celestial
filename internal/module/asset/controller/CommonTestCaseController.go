@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
 	"github.com/yockii/ruomu-core/server"
+	"sync"
 )
 
 var CommonTestCaseController = new(commonTestCaseController)
@@ -185,5 +186,72 @@ func (c *commonTestCaseController) Instance(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
+	})
+}
+
+func (c *commonTestCaseController) ListWithItem(ctx *fiber.Ctx) error {
+	instance := new(domain.CommonTestCaseListRequest)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	paginate := new(server.Paginate)
+	if err := ctx.QueryParser(paginate); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if paginate.Limit == 0 {
+		paginate.Limit = 10
+	}
+
+	tcList := make(map[string]*server.TimeCondition)
+	if instance.CreateTimeCondition != nil {
+		tcList["create_time"] = instance.CreateTimeCondition
+	}
+
+	total, list, err := service.CommonTestCaseService.PaginateBetweenTimes(&instance.CommonTestCase, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	var resultList []*domain.CommonTestCaseWithItem
+	var wg sync.WaitGroup
+	for _, item := range list {
+		wg.Add(1)
+		result := &domain.CommonTestCaseWithItem{
+			CommonTestCase: *item,
+		}
+		resultList = append(resultList, result)
+		go func(ctcwi *domain.CommonTestCaseWithItem) {
+			defer wg.Done()
+			_, itemList, err := service.CommonTestCaseItemService.PaginateBetweenTimes(&model.CommonTestCaseItem{
+				TestCaseID: ctcwi.ID,
+			}, -1, -1, "", nil)
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+			ctcwi.Items = itemList
+		}(result)
+	}
+	wg.Wait()
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: &server.Paginate{
+			Total:  total,
+			Items:  resultList,
+			Limit:  paginate.Limit,
+			Offset: paginate.Offset,
+		},
 	})
 }

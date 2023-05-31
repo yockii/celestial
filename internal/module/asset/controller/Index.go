@@ -59,6 +59,7 @@ func InitRouter() {
 		commonTestCase.Delete("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseDelete), CommonTestCaseController.Delete)
 		commonTestCase.Put("/update", middleware.NeedAuthorization(constant.ResourceCommonTestCaseUpdate), CommonTestCaseController.Update)
 		commonTestCase.Get("/list", middleware.NeedAuthorization(constant.ResourceCommonTestCaseList), CommonTestCaseController.List)
+		commonTestCase.Get("/listWithItem", middleware.NeedAuthorization(constant.ResourceCommonTestCaseList), CommonTestCaseController.ListWithItem)
 
 		// 对于禁用put和delete方法时的处理
 		commonTestCase.Post("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseDelete), CommonTestCaseController.Delete)

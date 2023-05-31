@@ -16,3 +16,8 @@ type CommonTestCaseItemListRequest struct {
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type CommonTestCaseWithItem struct {
+	model.CommonTestCase
+	Items []*model.CommonTestCaseItem `json:"items"`
+}

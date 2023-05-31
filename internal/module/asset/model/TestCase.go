@@ -6,7 +6,6 @@ type CommonTestCase struct {
 	ID         uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	Name       string `json:"name,omitempty" gorm:"size:50;comment:通用测试用例名称"`
 	Remark     string `json:"remark,omitempty" gorm:"size:200;comment:通用测试用例备注"`
-	CategoryID uint64 `json:"categoryId,omitempty,string" gorm:"index;comment:分类ID"`
 	CreatorID  uint64 `json:"creatorId,omitempty,string" gorm:"index;comment:创建人ID"`
 	CreateTime int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 }
@@ -20,7 +19,6 @@ func (ctc *CommonTestCase) UnmarshalJSON(b []byte) error {
 	ctc.ID = j.Get("id").Uint()
 	ctc.Name = j.Get("name").String()
 	ctc.Remark = j.Get("remark").String()
-	ctc.CategoryID = j.Get("categoryId").Uint()
 	ctc.CreatorID = j.Get("creatorId").Uint()
 	ctc.CreateTime = j.Get("createTime").Int()
 	return nil

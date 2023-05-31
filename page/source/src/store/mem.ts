@@ -53,7 +53,7 @@ export const useMemStore = defineStore("mem", {
         icon: renderIcon(ToolKit)
       },
       {
-        label: "资产",
+        label: renderLinkedLabel("资产", "File", true),
         key: "Asset",
         icon: renderIcon(Folders),
         children: [

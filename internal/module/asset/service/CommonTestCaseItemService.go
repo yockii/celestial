@@ -17,7 +17,7 @@ type commonTestCaseItemService struct{}
 // Add 添加测试用例
 func (s *commonTestCaseItemService) Add(instance *model.CommonTestCaseItem) (duplicated bool, success bool, err error) {
 	if instance.Content == "" || instance.TestCaseID == 0 {
-		err = errors.New("Name and categoryID is required ")
+		err = errors.New("Name and testCaseId is required ")
 		return
 	}
 	var c int64

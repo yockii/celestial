@@ -1,4 +1,4 @@
-import { request } from "../request"
+import { request } from "../../request"
 import { Paginate } from "@/types/common"
 import { AssetCategory, AssetCategoryCondition } from "@/types/asset"
 

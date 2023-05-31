@@ -18,3 +18,26 @@ export type AssetCategoryCondition = Condition & {
   type?: number
   onlyParent?: boolean
 }
+
+export type CommonTestCase = {
+  id: string
+  name: string
+  remark?: string
+  creatorId?: string
+  createTime?: number
+  items?: CommonTestCaseItem[]
+}
+
+export type CommonTestCaseItem = {
+  id: string
+  testCaseId: string
+  content: string
+  remark?: string
+  creatorId?: string
+  createTime?: number
+}
+
+export type CommonTestCaseCondition = Condition & {
+  name?: string
+  categoryId?: string
+}
