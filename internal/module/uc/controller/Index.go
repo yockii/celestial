@@ -15,7 +15,11 @@ func InitRouter() {
 	// 注册
 	server.Post("/api/v1/register", UserController.Register)
 	// 登录
-	server.Post("/api/v1/login", UserController.Login)
+	{
+		server.Post("/api/v1/login", UserController.Login)
+		server.Post("/api/v1/loginByDingtalkCode", UserController.LoginByDingtalkCode)
+		server.Post("/api/v1/loginInDingtalk", UserController.LoginInDingtalk)
+	}
 	// 用户
 	{
 		user := server.Group("/api/v1/user")
@@ -89,7 +93,7 @@ func InitRouter() {
 		thirdSource.Put("/update", middleware.NeedAuthorization(constant.ResourceThirdSourceUpdate), ThirdSourceController.Update)
 		thirdSource.Get("/list", middleware.NeedAuthorization(constant.ResourceThirdSourceList), ThirdSourceController.List)
 		thirdSource.Get("/instance", middleware.NeedAuthorization(constant.ResourceThirdSourceInstance), ThirdSourceController.Instance)
-
+		thirdSource.Get("/publicList", ThirdSourceController.PublicList)
 		// 对于禁用put和delete方法时的处理
 		thirdSource.Post("/delete", middleware.NeedAuthorization(constant.ResourceThirdSourceDelete), ThirdSourceController.Delete)
 		thirdSource.Post("/update", middleware.NeedAuthorization(constant.ResourceThirdSourceUpdate), ThirdSourceController.Update)

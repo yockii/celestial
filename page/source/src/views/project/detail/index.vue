@@ -20,7 +20,13 @@ const { project, tab } = storeToRefs(useProjectStore())
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
-const copiedProject = ref<Project | null>(null)
+const copiedProject = ref<Project>({
+  id: "",
+  name: "",
+  code: "",
+  description: "",
+  stageId: ""
+})
 const showProjectSettings = () => {
   resetUpdateProject()
   showSettings.value = true
@@ -114,22 +120,22 @@ onMounted(() => {
     <n-layout-content content-style="margin: 16px;">
       <template v-if="project?.id">
         <keep-alive>
-          <dashboard v-if="project && tab == '项目总览'" :project="project" />
+          <dashboard v-if="project && tab == '项目总览'" />
         </keep-alive>
         <keep-alive>
-          <plan v-if="project && tab == '项目计划'" :project="project" />
+          <plan v-if="project && tab == '项目计划'" />
         </keep-alive>
         <keep-alive>
-          <module v-if="project && tab == '功能模块'" :project="project" />
+          <module v-if="project && tab == '功能模块'" />
         </keep-alive>
         <keep-alive>
-          <requirement v-if="project && tab == '项目需求'" :project="project" />
+          <requirement v-if="project && tab == '项目需求'" />
         </keep-alive>
         <keep-alive>
-          <task v-if="project && tab == '工作任务'" :project="project" />
+          <task v-if="project && tab == '工作任务'" />
         </keep-alive>
         <keep-alive>
-          <test v-if="project && tab == '测试用例'" :project="project" />
+          <test v-if="project && tab == '测试用例'" />
         </keep-alive>
       </template>
     </n-layout-content>

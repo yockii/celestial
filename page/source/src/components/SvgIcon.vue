@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed, defineProps } from "vue"
 const props = defineProps({
   name: {
     type: String,

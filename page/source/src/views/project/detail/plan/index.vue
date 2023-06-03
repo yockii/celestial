@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProjectPlan, ProjectPlanCondition, Project } from "@/types/project"
+import { ProjectPlan, ProjectPlanCondition } from "@/types/project"
 import { computed, h, reactive, ref } from "vue"
 import dayjs from "dayjs"
 import {
@@ -17,10 +17,9 @@ import {
 import { addProjectPlan, deleteProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/projectPlan"
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
+import { useProjectStore } from "@/store/project"
 
-const props = defineProps<{
-  project: Project
-}>()
+const { project } = storeToRefs(useProjectStore())
 
 const stageStore = useStageStore()
 const { stageListWithNone } = storeToRefs(stageStore)
@@ -184,7 +183,7 @@ const columns = [
   operationColumn
 ]
 const condition = ref<ProjectPlanCondition>({
-  projectId: props.project.id
+  projectId: project.value.id
 })
 const list = ref<ProjectPlan[]>([])
 const loading = ref(false)
@@ -258,7 +257,7 @@ const resetInstance = (origin: ProjectPlan | undefined = undefined) => {
   if (origin) {
     instance.value = JSON.parse(JSON.stringify(origin))
   } else {
-    instance.value = { endTime: 0, id: "", planName: "", projectId: props.project.id, startTime: 0, status: 0 }
+    instance.value = { endTime: 0, id: "", planName: "", projectId: project.value.id, startTime: 0, status: 0 }
   }
 }
 const newInstance = () => {

@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/yockii/celestial/internal/core/helper"
+	"github.com/yockii/celestial/internal/module/uc/dingtalk"
 	"github.com/yockii/celestial/internal/module/uc/domain"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
@@ -128,21 +129,7 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 			Msg:  "用户名与密码" + server.ResponseMsgDataNotMatch,
 		})
 	}
-
-	jwtToken, err := generateJwtToken(strconv.FormatUint(user.ID, 10), "")
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeGeneration,
-			Msg:  server.ResponseMsgGeneration + err.Error(),
-		})
-	}
-	user.Password = ""
-	return ctx.JSON(&server.CommonResponse{
-		Data: map[string]interface{}{
-			"token": jwtToken,
-			"user":  user,
-		},
-	})
+	return c.generateLoginResponse(user, ctx)
 }
 
 func (c *userController) GetUserRoleIds(ctx *fiber.Ctx) error {
@@ -485,5 +472,108 @@ func (c *userController) UpdateSelf(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
+	})
+}
+
+func (c *userController) LoginByDingtalkCode(ctx *fiber.Ctx) error {
+	req := new(domain.LoginByDingtalkCodeRequest)
+	if err := ctx.BodyParser(req); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if req.Code == "" || req.ThirdSourceID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " code or third source id",
+		})
+	}
+	if thirdSource, err := service.ThirdSourceService.Instance(&model.ThirdSource{ID: req.ThirdSourceID}); err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	} else if thirdSource == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgParamNotEnough,
+		})
+	} else {
+		var user *model.User
+		user, err = service.DingtalkService.SyncDingUserByThirdSourceOutsideDingtalk(thirdSource, req.Code, true)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		return c.generateLoginResponse(user, ctx)
+	}
+}
+
+func (c *userController) LoginInDingtalk(ctx *fiber.Ctx) error {
+	req := new(domain.LoginByDingtalkCodeRequest)
+	if err := ctx.BodyParser(req); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if req.Code == "" || req.ThirdSourceID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " code or third source id",
+		})
+	}
+	if thirdSource, err := service.ThirdSourceService.Instance(&model.ThirdSource{ID: req.ThirdSourceID}); err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	} else if thirdSource == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgParamNotEnough,
+		})
+	} else {
+		staffId := ""
+		staffId, err = dingtalk.GetStaffIdByCode(thirdSource, req.Code)
+		if err != nil {
+			logger.Errorln(err)
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeUnknownError,
+				Msg:  server.ResponseMsgUnknownError + err.Error(),
+			})
+		}
+		var user *model.User
+		user, err = service.DingtalkService.SyncDingUserByThirdSource(thirdSource, staffId, true)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+
+		return c.generateLoginResponse(user, ctx)
+	}
+}
+
+func (c *userController) generateLoginResponse(user *model.User, ctx *fiber.Ctx) error {
+	jwtToken, err := generateJwtToken(strconv.FormatUint(user.ID, 10), "")
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeGeneration,
+			Msg:  server.ResponseMsgGeneration + err.Error(),
+		})
+	}
+	user.Password = ""
+	return ctx.JSON(&server.CommonResponse{
+		Data: map[string]interface{}{
+			"token": jwtToken,
+			"user":  user,
+		},
 	})
 }

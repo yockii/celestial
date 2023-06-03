@@ -15,18 +15,16 @@ var DingtalkService = new(dingtalkService)
 
 type dingtalkService struct{}
 
-func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept bool) (*model.User, error) {
-	source, err := ThirdSourceService.Instance(&model.ThirdSource{
-		CorpId: corpId,
-	})
+func (s *dingtalkService) SyncDingUserByThirdSourceOutsideDingtalk(source *model.ThirdSource, code string, withDept bool) (user *model.User, err error) {
+	staffId, _, err := dingtalk.GetUserOutsideDingtalk(source, code)
 	if err != nil {
 		return nil, err
 	}
-	if source == nil {
-		logger.Warn("未找到对应的第三方源配置")
-		return nil, nil
-	}
 
+	return s.SyncDingUserByThirdSource(source, staffId, withDept)
+}
+
+func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, staffId string, withDept bool) (matchingUser *model.User, err error) {
 	user := &model.ThirdUser{
 		SourceID: source.ID,
 		OpenID:   staffId,
@@ -56,7 +54,7 @@ func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept b
 	}
 
 	// 检查匹配的用户
-	matchingUser := new(model.User)
+	matchingUser = new(model.User)
 	matchConf := gjson.Parse(source.MatchConfig)
 	matchFields := matchConf.Get("match").Array()
 	hasMatchField := false
@@ -128,7 +126,7 @@ func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept b
 						}
 						if err = database.DB.Where(&parentDept).First(&parentDept).Error; err != nil {
 							if errors.Is(err, gorm.ErrRecordNotFound) {
-								parentDept, err = s.SyncDingDept(corpId, dingDept.ParentId, false)
+								parentDept, err = s.SyncDingDept(source.CorpId, dingDept.ParentId, false)
 								if err != nil {
 									return nil, err
 								}
@@ -180,6 +178,20 @@ func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept b
 	}
 
 	return matchingUser, nil
+}
+
+func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept bool) (*model.User, error) {
+	source, err := ThirdSourceService.Instance(&model.ThirdSource{
+		CorpId: corpId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if source == nil {
+		logger.Warn("未找到对应的第三方源配置")
+		return nil, nil
+	}
+	return s.SyncDingUserByThirdSource(source, staffId, withDept)
 }
 
 func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildren bool) (*model.Department, error) {

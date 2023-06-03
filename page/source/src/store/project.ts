@@ -3,11 +3,17 @@ import { defineStore } from "pinia"
 
 export const useProjectStore = defineStore("project", {
   state: (): {
-    project: Project | null
+    project: Project
     tab: string
     modules: ProjectModule[]
   } => ({
-    project: null,
+    project: {
+      id: "",
+      name: "",
+      code: "",
+      description: "",
+      stageId: ""
+    },
     tab: "项目总览",
     modules: []
   }),

@@ -2,6 +2,10 @@ package model
 
 import "github.com/tidwall/gjson"
 
+const (
+	ThirdSourceStatusEnabled = 1
+)
+
 type ThirdSource struct {
 	ID            uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	Name          string `json:"name,omitempty" gorm:"size:50;comment:第三方来源名称"`              // 第三方来源名称
@@ -9,6 +13,7 @@ type ThirdSource struct {
 	CorpId        string `json:"corpId,omitempty" gorm:"size:50;comment:第三方企业ID"`            // 第三方企业ID
 	Configuration string `json:"configuration,omitempty" gorm:"size:1000;comment:第三方json配置"` // 第三方json配置
 	MatchConfig   string `json:"matchConfig,omitempty" gorm:"size:1000;comment:第三方匹配配置"`     // 第三方匹配配置
+	Status        int    `json:"status,omitempty" gorm:"comment:状态 1-启用 其他禁用"`
 	CreateTime    int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 }
 
@@ -21,7 +26,11 @@ func (s *ThirdSource) UnmarshalJSON(b []byte) error {
 	s.ID = j.Get("id").Uint()
 	s.Name = j.Get("name").String()
 	s.Code = j.Get("code").String()
+	s.CorpId = j.Get("corpId").String()
 	s.Configuration = j.Get("configuration").String()
+	s.MatchConfig = j.Get("matchConfig").String()
+	s.Status = int(j.Get("status").Int())
+	s.CreateTime = j.Get("createTime").Int()
 	return nil
 }
 

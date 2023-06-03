@@ -10,3 +10,10 @@ type ThirdSourceListRequest struct {
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ThirdSourcePublic struct {
+	ID     uint64 `json:"id,string"`
+	Name   string `json:"name"`
+	AppKey string `json:"appKey"`
+	CorpID string `json:"corpId"`
+}

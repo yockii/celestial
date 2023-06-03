@@ -10,6 +10,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/login/index.vue")
   },
   {
+    path: "/auth",
+    name: "Auth",
+    component: () => import("@/views/login/auth/index.vue")
+  },
+  {
     path: "/index",
     name: "Home",
     alias: "/",
@@ -123,7 +128,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   loadingBar.start()
   const userStore = useUserStore()
-  if (!userStore.token && to.name !== "Login") {
+  if (!userStore.token && to.name !== "Login" && to.name !== "Auth") {
     next({ name: "Login" })
   } else {
     next()

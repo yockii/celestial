@@ -3,8 +3,8 @@ import { ref, reactive, computed, onMounted, h } from "vue"
 import { Search } from "@vicons/carbon"
 import { ThirdSource, ThirdSourceCondition } from "@/types/thirdSource"
 import dayjs from "dayjs"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps } from "naive-ui"
-import { addThirdSource, deleteThirdSource, getThirdSourceList, updateThirdSource } from "@/service/api/settings/thirdSource"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule } from "naive-ui"
+import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, updateThirdSource } from "@/service/api/settings/thirdSource"
 const message = useMessage()
 const condition = ref<ThirdSourceCondition>({
   offset: 0,
@@ -44,6 +44,10 @@ const handlePageSizeChange = (pageSize: number) => {
   refresh()
 }
 const columns = [
+  {
+    title: "ID",
+    key: "id"
+  },
   {
     title: "名称",
     key: "name"
@@ -105,8 +109,12 @@ const columns = [
   }
 ]
 const handleEditData = (row: ThirdSource) => {
-  checkedData.value = Object.assign({}, row)
-  drawerActive.value = true
+  getThirdSourceDetail(row.id).then((res) => {
+    if (res) {
+      checkedData.value = res
+      drawerActive.value = true
+    }
+  })
 }
 const handleDeleteData = (id: string) => {
   deleteThirdSource(id).then((res) => {
@@ -175,8 +183,50 @@ const rules = {
       max: 20,
       trigger: "blur"
     }
+  ],
+  configuration: [
+    // 校验json是否合法
+    {
+      required: true,
+      message: "请输入正确的配置",
+      trigger: "blur",
+      validator: (rule: FormItemRule, value: string) => {
+        try {
+          JSON.parse(value)
+          return true
+        } catch (error) {
+          /* empty */
+        }
+        return false
+      }
+    }
+  ],
+  matchConfig: [
+    // 校验json是否合法
+    {
+      required: true,
+      message: "请输入正确的配置",
+      trigger: "blur",
+      validator: (rule: FormItemRule, value: string) => {
+        try {
+          const obj = JSON.parse(value)
+          if (obj["username"] && obj["match"]) {
+            return true
+          }
+        } catch (error) {
+          /* empty */
+        }
+        return false
+      }
+    }
   ]
 }
+const thirdSourceOptions = [
+  {
+    label: "钉钉",
+    value: "dingtalk"
+  }
+]
 </script>
 
 <template>
@@ -231,12 +281,15 @@ const rules = {
           <n-input v-model:value="checkedData.name" placeholder="请输入名称" />
         </n-form-item>
         <n-form-item label="代码" path="code">
-          <n-input v-model:value="checkedData.code" placeholder="请输入代码" />
+          <n-select v-model:value="checkedData.code" placeholder="请选择三方源" :options="thirdSourceOptions" />
         </n-form-item>
-        <n-form-item label="配置" required>
+        <n-form-item label="企业ID" path="corpId">
+          <n-input v-model:value="checkedData.corpId" placeholder="请输入企业ID" />
+        </n-form-item>
+        <n-form-item label="配置" path="configuration">
           <n-input type="textarea" v-model:value="checkedData.configuration" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="请输入配置" />
         </n-form-item>
-        <n-form-item label="匹配配置" required>
+        <n-form-item label="匹配配置" path="matchConfig">
           <n-input type="textarea" v-model:value="checkedData.matchConfig" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="请输入匹配配置" />
         </n-form-item>
       </n-form>

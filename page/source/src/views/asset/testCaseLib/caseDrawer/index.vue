@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CommonTestCase } from "@/types/asset"
-import { useMessage, FormInst, FormItemRule } from "naive-ui"
+import { useMessage, FormInst } from "naive-ui"
 import { addCommonTestCase, updateCommonTestCase } from "@/service/api/asset/commonTestCase"
 const message = useMessage()
 const props = defineProps<{

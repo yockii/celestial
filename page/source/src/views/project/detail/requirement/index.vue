@@ -2,7 +2,7 @@
 import { getProjectModuleList } from "@/service/api/projectModule"
 import { deleteProjectRequirement, getProjectRequirementList } from "@/service/api/projectRequirement"
 import { useProjectStore } from "@/store/project"
-import { Project, ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
+import { ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
 import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
@@ -11,11 +11,10 @@ import TaskDrawer from "../task/drawer/index.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
-const props = defineProps<{
-  project: Project
-}>()
+const { project } = storeToRefs(useProjectStore())
+
 const condition = ref<ProjectRequirementCondition>({
-  projectId: props.project.id
+  projectId: project.value.id
 })
 const list = ref<ProjectRequirement[]>([])
 
@@ -297,7 +296,7 @@ const drawerActive = ref(false)
 const currentData = ref<ProjectRequirement>({
   id: "",
   name: "",
-  projectId: props.project.id
+  projectId: project.value.id
 })
 
 const handleEditData = (row: ProjectRequirement) => {
@@ -316,7 +315,7 @@ const handleAddProjectRequirement = () => {
   currentData.value = {
     id: "",
     name: "",
-    projectId: props.project.id
+    projectId: project.value.id
   }
   drawerActive.value = true
 }
@@ -332,7 +331,7 @@ const handleAddProjectTask = (requirement: ProjectRequirement) => {
   currentTaskData.value = {
     id: "",
     name: "",
-    projectId: props.project.id,
+    projectId: project.value.id,
     moduleId: requirement.moduleId,
     requirementId: requirement.id
   }
@@ -349,7 +348,7 @@ onMounted(() => {
 })
 const loadModules = () => {
   getProjectModuleList({
-    projectId: props.project.id,
+    projectId: project.value.id,
     offset: -1,
     limit: -1
   }).then((res) => {

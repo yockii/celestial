@@ -2,7 +2,7 @@
 import { getProjectModuleList } from "@/service/api/projectModule"
 import { deleteProjectTask, getProjectTaskList } from "@/service/api/projectTask"
 import { useProjectStore } from "@/store/project"
-import { Project, ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
+import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
 import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NBadge } from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
@@ -10,11 +10,9 @@ import Drawer from "./drawer/index.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
-const props = defineProps<{
-  project: Project
-}>()
+const { project } = storeToRefs(useProjectStore())
 const condition = ref<ProjectTaskCondition>({
-  projectId: props.project.id,
+  projectId: project.value.id,
   onlyParent: false
 })
 const list = ref<ProjectTask[]>([])
@@ -256,7 +254,7 @@ const drawerActive = ref(false)
 const currentData = ref<ProjectTask>({
   id: "",
   name: "",
-  projectId: props.project.id
+  projectId: project.value.id
 })
 
 const handleEditData = (row: ProjectTask) => {
@@ -275,7 +273,7 @@ const handleAddProjectTask = () => {
   currentData.value = {
     id: "",
     name: "",
-    projectId: props.project.id
+    projectId: project.value.id
   }
   drawerActive.value = true
 }
@@ -290,7 +288,7 @@ onMounted(() => {
 })
 const loadModules = () => {
   getProjectModuleList({
-    projectId: props.project.id,
+    projectId: project.value.id,
     offset: -1,
     limit: -1
   }).then((res) => {

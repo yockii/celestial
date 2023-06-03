@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {computed} from 'vue'
-import {useUserStore} from "@/store/user";
-import {storeToRefs} from "pinia";
-const userStore= useUserStore()
+import { computed } from "vue"
+import { useUserStore } from "@/store/user"
+import { storeToRefs } from "pinia"
+const userStore = useUserStore()
 
-const {username: realName} = storeToRefs(userStore)
+const { realName } = storeToRefs(userStore)
 const show = computed(() => realName.value && realName.value !== "")
 </script>
 
@@ -20,9 +20,8 @@ const show = computed(() => realName.value && realName.value !== "")
     :height="256"
     :x-offset="12"
     :y-offset="60"
-    :rotate="-17" />
+    :rotate="-17"
+  />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

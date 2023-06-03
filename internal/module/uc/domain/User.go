@@ -26,3 +26,8 @@ func (r *UserDispatchRolesRequest) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+type LoginByDingtalkCodeRequest struct {
+	Code          string `json:"code"`
+	ThirdSourceID uint64 `json:"thirdSourceId,string"`
+}

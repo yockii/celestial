@@ -15,6 +15,9 @@ matchConfigurations 配置，用来匹配统一用户中心的用户，json中�
 }
 ```
 ### 钉钉
+回调地址配置为：
+{{域名}}/api/v1/dingtalk/:id
+
 configuration 配置, 用来接入钉钉服务，内容如下：
 ```json
 {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Project, ProjectModule, ProjectModuleCondition, ProjectRequirement } from "@/types/project"
+import { ProjectModule, ProjectModuleCondition, ProjectRequirement } from "@/types/project"
 import { ComputedRef, computed, ref, RendererElement, RendererNode } from "vue"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage } from "naive-ui"
 import { addProjectModule, deleteProjectModule, getProjectModuleList, updateProjectModule } from "@/service/api/projectModule"
@@ -9,9 +9,7 @@ import Drawer from "../requirement/drawer/index.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
-const props = defineProps<{
-  project: Project
-}>()
+const { project } = storeToRefs(useProjectStore())
 
 type CombinedModule = {
   lv1Column: string
@@ -266,7 +264,7 @@ const loading = ref(false)
 const condition = ref<ProjectModuleCondition>({
   offset: -1,
   limit: -1,
-  projectId: props.project.id
+  projectId: project.value.id
 })
 const refresh = () => {
   loading.value = true
@@ -292,7 +290,7 @@ const resetCurrentData = (data: ProjectModule | null = null) => {
       id: "",
       name: "",
       parentId: "",
-      projectId: props.project.id,
+      projectId: project.value.id,
       remark: "",
       status: 1
     }
@@ -342,7 +340,7 @@ const showNewRequirement = ref(false)
 const requirementData = ref<ProjectRequirement>({
   id: "",
   name: "",
-  projectId: props.project.id
+  projectId: project.value.id
 })
 const handleNewRequirement = (module: ProjectModule) => {
   requirementData.value.moduleId = module.id

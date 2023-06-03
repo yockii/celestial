@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Project, Stage, ProjectPlan } from "@/types/project"
+import { Stage, ProjectPlan } from "@/types/project"
 import { Role } from "@/types/user"
 import { getProjectMembers } from "@/service/api/project"
 import { getProjectRiskCoefficient, ProjectRiskCoefficient } from "@/service/api/projectRisk"
@@ -12,10 +12,10 @@ import Requirement from "./requirement/index.vue"
 import Task from "./task/index.vue"
 import Plan from "./plan/index.vue"
 import Risk from "./risk/index.vue"
+import { useProjectStore } from "@/store/project"
+import { storeToRefs } from "pinia"
 
-const props = defineProps<{
-  project: Project
-}>()
+const { project } = storeToRefs(useProjectStore())
 
 // 健康度/风险分析内容 ///////////////////////
 const riskCoefficient = ref<ProjectRiskCoefficient>({
@@ -58,9 +58,9 @@ const projectRoles = ref<Array<Role>>([])
 
 // 项目成员信息 //////////////////////////////
 const refreshProjectMembers = () => {
-  if (props.project) {
-    getProjectMembers(props.project.id as string).then((res) => {
-      props.project!.members = res
+  if (project) {
+    getProjectMembers(project.value.id as string).then((res) => {
+      project.value.members = res
     })
   }
 }
@@ -78,10 +78,10 @@ onMounted(() => {
     projectRoles.value = res.items
   })
 
-  getProjectRiskCoefficient(props.project?.id as string).then((res) => {
+  getProjectRiskCoefficient(project.value.id as string).then((res) => {
     riskCoefficient.value = res
   })
-  getExecutingProjectPlanByProjectId(props.project?.id as string).then((res) => {
+  getExecutingProjectPlanByProjectId(project.value.id as string).then((res) => {
     projectPlan.value = res
   })
   if (projectPlan.value?.stageId) {

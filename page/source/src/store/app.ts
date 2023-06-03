@@ -1,14 +1,21 @@
+import { ThirdSourcePublic } from "@/types/thirdSource"
 import { defineStore } from "pinia"
 
 export const useAppStore = defineStore("app", {
-  state: () => ({
+  state: (): {
+    theme: string
+    activeMenuKey: string
+    activeSubMenuKey: string
+    collapsed: boolean
+    thirdSourceList: ThirdSourcePublic[]
+  } => ({
     theme: "",
     activeMenuKey: "Home",
     activeSubMenuKey: "Dashboard",
     collapsed: false,
+    thirdSourceList: []
   }),
-  getters: {
-  },
+  getters: {},
   actions: {
     setTheme(theme: string) {
       this.theme = theme

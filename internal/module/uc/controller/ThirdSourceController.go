@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/tidwall/gjson"
 	"github.com/yockii/celestial/internal/module/uc/domain"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
@@ -182,5 +183,39 @@ func (c *thirdSourceController) Instance(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
+	})
+}
+
+func (c *thirdSourceController) PublicList(ctx *fiber.Ctx) error {
+	list, err := service.ThirdSourceService.ListAll(&model.ThirdSource{
+		Status: 1,
+	})
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	var result []*domain.ThirdSourcePublic
+	for _, item := range list {
+		configJson := item.Configuration
+		cj := gjson.Parse(configJson)
+		appKey := ""
+		if item.Code == "dingtalk" {
+			appKey = cj.Get("appKey").String()
+		} else {
+			continue
+		}
+
+		tsp := &domain.ThirdSourcePublic{
+			ID:     item.ID,
+			Name:   item.Name,
+			CorpID: item.CorpId,
+			AppKey: appKey,
+		}
+		result = append(result, tsp)
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: result,
 	})
 }

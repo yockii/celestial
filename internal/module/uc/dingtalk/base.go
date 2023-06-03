@@ -18,9 +18,10 @@ import (
 var clientMap = make(map[uint64]*client)
 
 type client struct {
-	sourceId uint64
-	client   *http.Client
-	baseUrl  string
+	sourceId   uint64
+	client     *http.Client
+	baseUrl    string
+	newBaseUrl string
 
 	appKey    string
 	appSecret string
@@ -46,6 +47,7 @@ func (c *client) init(source *model.ThirdSource) {
 	c.appSecret = conf.Get("appSecret").String()
 	c.client = &http.Client{}
 	c.baseUrl = "https://oapi.dingtalk.com"
+	c.newBaseUrl = "https://api.dingtalk.com"
 }
 
 func (c *client) doGetAccessToken() (string, int64, error) {
@@ -62,6 +64,7 @@ func (c *client) doGetAccessToken() (string, int64, error) {
 	}(resp.Body)
 	res, err := io.ReadAll(resp.Body)
 	if err != nil {
+		logger.Errorln(err)
 		return "", 0, err
 	}
 	resJson := gjson.ParseBytes(res)

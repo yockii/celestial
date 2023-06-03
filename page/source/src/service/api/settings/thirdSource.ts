@@ -1,6 +1,7 @@
-import { ThirdSource, ThirdSourceCondition } from "@/types/thirdSource"
+import { ThirdSource, ThirdSourceCondition, ThirdSourcePublic } from "@/types/thirdSource"
 import { request } from "../../request"
 import type { Paginate } from "@/types/common"
+import { LoginResponse } from "@/types/user"
 
 /**
  * 新增三方源
@@ -45,5 +46,24 @@ export function getThirdSourceList(condition: ThirdSourceCondition) {
 export function getThirdSourceDetail(id: string) {
   return request.get<ThirdSource>("/thirdSource/instance", {
     params: { id }
+  })
+}
+
+/**
+ * 获取第三方源公共信息
+ */
+export function getThirdSourcePublic() {
+  return request.get<ThirdSourcePublic[]>("/thirdSource/publicList")
+}
+
+/**
+ * 根据钉钉authCode从第三方源登录并获取用户信息
+ * @param thirdSourceId - 三方源id
+ * @param authCode - 钉钉authCode
+ */
+export function loginByDingTalk(thirdSourceId: string, code: string) {
+  return request.post<LoginResponse>("/loginByDingtalkCode", {
+    thirdSourceId,
+    code
   })
 }

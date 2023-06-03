@@ -1,7 +1,7 @@
 <template>
   <n-text tag="div" class="ui-logo">
-    <svg-icon name="logo" :style="{height: '26px', width: '40px', color: logoColor}"/>
-    <span style="margin-left: 10px;">项目管理</span>
+    <svg-icon name="logo" :style="{ height: '26px', width: '40px', color: logoColor }" />
+    <span style="margin-left: 10px">项目管理</span>
   </n-text>
   <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">
@@ -17,7 +17,7 @@
         </n-icon>
       </template>
     </n-switch>
-    <span style="margin-left: 16px">  {{ welcome }}, {{ username }}!</span>
+    <span style="margin-left: 16px"> {{ welcome }}, {{ realName || "未登录" }}!</span>
   </div>
 </template>
 
@@ -26,8 +26,9 @@ import { MenuOption } from "naive-ui"
 import { ref, computed, onMounted } from "vue"
 import { Sunny, Moon } from "@vicons/ionicons5"
 import { useAppStore } from "@/store/app"
-import {useUserStore} from "@/store/user";
-import {useMemStore} from "@/store/mem";
+import { useUserStore } from "@/store/user"
+import { useMemStore } from "@/store/mem"
+import { storeToRefs } from "pinia"
 const appStore = useAppStore()
 const userStore = useUserStore()
 const memStore = useMemStore()
@@ -39,7 +40,7 @@ const logoColor = computed(() => {
   return appStore.theme === "dark" ? "#fff" : "#0582EE"
 })
 const welcome = ref<string>("欢迎")
-const username = computed(() => userStore.user.username || "未登录")
+const { realName } = storeToRefs(userStore)
 
 const changeTheme = (value: boolean) => {
   appStore.setTheme(value ? "dark" : "light")
@@ -68,8 +69,8 @@ onMounted(() => {
   font-size: 18px;
 }
 .logo {
-    height: 26px;
-    margin-right: 10px;
-    fill: red !important;
+  height: 26px;
+  margin-right: 10px;
+  fill: red !important;
 }
 </style>

@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"strings"
 	"time"
 )
 
@@ -33,6 +34,9 @@ func (s *thirdSourceService) Add(instance *model.ThirdSource) (duplicated bool, 
 	}
 
 	instance.ID = util.SnowflakeId()
+	// code转小写
+	instance.Code = strings.ToLower(instance.Code)
+	instance.Status = model.ThirdSourceStatusEnabled
 
 	err = database.DB.Create(instance).Error
 	if err != nil {
@@ -53,6 +57,7 @@ func (s *thirdSourceService) Update(instance *model.ThirdSource) (success bool, 
 	err = database.DB.Where(&model.ThirdSource{ID: instance.ID}).Updates(&model.ThirdSource{
 		Name:          instance.Name,
 		Code:          instance.Code,
+		CorpId:        instance.CorpId,
 		Configuration: instance.Configuration,
 		MatchConfig:   instance.MatchConfig,
 	}).Error
@@ -126,13 +131,36 @@ func (s *thirdSourceService) PaginateBetweenTimes(condition *model.ThirdSource, 
 
 // Instance 获取单个实例
 func (s *thirdSourceService) Instance(condition *model.ThirdSource) (instance *model.ThirdSource, err error) {
-	if condition.ID == 0 {
-		err = errors.New("id is required")
+	if condition.ID == 0 && condition.CorpId == "" {
+		err = errors.New("id or corpId is required")
 		logger.Errorln(err)
 		return
 	}
 	instance = &model.ThirdSource{}
 	err = database.DB.Where(condition).First(instance).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
+func (s *thirdSourceService) ListAll(condition *model.ThirdSource) (list []*model.ThirdSource, err error) {
+	tx := database.DB.Limit(1000)
+	// 模糊查询
+	if condition != nil {
+		if condition.Name != "" {
+			tx = tx.Where("source_name like ?", "%"+condition.Name+"%")
+		}
+		if condition.Code != "" {
+			tx = tx.Where("source_code like ?", "%"+condition.Code+"%")
+		}
+	}
+	err = tx.Find(&list, &model.ThirdSource{
+		ID:     condition.ID,
+		Status: condition.Status,
+		CorpId: condition.CorpId,
+	}).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
