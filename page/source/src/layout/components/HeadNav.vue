@@ -17,7 +17,7 @@
         </n-icon>
       </template>
     </n-switch>
-    <span style="margin-left: 16px"> {{ welcome }}, {{ realName || "未登录" }}!</span>
+    <span style="margin-left: 16px"> {{ welcome }}, <user-dropdown :name="realName || '未登录'" />!</span>
   </div>
 </template>
 
@@ -29,6 +29,7 @@ import { useAppStore } from "@/store/app"
 import { useUserStore } from "@/store/user"
 import { useMemStore } from "@/store/mem"
 import { storeToRefs } from "pinia"
+import UserDropdown from "@/components/user/UserDropdown.vue"
 const appStore = useAppStore()
 const userStore = useUserStore()
 const memStore = useMemStore()
