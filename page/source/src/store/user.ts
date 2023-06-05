@@ -23,6 +23,14 @@ export const useUserStore = defineStore("user", {
     },
     setToken(token: string) {
       this.token = token
+    },
+    logout() {
+      this.user = {
+        id: "",
+        username: "",
+        status: 0
+      }
+      this.token = ""
     }
   },
   persist: {

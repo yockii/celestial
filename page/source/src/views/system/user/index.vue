@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from "vue"
-import { getUserList, updateUser, addUser, deleteUser } from "@/service/api/user"
+import { getUserList, updateUser, addUser, deleteUser, getUserRoleIdList } from "@/service/api/user"
 import { User, UserCondition } from "@/types/user"
-import { Search } from "@vicons/carbon"
+import { Delete, Edit, Search, UserRole } from "@vicons/carbon"
 import dayjs from "dayjs"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState, DataTableSortState } from "naive-ui"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState, DataTableSortState, NIcon, NTooltip } from "naive-ui"
+import RoleDrawer from "./roleDrawer/index.vue"
 const message = useMessage()
 const condition = ref<UserCondition>({
   username: "",
@@ -113,15 +114,56 @@ const columns = [
     render: (row: User) => {
       return h(NButtonGroup, {}, () => [
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            onClick: () => handleEditData(row)
-          },
+            default: () => "分配角色",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  type: "warning",
+                  onClick: () => handleAssignRole(row)
+                },
+                {
+                  default: () =>
+                    h(
+                      NIcon,
+                      {},
+                      {
+                        default: () => h(UserRole)
+                      }
+                    )
+                }
+              )
+          }
+        ),
+        h(
+          NTooltip,
+          {},
           {
-            default: () => "编辑"
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () =>
+                    h(
+                      NIcon,
+                      {},
+                      {
+                        default: () => h(Edit)
+                      }
+                    )
+                }
+              )
           }
         ),
         h(
@@ -133,14 +175,29 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  disabled: row.username === "admin",
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: row.username === "admin",
+                        type: "error"
+                      },
+                      {
+                        default: () =>
+                          h(
+                            NIcon,
+                            {},
+                            {
+                              default: () => h(Delete)
+                            }
+                          )
+                      }
+                    )
                 }
               )
           }
@@ -274,6 +331,18 @@ const rules = {
     }
   ]
 }
+
+// 分配角色抽屉
+const roleDrawerActive = ref(false)
+const roleUserId = ref<string>("")
+const userRoleIdList = ref<string[]>([])
+const handleAssignRole = (row: User) => {
+  roleUserId.value = row.id
+  getUserRoleIdList(row.id).then((res) => {
+    userRoleIdList.value = res
+    roleDrawerActive.value = true
+  })
+}
 </script>
 
 <template>
@@ -378,6 +447,8 @@ const rules = {
       </template>
     </n-drawer-content>
   </n-drawer>
+
+  <role-drawer v-model:drawer-active="roleDrawerActive" :user-id="roleUserId" :user-role-id-list="userRoleIdList" />
 </template>
 
 <style scoped></style>
