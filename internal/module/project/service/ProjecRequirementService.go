@@ -152,6 +152,9 @@ func (s *projectRequirementService) PaginateBetweenTimes(condition *model.Projec
 		}
 	}
 
+	// 大字段不查询
+	tx.Omit("detail", "full_path")
+
 	err = tx.Find(&list, &model.ProjectRequirement{
 		ProjectID:   condition.ProjectID,
 		StageID:     condition.StageID,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getProjectModuleList } from "@/service/api/projectModule"
-import { deleteProjectRequirement, getProjectRequirementList } from "@/service/api/projectRequirement"
+import { deleteProjectRequirement, getProjectRequirement, getProjectRequirementList } from "@/service/api/projectRequirement"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
 import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
@@ -64,8 +64,16 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: (row: ProjectRequirement) => row.detail && row.detail !== "",
-  renderExpand: (row: ProjectRequirement) => h("div", {}, { default: () => row.detail })
+  renderExpand: (row: ProjectRequirement) => {
+    if (!row.detail) {
+      getProjectRequirement(row.id).then((res) => {
+        if (res) {
+          row.detail = res.detail
+        }
+      })
+    }
+    return h("div", {}, { default: () => row.detail })
+  }
 })
 const typeColumn = reactive({
   title: "类型",

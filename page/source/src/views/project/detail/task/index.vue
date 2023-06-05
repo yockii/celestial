@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getProjectModuleList } from "@/service/api/projectModule"
-import { deleteProjectTask, getProjectTaskList } from "@/service/api/projectTask"
+import { deleteProjectTask, getProjectTask, getProjectTaskList } from "@/service/api/projectTask"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
 import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NBadge } from "naive-ui"
@@ -62,8 +62,18 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: (row: ProjectTask) => row.taskDesc && row.taskDesc !== "",
-  renderExpand: (row: ProjectTask) => h("div", {}, { default: () => row.taskDesc })
+  renderExpand: (row: ProjectTask) => {
+    if (!row.taskDesc) {
+      getProjectTask(row.id).then((res) => {
+        if (res.taskDesc) {
+          row.taskDesc = res.taskDesc
+        } else {
+          row.taskDesc = "暂无描述"
+        }
+      })
+    }
+    return h("div", {}, { default: () => row.taskDesc })
+  }
 })
 const nameColumn = reactive({
   title: "任务名称",

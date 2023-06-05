@@ -14,7 +14,7 @@ import {
   NPopconfirm,
   PaginationProps
 } from "naive-ui"
-import { addProjectPlan, deleteProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/projectPlan"
+import { addProjectPlan, deleteProjectPlan, getProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/projectPlan"
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
@@ -27,9 +27,17 @@ const { stageListWithNone } = storeToRefs(stageStore)
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: (row: ProjectPlan) => row.planDesc && row.planDesc !== "",
-  renderExpand: (row: ProjectPlan) =>
-    h(
+  renderExpand: (row: ProjectPlan) => {
+    if (!row.planDesc || !row.target || !row.scope || !row.resource || !row.schedule) {
+      getProjectPlan(row.id).then((res) => {
+        row.planDesc = res.planDesc
+        row.target = res.target
+        row.scope = res.scope
+        row.resource = res.resource
+        row.schedule = res.schedule
+      })
+    }
+    return h(
       NGrid,
       {
         cols: 1,
@@ -43,6 +51,7 @@ const expandColumn = reactive({
         h(NGridItem, {}, { default: () => "进展：" + row.schedule })
       ]
     )
+  }
 })
 const startTimeColumn = reactive({
   title: "计划开始时间",

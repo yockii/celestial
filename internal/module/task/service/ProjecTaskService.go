@@ -157,6 +157,9 @@ func (s *projectTaskService) PaginateBetweenTimes(condition *model.ProjectTask, 
 		tx = tx.Where("parent_id = 0")
 	}
 
+	// 大字段不查询
+	tx.Omit("task_desc", "full_path")
+
 	err = tx.Find(&list, &model.ProjectTask{
 		ID:        condition.ID,
 		ProjectID: condition.ProjectID,
