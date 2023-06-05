@@ -86,9 +86,44 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 			} else {
 				matchingUser.Username = matchingUser.RealName
 			}
-			if err = database.DB.Create(matchingUser).Error; err != nil {
-				logger.Error(err)
-				return nil, err
+
+			// 获取默认角色
+			defaultRole := &model.Role{
+				DefaultRole: 1,
+			}
+			if err = database.DB.Where(defaultRole).First(defaultRole).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					logger.Warn("未配置默认角色")
+				} else {
+					logger.Error(err)
+					return nil, err
+				}
+			}
+			if defaultRole != nil && defaultRole.ID > 0 {
+				// 添加用户的同时添加默认角色
+				if err = database.DB.Transaction(func(tx *gorm.DB) error {
+					if err = tx.Create(matchingUser).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
+					userRole := &model.UserRole{
+						ID:     util.SnowflakeId(),
+						UserID: matchingUser.ID,
+						RoleID: defaultRole.ID,
+					}
+					if err = tx.Create(userRole).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
+					return nil
+				}); err != nil {
+					return nil, err
+				}
+			} else {
+				if err = database.DB.Create(matchingUser).Error; err != nil {
+					logger.Error(err)
+					return nil, err
+				}
 			}
 		} else {
 			logger.Error(err)

@@ -16,7 +16,7 @@ func InitRouter() {
 		stage.Post("/add", middleware.NeedAuthorization(constant.ResourceStageAdd), StageController.Add)
 		stage.Delete("/delete", middleware.NeedAuthorization(constant.ResourceStageDelete), StageController.Delete)
 		stage.Put("/update", middleware.NeedAuthorization(constant.ResourceStageUpdate), StageController.Update)
-		stage.Get("/list", middleware.NeedAuthorization(constant.ResourceStageList), StageController.List)
+		stage.Get("/list", middleware.NeedAuthorization("user"), StageController.List)
 		stage.Get("/instance", middleware.NeedAuthorization(constant.ResourceStageInstance), StageController.Instance)
 
 		// 对于禁用put和delete方法时的处理

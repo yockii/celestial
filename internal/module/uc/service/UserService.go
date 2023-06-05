@@ -67,7 +67,34 @@ func (s *userService) Add(instance *model.User) (duplicated bool, success bool, 
 		instance.Password = string(pwd)
 	}
 	instance.Status = model.UserStatusNormal
-	err = database.DB.Create(instance).Error
+
+	// 获取默认角色
+	defaultRole := &model.Role{DefaultRole: 1}
+	if err = database.DB.Where(defaultRole).First(defaultRole).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	if defaultRole != nil && defaultRole.ID > 0 {
+		// 添加用户的同时要添加默认角色
+		err = database.DB.Transaction(func(tx *gorm.DB) error {
+			if err = tx.Create(instance).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			userRole := &model.UserRole{
+				ID:     util.SnowflakeId(),
+				UserID: instance.ID,
+				RoleID: defaultRole.ID,
+			}
+			if err = tx.Create(userRole).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		})
+	} else {
+		err = database.DB.Create(instance).Error
+	}
 	if err != nil {
 		logger.Errorln(err)
 		return

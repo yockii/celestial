@@ -67,6 +67,7 @@ func InitRouter() {
 		role.Get("/list", middleware.NeedAuthorization(constant.ResourceRoleList), RoleController.List)
 		role.Get("/instance", middleware.NeedAuthorization(constant.ResourceRoleInstance), RoleController.Instance)
 		role.Post("/dispatchResources", middleware.NeedAuthorization(constant.ResourceRoleDispatchResources), RoleController.DispatchResources)
+		role.Put("/setDefaultRole", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.SetDefaultRole)
 
 		// 对于禁用put和delete方法时的处理
 		role.Post("/delete", middleware.NeedAuthorization(constant.ResourceRoleDelete), RoleController.Delete)

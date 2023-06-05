@@ -31,6 +31,7 @@ export type Role = {
   type: number
   style?: string
   dataPermission: number
+  defaultRole?: number
   status: number
   createTime?: number
 }

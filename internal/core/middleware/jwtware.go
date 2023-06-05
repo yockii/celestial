@@ -16,6 +16,10 @@ import (
 	"strings"
 )
 
+// NeedAuthorization 需要授权的中间件
+// code: 空 或 anon 不需要授权
+// code: user 需要用户授权
+// code: 其他 需要用户授权并且需要对应的权限
 func NeedAuthorization(code string) fiber.Handler {
 	code = strings.ToLower(code)
 	if code == "" || code == "anon" {
@@ -87,6 +91,9 @@ func NeedAuthorization(code string) fiber.Handler {
 			_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uid, 3*24*60*60)
 
 			hasAuth := false
+			if code == "user" {
+				hasAuth = true
+			}
 			for _, roleId := range roleIds {
 				if roleId == constant.SuperAdminRoleId {
 					hasAuth = true

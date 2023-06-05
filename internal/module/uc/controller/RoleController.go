@@ -283,3 +283,31 @@ func (_ *roleController) DispatchResources(ctx *fiber.Ctx) error {
 		Data: success,
 	})
 }
+
+func (*roleController) SetDefaultRole(ctx *fiber.Ctx) error {
+	idStr := ctx.Query("id")
+	if idStr == "" {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		logger.Error(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	err = service.RoleService.SetDefault(id)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase,
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: true,
+	})
+}

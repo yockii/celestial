@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { getRoleList, updateRole, addRole, deleteRole } from "@/service/api/role"
+import { getRoleList, updateRole, addRole, deleteRole, setDefaultRole } from "@/service/api/role"
 import { RoleCondition, Role } from "@/types/user"
-import { Search } from "@vicons/carbon"
+import { DataSet, Delete, Edit, Search } from "@vicons/carbon"
 import dayjs from "dayjs"
 import {
   NTag,
@@ -14,7 +14,9 @@ import {
   SelectGroupOption,
   DataTableFilterState,
   DataTableSortState,
-  PaginationProps
+  PaginationProps,
+  NTooltip,
+  NIcon
 } from "naive-ui"
 const message = useMessage()
 const condition = ref<RoleCondition>({
@@ -190,15 +192,57 @@ const columns = [
     render: (row: Role) => {
       return h(NButtonGroup, {}, () => [
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            onClick: () => handleEditData(row)
-          },
+            default: () => "设为默认角色",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  type: "primary",
+                  disabled: row.defaultRole === 1,
+                  onClick: () => handleSetDefault(row.id)
+                },
+                {
+                  icon: () =>
+                    h(
+                      NIcon,
+                      {},
+                      {
+                        default: () => h(DataSet)
+                      }
+                    )
+                }
+              )
+          }
+        ),
+        h(
+          NTooltip,
+          {},
           {
-            default: () => "编辑"
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () =>
+                    h(
+                      NIcon,
+                      {},
+                      {
+                        default: () => h(Edit)
+                      }
+                    )
+                }
+              )
           }
         ),
         h(
@@ -210,13 +254,29 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: row.defaultRole === 1,
+                        type: "error"
+                      },
+                      {
+                        default: () =>
+                          h(
+                            NIcon,
+                            {},
+                            {
+                              default: () => h(Delete)
+                            }
+                          )
+                      }
+                    )
                 }
               )
           }
@@ -252,6 +312,14 @@ const handleSorterChange = (sorter: DataTableSortState) => {
       refresh()
     }
   }
+}
+const handleSetDefault = (id: string) => {
+  setDefaultRole(id).then((res) => {
+    if (res) {
+      message.success("设置成功")
+    }
+    refresh()
+  })
 }
 const handleEditData = (row: Role) => {
   checkedData.value = Object.assign({}, row)

@@ -190,3 +190,18 @@ func (s *roleService) DispatchResources(roleID uint64, ResourceCodeList []string
 	success = true
 	return
 }
+
+// SetDefault 设置默认角色
+func (*roleService) SetDefault(id uint64) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&model.Role{}).Where("default_role=?", 1).Updates(&model.Role{DefaultRole: -1}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if err := tx.Model(&model.Role{ID: id}).Updates(&model.Role{DefaultRole: 1}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	})
+}

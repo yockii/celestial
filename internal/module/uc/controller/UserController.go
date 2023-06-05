@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/uc/dingtalk"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v4"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/ruomu-core/cache"
 	"github.com/yockii/ruomu-core/config"
