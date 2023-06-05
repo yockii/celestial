@@ -42,3 +42,15 @@ export type RoleCondition = Condition & {
   dataPermission?: number
   status?: number
 }
+
+export type Resource = {
+  id: string
+  resourceName: string
+  resourceCode: string
+  children?: Resource[]
+}
+
+export type ResourceCondition = Condition & {
+  resourceName?: string
+  resourceCode?: string
+}

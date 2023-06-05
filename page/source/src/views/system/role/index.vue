@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { getRoleList, updateRole, addRole, deleteRole, setDefaultRole } from "@/service/api/role"
+import { getRoleList, updateRole, addRole, deleteRole, setDefaultRole, getRoleResourceCodeList } from "@/service/api/role"
 import { RoleCondition, Role } from "@/types/user"
-import { DataSet, Delete, Edit, Search } from "@vicons/carbon"
+import { DataSet, Delete, Edit, GroupResource, Search } from "@vicons/carbon"
 import dayjs from "dayjs"
 import {
   NTag,
@@ -18,6 +18,7 @@ import {
   NTooltip,
   NIcon
 } from "naive-ui"
+import ResourceDrawer from "./resourceDrawer/index.vue"
 const message = useMessage()
 const condition = ref<RoleCondition>({
   name: "",
@@ -212,6 +213,32 @@ const columns = [
                       {},
                       {
                         default: () => h(DataSet)
+                      }
+                    )
+                }
+              )
+          }
+        ),
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "分配资源",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  type: "warning",
+                  onClick: () => handleAssignResource(row)
+                },
+                {
+                  default: () =>
+                    h(
+                      NIcon,
+                      {},
+                      {
+                        default: () => h(GroupResource)
                       }
                     )
                 }
@@ -523,6 +550,18 @@ onMounted(() => {
 
   refresh()
 })
+
+// 资源分配抽屉
+const resourceDrawerActive = ref(false)
+const resourceRoleId = ref("")
+const roleResourceCodeList = ref<string[]>([])
+const handleAssignResource = (row: Role) => {
+  resourceRoleId.value = row.id
+  getRoleResourceCodeList(row.id).then((res) => {
+    roleResourceCodeList.value = res
+    resourceDrawerActive.value = true
+  })
+}
 </script>
 
 <template>
@@ -681,6 +720,8 @@ onMounted(() => {
       </template>
     </n-drawer-content>
   </n-drawer>
+
+  <resource-drawer v-model:drawer-active="resourceDrawerActive" :role-id="resourceRoleId" :role-resource-code-list="roleResourceCodeList" />
 </template>
 
 <style scoped></style>
