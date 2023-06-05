@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type ProjectMember struct {
 	ID         uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -25,5 +28,5 @@ func (p *ProjectMember) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &ProjectMember{})
+	constant.Models = append(constant.Models, &ProjectMember{})
 }

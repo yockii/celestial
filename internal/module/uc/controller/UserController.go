@@ -389,8 +389,8 @@ func generateJwtToken(userId, tenantId string) (string, error) {
 	return t, nil
 }
 
-// DispatchRoles 给用户分配角色
-func (c *userController) DispatchRoles(ctx *fiber.Ctx) error {
+// AssignRole 给用户分配角色
+func (c *userController) AssignRole(ctx *fiber.Ctx) error {
 	instance := new(domain.UserDispatchRolesRequest)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
@@ -575,5 +575,37 @@ func (c *userController) generateLoginResponse(user *model.User, ctx *fiber.Ctx)
 			"token": jwtToken,
 			"user":  user,
 		},
+	})
+}
+
+func (c *userController) UserRoleIdList(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Query("id")
+	userId, err := strconv.ParseUint(userIdStr, 10, 64)
+	if err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + " id",
+		})
+	}
+	if userId == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	roleList, err := service.UserService.Roles(userId)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	var roleIdList []string
+	for _, role := range roleList {
+		roleIdList = append(roleIdList, strconv.FormatUint(role.ID, 10))
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: roleIdList,
 	})
 }

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type OssConfig struct {
 	ID              uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -32,4 +35,8 @@ func (p *OssConfig) UnmarshalJSON(b []byte) error {
 	p.SelfDomain = int(j.Get("selfDomain").Int())
 	p.CreateTime = j.Get("createTime").Int()
 	return nil
+}
+
+func init() {
+	constant.Models = append(constant.Models, &OssConfig{})
 }

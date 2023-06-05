@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type Department struct {
 	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -51,5 +54,5 @@ func (ud *UserDepartment) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &Department{}, &UserDepartment{})
+	constant.Models = append(constant.Models, &Department{}, &UserDepartment{})
 }

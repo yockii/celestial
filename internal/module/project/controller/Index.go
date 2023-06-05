@@ -1,14 +1,12 @@
 package controller
 
 import (
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
-	"github.com/yockii/celestial/internal/module/project/constant"
-	"github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 func InitRouter() {
-	service.InitService()
 
 	// 项目阶段信息
 	{
@@ -48,7 +46,7 @@ func InitRouter() {
 		projectMember.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectMemberUpdate), ProjectMemberController.Update)
 		projectMember.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.List)
 		projectMember.Get("/listByProject", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.ListLiteByProjectId)
-		projectMember.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectMemberInstance), ProjectMemberController.Instance)
+		//projectMember.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectMemberInstance), ProjectMemberController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectMember.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectMemberDelete), ProjectMemberController.Delete)
@@ -77,7 +75,7 @@ func InitRouter() {
 		projectModule.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectModuleDelete), ProjectModuleController.Delete)
 		projectModule.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectModuleUpdate), ProjectModuleController.Update)
 		projectModule.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectModuleList), ProjectModuleController.List)
-		projectModule.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectModuleInstance), ProjectModuleController.Instance)
+		//projectModule.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectModuleInstance), ProjectModuleController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectModule.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectModuleDelete), ProjectModuleController.Delete)
@@ -98,61 +96,61 @@ func InitRouter() {
 		projectRequirement.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRequirementUpdate), ProjectRequirementController.Update)
 	}
 
-	// 项目变更
-	{
-		projectChange := server.Group("/api/v1/projectChange")
-		projectChange.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectChangeAdd), ProjectChangeController.Add)
-		projectChange.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
-		projectChange.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
-		projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList), ProjectChangeController.List)
-		projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance), ProjectChangeController.Instance)
-
-		// 对于禁用put和delete方法时的处理
-		projectChange.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
-		projectChange.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
-	}
-
-	// 项目问题
-	{
-		projectIssue := server.Group("/api/v1/projectIssue")
-		projectIssue.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectIssueAdd), ProjectIssueController.Add)
-		projectIssue.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)
-		projectIssue.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
-		projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList), ProjectIssueController.List)
-		projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance), ProjectIssueController.Instance)
-
-		// 对于禁用put和delete方法时的处理
-		projectIssue.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)
-		projectIssue.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
-	}
-
-	// 项目风险
-	{
-		projectRisk := server.Group("/api/v1/projectRisk")
-		projectRisk.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectRiskAdd), ProjectRiskController.Add)
-		projectRisk.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
-		projectRisk.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
-		projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
-		projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
-		projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
-
-		// 对于禁用put和delete方法时的处理
-		projectRisk.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
-		projectRisk.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
-	}
-
-	// 项目资产
-	{
-		projectAsset := server.Group("/api/v1/projectAsset")
-		projectAsset.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectAssetAdd), ProjectAssetController.Add)
-		projectAsset.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
-		projectAsset.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
-		projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList), ProjectAssetController.List)
-		projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance), ProjectAssetController.Instance)
-
-		// 对于禁用put和delete方法时的处理
-		projectAsset.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
-		projectAsset.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
-	}
+	//// 项目变更
+	//{
+	//	projectChange := server.Group("/api/v1/projectChange")
+	//	projectChange.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectChangeAdd), ProjectChangeController.Add)
+	//	projectChange.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
+	//	projectChange.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
+	//	projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList), ProjectChangeController.List)
+	//	projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance), ProjectChangeController.Instance)
+	//
+	//	// 对于禁用put和delete方法时的处理
+	//	projectChange.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
+	//	projectChange.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
+	//}
+	//
+	//// 项目问题
+	//{
+	//	projectIssue := server.Group("/api/v1/projectIssue")
+	//	projectIssue.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectIssueAdd), ProjectIssueController.Add)
+	//	projectIssue.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)
+	//	projectIssue.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
+	//	projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList), ProjectIssueController.List)
+	//	projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance), ProjectIssueController.Instance)
+	//
+	//	// 对于禁用put和delete方法时的处理
+	//	projectIssue.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)
+	//	projectIssue.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
+	//}
+	//
+	//// 项目风险
+	//{
+	//	projectRisk := server.Group("/api/v1/projectRisk")
+	//	projectRisk.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectRiskAdd), ProjectRiskController.Add)
+	//	projectRisk.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
+	//	projectRisk.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
+	//	projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
+	//	projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
+	//	projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
+	//
+	//	// 对于禁用put和delete方法时的处理
+	//	projectRisk.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
+	//	projectRisk.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
+	//}
+	//
+	//// 项目资产
+	//{
+	//	projectAsset := server.Group("/api/v1/projectAsset")
+	//	projectAsset.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectAssetAdd), ProjectAssetController.Add)
+	//	projectAsset.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
+	//	projectAsset.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
+	//	projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList), ProjectAssetController.List)
+	//	projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance), ProjectAssetController.Instance)
+	//
+	//	// 对于禁用put和delete方法时的处理
+	//	projectAsset.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
+	//	projectAsset.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
+	//}
 
 }

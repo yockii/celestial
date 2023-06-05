@@ -34,11 +34,6 @@ func (s *resourceService) Add(instance *model.Resource) (duplicated bool, succes
 
 	instance.ID = util.SnowflakeId()
 
-	// code小写
-	//instance.ResourceCode = strings.ToLower(instance.ResourceCode)
-	// httpMethod大写
-	instance.HttpMethod = strings.ToUpper(instance.HttpMethod)
-
 	err = database.DB.Create(instance).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -58,7 +53,7 @@ func (s *resourceService) Update(instance *model.Resource) (success bool, err er
 	err = database.DB.Where(&model.Resource{ID: instance.ID}).Updates(&model.Resource{
 		ResourceName: instance.ResourceName,
 		ResourceCode: strings.ToLower(instance.ResourceCode),
-		HttpMethod:   instance.HttpMethod,
+		Type:         instance.Type,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -116,12 +111,9 @@ func (s *resourceService) PaginateBetweenTimes(condition *model.Resource, limit 
 		if condition.ResourceCode != "" {
 			tx = tx.Where("resource_code like ?", "%"+condition.ResourceCode+"%")
 		}
-		if condition.HttpMethod != "" {
-			tx = tx.Where("http_method like ?", "%"+strings.ToUpper(condition.HttpMethod)+"%")
-		}
 	}
 
-	err = tx.Find(&list).Offset(-1).Limit(-1).Count(&total).Error
+	err = tx.Where(&model.Resource{Type: condition.Type}).Find(&list).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

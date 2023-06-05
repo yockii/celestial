@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type WorkTime struct {
 	ID           uint64 `json:"ID,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -37,5 +40,5 @@ func (wt *WorkTime) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &WorkTime{})
+	constant.Models = append(constant.Models, &WorkTime{})
 }

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type AssetCategory struct {
 	ID            uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -29,5 +32,5 @@ func (ac *AssetCategory) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &AssetCategory{})
+	constant.Models = append(constant.Models, &AssetCategory{})
 }

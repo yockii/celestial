@@ -1,16 +1,14 @@
 package controller
 
 import (
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
-	"github.com/yockii/celestial/internal/module/uc/constant"
-	"github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 // single直接注册路由
 
 func InitRouter() {
-	service.InitService()
 
 	// 注册
 	server.Post("/api/v1/register", UserController.Register)
@@ -29,12 +27,14 @@ func InitRouter() {
 		user.Put("/update", middleware.NeedAuthorization(constant.ResourceUserUpdate), UserController.UpdateSelf)
 		user.Get("/list", middleware.NeedAuthorization(constant.ResourceUserList), UserController.List)
 		user.Get("/instance", middleware.NeedAuthorization(constant.ResourceUserInstance), UserController.Instance)
-		user.Post("/dispatchRoles", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.DispatchRoles)
+		user.Put("/assignRole", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.AssignRole)
+		user.Get("/roleIdList", middleware.NeedAuthorization(constant.ResourceUserRoles), UserController.UserRoleIdList)
 
 		// 对于禁用put和delete方法时的处理
 		user.Post("/delete", middleware.NeedAuthorization(constant.ResourceUserDelete), UserController.Delete)
 		user.Post("/updateUser", middleware.NeedAuthorization(constant.ResourceUserUpdateUser), UserController.UpdateUser)
 		user.Post("/update", middleware.NeedAuthorization(constant.ResourceUserUpdate), UserController.UpdateSelf)
+		user.Post("/assignRole", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.AssignRole)
 	}
 
 	// 部门
@@ -66,24 +66,26 @@ func InitRouter() {
 		role.Put("/update", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.Update)
 		role.Get("/list", middleware.NeedAuthorization(constant.ResourceRoleList), RoleController.List)
 		role.Get("/instance", middleware.NeedAuthorization(constant.ResourceRoleInstance), RoleController.Instance)
-		role.Post("/dispatchResources", middleware.NeedAuthorization(constant.ResourceRoleDispatchResources), RoleController.DispatchResources)
+		role.Put("/assignResource", middleware.NeedAuthorization(constant.ResourceRoleDispatchResources), RoleController.AssignResource)
 		role.Put("/setDefaultRole", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.SetDefaultRole)
+		role.Get("/resourceCodeList", middleware.NeedAuthorization(constant.ResourceRoleResources), RoleController.RoleResourceCodeList)
 
 		// 对于禁用put和delete方法时的处理
 		role.Post("/delete", middleware.NeedAuthorization(constant.ResourceRoleDelete), RoleController.Delete)
 		role.Post("/update", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.Update)
+		role.Post("/assignResource", middleware.NeedAuthorization(constant.ResourceRoleDispatchResources), RoleController.AssignResource)
 	}
 
 	// 资源
 	{
 		resource := server.Group("/api/v1/resource")
-		resource.Post("/add", middleware.NeedAuthorization(constant.ResourceResourceAdd), ResourceController.Add)
-		resource.Delete("/delete", middleware.NeedAuthorization(constant.ResourceResourceDelete), ResourceController.Delete)
+		//resource.Post("/add", middleware.NeedAuthorization(constant.ResourceResourceAdd), ResourceController.Add)
+		//resource.Delete("/delete", middleware.NeedAuthorization(constant.ResourceResourceDelete), ResourceController.Delete)
 		//resource.Put("/update", middleware.NeedAuthorization("resource:update"), ResourceController.Update)
 		resource.Get("/list", middleware.NeedAuthorization(constant.ResourceResourceList), ResourceController.List)
 
 		// 对于禁用put和delete方法时的处理
-		resource.Post("/delete", middleware.NeedAuthorization("resource:delete"), ResourceController.Delete)
+		//resource.Post("/delete", middleware.NeedAuthorization("resource:delete"), ResourceController.Delete)
 	}
 
 	// 三方登录源

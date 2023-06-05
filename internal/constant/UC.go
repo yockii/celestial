@@ -1,7 +1,5 @@
 package constant
 
-const ModuleName = "uc"
-
 const (
 	AdminDefaultPassword = "Admin123!@#"
 )

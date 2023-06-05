@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type CommonTestCase struct {
 	ID         uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -49,5 +52,5 @@ func (ctci *CommonTestCaseItem) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &CommonTestCase{}, &CommonTestCaseItem{})
+	constant.Models = append(constant.Models, &CommonTestCase{}, &CommonTestCaseItem{})
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/uc/constant"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/cache"

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 const (
 	UserStatusNormal = 1
@@ -37,5 +40,5 @@ func (u *User) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &User{})
+	constant.Models = append(constant.Models, &User{})
 }

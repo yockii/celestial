@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 const (
 	RoleTypeSuperAdmin = -1
@@ -68,5 +71,5 @@ func (ur *UserRole) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &Role{}, &UserRole{})
+	constant.Models = append(constant.Models, &Role{}, &UserRole{})
 }

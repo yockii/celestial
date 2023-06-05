@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	assetController "github.com/yockii/celestial/internal/module/asset/controller"
 	logController "github.com/yockii/celestial/internal/module/log/controller"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
@@ -29,6 +30,9 @@ func main() {
 	//_ = ruomu_module.Initial()
 	//defer ruomu_module.Destroy()
 	//logger.Infoln("模块管理加载完毕")
+
+	// 初始化数据
+	data.InitData()
 
 	// 统一用户中心模块
 	ucController.InitRouter()

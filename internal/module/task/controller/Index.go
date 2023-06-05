@@ -3,12 +3,10 @@ package controller
 import (
 	"github.com/yockii/celestial/internal/core/middleware"
 	"github.com/yockii/celestial/internal/module/task/constant"
-	"github.com/yockii/celestial/internal/module/task/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 func InitRouter() {
-	service.InitService()
 
 	// 项目任务
 	{

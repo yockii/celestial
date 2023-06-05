@@ -2,13 +2,14 @@ package model
 
 import (
 	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
 )
 
 type Resource struct {
 	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ResourceName string `json:"resourceName,omitempty" gorm:"size:50;comment:资源名称"`             // 资源名称
 	ResourceCode string `json:"resourceCode,omitempty" gorm:"size:50;uniqueIndex;comment:资源代码"` // 资源认证代码
-	HttpMethod   string `json:"httpMethod,omitempty" gorm:"comment:http方法"`                     // http方法
+	Type         int    `json:"type,omitempty" gorm:"comment:类型 1-模块 2-页面 3-功能"`                // http方法
 	CreateTime   int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime   int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }
@@ -21,7 +22,7 @@ func (r *Resource) UnmarshalJSON(b []byte) error {
 	r.ID = j.Get("id").Uint()
 	r.ResourceName = j.Get("resourceName").String()
 	r.ResourceCode = j.Get("resourceCode").String()
-	r.HttpMethod = j.Get("httpMethod").String()
+	r.Type = int(j.Get("type").Int())
 	return nil
 }
 
@@ -44,5 +45,5 @@ func (rr *RoleResource) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &Resource{}, &RoleResource{})
+	constant.Models = append(constant.Models, &Resource{}, &RoleResource{})
 }

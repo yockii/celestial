@@ -3,13 +3,10 @@ package controller
 import (
 	"github.com/yockii/celestial/internal/core/middleware"
 	"github.com/yockii/celestial/internal/module/log/constant"
-	"github.com/yockii/celestial/internal/module/log/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 func InitRouter() {
-	service.InitService()
-
 	// 日志信息
 	{
 		log := server.Group("/api/v1/log")

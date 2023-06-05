@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
 	"gorm.io/gorm"
 )
 
@@ -37,5 +38,5 @@ func (ptc *ProjectTestCase) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &ProjectTestCase{})
+	constant.Models = append(constant.Models, &ProjectTestCase{})
 }

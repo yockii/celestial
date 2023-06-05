@@ -3,7 +3,7 @@ package helper
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/uc/constant"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/ruomu-core/shared"
 	"strconv"
 )

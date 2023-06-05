@@ -3,13 +3,10 @@ package controller
 import (
 	"github.com/yockii/celestial/internal/core/middleware"
 	"github.com/yockii/celestial/internal/module/test/constant"
-	"github.com/yockii/celestial/internal/module/test/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 func InitRouter() {
-	service.InitService()
-
 	// 项目测试
 	{
 		projectTest := server.Group("/api/v1/projectTest")

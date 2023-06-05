@@ -147,7 +147,7 @@ func (_ *roleController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (_ *roleController) List(ctx *fiber.Ctx) error {
+func (*roleController) List(ctx *fiber.Ctx) error {
 	instance := new(domain.RoleListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
@@ -195,7 +195,7 @@ func (_ *roleController) List(ctx *fiber.Ctx) error {
 }
 
 // Instance 获取角色详情
-func (_ *roleController) Instance(ctx *fiber.Ctx) error {
+func (*roleController) Instance(ctx *fiber.Ctx) error {
 	instance := new(model.Role)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
@@ -224,8 +224,8 @@ func (_ *roleController) Instance(ctx *fiber.Ctx) error {
 	})
 }
 
-// DispatchResources 角色分配资源
-func (_ *roleController) DispatchResources(ctx *fiber.Ctx) error {
+// AssignResource 角色分配资源
+func (*roleController) AssignResource(ctx *fiber.Ctx) error {
 	instance := new(domain.RoleDispatchResourcesRequest)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
@@ -309,5 +309,34 @@ func (*roleController) SetDefaultRole(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: true,
+	})
+}
+
+// RoleResourceCodeList 获取角色对应的资源代码列表
+func (*roleController) RoleResourceCodeList(ctx *fiber.Ctx) error {
+	idStr := ctx.Query("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		logger.Error(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if id == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	list, err := service.RoleService.ResourceCodes(id)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase,
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
 	})
 }

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 const (
 	ThirdSourceStatusEnabled = 1
@@ -63,5 +66,5 @@ func (u *ThirdUser) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &ThirdSource{}, &ThirdUser{})
+	constant.Models = append(constant.Models, &ThirdSource{}, &ThirdUser{})
 }

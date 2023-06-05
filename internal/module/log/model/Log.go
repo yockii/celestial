@@ -1,6 +1,9 @@
 package model
 
-import "github.com/tidwall/gjson"
+import (
+	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/constant"
+)
 
 type Log struct {
 	ID            uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
@@ -33,5 +36,5 @@ func (p *Log) UnmarshalJSON(b []byte) error {
 }
 
 func init() {
-	Models = append(Models, &Log{})
+	constant.Models = append(constant.Models, &Log{})
 }

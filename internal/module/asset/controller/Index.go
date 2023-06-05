@@ -1,15 +1,12 @@
 package controller
 
 import (
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
-	"github.com/yockii/celestial/internal/module/asset/constant"
-	"github.com/yockii/celestial/internal/module/asset/service"
 	"github.com/yockii/ruomu-core/server"
 )
 
 func InitRouter() {
-	service.InitService()
-
 	// 资产分类
 	{
 		assetCategory := server.Group("/api/v1/assetCategory")
@@ -69,11 +66,11 @@ func InitRouter() {
 	// 通用测试用例项
 	{
 		commonTestCaseItem := server.Group("/api/v1/commonTestCaseItem")
-		commonTestCaseItem.Post("/add", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemAdd), CommonTestCaseItemController.Add)
-		commonTestCaseItem.Delete("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemDelete), CommonTestCaseItemController.Delete)
-		commonTestCaseItem.Get("/list", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemList), CommonTestCaseItemController.List)
+		commonTestCaseItem.Post("/add", middleware.NeedAuthorization(constant.ResourceCommonTestCaseAddItem), CommonTestCaseItemController.Add)
+		commonTestCaseItem.Delete("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseDeleteItem), CommonTestCaseItemController.Delete)
+		//commonTestCaseItem.Get("/list", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemList), CommonTestCaseItemController.List)
 
 		// 对于禁用put和delete方法时的处理
-		commonTestCaseItem.Post("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemDelete), CommonTestCaseItemController.Delete)
+		commonTestCaseItem.Post("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseDeleteItem), CommonTestCaseItemController.Delete)
 	}
 }
