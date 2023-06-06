@@ -11,6 +11,7 @@ import { getThirdSourcePublic } from "@/service/api/settings/thirdSource"
 const formRef = ref<FormInst | null>(null)
 const rPasswordFormItemRef = ref<FormItemInst | null>(null)
 const message = useMessage()
+const appStore = useAppStore()
 const loginInfo = ref<{
   username: string
   password: string
@@ -56,7 +57,15 @@ const handleLoginButtonClick = (): void => {
         userStore.setToken(data.token)
         userStore.setUserInfo(data.user)
         message.success("登录成功")
-        router.push("/")
+        const to = {
+          name: "Home"
+        }
+        if (appStore.activeSubMenuKey !== "") {
+          to.name = appStore.activeSubMenuKey
+        } else if (appStore.activeMenuKey !== "") {
+          to.name = appStore.activeMenuKey
+        }
+        router.push(to)
       })
       .catch((err) => {
         message.error(err)

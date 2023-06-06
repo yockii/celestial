@@ -29,6 +29,7 @@ func InitRouter() {
 		user.Get("/instance", middleware.NeedAuthorization(constant.ResourceUserInstance), UserController.Instance)
 		user.Put("/assignRole", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.AssignRole)
 		user.Get("/roleIdList", middleware.NeedAuthorization(constant.ResourceUserRoles), UserController.UserRoleIdList)
+		user.Get("/permissions", middleware.NeedAuthorization(constant.NeedLogin), UserController.UserPermissions)
 
 		// 对于禁用put和delete方法时的处理
 		user.Post("/delete", middleware.NeedAuthorization(constant.ResourceUserDelete), UserController.Delete)
@@ -64,7 +65,7 @@ func InitRouter() {
 		role.Post("/add", middleware.NeedAuthorization(constant.ResourceRoleAdd), RoleController.Add)
 		role.Delete("/delete", middleware.NeedAuthorization(constant.ResourceRoleDelete), RoleController.Delete)
 		role.Put("/update", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.Update)
-		role.Get("/list", middleware.NeedAuthorization(constant.ResourceRoleList), RoleController.List)
+		role.Get("/list", middleware.NeedAuthorization(constant.NeedLogin), RoleController.List)
 		role.Get("/instance", middleware.NeedAuthorization(constant.ResourceRoleInstance), RoleController.Instance)
 		role.Put("/assignResource", middleware.NeedAuthorization(constant.ResourceRoleDispatchResources), RoleController.AssignResource)
 		role.Put("/setDefaultRole", middleware.NeedAuthorization(constant.ResourceRoleUpdate), RoleController.SetDefaultRole)

@@ -26,7 +26,8 @@ const renderUnAuthMsg = (msg: string) => {
         )
       ]),
     {
-      duration: 0
+      duration: 0,
+      closable: true
     }
   )
 }

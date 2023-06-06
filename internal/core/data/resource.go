@@ -67,6 +67,15 @@ func InitData() {
 				ResourceCode: constant.ResourceHome,
 				Type:         1,
 			})
+
+		// 仪表盘
+		{
+			resources = append(resources, &model.Resource{
+				ResourceName: "仪表盘",
+				ResourceCode: constant.ResourceDashboard,
+				Type:         2,
+			})
+		}
 	}
 	// 项目
 	{
@@ -196,6 +205,11 @@ func InitData() {
 					ResourceCode: constant.ResourceProjectRequirementDelete,
 					Type:         3,
 				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目需求详情",
+					ResourceCode: constant.ResourceProjectRequirementInstance,
+					Type:         3,
+				})
 			}
 			// 任务
 			{
@@ -224,7 +238,11 @@ func InitData() {
 					ResourceCode: constant.ResourceProjectTaskList,
 					Type:         3,
 				})
-
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目任务详情",
+					ResourceCode: constant.ResourceProjectTaskInstance,
+					Type:         3,
+				})
 			}
 
 		}
@@ -329,6 +347,11 @@ func InitData() {
 					ResourceCode: constant.ResourceCommonTestCaseDeleteItem,
 					Type:         3,
 				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "更新通用测试用例项",
+					ResourceCode: constant.ResourceCommonTestCaseUpdateItem,
+					Type:         3,
+				})
 			}
 		}
 
@@ -417,11 +440,11 @@ func InitData() {
 					ResourceCode: constant.ResourceRoleUpdate,
 					Type:         3,
 				})
-				resources = append(resources, &model.Resource{
-					ResourceName: "角色列表",
-					ResourceCode: constant.ResourceRoleList,
-					Type:         3,
-				})
+				//resources = append(resources, &model.Resource{
+				//	ResourceName: "角色列表",
+				//	ResourceCode: constant.ResourceRoleList,
+				//	Type:         3,
+				//})
 				resources = append(resources, &model.Resource{
 					ResourceName: "角色详情",
 					ResourceCode: constant.ResourceRoleInstance,

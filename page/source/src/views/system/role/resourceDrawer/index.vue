@@ -69,7 +69,6 @@ const updateCheckedKeys = (keys: string[]) => {
     <n-drawer-content title="分配资源">
       <n-tree
         block-line
-        cascade
         checkable
         check-on-click
         :data="resourceTree"
@@ -82,7 +81,7 @@ const updateCheckedKeys = (keys: string[]) => {
 
       <template #footer>
         <n-button class="mr-a" @click="resetCurrentData">重置</n-button>
-        <n-button size="small" type="primary" @click="handleCommitData">提交</n-button>
+        <n-button size="small" type="primary" @click="handleCommitData" v-resource-code="'system:role:dispatchResources'">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

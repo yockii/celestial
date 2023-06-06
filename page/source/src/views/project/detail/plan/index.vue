@@ -18,15 +18,17 @@ import { addProjectPlan, deleteProjectPlan, getProjectPlan, getProjectPlanList, 
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
+import { useUserStore } from "@/store/user"
 
 const { project } = storeToRefs(useProjectStore())
-
+const userStore = useUserStore()
 const stageStore = useStageStore()
 const { stageListWithNone } = storeToRefs(stageStore)
 
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
+  expandable: () => userStore.hasResourceCode("project:detail:plan:instance"),
   renderExpand: (row: ProjectPlan) => {
     if (!row.planDesc || !row.target || !row.scope || !row.resource || !row.schedule) {
       getProjectPlan(row.id).then((res) => {
@@ -148,6 +150,7 @@ const operationColumn = reactive({
           size: "small",
           secondary: true,
           type: "primary",
+          disabled: !userStore.hasResourceCode("project:detail:plan:update"),
           onClick: () => handleEditData(row)
         },
         {
@@ -166,7 +169,8 @@ const operationColumn = reactive({
               NButton,
               {
                 size: "small",
-                type: "error"
+                type: "error",
+                disabled: !userStore.hasResourceCode("project:detail:plan:delete")
               },
               {
                 default: () => "删除"
@@ -334,7 +338,7 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="16">
     <n-gi>
-      <n-button @click="newInstance">新建计划</n-button>
+      <n-button @click="newInstance" v-resource-code="'project:detail:plan:add'">新建计划</n-button>
     </n-gi>
     <n-gi>
       <n-data-table
@@ -357,7 +361,14 @@ onMounted(() => {
     <n-drawer-content>
       <template #header>
         <n-text>{{ drawerTitle }}</n-text>
-        <n-button class="absolute right-8px mt--4px" type="primary" size="small" @click="submit">提交</n-button>
+        <n-button
+          class="absolute right-8px mt--4px"
+          type="primary"
+          size="small"
+          @click="submit"
+          v-resource-code="['project:detail:plan:add', 'project:detail:plan:update']"
+          >提交</n-button
+        >
       </template>
       <n-form ref="formRef" :model="instance" :rules="planRules" label-width="120px" label-placement="left">
         <n-grid :cols="4" x-gap="4">

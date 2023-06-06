@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/uc/dingtalk"
 	"github.com/yockii/celestial/internal/module/uc/domain"
@@ -426,16 +427,12 @@ func (c *userController) AssignRole(ctx *fiber.Ctx) error {
 		if err != nil {
 			logger.Errorln(err)
 		}
-		// 将新的用户角色ID缓存到redis
-		args := make([]interface{}, len(instance.RoleIDList)+1)
-		args[0] = key
-		for i, v := range instance.RoleIDList {
-			args[i+1] = v
-		}
-		_, err = conn.Do("SADD", args...)
+		dataPermissionKey := constant.RedisKeyUserDataPerm + strconv.FormatUint(instance.UserID, 10)
+		_, err = conn.Do("DEL", dataPermissionKey)
 		if err != nil {
 			logger.Errorln(err)
 		}
+		// 删除即可，等待中间件重新加载
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -607,5 +604,84 @@ func (c *userController) UserRoleIdList(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: roleIdList,
+	})
+}
+
+// UserPermissions 获取用户权限
+func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeUnknownError,
+			Msg:  server.ResponseMsgUnknownError + err.Error(),
+		})
+	}
+	uidStr := strconv.FormatUint(uid, 10)
+	conn := cache.Get()
+	defer func(conn redis.Conn) {
+		_ = conn.Close()
+	}(conn)
+	// 获取用户数据权限
+	userDataPerm, _ := redis.Int(conn.Do("GET", constant.RedisKeyUserDataPerm+uidStr))
+	// 获取用户角色
+	roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", shared.RedisKeyUserRoles+uidStr))
+	if len(roleIds) == 0 {
+		userDataPerm = 0
+		// 获取该用户的角色id存入缓存
+		var roles []*model.Role
+		roles, err = service.UserService.Roles(uid)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		for _, role := range roles {
+			_, _ = conn.Do("SADD", shared.RedisKeyUserRoles+uidStr, role.ID)
+			if userDataPerm == 0 || role.DataPermission < userDataPerm {
+				userDataPerm = role.DataPermission
+			}
+		}
+		// 存储用户数据权限
+		_, _ = conn.Do("SET", constant.RedisKeyUserDataPerm+uidStr, userDataPerm)
+	}
+	_, _ = conn.Do("EXPIRE", shared.RedisKeyUserRoles+uidStr, 3*24*60*60)
+	_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uidStr, 3*24*60*60)
+
+	// 获取用户资源编码列表
+	resourceCodes := make(map[string]struct{})
+	isSuperAdmin := false
+	for _, roleId := range roleIds {
+		if roleId == constant.SuperAdminRoleId {
+			isSuperAdmin = true
+			break
+		}
+		roleIdStr := strconv.FormatUint(roleId, 10)
+		codes, _ := redis.Strings(conn.Do("GET", shared.RedisKeyRoleResourceCode+roleIdStr))
+		if len(codes) == 0 {
+			// 缓存没有，那么就去数据库取出来放进去
+			codes, err = service.RoleService.ResourceCodes(roleId)
+			for _, resourceCode := range codes {
+				rc := resourceCode
+				_, _ = conn.Do("SADD", shared.RedisKeyRoleResourceCode+roleIdStr, rc)
+				if _, ok := resourceCodes[rc]; !ok {
+					resourceCodes[rc] = struct{}{}
+				}
+			}
+		}
+		_, _ = conn.Do("EXPIRE", shared.RedisKeyRoleResourceCode+roleIdStr, 3*24*60*60)
+	}
+	result := new(domain.UserResourceCodesResponse)
+	if isSuperAdmin {
+		result.IsSuperAdmin = true
+	} else {
+		result.ResourceCodeList = make([]string, 0, len(resourceCodes))
+		for code := range resourceCodes {
+			result.ResourceCodeList = append(result.ResourceCodeList, code)
+		}
+	}
+	result.DataPermission = userDataPerm
+	return ctx.JSON(&server.CommonResponse{
+		Data: result,
 	})
 }

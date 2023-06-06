@@ -54,3 +54,9 @@ export type ResourceCondition = Condition & {
   resourceName?: string
   resourceCode?: string
 }
+
+export type UserPermission = {
+  isSuperAdmin: boolean
+  resourceCodeList: string[]
+  dataPermission: number
+}

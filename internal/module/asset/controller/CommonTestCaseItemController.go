@@ -86,6 +86,37 @@ func (c *commonTestCaseItemController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
+func (c *commonTestCaseItemController) Update(ctx *fiber.Ctx) error {
+	instance := new(model.CommonTestCaseItem)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 处理必填
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+
+	success, err := service.CommonTestCaseItemService.Update(instance)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}
+
 func (c *commonTestCaseItemController) List(ctx *fiber.Ctx) error {
 	instance := new(domain.CommonTestCaseItemListRequest)
 	if err := ctx.QueryParser(instance); err != nil {

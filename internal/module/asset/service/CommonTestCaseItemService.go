@@ -59,6 +59,26 @@ func (s *commonTestCaseItemService) Delete(id uint64) (success bool, err error) 
 	return
 }
 
+// Update 更新测试用例项
+func (s *commonTestCaseItemService) Update(instance *model.CommonTestCaseItem) (success bool, err error) {
+	if instance.ID == 0 {
+		err = errors.New("id is required")
+		return
+	}
+
+	err = database.DB.Where(&model.CommonTestCaseItem{ID: instance.ID}).Updates(&model.CommonTestCaseItem{
+		Content:   instance.Content,
+		Remark:    instance.Remark,
+		CreatorID: instance.CreatorID,
+	}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	success = true
+	return
+}
+
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *commonTestCaseItemService) PaginateBetweenTimes(condition *model.CommonTestCaseItem, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.CommonTestCaseItem, err error) {
 	tx := database.DB.Model(&model.CommonTestCaseItem{}).Limit(100)

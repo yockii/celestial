@@ -47,7 +47,7 @@ const changeTheme = (value: boolean) => {
   appStore.setTheme(value ? "dark" : "light")
 }
 
-const menuOptions: MenuOption[] = memStore.mainMenus
+const { mainMenus: menuOptions } = storeToRefs(memStore)
 
 onMounted(() => {
   const hour = new Date().getHours()

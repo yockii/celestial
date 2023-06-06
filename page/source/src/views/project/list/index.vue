@@ -137,7 +137,7 @@ const timeBefore = computed(() => (t: number) => dayjs(t).fromNow())
                 </n-input>
               </n-gi>
               <n-gi :span="1" class="flex flex-justify-end">
-                <n-button type="primary" @click="handleNewProject">新建项目</n-button>
+                <n-button type="primary" @click="handleNewProject" v-resource-code="'project:add'">新建项目</n-button>
               </n-gi>
             </n-grid>
             <n-grid :cols="1">
@@ -241,7 +241,7 @@ const timeBefore = computed(() => (t: number) => dayjs(t).fromNow())
       </n-form>
       <template #footer>
         <n-button class="mr-a" @click="resetNewProject">重置</n-button>
-        <n-button type="primary" @click="handleCommitNewProject">提交</n-button>
+        <n-button type="primary" @click="handleCommitNewProject" v-resource-code="['project:add']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

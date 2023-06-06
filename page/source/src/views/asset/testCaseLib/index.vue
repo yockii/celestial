@@ -5,8 +5,9 @@ import { PaginationProps, NGrid, NGridItem, NButton, NPopconfirm, useMessage, NB
 import CaseDrawer from "./caseDrawer/index.vue"
 import ItemDrawer from "./itemDrawer/index.vue"
 import { Edit, PlaylistAdd, Trash } from "@vicons/tabler"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
-
+const userStore = useUserStore()
 type CommonTestCaseItemData = {
   testCase: CommonTestCase
   testCaseItem: CommonTestCaseItem
@@ -46,7 +47,15 @@ const caseNameColumn = {
       },
       [
         h(NGridItem, null, {
-          default: () => row.testCase.name
+          default: () =>
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.testCase.remark,
+                trigger: () => row.testCase.name
+              }
+            )
         }),
         h(
           NGridItem,
@@ -66,6 +75,7 @@ const caseNameColumn = {
                       {
                         type: "primary",
                         size: "small",
+                        disabled: !userStore.hasResourceCode("asset:commonTestCase:addItem"),
                         onClick: () => {
                           handleNewItem(row.testCase.id)
                         }
@@ -93,6 +103,7 @@ const caseNameColumn = {
                         type: "primary",
                         size: "small",
                         secondary: true,
+                        disabled: !userStore.hasResourceCode("asset:commonTestCase:update"),
                         onClick: () => {
                           currentCase.value = row.testCase
                           caseDrawerActive.value = true
@@ -121,6 +132,7 @@ const caseNameColumn = {
                             NButton,
                             {
                               type: "error",
+                              disabled: !userStore.hasResourceCode("asset:commonTestCase:delete"),
                               size: "small"
                             },
                             { icon: h(NIcon, {}, { default: () => h(Trash) }) }
@@ -156,7 +168,15 @@ const caseItemColumn = {
       },
       [
         h(NGridItem, null, {
-          default: () => row.testCaseItem.content
+          default: () =>
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.testCaseItem.remark,
+                trigger: () => row.testCaseItem.content
+              }
+            )
         }),
         h(
           NGridItem,
@@ -177,6 +197,7 @@ const caseItemColumn = {
                         size: "small",
                         type: "primary",
                         secondary: true,
+                        disabled: !userStore.hasResourceCode("asset:commonTestCase:updateItem"),
                         onClick: () => {
                           currentItem.value = row.testCaseItem
                           itemDrawerActive.value = true
@@ -205,6 +226,7 @@ const caseItemColumn = {
                             NButton,
                             {
                               type: "error",
+                              disabled: !userStore.hasResourceCode("asset:commonTestCase:deleteItem"),
                               size: "small"
                             },
                             { icon: h(NIcon, {}, { default: () => h(Trash) }) }
@@ -312,9 +334,9 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="16">
     <n-gi>
-      <n-button @click="handleNewCase">新增用例</n-button>
+      <n-button @click="handleNewCase" v-resource-code="'asset:commonTestCase:add'">新增用例</n-button>
     </n-gi>
-    <n-gi>
+    <n-gi v-resource-code="'asset:commonTestCase:list'">
       <n-data-table
         size="small"
         remote

@@ -124,20 +124,20 @@ func InitRouter() {
 	//	projectIssue.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
 	//}
 	//
-	//// 项目风险
-	//{
-	//	projectRisk := server.Group("/api/v1/projectRisk")
-	//	projectRisk.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectRiskAdd), ProjectRiskController.Add)
-	//	projectRisk.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
-	//	projectRisk.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
-	//	projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
-	//	projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
-	//	projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
-	//
-	//	// 对于禁用put和delete方法时的处理
-	//	projectRisk.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
-	//	projectRisk.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
-	//}
+	// 项目风险
+	{
+		projectRisk := server.Group("/api/v1/projectRisk")
+		//projectRisk.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectRiskAdd), ProjectRiskController.Add)
+		//projectRisk.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
+		//projectRisk.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
+		//projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
+		//projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
+		projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
+
+		// 对于禁用put和delete方法时的处理
+		//projectRisk.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRiskDelete), ProjectRiskController.Delete)
+		//projectRisk.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
+	}
 	//
 	//// 项目资产
 	//{

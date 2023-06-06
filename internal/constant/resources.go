@@ -1,9 +1,13 @@
 package constant
 
-// 资源模块
+const NeedLogin = "user"
+
 // 首页
 const (
 	ResourceHome = "home"
+
+	// 仪表盘
+	ResourceDashboard = ResourceHome + ":dashboard"
 )
 
 // 项目
@@ -50,11 +54,12 @@ const (
 	ResourceProjectRequirementInstance = ResourceProjectRequirement + ":instance"
 
 	// 项目任务
-	ResourceProjectTask       = ResourceProjectInstance + ":task"
-	ResourceProjectTaskAdd    = ResourceProjectTask + ":add"
-	ResourceProjectTaskDelete = ResourceProjectTask + ":delete"
-	ResourceProjectTaskUpdate = ResourceProjectTask + ":update"
-	ResourceProjectTaskList   = ResourceProjectTask + ":list"
+	ResourceProjectTask         = ResourceProjectInstance + ":task"
+	ResourceProjectTaskAdd      = ResourceProjectTask + ":add"
+	ResourceProjectTaskDelete   = ResourceProjectTask + ":delete"
+	ResourceProjectTaskUpdate   = ResourceProjectTask + ":update"
+	ResourceProjectTaskList     = ResourceProjectTask + ":list"
+	ResourceProjectTaskInstance = ResourceProjectTask + ":instance"
 )
 
 // 任务
@@ -88,6 +93,7 @@ const (
 	ResourceCommonTestCaseInstance   = ResourceCommonTestCase + ":instance"
 	ResourceCommonTestCaseAddItem    = ResourceCommonTestCase + ":addItem"
 	ResourceCommonTestCaseDeleteItem = ResourceCommonTestCase + ":deleteItem"
+	ResourceCommonTestCaseUpdateItem = ResourceCommonTestCase + ":updateItem"
 )
 
 // 系统
@@ -106,11 +112,11 @@ const (
 	ResourceUserRoles         = ResourceUser + ":roles"
 
 	// 角色
-	ResourceRole                  = ResourceSystem + ":role"
-	ResourceRoleAdd               = ResourceRole + ":add"
-	ResourceRoleDelete            = ResourceRole + ":delete"
-	ResourceRoleUpdate            = ResourceRole + ":update"
-	ResourceRoleList              = ResourceRole + ":list"
+	ResourceRole       = ResourceSystem + ":role"
+	ResourceRoleAdd    = ResourceRole + ":add"
+	ResourceRoleDelete = ResourceRole + ":delete"
+	ResourceRoleUpdate = ResourceRole + ":update"
+	//ResourceRoleList              = ResourceRole + ":list" // 直接给权限
 	ResourceRoleInstance          = ResourceRole + ":instance"
 	ResourceRoleDispatchResources = ResourceRole + ":dispatchResources"
 	ResourceRoleResources         = ResourceRole + ":resources"
@@ -128,7 +134,7 @@ const (
 	ResourceAssetCategoryAdd      = ResourceAssetCategory + ":add"
 	ResourceAssetCategoryDelete   = ResourceAssetCategory + ":delete"
 	ResourceAssetCategoryUpdate   = ResourceAssetCategory + ":update"
-	ResourceAssetCategoryList     = ResourceAssetCategory + ":list"
+	ResourceAssetCategoryList     = ResourceAssetCategory
 	ResourceAssetCategoryInstance = ResourceAssetCategory + ":instance"
 
 	// 三方源

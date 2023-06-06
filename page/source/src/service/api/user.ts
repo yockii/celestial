@@ -1,6 +1,6 @@
 import { request } from "../request"
 import { Paginate } from "@/types/common"
-import { User, UserCondition } from "@/types/user"
+import { User, UserCondition, UserPermission } from "@/types/user"
 
 /**
  * 用户列表
@@ -49,4 +49,11 @@ export const assignRole = (userId: string, roleIdList: string[]) => {
  */
 export const getUserRoleIdList = (id: string) => {
   return request.get<string[]>("/user/roleIdList", { params: { id } })
+}
+
+/**
+ * 获取用户权限
+ */
+export const getUserPermissions = () => {
+  return request.get<UserPermission>("/user/permissions")
 }

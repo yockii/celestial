@@ -8,8 +8,10 @@ import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
 import TaskDrawer from "../task/drawer/index.vue"
+import { useUserStore } from "@/store/user"
 
 const message = useMessage()
+const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(useProjectStore())
 
@@ -64,6 +66,7 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
+  expandable: () => userStore.hasResourceCode("project:detail:requirement:instance"),
   renderExpand: (row: ProjectRequirement) => {
     if (!row.detail) {
       getProjectRequirement(row.id).then((res) => {
@@ -223,6 +226,7 @@ const columns = [
           NButton,
           {
             size: "small",
+            disabled: !userStore.hasResourceCode("project:detail:task:add"),
             onClick: () => {
               handleAddProjectTask(row)
             }
@@ -237,6 +241,7 @@ const columns = [
             size: "small",
             secondary: true,
             type: "primary",
+            disabled: !userStore.hasResourceCode("project:detail:requirement:edit"),
             onClick: () => handleEditData(row)
           },
           {
@@ -255,6 +260,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("project:detail:requirement:delete"),
                   type: "error"
                 },
                 {
@@ -381,7 +387,7 @@ const loadModules = () => {
             </template>
           </n-button>
         </n-gi>
-        <n-gi>
+        <n-gi v-resource-code="'project:detail:module'">
           <n-tree :data="moduleTree" key-field="id" label-field="name" children-field="children" :on-update:selected-keys="treeSelected" selectable />
         </n-gi>
       </n-grid>

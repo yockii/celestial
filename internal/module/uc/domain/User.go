@@ -31,3 +31,9 @@ type LoginByDingtalkCodeRequest struct {
 	Code          string `json:"code"`
 	ThirdSourceID uint64 `json:"thirdSourceId,string"`
 }
+
+type UserResourceCodesResponse struct {
+	IsSuperAdmin     bool     `json:"isSuperAdmin"`
+	ResourceCodeList []string `json:"resourceCodeList"`
+	DataPermission   int      `json:"dataPermission"`
+}

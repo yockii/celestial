@@ -68,6 +68,7 @@ func InitRouter() {
 		commonTestCaseItem := server.Group("/api/v1/commonTestCaseItem")
 		commonTestCaseItem.Post("/add", middleware.NeedAuthorization(constant.ResourceCommonTestCaseAddItem), CommonTestCaseItemController.Add)
 		commonTestCaseItem.Delete("/delete", middleware.NeedAuthorization(constant.ResourceCommonTestCaseDeleteItem), CommonTestCaseItemController.Delete)
+		commonTestCaseItem.Put("/update", middleware.NeedAuthorization(constant.ResourceCommonTestCaseUpdateItem), CommonTestCaseItemController.Update)
 		//commonTestCaseItem.Get("/list", middleware.NeedAuthorization(constant.ResourceCommonTestCaseItemList), CommonTestCaseItemController.List)
 
 		// 对于禁用put和delete方法时的处理

@@ -5,7 +5,9 @@ import { AssetCategory, AssetCategoryCondition } from "@/types/asset"
 import { Search } from "@vicons/carbon"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
+const userStore = useUserStore()
 const condition = ref<AssetCategoryCondition>({
   name: "",
   onlyParent: true,
@@ -105,6 +107,7 @@ const columns = [
             size: "small",
             secondary: true,
             type: "primary",
+            disabled: !userStore.hasResourceCode("system:assetCategory:update"),
             onClick: () => handleEditData(row)
           },
           {
@@ -123,6 +126,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("system:assetCategory:delete"),
                   type: "error"
                 },
                 {
@@ -280,7 +284,7 @@ const parentCategoryChanged = (parentId: string) => {
           <n-h3>资产目录管理</n-h3>
         </n-gi>
         <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddAssetCategory">新增资产目录</n-button>
+          <n-button size="small" type="primary" @click="handleAddAssetCategory" v-resource-code="'system:assetCategory:add'">新增资产目录</n-button>
         </n-gi>
       </n-grid>
     </n-gi>
@@ -388,7 +392,7 @@ const parentCategoryChanged = (parentId: string) => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:assetCategory:add', 'system:assetCategory:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

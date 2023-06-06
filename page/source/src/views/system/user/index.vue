@@ -6,7 +6,9 @@ import { Delete, Edit, Search, UserRole } from "@vicons/carbon"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState, DataTableSortState, NIcon, NTooltip } from "naive-ui"
 import RoleDrawer from "./roleDrawer/index.vue"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
+const userStore = useUserStore()
 const condition = ref<UserCondition>({
   username: "",
   realName: "",
@@ -123,6 +125,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("system:user:dispatchRoles"),
                   type: "warning",
                   onClick: () => handleAssignRole(row)
                 },
@@ -150,6 +153,7 @@ const columns = [
                 {
                   size: "small",
                   secondary: true,
+                  disabled: !userStore.hasResourceCode("system:user:edit"),
                   type: "primary",
                   onClick: () => handleEditData(row)
                 },
@@ -184,7 +188,7 @@ const columns = [
                       NButton,
                       {
                         size: "small",
-                        disabled: row.username === "admin",
+                        disabled: row.username === "admin" || !userStore.hasResourceCode("system:user:delete"),
                         type: "error"
                       },
                       {
@@ -353,7 +357,7 @@ const handleAssignRole = (row: User) => {
           <n-h3>用户管理</n-h3>
         </n-gi>
         <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddUser">新增用户</n-button>
+          <n-button size="small" type="primary" @click="handleAddUser" v-resource-code="'system:user:add'">新增用户</n-button>
         </n-gi>
       </n-grid>
     </n-gi>
@@ -443,7 +447,7 @@ const handleAssignRole = (row: User) => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:user:add', 'system:user:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

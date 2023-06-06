@@ -97,19 +97,19 @@ onMounted(() => {
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" v-model:value="tab" type="line" justify-content="space-between">
-              <n-tab name="项目总览"></n-tab>
-              <n-tab name="项目计划"></n-tab>
-              <n-tab name="功能模块"></n-tab>
-              <n-tab name="项目需求"></n-tab>
-              <n-tab name="工作任务"></n-tab>
-              <n-tab name="测试用例"></n-tab>
-              <n-tab name="项目缺陷"></n-tab>
-              <n-tab name="项目风险"></n-tab>
-              <n-tab name="项目资产"></n-tab>
+              <n-tab name="项目总览" v-resource-code="'project:detail'"></n-tab>
+              <n-tab name="项目计划" v-resource-code="'project:detail:plan'"></n-tab>
+              <n-tab name="功能模块" v-resource-code="'project:detail:module'"></n-tab>
+              <n-tab name="项目需求" v-resource-code="'project:detail:requirement'"></n-tab>
+              <n-tab name="工作任务" v-resource-code="'project:detail:task'"></n-tab>
+              <n-tab name="测试用例" v-resource-code="'project:detail:testCase'"></n-tab>
+              <n-tab name="项目缺陷" v-resource-code="'project:detail:issue'"></n-tab>
+              <n-tab name="项目风险" v-resource-code="'project:detail:risk'"></n-tab>
+              <n-tab name="项目资产" v-resource-code="'project:detail:asset'"></n-tab>
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
-            <n-button v-if="tab == '项目总览'" size="small" type="primary" @click="showProjectSettings">项目设置</n-button>
+            <n-button v-if="tab == '项目总览'" size="small" type="primary" v-resource-code="'project:add'" @click="showProjectSettings">项目设置</n-button>
           </n-gi>
         </template>
         <n-gi v-else :span="18" class="flex flex-justify-center flex-items-center h-full">
@@ -156,14 +156,14 @@ onMounted(() => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" @click="resetUpdateProject">重置</n-button>
-        <n-button type="primary" @click="handleCommitProject">提交</n-button>
+        <n-button type="primary" @click="handleCommitProject" v-resource-code="'project:update'">提交</n-button>
       </template>
       <template #header>
         <div class="w-350px flex flex-justify-between">
           <n-text class="mt-4px">项目设置</n-text>
           <n-popconfirm @positive-click="doDeleteProject" :show-icon="false">
             <template #trigger>
-              <n-button type="error" size="tiny">删除项目</n-button>
+              <n-button type="error" size="tiny" v-resource-code="'project:delete'">删除项目</n-button>
             </template>
             <n-grid :cols="1" y-gap="16">
               <n-gi>请输入项目名称&lt;{{ project?.name }}&gt;以确认删除</n-gi>

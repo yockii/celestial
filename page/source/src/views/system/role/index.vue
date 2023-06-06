@@ -19,7 +19,9 @@ import {
   NIcon
 } from "naive-ui"
 import ResourceDrawer from "./resourceDrawer/index.vue"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
+const userStore = useUserStore()
 const condition = ref<RoleCondition>({
   name: "",
   dataPermission: 0,
@@ -203,7 +205,7 @@ const columns = [
                 {
                   size: "small",
                   type: "primary",
-                  disabled: row.defaultRole === 1,
+                  disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:update"),
                   onClick: () => handleSetDefault(row.id)
                 },
                 {
@@ -230,6 +232,7 @@ const columns = [
                 {
                   size: "small",
                   type: "warning",
+                  disabled: !userStore.hasResourceCode("system:role:dispatchResources"),
                   onClick: () => handleAssignResource(row)
                 },
                 {
@@ -257,6 +260,7 @@ const columns = [
                   size: "small",
                   secondary: true,
                   type: "primary",
+                  disabled: !userStore.hasResourceCode("system:role:update"),
                   onClick: () => handleEditData(row)
                 },
                 {
@@ -290,7 +294,7 @@ const columns = [
                       NButton,
                       {
                         size: "small",
-                        disabled: row.defaultRole === 1,
+                        disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:delete"),
                         type: "error"
                       },
                       {
@@ -572,7 +576,7 @@ const handleAssignResource = (row: Role) => {
           <n-h3>角色管理</n-h3>
         </n-gi>
         <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddRole">新增角色</n-button>
+          <n-button size="small" type="primary" @click="handleAddRole" v-resource-code="'system:role:add'">新增角色</n-button>
         </n-gi>
       </n-grid>
     </n-gi>
@@ -716,7 +720,7 @@ const handleAssignResource = (row: Role) => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetRoleData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:role:add', 'system:role:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

@@ -6,8 +6,10 @@ import { addProjectModule, deleteProjectModule, getProjectModuleList, updateProj
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import Drawer from "../requirement/drawer/index.vue"
+import { useUserStore } from "@/store/user"
 
 const message = useMessage()
+const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(useProjectStore())
 
@@ -200,6 +202,7 @@ const columns = [
             NButton,
             {
               size: "small",
+              disabled: !userStore.hasResourceCode("project:detail:requirement:add"),
               onClick: () => handleNewRequirement(module)
             },
             {
@@ -215,6 +218,7 @@ const columns = [
             size: "small",
             secondary: true,
             type: "primary",
+            disabled: !userStore.hasResourceCode("project:detail:module:update"),
             onClick: () => handleEditData(module)
           },
           {
@@ -233,6 +237,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("project:detail:module:delete"),
                   type: "error"
                 },
                 {
@@ -358,7 +363,7 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="12">
     <n-gi class="flex flex-justify-end">
-      <n-button type="primary" @click="handleNewModule">新增模块</n-button>
+      <n-button type="primary" @click="handleNewModule" v-resource-code="'project:detail:module:add'">新增模块</n-button>
     </n-gi>
     <n-gi>
       <n-data-table :columns="columns" :data="data" :single-line="false" />

@@ -5,7 +5,9 @@ import { ThirdSource, ThirdSourceCondition } from "@/types/thirdSource"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule } from "naive-ui"
 import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, updateThirdSource } from "@/service/api/settings/thirdSource"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
+const userStore = useUserStore()
 const condition = ref<ThirdSourceCondition>({
   offset: 0,
   limit: 10
@@ -77,6 +79,7 @@ const columns = [
           {
             size: "small",
             secondary: true,
+            disabled: !userStore.hasResourceCode("system:thirdSource:update"),
             type: "primary",
             onClick: () => handleEditData(row)
           },
@@ -96,6 +99,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("system:thirdSource:delete"),
                   type: "error"
                 },
                 {
@@ -237,7 +241,7 @@ const thirdSourceOptions = [
           <n-h3>三方源管理</n-h3>
         </n-gi>
         <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddThirdSource">新增</n-button>
+          <n-button size="small" type="primary" @click="handleAddThirdSource" v-resource-code="'system:thirdSource:add'">新增</n-button>
         </n-gi>
       </n-grid>
     </n-gi>
@@ -295,7 +299,7 @@ const thirdSourceOptions = [
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:thirdSource:add', 'system:thirdSource:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

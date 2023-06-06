@@ -7,8 +7,10 @@ import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTa
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
+import { useUserStore } from "@/store/user"
 
 const message = useMessage()
+const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(useProjectStore())
 const condition = ref<ProjectTaskCondition>({
@@ -62,6 +64,7 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
+  expandable: () => userStore.hasResourceCode("project:detail:task:instance"),
   renderExpand: (row: ProjectTask) => {
     if (!row.taskDesc) {
       getProjectTask(row.id).then((res) => {
@@ -191,6 +194,7 @@ const columns = [
           NButton,
           {
             size: "small",
+            disabled: !userStore.hasResourceCode("project:detail:task:add"),
             onClick: () => {
               console.log(1)
             }
@@ -205,6 +209,7 @@ const columns = [
             size: "small",
             secondary: true,
             type: "primary",
+            disabled: !userStore.hasResourceCode("project:detail:task:edit"),
             onClick: () => handleEditData(row)
           },
           {
@@ -223,6 +228,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("project:detail:task:delete"),
                   type: "error"
                 },
                 {
@@ -336,10 +342,10 @@ const loadModules = () => {
               <template #checked>仅显示主任务</template>
               <template #unchecked>显示所有任务</template>
             </n-switch>
-            <n-button type="primary" @click="handleAddProjectTask">新增任务</n-button>
+            <n-button type="primary" @click="handleAddProjectTask" v-resource-code="'project:detail:task:add'">新增任务</n-button>
           </n-space>
         </n-gi>
-        <n-gi>
+        <n-gi v-resource-code="'project:detail:task:list'">
           <n-data-table
             size="small"
             remote

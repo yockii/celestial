@@ -267,16 +267,7 @@ func (*roleController) AssignResource(ctx *fiber.Ctx) error {
 		if err != nil {
 			logger.Errorln(err)
 		}
-		// 将新的资源代码缓存到redis中
-		args := make([]interface{}, len(instance.ResourceCodeList)+1)
-		args[0] = key
-		for i, v := range instance.ResourceCodeList {
-			args[i+1] = v
-		}
-		_, err = conn.Do("SADD", args...)
-		if err != nil {
-			logger.Errorln(err)
-		}
+		// 删除即可，等待中间件重新加载
 	}
 
 	return ctx.JSON(&server.CommonResponse{

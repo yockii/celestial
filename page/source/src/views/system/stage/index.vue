@@ -5,7 +5,9 @@ import { Stage, StageCondition } from "@/types/project"
 import { Search } from "@vicons/carbon"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState } from "naive-ui"
+import { useUserStore } from "@/store/user"
 const message = useMessage()
+const userStore = useUserStore()
 const condition = ref<StageCondition>({
   name: "",
   status: 0,
@@ -100,6 +102,7 @@ const columns = [
           {
             size: "small",
             secondary: true,
+            disabled: !userStore.hasResourceCode("system:stage:update"),
             type: "primary",
             onClick: () => handleEditData(row)
           },
@@ -119,6 +122,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
+                  disabled: !userStore.hasResourceCode("system:stage:delete"),
                   type: "error"
                 },
                 {
@@ -176,18 +180,20 @@ const handleCommitData = () => {
     if (isUpdate.value) {
       // 更新数据
       updateStage(checkedData.value).then((res) => {
-        if (res){
-        message.success("修改成功")
-        refresh()
-        drawerActive.value = false}
+        if (res) {
+          message.success("修改成功")
+          refresh()
+          drawerActive.value = false
+        }
       })
     } else {
       // 新增数据
       addStage(checkedData.value).then((res) => {
-        if (res){
-        message.success("新增成功")
-        refresh()
-        drawerActive.value = false}
+        if (res) {
+          message.success("新增成功")
+          refresh()
+          drawerActive.value = false
+        }
       })
     }
   })
@@ -223,7 +229,7 @@ const rules = {
           <n-h3>阶段管理</n-h3>
         </n-gi>
         <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddStage">新增阶段</n-button>
+          <n-button size="small" type="primary" @click="handleAddStage" v-resource-code="'system:stage:add'">新增阶段</n-button>
         </n-gi>
       </n-grid>
     </n-gi>
@@ -300,7 +306,7 @@ const rules = {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:stage:add', 'system:stage:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>
