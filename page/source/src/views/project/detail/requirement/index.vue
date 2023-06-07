@@ -50,7 +50,7 @@ const refresh = () => {
   getProjectRequirementList(condition.value)
     .then((res) => {
       if (res) {
-        list.value = res.items
+        list.value = res.items || []
         paginationReactive.itemCount = res.total
         paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
         paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
@@ -367,7 +367,7 @@ const loadModules = () => {
     limit: -1
   }).then((res) => {
     if (res) {
-      modules.value = res.items
+      modules.value = res.items || []
     }
   })
 }

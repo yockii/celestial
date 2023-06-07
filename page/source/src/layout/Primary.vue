@@ -52,7 +52,7 @@ onMounted(() => {
   if (stageStore.stageList.length === 0) {
     getStageList({ limit: 100, name: "", offset: 0, status: 1 }).then((res) => {
       if (res) {
-        stageStore.stageList = res.items
+        stageStore.stageList = res.items || []
       }
     })
   }

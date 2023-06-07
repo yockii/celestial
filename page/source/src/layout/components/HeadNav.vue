@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { MenuOption } from "naive-ui"
 import { ref, computed, onMounted } from "vue"
 import { Sunny, Moon } from "@vicons/ionicons5"
 import { useAppStore } from "@/store/app"

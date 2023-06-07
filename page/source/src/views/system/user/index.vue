@@ -24,7 +24,7 @@ const refresh = () => {
   loading.value = true
   getUserList(condition.value)
     .then((res) => {
-      list.value = res.items
+      list.value = res.items || []
       paginationReactive.itemCount = res.total
       paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
       paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1

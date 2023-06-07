@@ -63,7 +63,7 @@ const refresh = () => {
   getProjectTaskList(condition.value)
     .then((res) => {
       if (res) {
-        list.value = res.items
+        list.value = res.items || []
         paginationReactive.itemCount = res.total
         paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
         paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
@@ -378,7 +378,7 @@ const loadModules = () => {
     limit: -1
   }).then((res) => {
     if (res) {
-      modules.value = res.items
+      modules.value = res.items || []
     }
   })
 }
@@ -406,7 +406,7 @@ const loadModules = () => {
     <n-gi :span="5">
       <n-grid :cols="1" y-gap="16">
         <n-gi>
-          <n-space>
+          <n-space justify="space-between">
             <n-switch v-model:value="condition.onlyParent" :round="false" @update:value="refresh" size="small" :loading="loading">
               <template #checked>仅显示主任务</template>
               <template #unchecked>显示所有任务</template>

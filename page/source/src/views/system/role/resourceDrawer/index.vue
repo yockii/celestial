@@ -44,7 +44,7 @@ onMounted(() => {
     offset: -1,
     limit: -1
   }).then((res) => {
-    resources.value = res.items
+    resources.value = res.items || []
   })
 })
 

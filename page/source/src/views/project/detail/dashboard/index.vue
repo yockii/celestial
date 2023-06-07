@@ -75,7 +75,7 @@ onMounted(() => {
     offset: 0,
     limit: 100
   }).then((res) => {
-    projectRoles.value = res.items
+    projectRoles.value = res.items || []
   })
 
   getProjectRiskCoefficient(project.value.id as string).then((res) => {

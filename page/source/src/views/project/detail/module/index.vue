@@ -275,7 +275,7 @@ const refresh = () => {
   loading.value = true
   getProjectModuleList(condition.value)
     .then((res) => {
-      list.value = res.items
+      list.value = res.items || []
     })
     .finally(() => {
       loading.value = false

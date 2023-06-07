@@ -2,7 +2,7 @@
 import { ProjectRequirement, ProjectTask } from "@/types/project"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
-import { useMessage, FormInst, FormItemRule } from "naive-ui"
+import { useMessage, FormInst } from "naive-ui"
 import { addProjectTask, getProjectTaskList, updateProjectTask } from "@/service/api/projectTask"
 import { getProjectRequirementList } from "@/service/api/projectRequirement"
 const message = useMessage()
@@ -74,7 +74,7 @@ const loadRequirementList = (moduleId: string) => {
         limit: -1
       }).then((res) => {
         if (res) {
-          requirementList.value = res.items
+          requirementList.value = res.items || []
         }
       })
     }
@@ -158,7 +158,7 @@ const loadParentTask = (keyword = "", id = "") => {
   getProjectTaskList(params)
     .then((res) => {
       if (res) {
-        parentTaskList.value = res.items
+        parentTaskList.value = res.items || []
       }
     })
     .finally(() => {

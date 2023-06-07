@@ -24,7 +24,7 @@ const projectList = ref<Project[]>([])
 
 const refresh = () => {
   getProjectList(condition.value).then((res) => {
-    projectList.value = res.items
+    projectList.value = res.items || []
   })
 }
 const getStageName = (stageId: string) => {

@@ -11,7 +11,7 @@ const userList = ref<User[]>([])
 const listUser = () => {
   condition.value.offset = 0
   getUserList(condition.value).then((res) => {
-    userList.value = res.items
+    userList.value = res.items || []
   })
 }
 // const appendUserList = () => {
