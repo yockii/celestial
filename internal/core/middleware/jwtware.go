@@ -20,12 +20,19 @@ import (
 // code: 空 或 anon 不需要授权
 // code: user 需要用户授权
 // code: 其他 需要用户授权并且需要对应的权限
-func NeedAuthorization(code string) fiber.Handler {
-	code = strings.ToLower(code)
-	if code == "" || code == "anon" {
-		return func(ctx *fiber.Ctx) error {
-			return ctx.Next()
+func NeedAuthorization(codes ...string) fiber.Handler {
+	for _, code := range codes {
+		code = strings.ToLower(code)
+		if code == "" || code == "anon" {
+			return func(ctx *fiber.Ctx) error {
+				return ctx.Next()
+			}
 		}
+	}
+
+	codeMap := make(map[string]bool)
+	for _, code := range codes {
+		codeMap[code] = true
 	}
 
 	return jwtware.New(jwtware.Config{
@@ -41,6 +48,7 @@ func NeedAuthorization(code string) fiber.Handler {
 			}
 		},
 		SuccessHandler: func(c *fiber.Ctx) error {
+
 			jwtToken := c.Locals("jwt-subject").(*jwt.Token)
 			claims := jwtToken.Claims.(jwt.MapClaims)
 			uid := claims[shared.JwtClaimUserId].(string)
@@ -91,7 +99,7 @@ func NeedAuthorization(code string) fiber.Handler {
 			_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uid, 3*24*60*60)
 
 			hasAuth := false
-			if code == "user" {
+			if _, ok := codeMap["user"]; ok {
 				hasAuth = true
 			}
 			for _, roleId := range roleIds {
@@ -100,17 +108,22 @@ func NeedAuthorization(code string) fiber.Handler {
 					break
 				} else {
 					roleIdStr := strconv.FormatUint(roleId, 10)
-					codes, _ := redis.Strings(conn.Do("GET", shared.RedisKeyRoleResourceCode+roleIdStr))
-					if len(codes) == 0 {
+					cachedCodes, _ := redis.Strings(conn.Do("GET", shared.RedisKeyRoleResourceCode+roleIdStr))
+					if len(cachedCodes) == 0 {
 						// 缓存没有，那么就去数据库取出来放进去
-						codes, err = service.RoleService.ResourceCodes(roleId)
-						for _, resourceCode := range codes {
+						cachedCodes, err = service.RoleService.ResourceCodes(roleId)
+						for _, resourceCode := range cachedCodes {
 							rc := resourceCode
 							_, _ = conn.Do("SADD", shared.RedisKeyRoleResourceCode+roleIdStr, rc)
-							if code == rc {
+							if _, ok := codeMap[rc]; ok {
 								hasAuth = true
-							} else if strings.HasPrefix(code, rc+":") {
-								hasAuth = true
+							} else {
+								for _, code := range codes {
+									if strings.HasPrefix(code, rc+":") {
+										hasAuth = true
+										break
+									}
+								}
 							}
 						}
 					}
@@ -118,14 +131,18 @@ func NeedAuthorization(code string) fiber.Handler {
 					if hasAuth {
 						break
 					}
-					for _, resourceCode := range codes {
+					for _, resourceCode := range cachedCodes {
 						rc := resourceCode
-						if code == rc {
+						if _, ok := codeMap[rc]; ok {
 							hasAuth = true
 							break
-						} else if strings.HasPrefix(code, rc+":") {
-							hasAuth = true
-							break
+						} else {
+							for _, code := range codes {
+								if strings.HasPrefix(code, rc+":") {
+									hasAuth = true
+									break
+								}
+							}
 						}
 					}
 				}

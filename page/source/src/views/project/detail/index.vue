@@ -10,6 +10,9 @@ import Module from "./module/index.vue"
 import Requirement from "./requirement/index.vue"
 import Task from "./task/index.vue"
 import Test from "./test/index.vue"
+import Issue from "./issue/index.vue"
+import Risk from "./risk/index.vue"
+import Asset from "./asset/index.vue"
 import { FormInst, NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
@@ -136,6 +139,15 @@ onMounted(() => {
         </keep-alive>
         <keep-alive>
           <test v-if="project && tab == '测试用例'" />
+        </keep-alive>
+        <keep-alive>
+          <issue v-if="project && tab == '项目缺陷'" />
+        </keep-alive>
+        <keep-alive>
+          <risk v-if="project && tab == '项目风险'" />
+        </keep-alive>
+        <keep-alive>
+          <asset v-if="project && tab == '项目资产'" />
         </keep-alive>
       </template>
     </n-layout-content>

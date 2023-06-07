@@ -139,18 +139,18 @@ func InitRouter() {
 		//projectRisk.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRiskUpdate), ProjectRiskController.Update)
 	}
 	//
-	//// 项目资产
-	//{
-	//	projectAsset := server.Group("/api/v1/projectAsset")
-	//	projectAsset.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectAssetAdd), ProjectAssetController.Add)
-	//	projectAsset.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
-	//	projectAsset.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
-	//	projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList), ProjectAssetController.List)
-	//	projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance), ProjectAssetController.Instance)
-	//
-	//	// 对于禁用put和delete方法时的处理
-	//	projectAsset.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
-	//	projectAsset.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
-	//}
+	// 项目资产
+	{
+		projectAsset := server.Group("/api/v1/projectAsset")
+		projectAsset.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectAssetAdd), ProjectAssetController.Add)
+		projectAsset.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
+		projectAsset.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
+		projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList), ProjectAssetController.List)
+		projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance), ProjectAssetController.Instance)
+
+		// 对于禁用put和delete方法时的处理
+		projectAsset.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectAssetDelete), ProjectAssetController.Delete)
+		projectAsset.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectAssetUpdate), ProjectAssetController.Update)
+	}
 
 }

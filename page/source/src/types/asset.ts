@@ -41,3 +41,14 @@ export type CommonTestCaseCondition = Condition & {
   name?: string
   categoryId?: string
 }
+
+export type File = {
+  id: string
+  categoryId: string
+  ossConfigId?: string
+  name: string
+  suffix?: string
+  size: number
+  objName?: string
+  creatorId?: string
+}

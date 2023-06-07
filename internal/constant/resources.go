@@ -60,6 +60,14 @@ const (
 	ResourceProjectTaskUpdate   = ResourceProjectTask + ":update"
 	ResourceProjectTaskList     = ResourceProjectTask + ":list"
 	ResourceProjectTaskInstance = ResourceProjectTask + ":instance"
+
+	// 项目资产
+	ResourceProjectAsset         = ResourceProjectInstance + ":asset"
+	ResourceProjectAssetAdd      = ResourceProjectAsset + ":add"
+	ResourceProjectAssetDelete   = ResourceProjectAsset + ":delete"
+	ResourceProjectAssetUpdate   = ResourceProjectAsset + ":update"
+	ResourceProjectAssetList     = ResourceProjectAsset + ":list"
+	ResourceProjectAssetInstance = ResourceProjectAsset + ":instance"
 )
 
 // 任务

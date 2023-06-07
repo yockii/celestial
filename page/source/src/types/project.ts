@@ -1,3 +1,4 @@
+import { type } from "os"
 import { Condition } from "./common"
 
 export type ProjectMember = {
@@ -173,4 +174,20 @@ export type ProjectTaskCondition = Condition & {
   stageId?: string
   parentId?: string
   fullPath?: string
+}
+
+export type ProjectAsset = {
+  id: string
+  projectId: string
+  name: string
+  type: number
+  status: number
+  remark?: string
+  createTime?: number
+}
+
+export type ProjectAssetCondition = Condition & {
+  projectId: string
+  type: number
+  status: number
 }
