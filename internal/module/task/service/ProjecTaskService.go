@@ -55,10 +55,11 @@ func (s *projectTaskService) Add(instance *model.ProjectTask, members []*domain.
 			return err
 		}
 		for _, m := range members {
-			member := m.ProjectTaskMember
+			member := &m.ProjectTaskMember
 			member.ID = util.SnowflakeId()
 			member.TaskID = instance.ID
 			member.ProjectID = instance.ProjectID
+			member.Status = 1
 
 			if err = tx.Create(member).Error; err != nil {
 				logger.Errorln(err)
