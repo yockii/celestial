@@ -124,7 +124,7 @@ onMounted(() => {
   <n-grid :cols="2" class="mb-16px">
     <n-gi class="text-1.2em op-90 font-500">项目组</n-gi>
     <n-gi class="flex flex-justify-end">
-      <n-button size="small" @click="manageActive = true">
+      <n-button size="small" @click="manageActive = true" v-resource-code="['project:detail:member:add', 'project:detail:member:delete']">
         <template #icon>
           <n-icon>
             <IdManagement />

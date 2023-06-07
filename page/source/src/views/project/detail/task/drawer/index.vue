@@ -2,12 +2,12 @@
 import { ProjectRequirement, ProjectTask } from "@/types/project"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
-import { useMessage, FormInst } from "naive-ui"
+import { useMessage, FormInst, FormItemRule } from "naive-ui"
 import { addProjectTask, getProjectTaskList, updateProjectTask } from "@/service/api/projectTask"
 import { getProjectRequirementList } from "@/service/api/projectRequirement"
 const message = useMessage()
 const projectStore = useProjectStore()
-const { modules, moduleTree } = storeToRefs(projectStore)
+const { modules, moduleTree, memberList } = storeToRefs(projectStore)
 const props = defineProps<{
   projectId: string
   drawerActive: boolean
@@ -37,6 +37,8 @@ const resetCurrentData = () => {
 }
 const handleCommitData = () => {
   formRef.value?.validate().then(() => {
+    currentData.value.members = memberList.value.filter((item) => memberIdList.value.includes(item.userId))
+
     if (isUpdate.value) {
       updateProjectTask(currentData.value).then((res) => {
         if (res) {
@@ -111,6 +113,15 @@ onMounted(() => {
   resetCurrentData()
 })
 
+// 处理任务参与人
+const memberIdList = ref<string[]>([])
+watch(
+  () => currentData.value.members,
+  (members) => {
+    memberIdList.value = members?.map((item) => item.userId) || []
+  }
+)
+
 // 规则定义
 const rules = {
   name: [
@@ -118,7 +129,18 @@ const rules = {
     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
   ],
   moduleId: [{ required: true, message: "请选择功能模块", trigger: "blur" }],
-  requirementId: [{ required: true, message: "请选择所属需求", trigger: "blur" }]
+  requirementId: [{ required: true, message: "请选择所属需求", trigger: "blur" }],
+  members: [
+    {
+      type: "array",
+      required: true,
+      validator: () => {
+        return memberIdList.value.length > 0
+      },
+      message: "请选择任务参与人",
+      trigger: ["blur", "change"]
+    }
+  ]
 }
 
 // 父级任务异步加载
@@ -211,6 +233,18 @@ const parentTaskChanged = (parentId: string) => {
               { label: '中', value: 2 },
               { label: '高', value: 3 }
             ]"
+          />
+        </n-form-item>
+        <n-form-item label="任务参与人" path="members">
+          <n-select
+            v-model:value="memberIdList"
+            placeholder="请选择任务参与人"
+            :options="memberList"
+            label-field="realName"
+            value-field="userId"
+            filterable
+            multiple
+            clearable
           />
         </n-form-item>
         <n-form-item label="详情描述" path="taskDesc">

@@ -127,27 +127,7 @@ func (c *projectTaskMemberController) List(ctx *fiber.Ctx) error {
 		})
 	}
 
-	paginate := new(server.Paginate)
-	if err := ctx.QueryParser(paginate); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-	if paginate.Limit == 0 {
-		paginate.Limit = 10
-	}
-
-	tcList := make(map[string]*server.TimeCondition)
-	if instance.CreateTimeCondition != nil {
-		tcList["create_time"] = instance.CreateTimeCondition
-	}
-	if instance.UpdateTimeCondition != nil {
-		tcList["update_time"] = instance.UpdateTimeCondition
-	}
-
-	total, list, err := service.ProjectTaskMemberService.PaginateBetweenTimes(&instance.ProjectTaskMember, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	list, err := service.ProjectTaskMemberService.List(&instance.ProjectTaskMember)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -155,12 +135,7 @@ func (c *projectTaskMemberController) List(ctx *fiber.Ctx) error {
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{
-		Data: &server.Paginate{
-			Total:  total,
-			Items:  list,
-			Limit:  paginate.Limit,
-			Offset: paginate.Offset,
-		},
+		Data: list,
 	})
 }
 

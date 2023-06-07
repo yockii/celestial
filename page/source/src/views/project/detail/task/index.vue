@@ -3,11 +3,25 @@ import { getProjectModuleList } from "@/service/api/projectModule"
 import { deleteProjectTask, getProjectTask, getProjectTaskList } from "@/service/api/projectTask"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
-import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NBadge } from "naive-ui"
+import {
+  useMessage,
+  NButton,
+  NButtonGroup,
+  NPopconfirm,
+  PaginationProps,
+  DataTableFilterState,
+  DataTableBaseColumn,
+  NBadge,
+  NAvatarGroup,
+  NTooltip,
+  NDropdown,
+  NAvatar
+} from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
 import { useUserStore } from "@/store/user"
+import NameAvatar from "@/components/NameAvatar.vue"
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -179,10 +193,65 @@ const priorityColumn = reactive({
     }
   ]
 })
+const membersColumn = reactive({
+  title: "参与人",
+  key: "members",
+  render: (row: ProjectTask) => {
+    return h(
+      NAvatarGroup,
+      {
+        size: 20,
+        max: 5,
+        options: row.members?.map((item) => {
+          console.log
+          return {
+            name: item.realName,
+            src: item.realName
+          }
+        })
+      },
+      {
+        avatar: (info: { option: { src: string } }) =>
+          h(
+            NTooltip,
+            {},
+            {
+              trigger: () =>
+                h(NameAvatar, {
+                  name: info.option.src
+                }),
+              default: () => info.option.src
+            }
+          ),
+        rest: (info: { options: Array<{ src: string }>; rest: number }) =>
+          h(
+            NDropdown,
+            {
+              options: info.options.map((option) => ({
+                key: option.src,
+                label: option.src
+              }))
+            },
+            {
+              default: () =>
+                h(
+                  NAvatar,
+                  {},
+                  {
+                    default: () => `+${info.rest}`
+                  }
+                )
+            }
+          )
+      }
+    )
+  }
+})
 const columns = [
   expandColumn,
   nameColumn,
   priorityColumn,
+  membersColumn,
   statusColumn,
   {
     title: "操作",

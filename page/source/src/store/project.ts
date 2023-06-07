@@ -1,4 +1,4 @@
-import { Project, ProjectModule } from "@/types/project"
+import { Project, ProjectMember, ProjectModule } from "@/types/project"
 import { defineStore } from "pinia"
 
 export const useProjectStore = defineStore("project", {
@@ -29,6 +29,18 @@ export const useProjectStore = defineStore("project", {
       }
       tree.forEach((module) => findChildren(module))
       return tree
+    },
+    memberList(state) {
+      const userIdSet = new Set<string>()
+      const set = new Set<ProjectMember>()
+      // 将members中的成员根据userId进行去重并添加到set中
+      state.project.members?.forEach((member) => {
+        if (!userIdSet.has(member.userId)) {
+          userIdSet.add(member.userId)
+          set.add(member)
+        }
+      })
+      return Array.from(set)
     }
   },
   actions: {},

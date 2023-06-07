@@ -11,3 +11,8 @@ type ProjectTaskMemberListRequest struct {
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ProjectTaskMemberWithRealName struct {
+	model.ProjectTaskMember
+	RealName string `json:"realName"`
+}

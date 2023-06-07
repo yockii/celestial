@@ -7,14 +7,14 @@ import (
 )
 
 type ProjectTaskMember struct {
-	ID               uint64         `json:"ID,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	ProjectID        uint64         `json:"projectID,omitempty,string" gorm:"index;comment:项目ID"`
-	TaskID           uint64         `json:"taskID,omitempty,string" gorm:"index;comment:任务ID"`
-	UserID           uint64         `json:"userID,omitempty,string" gorm:"index;comment:用户ID"`
-	RoleID           uint64         `json:"roleID,omitempty,string" gorm:"index;comment:角色ID"`
+	ID               uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	ProjectID        uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	TaskID           uint64         `json:"taskId,omitempty,string" gorm:"index;comment:任务ID"`
+	UserID           uint64         `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
+	RoleID           uint64         `json:"roleId,omitempty,string" gorm:"index;comment:角色ID"`
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
-	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 0-未开始 1-进行中 2-已完成"`
+	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-进行中 3-已完成"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime       int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime       gorm.DeletedAt `json:"deleteTime" gorm:"index"`

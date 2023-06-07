@@ -3,11 +3,12 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/database"
-	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
-	"time"
+	"gorm.io/gorm"
 )
 
 var ProjectTaskMemberService = new(projectTaskMemberService)
@@ -84,31 +85,41 @@ func (s *projectTaskMemberService) Delete(id uint64) (success bool, err error) {
 	return
 }
 
-// PaginateBetweenTimes 带时间范围的分页查询
-func (s *projectTaskMemberService) PaginateBetweenTimes(condition *model.ProjectTaskMember, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTaskMember, err error) {
-	tx := database.DB.Model(&model.ProjectTaskMember{}).Limit(100)
-	if limit > -1 {
-		tx = tx.Limit(limit)
-	}
-	if offset > -1 {
-		tx = tx.Offset(offset)
-	}
-	if orderBy != "" {
-		tx = tx.Order(orderBy)
+// ListWithRealName 查询列表，并附带用户真实姓名
+func (s *projectTaskMemberService) ListWithRealName(condition *model.ProjectTaskMember) (list []*domain.ProjectTaskMemberWithRealName, err error) {
+	tx := database.DB.Model(&model.ProjectTaskMember{})
+
+	if condition != nil {
+		//if condition.Name != "" {
+		//	tx = tx.Where("name like ?", "%"+condition.Name+"%")
+		//}
 	}
 
-	// 处理时间字段，在某段时间之间
-	for tc, tr := range tcList {
-		if tc != "" {
-			if !tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
-			} else if tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
-			} else if !tr.Start.IsZero() && tr.End.IsZero() {
-				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
-			}
-		}
+	sm := gorm.Statement{DB: database.DB}
+	_ = sm.Parse(&ucModel.User{})
+	userTableName := sm.Schema.Table
+	_ = sm.Parse(&model.ProjectTaskMember{})
+	ptmTableName := sm.Schema.Table
+
+	tx.Select(ptmTableName+".*", "real_name")
+
+	err = tx.Joins("left join "+userTableName+" on "+ptmTableName+".user_id = "+userTableName+".id").Find(&list, &model.ProjectTaskMember{
+		ProjectID: condition.ProjectID,
+		TaskID:    condition.TaskID,
+		UserID:    condition.UserID,
+		RoleID:    condition.RoleID,
+		Status:    condition.Status,
+	}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
 	}
+	return
+}
+
+// List 查询列表
+func (s *projectTaskMemberService) List(condition *model.ProjectTaskMember) (list []*model.ProjectTaskMember, err error) {
+	tx := database.DB.Model(&model.ProjectTaskMember{})
 
 	if condition != nil {
 		//if condition.Name != "" {
@@ -122,7 +133,7 @@ func (s *projectTaskMemberService) PaginateBetweenTimes(condition *model.Project
 		UserID:    condition.UserID,
 		RoleID:    condition.RoleID,
 		Status:    condition.Status,
-	}).Offset(-1).Limit(-1).Count(&total).Error
+	}).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

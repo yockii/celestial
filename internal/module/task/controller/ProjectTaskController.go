@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
 	"github.com/yockii/ruomu-core/server"
+	"sync"
 )
 
 var ProjectTaskController = new(projectTaskController)
@@ -15,7 +16,7 @@ var ProjectTaskController = new(projectTaskController)
 type projectTaskController struct{}
 
 func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTask)
+	instance := new(domain.ProjectTaskWithMembers)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -44,7 +45,7 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 		instance.CreatorID = currentUserId
 	}
 
-	duplicated, success, err := service.ProjectTaskService.Add(instance)
+	duplicated, success, err := service.ProjectTaskService.Add(&instance.ProjectTask, instance.Members)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -69,7 +70,7 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 }
 
 func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTask)
+	instance := new(domain.ProjectTaskWithMembers)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -86,7 +87,7 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTaskService.Update(instance)
+	success, err := service.ProjectTaskService.Update(&instance.ProjectTask, instance.Members)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -167,10 +168,34 @@ func (c *projectTaskController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	var resultList []*domain.ProjectTaskWithMembers
+	if len(list) > 0 {
+		var wg sync.WaitGroup
+
+		for _, item := range list {
+			wg.Add(1)
+			ptwm := new(domain.ProjectTaskWithMembers)
+			ptwm.ProjectTask = *item
+			resultList = append(resultList, ptwm)
+			go func(task *domain.ProjectTaskWithMembers) {
+				defer wg.Done()
+				members, err := service.ProjectTaskMemberService.ListWithRealName(&model.ProjectTaskMember{TaskID: task.ID})
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				task.Members = members
+			}(ptwm)
+		}
+
+		wg.Wait()
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,
-			Items:  list,
+			Items:  resultList,
 			Limit:  paginate.Limit,
 			Offset: paginate.Offset,
 		},

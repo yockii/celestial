@@ -9,6 +9,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -17,7 +18,7 @@ var ProjectTaskService = new(projectTaskService)
 type projectTaskService struct{}
 
 // Add 添加资源
-func (s *projectTaskService) Add(instance *model.ProjectTask) (duplicated bool, success bool, err error) {
+func (s *projectTaskService) Add(instance *model.ProjectTask, members []*domain.ProjectTaskMemberWithRealName) (duplicated bool, success bool, err error) {
 	if instance.ProjectID == 0 || instance.Name == "" {
 		err = errors.New("task Name and projectId is required")
 		return
@@ -47,8 +48,25 @@ func (s *projectTaskService) Add(instance *model.ProjectTask) (duplicated bool, 
 	instance.ID = util.SnowflakeId()
 	instance.Status = model.ProjectTaskStatusNotStart
 
-	if err = database.DB.Create(instance).Error; err != nil {
-		logger.Errorln(err)
+	// 事务，同步新增任务和任务成员
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Create(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		for _, m := range members {
+			member := m.ProjectTaskMember
+			member.ID = util.SnowflakeId()
+			member.TaskID = instance.ID
+			member.ProjectID = instance.ProjectID
+
+			if err = tx.Create(member).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
@@ -56,7 +74,7 @@ func (s *projectTaskService) Add(instance *model.ProjectTask) (duplicated bool, 
 }
 
 // Update 更新资源基本信息
-func (s *projectTaskService) Update(instance *model.ProjectTask) (success bool, err error) {
+func (s *projectTaskService) Update(instance *model.ProjectTask, members []*domain.ProjectTaskMemberWithRealName) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
@@ -79,25 +97,83 @@ func (s *projectTaskService) Update(instance *model.ProjectTask) (success bool, 
 		}
 	}
 
-	err = database.DB.Where(&model.ProjectTask{ID: instance.ID}).Updates(&model.ProjectTask{
-		ProjectID:        instance.ProjectID,
-		StageID:          instance.StageID,
-		ParentID:         instance.ParentID,
-		RequirementID:    instance.RequirementID,
-		Name:             instance.Name,
-		TaskDesc:         instance.TaskDesc,
-		StartTime:        instance.StartTime,
-		EndTime:          instance.EndTime,
-		Priority:         instance.Priority,
-		OwnerID:          instance.OwnerID,
-		ActualStartTime:  instance.ActualStartTime,
-		ActualEndTime:    instance.ActualEndTime,
-		EstimateDuration: instance.EstimateDuration,
-		ActualDuration:   instance.ActualDuration,
-		Status:           instance.Status,
-	}).Error
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Where(&model.ProjectTask{ID: instance.ID}).Updates(&model.ProjectTask{
+			ProjectID:        instance.ProjectID,
+			StageID:          instance.StageID,
+			ParentID:         instance.ParentID,
+			RequirementID:    instance.RequirementID,
+			Name:             instance.Name,
+			TaskDesc:         instance.TaskDesc,
+			StartTime:        instance.StartTime,
+			EndTime:          instance.EndTime,
+			Priority:         instance.Priority,
+			OwnerID:          instance.OwnerID,
+			ActualStartTime:  instance.ActualStartTime,
+			ActualEndTime:    instance.ActualEndTime,
+			EstimateDuration: instance.EstimateDuration,
+			ActualDuration:   instance.ActualDuration,
+			Status:           instance.Status,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 取出原有members，进行对比，并进行新增和删除
+		var oldMembers []*model.ProjectTaskMember
+		if err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{TaskID: instance.ID}).Find(&oldMembers).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 需要删除的members
+		var deleteMembers []*model.ProjectTaskMember
+		for _, oldMember := range oldMembers {
+			var found bool
+			for _, member := range members {
+				if oldMember.ID == member.ID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				deleteMembers = append(deleteMembers, oldMember)
+			}
+		}
+		// 需要新增的members
+		var addMembers []*model.ProjectTaskMember
+		for _, member := range members {
+			var found bool
+			for _, oldMember := range oldMembers {
+				if oldMember.ID == member.ID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				addMembers = append(addMembers, &member.ProjectTaskMember)
+			}
+		}
+		// 删除members
+		for _, member := range deleteMembers {
+			if err = tx.Delete(member).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		// 新增members
+		for _, member := range addMembers {
+			member.ID = util.SnowflakeId()
+			member.TaskID = instance.ID
+			member.ProjectID = instance.ProjectID
+			if err = tx.Create(member).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
 	success = true
