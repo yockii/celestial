@@ -114,14 +114,14 @@ onMounted(() => {
     </n-form-item>
     <n-grid :cols="2">
       <n-grid-item>
-        <!-- <n-button text @click="handleRegisterClick">
-                    <template #icon>
-                        <n-icon>
-                            <user-plus />
-                        </n-icon>
-                    </template>
-                    注册新用户
-                </n-button> -->
+        <n-button text @click="handleRegisterClick" v-if="false">
+          <template #icon>
+            <n-icon>
+              <user-plus />
+            </n-icon>
+          </template>
+          注册新用户
+        </n-button>
       </n-grid-item>
       <n-grid-item>
         <div style="display: flex; justify-content: flex-end">

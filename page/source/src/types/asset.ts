@@ -52,3 +52,9 @@ export type File = {
   objName?: string
   creatorId?: string
 }
+
+export type FileCondition = Condition & {
+  categoryId?: string
+  name?: string
+  suffix?: string
+}

@@ -3,7 +3,7 @@ import { ref, reactive, computed, onMounted, h } from "vue"
 import { Search } from "@vicons/carbon"
 import { OssConfig, OssConfigCondition } from "@/types/ossConfig"
 import dayjs from "dayjs"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule, NSwitch } from "naive-ui"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, NSwitch } from "naive-ui"
 import { addOssConfig, deleteOssConfig, getOssConfigDetail, getOssConfigList, updateOssConfig, updateOssConfigStatus } from "@/service/api/settings/ossConfig"
 import { useUserStore } from "@/store/user"
 const message = useMessage()

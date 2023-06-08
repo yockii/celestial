@@ -242,6 +242,7 @@ const drawerActive = ref(false)
 const currentData = ref<ProjectAsset>({
   id: "",
   name: "",
+  fileId: "",
   type: 1,
   status: 1,
   projectId: project.value.id
@@ -250,6 +251,7 @@ const handleAddProjectAsset = () => {
   currentData.value = {
     id: "",
     name: "",
+    fileId: "",
     type: 1,
     status: 1,
     projectId: project.value.id
