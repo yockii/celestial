@@ -11,7 +11,8 @@ import {
   Dashboard,
   UserMultiple,
   CategoryNewEach,
-  LicenseGlobal
+  LicenseGlobal,
+  ObjectStorage
 } from "@vicons/carbon"
 import { ProjectOutlined } from "@vicons/antd"
 import { Files, TestPipe } from "@vicons/tabler"
@@ -114,6 +115,12 @@ export const useMemStore = defineStore("mem", {
             key: "ThirdSource",
             code: "system:thirdSource",
             icon: renderIcon(LicenseGlobal)
+          },
+          {
+            label: renderLinkedLabel("Oss配置管理", "OssConfig"),
+            key: "OssConfig",
+            code: "system:ossConfig",
+            icon: renderIcon(ObjectStorage)
           }
         ]
       }

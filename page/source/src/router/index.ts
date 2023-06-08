@@ -115,6 +115,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "thirdSource",
         name: "ThirdSource",
         component: () => import("@/views/system/thirdSource/index.vue")
+      },
+      {
+        path: "ossConfig",
+        name: "OssConfig",
+        component: () => import("@/views/system/ossConfig/index.vue")
       }
     ]
   }

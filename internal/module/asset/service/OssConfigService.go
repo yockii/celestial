@@ -17,17 +17,17 @@ type ossConfigService struct{}
 
 // Add 添加资源
 func (s *ossConfigService) Add(instance *model.OssConfig) (duplicated bool, success bool, err error) {
-	if instance.Name == "" || instance.Type == "" || instance.Endpoint == "" || instance.AccessKeyID == "" || instance.SecretAccessKey == "" || instance.BucketName == "" {
+	if instance.Name == "" || instance.Type == "" || instance.Endpoint == "" || instance.AccessKeyID == "" || instance.SecretAccessKey == "" || instance.Bucket == "" {
 		err = errors.New("Name/Type/Endpoint/AccessKeyID/SecretAccessKey/BucketName is required ")
 		return
 	}
 	instance.Type = strings.ToLower(instance.Type)
 	var c int64
 	err = database.DB.Model(&model.OssConfig{}).Where(&model.OssConfig{
-		Type:       instance.Type,
-		Name:       instance.Name,
-		Endpoint:   instance.Endpoint,
-		BucketName: instance.BucketName,
+		Type:     instance.Type,
+		Name:     instance.Name,
+		Endpoint: instance.Endpoint,
+		Bucket:   instance.Bucket,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -61,7 +61,7 @@ func (s *ossConfigService) Update(instance *model.OssConfig) (success bool, err 
 		Endpoint:        instance.Endpoint,
 		AccessKeyID:     instance.AccessKeyID,
 		SecretAccessKey: instance.SecretAccessKey,
-		BucketName:      instance.BucketName,
+		Bucket:          instance.Bucket,
 		Region:          instance.Region,
 		Secure:          instance.Secure,
 		SelfDomain:      instance.SelfDomain,
@@ -122,8 +122,8 @@ func (s *ossConfigService) PaginateBetweenTimes(condition *model.OssConfig, limi
 		if condition.Type != "" {
 			tx = tx.Where("type = ?", strings.ToLower(condition.Type))
 		}
-		if condition.BucketName != "" {
-			tx = tx.Where("bucket_name like ?", "%"+condition.BucketName+"%")
+		if condition.Bucket != "" {
+			tx = tx.Where("bucket like ?", "%"+condition.Bucket+"%")
 		}
 	}
 
