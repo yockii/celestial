@@ -24,7 +24,7 @@ type ProjectRequirement struct {
 	Source      int            `json:"source,omitempty" gorm:"comment:来源 1-客户 2-内部"`
 	OwnerID     uint64         `json:"ownerId,omitempty,string" gorm:"index;comment:需求负责人ID"`
 	Feasibility int            `json:"feasibility,omitempty" gorm:"comment:可行性 -1-不可行 1-低 2-中 3-高"`
-	Status      int            `json:"status,omitempty" gorm:"comment:状态 1-待评审 2-已评审 3-已完成"`
+	Status      int            `json:"status,omitempty" gorm:"comment:状态 1-待设计 2-待评审 3-评审通过 9-已完成 -1-评审未通过"`
 	FullPath    string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径"`
 	CreateTime  int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime  int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`

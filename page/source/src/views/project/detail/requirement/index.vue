@@ -139,13 +139,18 @@ const statusColumn = reactive({
   title: "状态",
   key: "status",
   render: (row: ProjectRequirement) => {
+    // 状态 1-待设计 2-待评审 3-评审通过 9-已完成 -1-评审未通过
     switch (row.status) {
       case 1:
-        return "待评审"
+        return "待设计"
       case 2:
-        return "已评审"
+        return "待评审"
       case 3:
+        return "评审通过"
+      case 9:
         return "已完成"
+      case -1:
+        return "评审未通过"
       default:
         return "未知"
     }
@@ -155,16 +160,24 @@ const statusColumn = reactive({
   filterOptionValue: 0,
   filterOptions: [
     {
-      label: "待评审",
+      label: "待设计",
       value: 1
     },
     {
-      label: "已评审",
+      label: "待评审",
       value: 2
     },
     {
-      label: "已完成",
+      label: "评审通过",
       value: 3
+    },
+    {
+      label: "已完成",
+      value: 9
+    },
+    {
+      label: "评审未通过",
+      value: -1
     }
   ]
 })
