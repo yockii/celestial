@@ -9,6 +9,10 @@ type KS3 struct {
 	model.OssConfig
 }
 
+func (o *KS3) GetOssConfigID() uint64 {
+	return o.OssConfig.ID
+}
+
 func (o *KS3) Auth() error {
 	return nil
 }

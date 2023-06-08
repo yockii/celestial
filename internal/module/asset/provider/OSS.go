@@ -13,6 +13,10 @@ type OSS struct {
 	Bucket *oss.Bucket
 }
 
+func (o *OSS) GetOssConfigID() uint64 {
+	return o.OssConfig.ID
+}
+
 func (o *OSS) Auth() error {
 	client, err := oss.New(o.Endpoint, o.AccessKeyID, o.SecretAccessKey, oss.UseCname(o.SelfDomain == 1))
 	if err != nil {
@@ -21,7 +25,7 @@ func (o *OSS) Auth() error {
 	}
 
 	var bucket *oss.Bucket
-	bucket, err = client.Bucket(o.BucketName)
+	bucket, err = client.Bucket(o.OssConfig.Bucket)
 	if err != nil {
 		logger.Error(err)
 		return err

@@ -9,6 +9,10 @@ type Azure struct {
 	model.OssConfig
 }
 
+func (o *Azure) GetOssConfigID() uint64 {
+	return o.OssConfig.ID
+}
+
 func (o *Azure) Auth() error {
 	return nil
 }

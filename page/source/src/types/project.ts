@@ -179,6 +179,7 @@ export type ProjectTaskCondition = Condition & {
 export type ProjectAsset = {
   id: string
   projectId: string
+  fileId: string
   name: string
   type: number
   status: number

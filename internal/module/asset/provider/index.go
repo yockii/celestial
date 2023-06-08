@@ -11,6 +11,7 @@ type OsManager interface {
 	Close() error
 	PutObject(objName string, reader io.Reader) error
 	GetObject(objName string) (io.ReadCloser, error)
+	GetOssConfigID() uint64
 }
 
 func GetProvider(c *model.OssConfig) (m OsManager) {

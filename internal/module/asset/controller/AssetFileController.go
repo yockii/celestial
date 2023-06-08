@@ -3,10 +3,14 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
 	"github.com/yockii/ruomu-core/server"
+	"mime/multipart"
+	"strconv"
+	"strings"
 )
 
 var AssetFileController = new(assetFileController)
@@ -14,45 +18,107 @@ var AssetFileController = new(assetFileController)
 type assetFileController struct{}
 
 func (c *assetFileController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.File)
-	if err := ctx.BodyParser(instance); err != nil {
+	if form, err := ctx.MultipartForm(); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamParseError,
 			Msg:  server.ResponseMsgParamParseError,
 		})
-	}
+	} else {
+		instance := new(model.File)
+		instance.CreatorID, err = helper.GetCurrentUserID(ctx)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " user Id",
+			})
+		}
+		// 资产目录
+		if categoryIdList, has := form.Value["categoryId"]; !has {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " categoryId",
+			})
+		} else {
+			categoryId := categoryIdList[0]
+			instance.CategoryID, err = strconv.ParseUint(categoryId, 10, 64)
+			if err != nil {
+				logger.Errorln(err)
+				return ctx.JSON(&server.CommonResponse{
+					Code: server.ResponseCodeParamParseError,
+					Msg:  server.ResponseMsgParamParseError + " categoryId",
+				})
+			}
+		}
+		// 资产名称
+		if nameList, has := form.Value["name"]; !has {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " name",
+			})
+		} else {
+			instance.Name = nameList[0]
+		}
+		if instance.CategoryID == 0 || instance.Name == "" {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " categoryId or name",
+			})
+		}
 
-	// 处理必填
-	if instance.Name == "" {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " name",
-		})
-	}
+		if fhList, ok := form.File["file"]; !ok {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " file",
+			})
+		} else {
+			if len(fhList) > 0 {
+				fileHeader := fhList[0]
+				duplicated := false
+				success := false
+				instance.Size = fileHeader.Size
+				fileName := fileHeader.Filename
+				instance.OriginName = fileName
+				instance.Suffix = fileName[strings.LastIndex(fileName, ".")+1:]
+				var file multipart.File
+				file, err = fileHeader.Open()
+				if err != nil {
+					logger.Errorln(err)
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeParamParseError,
+						Msg:  server.ResponseMsgParamParseError,
+					})
+				}
 
-	duplicated, success, err := service.AssetFileService.Add(instance)
-	if err != nil {
+				defer func(file multipart.File) {
+					_ = file.Close()
+				}(file)
+
+				duplicated, success, err = service.AssetFileService.Add(instance, file)
+				if err != nil {
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeDatabase,
+						Msg:  server.ResponseMsgDatabase + err.Error(),
+					})
+				}
+				if duplicated {
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeDuplicated,
+						Msg:  server.ResponseMsgDuplicated,
+					})
+				}
+				if !success {
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeUnknownError,
+						Msg:  server.ResponseMsgUnknownError,
+					})
+				}
+			}
+		}
 		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Data: instance,
 		})
 	}
-	if duplicated {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDuplicated,
-			Msg:  server.ResponseMsgDuplicated,
-		})
-	}
-	if !success {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeUnknownError,
-			Msg:  server.ResponseMsgUnknownError,
-		})
-	}
-	return ctx.JSON(&server.CommonResponse{
-		Data: instance,
-	})
 }
 
 func (c *assetFileController) Update(ctx *fiber.Ctx) error {

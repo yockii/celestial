@@ -12,13 +12,17 @@ type OBS struct {
 	Client *obs.ObsClient
 }
 
+func (o *OBS) GetOssConfigID() uint64 {
+	return o.OssConfig.ID
+}
+
 func (o *OBS) Auth() error {
-	client, err := obs.New(o.AccessKeyID, o.SecretAccessKey, o.Endpoint, obs.WithCustomDomainName(o.SelfDomain == 1), obs.WithRegion(o.Region))
+	client, err := obs.New(o.AccessKeyID, o.SecretAccessKey, o.Endpoint, obs.WithCustomDomainName(o.SelfDomain == 1))
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
-	_, err = client.GetBucketLocation(o.BucketName)
+	_, err = client.GetBucketLocation(o.Bucket)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -35,7 +39,7 @@ func (o *OBS) Close() error {
 
 func (o *OBS) PutObject(objName string, reader io.Reader) error {
 	input := &obs.PutObjectInput{}
-	input.Bucket = o.BucketName
+	input.Bucket = o.Bucket
 	input.Key = objName
 	input.Body = reader
 
@@ -49,7 +53,7 @@ func (o *OBS) PutObject(objName string, reader io.Reader) error {
 
 func (o *OBS) GetObject(objName string) (io.ReadCloser, error) {
 	input := &obs.GetObjectInput{}
-	input.Bucket = o.BucketName
+	input.Bucket = o.Bucket
 	input.Key = objName
 
 	output, err := o.Client.GetObject(input)
