@@ -187,3 +187,30 @@ func (c *ossConfigController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+func (c *ossConfigController) UpdateStatus(ctx *fiber.Ctx) error {
+	ossConfig := new(model.OssConfig)
+	if err := ctx.BodyParser(ossConfig); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if ossConfig.ID == 0 || ossConfig.Status == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id / status",
+		})
+	}
+	success, err := service.OssConfigService.UpdateStatus(ossConfig.ID, ossConfig.Status)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}

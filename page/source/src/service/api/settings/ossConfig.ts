@@ -47,3 +47,15 @@ export function getOssConfigDetail(id: string) {
     params: { id }
   })
 }
+
+/**
+ * 更新OSS配置状态
+ * @param id - oss配置id
+ * @param status - 状态
+ */
+export function updateOssConfigStatus(id: string, status: number) {
+  return request.put<boolean>("/ossConfig/updateStatus", {
+    id,
+    status
+  })
+}

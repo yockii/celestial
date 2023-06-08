@@ -16,6 +16,7 @@ type OssConfig struct {
 	Region          string `json:"region,omitempty" gorm:"size:50;comment:Region"`
 	Secure          int    `json:"secure,omitempty" gorm:"comment:是否使用HTTPS 1-是 2-否"`
 	SelfDomain      int    `json:"selfDomain,omitempty" gorm:"comment:是否自定义域名 1-是 2-否"`
+	Status          int    `json:"status,omitempty" gorm:"comment:状态 1-启用 其他-禁用"`
 	CreateTime      int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 }
 
@@ -35,6 +36,7 @@ func (p *OssConfig) UnmarshalJSON(b []byte) error {
 	p.Region = j.Get("region").String()
 	p.Secure = int(j.Get("secure").Int())
 	p.SelfDomain = int(j.Get("selfDomain").Int())
+	p.Status = int(j.Get("status").Int())
 	p.CreateTime = j.Get("createTime").Int()
 	return nil
 }

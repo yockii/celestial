@@ -11,6 +11,7 @@ export type OssConfig = {
   region?: string
   secure?: number
   selfDomain?: number
+  status?: number
   createTime?: number
 }
 

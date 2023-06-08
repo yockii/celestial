@@ -7,6 +7,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -149,5 +150,28 @@ func (s *ossConfigService) Instance(id uint64) (instance *model.OssConfig, err e
 		logger.Errorln(err)
 		return
 	}
+	return
+}
+
+// UpdateStatus 更新状态
+func (s *ossConfigService) UpdateStatus(id uint64, status int) (success bool, err error) {
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 如果status=1则先把其他的都设置为-1
+		if status == 1 {
+			if err = tx.Model(&model.OssConfig{}).Where("status = ?", 1).Update("status", -1).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		if err = tx.Model(&model.OssConfig{ID: id}).Update("status", status).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return
+	}
+	success = true
 	return
 }

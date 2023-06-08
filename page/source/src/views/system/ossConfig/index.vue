@@ -3,8 +3,8 @@ import { ref, reactive, computed, onMounted, h } from "vue"
 import { Search } from "@vicons/carbon"
 import { OssConfig, OssConfigCondition } from "@/types/ossConfig"
 import dayjs from "dayjs"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule } from "naive-ui"
-import { addOssConfig, deleteOssConfig, getOssConfigDetail, getOssConfigList, updateOssConfig } from "@/service/api/settings/ossConfig"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule, NSwitch } from "naive-ui"
+import { addOssConfig, deleteOssConfig, getOssConfigDetail, getOssConfigList, updateOssConfig, updateOssConfigStatus } from "@/service/api/settings/ossConfig"
 import { useUserStore } from "@/store/user"
 const message = useMessage()
 const userStore = useUserStore()
@@ -45,6 +45,31 @@ const handlePageSizeChange = (pageSize: number) => {
   condition.value.limit = pageSize
   refresh()
 }
+const statusColumn = {
+  title: "状态",
+  key: "status",
+  render: (row: OssConfig) => {
+    // return row.status === 1 ? "启用" : "禁用"
+    return h(
+      NSwitch,
+      {
+        value: row.status === 1,
+        onUpdateValue: (value: boolean) => {
+          updateOssConfigStatus(row.id, value ? 1 : -1).then((res) => {
+            if (res) {
+              message.success("修改成功")
+              refresh()
+            }
+          })
+        }
+      },
+      {
+        checked: () => "启用",
+        unchecked: () => "禁用"
+      }
+    )
+  }
+}
 const columns = [
   {
     title: "名称",
@@ -62,6 +87,7 @@ const columns = [
     title: "Endpoint",
     key: "endpoint"
   },
+  statusColumn,
   {
     title: "创建时间",
     key: "createTime",

@@ -43,10 +43,12 @@ func InitRouter() {
 		ossConfig.Put("/update", middleware.NeedAuthorization(constant.ResourceOssConfigUpdate), OssConfigController.Update)
 		ossConfig.Get("/list", middleware.NeedAuthorization(constant.ResourceOssConfigList), OssConfigController.List)
 		ossConfig.Get("/instance", middleware.NeedAuthorization(constant.ResourceOssConfigInstance), OssConfigController.Instance)
+		ossConfig.Put("/updateStatus", middleware.NeedAuthorization(constant.ResourceOssConfigUpdate), OssConfigController.UpdateStatus)
 
 		// 对于禁用put和delete方法时的处理
 		ossConfig.Post("/delete", middleware.NeedAuthorization(constant.ResourceOssConfigDelete), OssConfigController.Delete)
 		ossConfig.Post("/update", middleware.NeedAuthorization(constant.ResourceOssConfigUpdate), OssConfigController.Update)
+		ossConfig.Post("/updateStatus", middleware.NeedAuthorization(constant.ResourceOssConfigUpdate), OssConfigController.UpdateStatus)
 	}
 
 	// 通用测试用例
