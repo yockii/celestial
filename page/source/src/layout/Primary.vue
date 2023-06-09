@@ -34,10 +34,10 @@ import Sider from "./components/Sider.vue"
 import { useMemStore } from "@/store/mem"
 import { computed } from "vue"
 import { useAppStore } from "@/store/app"
-import { getStageList } from "@/service/api/stage"
+import { getStageList } from "@/service/api/settings/stage"
 import { useStageStore } from "@/store/stage"
 import { useUserStore } from "@/store/user"
-import { getUserPermissions } from "@/service/api/user"
+import { getUserPermissions } from "@/service/api/settings/user"
 
 const memStore = useMemStore()
 const appStore = useAppStore()

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getRoleList } from "@/service/api/role"
-import { assignRole } from "@/service/api/user"
+import { getRoleList } from "@/service/api/settings/role"
+import { assignRole } from "@/service/api/settings/user"
 import { Role } from "@/types/user"
 import { NTag } from "naive-ui"
 

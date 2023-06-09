@@ -2,8 +2,9 @@
 import { useRoute, useRouter } from "vue-router"
 import { ref, onMounted } from "vue"
 import { Project } from "@/types/project"
-import { deleteProject, getProjectDetail, updateProject } from "@/service/api/project"
+import { deleteProject, getProjectDetail, updateProject } from "@/service/api/project/project"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
+import { SettingsServices, Delete } from "@vicons/carbon"
 import Dashboard from "./dashboard/index.vue"
 import Plan from "./plan/index.vue"
 import Module from "./module/index.vue"
@@ -112,7 +113,14 @@ onMounted(() => {
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
-            <n-button v-if="tab == '项目总览'" size="small" type="primary" v-resource-code="'project:add'" @click="showProjectSettings">项目设置</n-button>
+            <n-tooltip v-if="tab == '项目总览'">
+              <template #trigger>
+                <n-button size="small" type="primary" v-resource-code="'project:add'" @click="showProjectSettings">
+                  <n-icon :component="SettingsServices" />
+                </n-button>
+              </template>
+              项目设置
+            </n-tooltip>
           </n-gi>
         </template>
         <n-gi v-else :span="18" class="flex flex-justify-center flex-items-center h-full">
@@ -175,7 +183,14 @@ onMounted(() => {
           <n-text class="mt-4px">项目设置</n-text>
           <n-popconfirm @positive-click="doDeleteProject" :show-icon="false">
             <template #trigger>
-              <n-button type="error" size="tiny" v-resource-code="'project:delete'">删除项目</n-button>
+              <n-tooltip>
+                <template #trigger>
+                  <n-button type="error" size="tiny" v-resource-code="'project:delete'">
+                    <n-icon :component="Delete" />
+                  </n-button>
+                </template>
+                删除项目
+              </n-tooltip>
             </template>
             <n-grid :cols="1" y-gap="16">
               <n-gi>请输入项目名称&lt;{{ project?.name }}&gt;以确认删除</n-gi>

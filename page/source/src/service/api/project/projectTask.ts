@@ -1,5 +1,5 @@
 import { Paginate } from "@/types/common"
-import { request } from "../request"
+import { request } from "../../request"
 import type { ProjectTaskWorkTimeStatistics, ProjectTask, ProjectTaskCondition } from "@/types/project"
 
 /**

@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { getProjectModuleList } from "@/service/api/projectModule"
-import { deleteProjectRequirement, getProjectRequirement, getProjectRequirementList } from "@/service/api/projectRequirement"
+import { getProjectModuleList } from "@/service/api/project/projectModule"
+import {
+  completed,
+  deleteProjectRequirement,
+  designed,
+  getProjectRequirement,
+  getProjectRequirementList,
+  review
+} from "@/service/api/project/projectRequirement"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
-import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn } from "naive-ui"
+import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NSpace, NIcon, NTooltip } from "naive-ui"
 import { storeToRefs } from "pinia"
-import { Refresh } from "@vicons/tabler"
+import { ArrowsSplit, Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
 import TaskDrawer from "../task/drawer/index.vue"
 import { useUserStore } from "@/store/user"
+import { AiStatusComplete, AiStatusFailed, BrushFreehand, Delete, Edit } from "@vicons/carbon"
+import { CodeOutlined } from "@vicons/antd"
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -63,6 +72,39 @@ const refresh = () => {
       loading.value = false
     })
 }
+
+// 状态修改
+const handleDesigned = (row: ProjectRequirement) => {
+  designed(row.id).then((res) => {
+    if (res) {
+      message.success(row.name + "设计完成")
+      refresh()
+    } else {
+      message.error(row.name + "状态修改失败")
+    }
+  })
+}
+const handleReview = (row: ProjectRequirement, status: number) => {
+  review(row.id, status).then((res) => {
+    if (res) {
+      message.success(row.name + "评审完成")
+      refresh()
+    } else {
+      message.error(row.name + "状态修改失败")
+    }
+  })
+}
+const handleCompleted = (row: ProjectRequirement) => {
+  completed(row.id).then((res) => {
+    if (res) {
+      message.success(row.name + "已完成")
+      refresh()
+    } else {
+      message.error(row.name + "状态修改失败")
+    }
+  })
+}
+
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
@@ -142,15 +184,123 @@ const statusColumn = reactive({
     // 状态 1-待设计 2-待评审 3-评审通过 9-已完成 -1-评审未通过
     switch (row.status) {
       case 1:
-        return "待设计"
+        // "待设计"
+        return h(NSpace, { justify: "space-between" }, [
+          h("span", {}, { default: () => "待设计" }),
+          userStore.hasResourceCode("project:detail:requirement:statusDesign")
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "设计完成",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "info",
+                        onClick: () => handleDesigned(row)
+                      },
+                      { default: () => h(NIcon, { component: BrushFreehand }) }
+                    )
+                }
+              )
+            : ""
+        ])
       case 2:
-        return "待评审"
+        // "待评审"
+        return h(NSpace, { justify: "space-between" }, [
+          h("span", {}, { default: () => "待评审" }),
+          userStore.hasResourceCode("project:detail:requirement:statusReview")
+            ? h(NButtonGroup, {}, [
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "评审通过",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          onClick: () => handleReview(row, 3)
+                        },
+                        { default: () => h(NIcon, { component: AiStatusComplete }) }
+                      )
+                  }
+                ),
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "评审不通过",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "error",
+                          onClick: () => handleReview(row, -1)
+                        },
+                        { default: () => h(NIcon, { component: AiStatusFailed }) }
+                      )
+                  }
+                )
+              ])
+            : ""
+        ])
       case 3:
-        return "评审通过"
+        // "评审通过"
+        return h(NSpace, { justify: "space-between" }, [
+          h("span", {}, { default: () => "评审通过" }),
+          userStore.hasResourceCode("project:detail:requirement:statusComplete")
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "完成",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "primary",
+                        secondary: true,
+                        onClick: () => handleCompleted(row)
+                      },
+                      { default: () => h(NIcon, { component: CodeOutlined }) }
+                    )
+                }
+              )
+            : ""
+        ])
       case 9:
         return "已完成"
       case -1:
-        return "评审未通过"
+        // "评审未通过", 可以再次设计完成
+        return h(NSpace, { justify: "space-between" }, [
+          h("span", {}, { default: () => "评审未通过" }),
+          userStore.hasResourceCode("project:detail:requirement:statusDesign")
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "设计完成",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "info",
+                        onClick: () => handleDesigned(row)
+                      },
+                      { default: () => h(NIcon, { component: BrushFreehand }) }
+                    )
+                }
+              )
+            : ""
+        ])
       default:
         return "未知"
     }
@@ -236,29 +386,45 @@ const columns = [
     render: (row: ProjectRequirement) => {
       return h(NButtonGroup, {}, () => [
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            disabled: !userStore.hasResourceCode("project:detail:task:add"),
-            onClick: () => {
-              handleAddProjectTask(row)
-            }
-          },
-          {
-            default: () => "任务分解"
+            default: () => "任务分解",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  disabled: !userStore.hasResourceCode("project:detail:task:add"),
+                  onClick: () => {
+                    handleAddProjectTask(row)
+                  }
+                },
+                {
+                  default: () => h(NIcon, { component: ArrowsSplit })
+                }
+              )
           }
         ),
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            disabled: !userStore.hasResourceCode("project:detail:requirement:edit"),
-            onClick: () => handleEditData(row)
-          },
-          {
-            default: () => "编辑"
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !userStore.hasResourceCode("project:detail:requirement:edit"),
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: Edit })
+                }
+              )
           }
         ),
         h(
@@ -270,14 +436,22 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("project:detail:requirement:delete"),
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: !userStore.hasResourceCode("project:detail:requirement:delete"),
+                        type: "error"
+                      },
+                      {
+                        default: () => h(NIcon, { component: Delete })
+                      }
+                    )
                 }
               )
           }

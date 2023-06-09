@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getUserList } from "@/service/api/user"
+import { getUserList } from "@/service/api/settings/user"
 import { User, UserCondition } from "@/types/user"
 import { Search } from "@vicons/carbon"
 const emits = defineEmits(["userSelectedChanged"])

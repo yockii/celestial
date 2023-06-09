@@ -44,6 +44,7 @@ const (
 	ResourceProjectModuleDelete = ResourceProjectModule + ":delete"
 	ResourceProjectModuleUpdate = ResourceProjectModule + ":update"
 	ResourceProjectModuleList   = ResourceProjectModule + ":list"
+	ResourceProjectModuleReview = ResourceProjectModule + ":review"
 
 	// 项目需求
 	ResourceProjectRequirement         = ResourceProjectInstance + ":requirement"
@@ -52,6 +53,12 @@ const (
 	ResourceProjectRequirementUpdate   = ResourceProjectRequirement + ":update"
 	ResourceProjectRequirementList     = ResourceProjectRequirement + ":list"
 	ResourceProjectRequirementInstance = ResourceProjectRequirement + ":instance"
+	// 设计完毕
+	ResourceProjectRequirementStatusDesign = ResourceProjectRequirement + ":statusDesign"
+	// 评审完毕
+	ResourceProjectRequirementStatusReview = ResourceProjectRequirement + ":statusReview"
+	// 已完成
+	ResourceProjectRequirementStatusCompleted = ResourceProjectRequirement + ":statusCompleted"
 
 	// 项目任务
 	ResourceProjectTask         = ResourceProjectInstance + ":task"

@@ -76,10 +76,13 @@ func InitRouter() {
 		projectModule.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectModuleUpdate), ProjectModuleController.Update)
 		projectModule.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectModuleList), ProjectModuleController.List)
 		//projectModule.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectModuleInstance), ProjectModuleController.Instance)
+		// 评审状态修改
+		projectModule.Put("/review", middleware.NeedAuthorization(constant.ResourceProjectModuleReview), ProjectModuleController.Review)
 
 		// 对于禁用put和delete方法时的处理
 		projectModule.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectModuleDelete), ProjectModuleController.Delete)
 		projectModule.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectModuleUpdate), ProjectModuleController.Update)
+		projectModule.Post("/review", middleware.NeedAuthorization(constant.ResourceProjectModuleReview), ProjectModuleController.Review)
 	}
 
 	// 项目需求
@@ -90,10 +93,18 @@ func InitRouter() {
 		projectRequirement.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectRequirementUpdate), ProjectRequirementController.Update)
 		projectRequirement.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRequirementList), ProjectRequirementController.List)
 		projectRequirement.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRequirementInstance), ProjectRequirementController.Instance)
+		// 3种状态修改
+		projectRequirement.Put("/designed", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusDesign), ProjectRequirementController.StatusDesigned)
+		projectRequirement.Put("/review", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusReview), ProjectRequirementController.StatusReview)
+		projectRequirement.Put("/completed", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusCompleted), ProjectRequirementController.StatusCompleted)
 
 		// 对于禁用put和delete方法时的处理
 		projectRequirement.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectRequirementDelete), ProjectRequirementController.Delete)
 		projectRequirement.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectRequirementUpdate), ProjectRequirementController.Update)
+		projectRequirement.Post("/designed", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusDesign), ProjectRequirementController.StatusDesigned)
+		projectRequirement.Post("/review", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusReview), ProjectRequirementController.StatusReview)
+		projectRequirement.Post("/completed", middleware.NeedAuthorization(constant.ResourceProjectRequirementStatusCompleted), ProjectRequirementController.StatusCompleted)
+
 	}
 
 	//// 项目变更

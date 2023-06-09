@@ -11,14 +11,17 @@ import {
   NButtonGroup,
   NGrid,
   NGridItem,
+  NIcon,
   NPopconfirm,
+  NTooltip,
   PaginationProps
 } from "naive-ui"
-import { addProjectPlan, deleteProjectPlan, getProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/projectPlan"
+import { addProjectPlan, deleteProjectPlan, getProjectPlan, getProjectPlanList, updateProjectPlan } from "@/service/api/project/projectPlan"
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
+import { Delete, Edit } from "@vicons/carbon"
 
 const { project } = storeToRefs(useProjectStore())
 const userStore = useUserStore()
@@ -145,16 +148,24 @@ const operationColumn = reactive({
   render: (row: ProjectPlan) => {
     return h(NButtonGroup, {}, () => [
       h(
-        NButton,
+        NTooltip,
+        {},
         {
-          size: "small",
-          secondary: true,
-          type: "primary",
-          disabled: !userStore.hasResourceCode("project:detail:plan:update"),
-          onClick: () => handleEditData(row)
-        },
-        {
-          default: () => "编辑"
+          default: () => "编辑",
+          trigger: () =>
+            h(
+              NButton,
+              {
+                size: "small",
+                secondary: true,
+                type: "primary",
+                disabled: !userStore.hasResourceCode("project:detail:plan:update"),
+                onClick: () => handleEditData(row)
+              },
+              {
+                default: () => h(NIcon, { component: Edit })
+              }
+            )
         }
       ),
       h(
@@ -166,14 +177,22 @@ const operationColumn = reactive({
           default: () => "确认删除",
           trigger: () =>
             h(
-              NButton,
+              NTooltip,
+              {},
               {
-                size: "small",
-                type: "error",
-                disabled: !userStore.hasResourceCode("project:detail:plan:delete")
-              },
-              {
-                default: () => "删除"
+                default: () => "删除",
+                trigger: () =>
+                  h(
+                    NButton,
+                    {
+                      size: "small",
+                      type: "error",
+                      disabled: !userStore.hasResourceCode("project:detail:plan:delete")
+                    },
+                    {
+                      default: () => h(NIcon, { component: Delete })
+                    }
+                  )
               }
             )
         }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getProjectModuleList } from "@/service/api/projectModule"
-import { deleteProjectTask, getProjectTask, getProjectTaskList } from "@/service/api/projectTask"
+import { getProjectModuleList } from "@/service/api/project/projectModule"
+import { deleteProjectTask, getProjectTask, getProjectTaskList } from "@/service/api/project/projectTask"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
 import {
@@ -15,13 +15,15 @@ import {
   NAvatarGroup,
   NTooltip,
   NDropdown,
-  NAvatar
+  NAvatar,
+  NIcon
 } from "naive-ui"
 import { storeToRefs } from "pinia"
-import { Refresh } from "@vicons/tabler"
+import { ArrowsSplit, Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
 import { useUserStore } from "@/store/user"
 import NameAvatar from "@/components/NameAvatar.vue"
+import { Delete, Edit } from "@vicons/carbon"
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -260,38 +262,55 @@ const columns = [
     render: (row: ProjectTask) => {
       return h(NButtonGroup, {}, () => [
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            disabled: !userStore.hasResourceCode("project:detail:task:add"),
-            onClick: () => {
-              currentData.value = {
-                id: "",
-                projectId: row.projectId,
-                parentId: row.id,
-                name: "",
-                moduleId: row.moduleId,
-                requirementId: row.requirementId,
-                stageId: row.stageId
-              }
-              drawerActive.value = true
-            }
-          },
-          {
-            default: () => "任务分解"
+            default: () => "任务分解",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  disabled: !userStore.hasResourceCode("project:detail:task:add"),
+                  onClick: () => {
+                    currentData.value = {
+                      id: "",
+                      projectId: row.projectId,
+                      parentId: row.id,
+                      name: "",
+                      moduleId: row.moduleId,
+                      requirementId: row.requirementId,
+                      stageId: row.stageId
+                    }
+                    drawerActive.value = true
+                  }
+                },
+                {
+                  default: () => h(NIcon, { component: ArrowsSplit })
+                }
+              )
           }
         ),
+
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            disabled: !userStore.hasResourceCode("project:detail:task:edit"),
-            onClick: () => handleEditData(row)
-          },
-          {
-            default: () => "编辑"
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !userStore.hasResourceCode("project:detail:task:edit"),
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: Edit })
+                }
+              )
           }
         ),
         h(
@@ -303,14 +322,22 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("project:detail:task:delete"),
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: !userStore.hasResourceCode("project:detail:task:delete"),
+                        type: "error"
+                      },
+                      {
+                        default: () => h(NIcon, { component: Delete })
+                      }
+                    )
                 }
               )
           }

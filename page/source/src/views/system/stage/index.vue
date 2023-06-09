@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from "vue"
-import { getStageList, updateStage, addStage, deleteStage } from "@/service/api/stage"
+import { getStageList, updateStage, addStage, deleteStage } from "@/service/api/settings/stage"
 import { Stage, StageCondition } from "@/types/project"
 import { Search } from "@vicons/carbon"
 import dayjs from "dayjs"

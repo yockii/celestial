@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ProjectModule, ProjectModuleCondition, ProjectRequirement } from "@/types/project"
 import { ComputedRef, computed, ref, RendererElement, RendererNode } from "vue"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage } from "naive-ui"
-import { addProjectModule, deleteProjectModule, getProjectModuleList, updateProjectModule } from "@/service/api/projectModule"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, NTooltip, NSpace, NIcon } from "naive-ui"
+import { addProjectModule, deleteProjectModule, getProjectModuleList, review, updateProjectModule } from "@/service/api/project/projectModule"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import Drawer from "../requirement/drawer/index.vue"
 import { useUserStore } from "@/store/user"
+import { AiStatusComplete, AiStatusFailed, Delete, Edit } from "@vicons/carbon"
+import { PlaylistAdd } from "@vicons/tabler"
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -149,26 +151,207 @@ const countModules = (lv: number, cm: CombinedModule) => {
   ).length
   return l
 }
+
+const handleReviewData = (module: ProjectModule, status: number) => {
+  review(module.id, status).then((res) => {
+    if (res) {
+      message.success(module.name + "评审成功")
+      refresh()
+    } else {
+      message.error(module.name + "状态修改")
+    }
+  })
+}
 const columns = [
   {
     title: "一级模块",
     key: "lv1Column",
-    rowSpan: (rowData: CombinedModule) => countModules(1, rowData)
+    rowSpan: (rowData: CombinedModule) => countModules(1, rowData),
+    render: (row: CombinedModule) =>
+      h(
+        NSpace,
+        {
+          justify: "space-between"
+        },
+        [
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => row.lv1Module.remark || row.lv1Module.name,
+              trigger: () => row.lv1Column
+            }
+          ),
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    secondary: true,
+                    disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                    onClick: () => handleEditData(row.lv1Module)
+                  },
+                  {
+                    default: () =>
+                      h(NIcon, {
+                        component: Edit
+                      })
+                  }
+                )
+            }
+          )
+        ]
+      )
   },
   {
     title: "二级模块",
     key: "lv2Column",
-    rowSpan: (rowData: CombinedModule) => countModules(2, rowData)
+    rowSpan: (rowData: CombinedModule) => countModules(2, rowData),
+    render: (row: CombinedModule) =>
+      h(
+        NSpace,
+        {
+          justify: "space-between"
+        },
+        [
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => row.lv2Module?.remark || row.lv2Module?.name,
+              trigger: () => row.lv2Column
+            }
+          ),
+          row.lv2Module
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "编辑",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "primary",
+                        secondary: true,
+                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                        onClick: () => (row.lv2Module ? handleEditData(row.lv2Module) : "")
+                      },
+                      {
+                        default: () =>
+                          h(NIcon, {
+                            component: Edit
+                          })
+                      }
+                    )
+                }
+              )
+            : ""
+        ]
+      )
   },
   {
     title: "三级模块",
     key: "lv3Column",
-    rowSpan: (rowData: CombinedModule) => countModules(3, rowData)
+    rowSpan: (rowData: CombinedModule) => countModules(3, rowData),
+    render: (row: CombinedModule) =>
+      h(
+        NSpace,
+        {
+          justify: "space-between"
+        },
+        [
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => row.lv3Module?.remark || row.lv3Module?.name,
+              trigger: () => row.lv3Column
+            }
+          ),
+          row.lv3Module
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "编辑",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "primary",
+                        secondary: true,
+                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                        onClick: () => (row.lv3Module ? handleEditData(row.lv3Module) : "")
+                      },
+                      {
+                        default: () =>
+                          h(NIcon, {
+                            component: Edit
+                          })
+                      }
+                    )
+                }
+              )
+            : ""
+        ]
+      )
   },
   {
     title: "四级模块",
     key: "lv4Column",
-    rowSpan: (rowData: CombinedModule) => countModules(4, rowData)
+    rowSpan: (rowData: CombinedModule) => countModules(4, rowData),
+    render: (row: CombinedModule) =>
+      h(
+        NSpace,
+        {
+          justify: "space-between"
+        },
+        [
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => row.lv4Module?.remark || row.lv4Module?.name,
+              trigger: () => row.lv4Column
+            }
+          ),
+          row.lv4Module
+            ? h(
+                NTooltip,
+                {},
+                {
+                  default: () => "编辑",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "primary",
+                        secondary: true,
+                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                        onClick: () => (row.lv4Module ? handleEditData(row.lv4Module) : "")
+                      },
+                      {
+                        default: () =>
+                          h(NIcon, {
+                            component: Edit
+                          })
+                      }
+                    )
+                }
+              )
+            : ""
+        ]
+      )
   },
   {
     title: "状态",
@@ -176,13 +359,62 @@ const columns = [
     render: (rowData: CombinedModule) => {
       let module = rowData.lv4Module ? rowData.lv4Module : rowData.lv3Module ? rowData.lv3Module : rowData.lv2Module ? rowData.lv2Module : rowData.lv1Module
       switch (module.status) {
-        case -1:
-          return "废弃"
         case 1:
-          return "待评审"
+          // "待评审"
+          return h(
+            NSpace,
+            {
+              justify: "space-between"
+            },
+            [
+              "待评审",
+              h(NButtonGroup, {}, [
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "评审通过",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                          onClick: () => handleReviewData(module, 2)
+                        },
+                        {
+                          default: () => h(NIcon, { component: AiStatusComplete })
+                        }
+                      )
+                  }
+                ),
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "评审不通过",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "error",
+                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                          onClick: () => handleReviewData(module, -1)
+                        },
+                        {
+                          default: () => h(NIcon, { component: AiStatusFailed })
+                        }
+                      )
+                  }
+                )
+              ])
+            ]
+          )
         case 2:
           return "评审通过"
-        case 3:
+        case -1:
           return "评审不通过"
         case 9:
           return "已完成"
@@ -199,32 +431,27 @@ const columns = [
       if (module.status === 2) {
         btnGroup.push(
           h(
-            NButton,
+            NTooltip,
+            {},
             {
-              size: "small",
-              disabled: !userStore.hasResourceCode("project:detail:requirement:add"),
-              onClick: () => handleNewRequirement(module)
-            },
-            {
-              default: () => "新增需求"
+              default: () => "新增需求",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    disabled: !userStore.hasResourceCode("project:detail:requirement:add"),
+                    onClick: () => handleNewRequirement(module)
+                  },
+                  {
+                    default: () => h(NIcon, { component: PlaylistAdd })
+                  }
+                )
             }
           )
         )
       }
       btnGroup.push(
-        h(
-          NButton,
-          {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            disabled: !userStore.hasResourceCode("project:detail:module:update"),
-            onClick: () => handleEditData(module)
-          },
-          {
-            default: () => "编辑"
-          }
-        ),
         h(
           NPopconfirm,
           {
@@ -234,14 +461,22 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("project:detail:module:delete"),
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: !userStore.hasResourceCode("project:detail:module:delete"),
+                        type: "error"
+                      },
+                      {
+                        default: () => h(NIcon, { component: Delete })
+                      }
+                    )
                 }
               )
           }

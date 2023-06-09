@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getResourceList } from "@/service/api/resource"
-import { assignResource } from "@/service/api/role"
+import { getResourceList } from "@/service/api/settings/resource"
+import { assignResource } from "@/service/api/settings/role"
 import { Resource } from "@/types/user"
 
 const emit = defineEmits(["update:drawerActive"])

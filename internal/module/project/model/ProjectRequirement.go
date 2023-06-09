@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	ProjectRequirementStatusPendingReview = 1 // 待评审
-	ProjectRequirementStatusReviewed      = 2 // 已评审
-	ProjectRequirementStatusCompleted     = 3 // 已完成
+	ProjectRequirementStatusPendingDesign = 1  // 待评审
+	ProjectRequirementStatusPendingReview = 2  // 待评审
+	ProjectRequirementStatusReviewed      = 3  // 评审通过
+	ProjectRequirementStatusCompleted     = 9  // 已完成
+	ProjectRequirementStatusRejected      = -1 // 评审未通过
 )
 
 type ProjectRequirement struct {

@@ -182,6 +182,11 @@ func InitData() {
 					ResourceCode: constant.ResourceProjectModuleDelete,
 					Type:         3,
 				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目模块评审",
+					ResourceCode: constant.ResourceProjectModuleReview,
+					Type:         3,
+				})
 			}
 			// 需求
 			{
@@ -208,6 +213,21 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求详情",
 					ResourceCode: constant.ResourceProjectRequirementInstance,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目需求设计",
+					ResourceCode: constant.ResourceProjectRequirementStatusDesign,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目需求评审",
+					ResourceCode: constant.ResourceProjectRequirementStatusReview,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目需求状态置为已完成",
+					ResourceCode: constant.ResourceProjectRequirementStatusCompleted,
 					Type:         3,
 				})
 			}

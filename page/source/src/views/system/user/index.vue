@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from "vue"
-import { getUserList, updateUser, addUser, deleteUser, getUserRoleIdList } from "@/service/api/user"
+import { getUserList, updateUser, addUser, deleteUser, getUserRoleIdList } from "@/service/api/settings/user"
 import { User, UserCondition } from "@/types/user"
 import { Delete, Edit, Search, UserRole } from "@vicons/carbon"
 import dayjs from "dayjs"

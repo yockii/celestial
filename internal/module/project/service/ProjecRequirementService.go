@@ -188,3 +188,60 @@ func (s *projectRequirementService) Instance(id uint64) (instance *model.Project
 	}
 	return
 }
+
+func (s *projectRequirementService) UpdateStatus(id uint64, status int) (success bool, err error) {
+	if id == 0 {
+		err = errors.New("id is required")
+		return
+	}
+
+	// 获取原始状态
+	var oldStatus int
+	err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: id}).Select("status").First(&oldStatus).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Errorln(err)
+			return
+		}
+		return false, nil
+	}
+
+	// 如果状态相同，则不更新
+	if oldStatus == status {
+		return true, nil
+	}
+
+	// 判断当前状态是否可改变为目标状态
+	canChangeStatus := false
+	switch oldStatus {
+	case model.ProjectRequirementStatusPendingDesign: // 待设计
+		fallthrough
+	case model.ProjectRequirementStatusRejected: // 评审不通过
+		if status == model.ProjectRequirementStatusPendingReview {
+			canChangeStatus = true
+			break
+		}
+	case model.ProjectRequirementStatusPendingReview: // 待评审
+		//ProjectRequirementStatusReviewed || ProjectRequirementStatusRejected
+		if status == model.ProjectRequirementStatusReviewed || status == model.ProjectRequirementStatusRejected {
+			canChangeStatus = true
+			break
+		}
+	case model.ProjectRequirementStatusReviewed: // 评审通过
+		//ProjectRequirementStatusCompleted
+		if status == model.ProjectRequirementStatusCompleted {
+			canChangeStatus = true
+			break
+		}
+
+	}
+	if canChangeStatus {
+		err = database.DB.Model(&model.ProjectRequirement{ID: id}).Update("status", status).Error
+		if err != nil {
+			logger.Errorln(err)
+			return
+		}
+		success = true
+	}
+	return
+}

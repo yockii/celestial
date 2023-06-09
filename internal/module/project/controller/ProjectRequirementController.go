@@ -201,3 +201,87 @@ func (c *projectRequirementController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+// StatusDesigned 状态改为设计完成，即待评审
+func (c *projectRequirementController) StatusDesigned(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectRequirement)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, model.ProjectRequirementStatusPendingReview)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}
+
+// StatusReview 评审，状态可能改为评审通过或不通过
+func (c *projectRequirementController) StatusReview(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectRequirement)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if instance.ID == 0 || instance.Status == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id & status",
+		})
+	}
+	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, instance.Status)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}
+
+// StatusCompleted 状态改为已完成
+func (c *projectRequirementController) StatusCompleted(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectRequirement)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, model.ProjectRequirementStatusCompleted)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}

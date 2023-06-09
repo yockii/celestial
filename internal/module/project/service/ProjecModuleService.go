@@ -116,7 +116,6 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 				Alias:     instance.Alias,
 				Remark:    instance.Remark,
 				CreatorID: instance.CreatorID,
-				Status:    instance.Status,
 			}).Error; err != nil {
 				logger.Errorln(err)
 				return err
@@ -132,7 +131,6 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 			Alias:     instance.Alias,
 			Remark:    instance.Remark,
 			CreatorID: instance.CreatorID,
-			Status:    instance.Status,
 		}).Error; err != nil {
 			logger.Errorln(err)
 			return
@@ -215,6 +213,50 @@ func (s *projectModuleService) Instance(id uint64) (instance *model.ProjectModul
 		}
 		logger.Errorln(err)
 		return
+	}
+	return
+}
+
+func (s *projectModuleService) UpdateStatus(id uint64, status int) (success bool, err error) {
+	if id == 0 {
+		err = errors.New("id is required")
+		return
+	}
+	// 获取原始状态
+	var oldStatus int
+	if err = database.DB.Model(&model.ProjectModule{ID: id}).Select("status").First(&oldStatus).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Errorln(err)
+			return
+		}
+		return false, nil
+	}
+	if oldStatus == status {
+		return true, nil
+	}
+
+	// 判断当前状态是否可改变为目标状态
+	canChangeStatus := false
+	switch oldStatus {
+	case model.ProjectModuleStatusPendingReview: // 待评审
+		fallthrough
+	case model.ProjectModuleStatusRejected: // 评审不通过
+		if status == model.ProjectModuleStatusPendingDev {
+			canChangeStatus = true
+		}
+	case model.ProjectModuleStatusPendingDev: // 评审通过待开发
+		if status == model.ProjectModuleStatusCompleted {
+			canChangeStatus = true
+		}
+	}
+
+	if canChangeStatus {
+		err = database.DB.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: id}).Update("status", status).Error
+		if err != nil {
+			logger.Errorln(err)
+			return
+		}
+		success = true
 	}
 	return
 }

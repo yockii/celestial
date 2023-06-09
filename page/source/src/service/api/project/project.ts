@@ -1,4 +1,4 @@
-import {request} from "../request";
+import {request} from "../../request";
 import type {Paginate} from "@/types/common"
 import {Project, ProjectCondition, ProjectStageStatistics, ProjectMember} from "@/types/project"
 

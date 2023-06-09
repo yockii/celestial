@@ -3,10 +3,12 @@ import { CheckmarkCircle } from "@vicons/ionicons5"
 import { useUserStore } from "@/store/user"
 import { ProjectAsset, ProjectAssetCondition } from "@/types/project"
 import dayjs from "dayjs"
-import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NPopconfirm, PaginationProps } from "naive-ui"
+import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon, NPopconfirm, NTooltip, PaginationProps } from "naive-ui"
 import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
+import { getProjectAssetList } from "@/service/api/project/projectAsset"
+import { Delete, Edit } from "@vicons/carbon"
 const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -35,7 +37,7 @@ const types = ref<{ key: number; label: string }[]>([
   }
 ])
 const tagSelected = (type: number) => {
-  condition.value.type = type
+  condition.value.type = condition.value.type === type ? 0 : type
   refresh()
 }
 
@@ -46,7 +48,7 @@ const condition = ref<ProjectAssetCondition>({
 })
 const list = ref<ProjectAsset[]>([])
 const loading = ref(false)
-const pagination = ref({
+const pagination = reactive({
   itemCount: 0,
   page: 1,
   pageCount: 1,
@@ -162,16 +164,24 @@ const columns = [
     render: (row: ProjectAsset) => {
       return h(NButtonGroup, {}, () => [
         h(
-          NButton,
+          NTooltip,
+          {},
           {
-            size: "small",
-            secondary: true,
-            type: "primary",
-            disabled: !userStore.hasResourceCode("project:detail:asset:edit"),
-            onClick: () => handleEditData(row)
-          },
-          {
-            default: () => "编辑"
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !userStore.hasResourceCode("project:detail:asset:edit"),
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: Edit })
+                }
+              )
           }
         ),
         h(
@@ -183,14 +193,22 @@ const columns = [
             default: () => "确认删除",
             trigger: () =>
               h(
-                NButton,
+                NTooltip,
+                {},
                 {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("project:detail:asset:delete"),
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        disabled: !userStore.hasResourceCode("project:detail:asset:delete"),
+                        type: "error"
+                      },
+                      {
+                        default: () => h(NIcon, { component: Delete })
+                      }
+                    )
                 }
               )
           }
@@ -234,7 +252,17 @@ const handleFiltersChange = (filters: DataTableFilterState, sourceColumn: DataTa
 }
 
 const refresh = () => {
-  console.log("refresh")
+  loading.value = true
+  getProjectAssetList(condition.value)
+    .then((res) => {
+      list.value = res.items
+      pagination.itemCount = res.total
+      pagination.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
+      pagination.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 // 增改资产
@@ -274,7 +302,7 @@ const handleDeleteData = (id: string) => {
     <n-gi>
       <n-space justify="space-between">
         <n-space>
-          <n-tag v-for="t in types" :key="t.key" @click="tagSelected(t.key)" class="cursor-pointer">
+          <n-tag v-for="t in types" :key="t.key" @click="tagSelected(t.key)" class="cursor-pointer" :type="t.key === condition.type ? 'primary' : ''">
             <template v-if="t.key === condition.type" #icon>
               <n-icon :component="CheckmarkCircle" />
             </template>

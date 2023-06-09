@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addProjectMembers } from "@/service/api/project"
+import { addProjectMembers } from "@/service/api/project/project"
 import { Role } from "@/types/user"
 import { Project, ProjectMember } from "@/types/project"
 import { computed } from "vue"
@@ -124,14 +124,18 @@ onMounted(() => {
   <n-grid :cols="2" class="mb-16px">
     <n-gi class="text-1.2em op-90 font-500">项目组</n-gi>
     <n-gi class="flex flex-justify-end">
-      <n-button size="small" @click="manageActive = true" v-resource-code="['project:detail:member:add', 'project:detail:member:delete']">
-        <template #icon>
-          <n-icon>
-            <IdManagement />
-          </n-icon>
+      <n-tooltip v-resource-code="['project:detail:member:add', 'project:detail:member:delete']">
+        <template #trigger>
+          <n-button size="small" @click="manageActive = true">
+            <template #icon>
+              <n-icon>
+                <IdManagement />
+              </n-icon>
+            </template>
+          </n-button>
         </template>
-        管理
-      </n-button>
+        管理项目组成员
+      </n-tooltip>
     </n-gi>
   </n-grid>
   <n-grid :cols="5">

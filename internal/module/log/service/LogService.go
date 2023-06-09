@@ -70,14 +70,12 @@ func (s *stageService) PaginateBetweenTimes(condition *model.Log, limit int, off
 	}
 
 	if condition != nil {
-		if condition.Action != "" {
-			tx = tx.Where("action like ?", "%"+condition.Action+"%")
-		}
 	}
 
 	err = tx.Find(&list, &model.Log{
 		TargetID:   condition.TargetID,
 		TargetType: condition.TargetType,
+		Action:     condition.Action,
 		Status:     condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
