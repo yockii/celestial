@@ -153,7 +153,7 @@ const columns = [
   statusColumn,
   {
     title: "创建时间",
-    key: "createdAt",
+    key: "createTime",
     render: (row: ProjectAsset) => {
       return dayjs(row.createTime).format("YYYY-MM-DD HH:mm:ss")
     }

@@ -1,4 +1,5 @@
 import { Condition } from "./common"
+import { User } from "./user"
 
 export type AssetCategory = {
   id: string
@@ -48,9 +49,11 @@ export type File = {
   ossConfigId?: string
   name: string
   suffix?: string
-  size: number
+  size?: number
   objName?: string
   creatorId?: string
+  createTime?: number
+  creator?: User
 }
 
 export type FileCondition = Condition & {

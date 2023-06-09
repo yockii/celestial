@@ -7,10 +7,13 @@ import (
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
+	ucService "github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/server"
 	"mime/multipart"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var AssetFileController = new(assetFileController)
@@ -80,6 +83,15 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 				fileName := fileHeader.Filename
 				instance.OriginName = fileName
 				instance.Suffix = fileName[strings.LastIndex(fileName, ".")+1:]
+
+				instance.CreatorID, err = helper.GetCurrentUserID(ctx)
+				if err != nil {
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeParamNotEnough,
+						Msg:  server.ResponseMsgParamNotEnough + " user Id",
+					})
+				}
+
 				var file multipart.File
 				file, err = fileHeader.Open()
 				if err != nil {
@@ -217,10 +229,37 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	var resultList []*domain.AssetFileWithCreator
+	{
+		var wg sync.WaitGroup
+		for _, item := range list {
+			fwu := &domain.AssetFileWithCreator{
+				File: *item,
+			}
+			resultList = append(resultList, fwu)
+			wg.Add(1)
+			go func(result *domain.AssetFileWithCreator) {
+				defer wg.Done()
+				user, err := ucService.UserService.Instance(&ucModel.User{ID: result.CreatorID})
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				result.Creator = &ucModel.User{
+					ID:       user.ID,
+					Username: user.Username,
+					RealName: user.RealName,
+				}
+			}(fwu)
+		}
+		wg.Wait()
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,
-			Items:  list,
+			Items:  resultList,
 			Limit:  paginate.Limit,
 			Offset: paginate.Offset,
 		},
