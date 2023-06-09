@@ -265,7 +265,16 @@ const columns = [
             size: "small",
             disabled: !userStore.hasResourceCode("project:detail:task:add"),
             onClick: () => {
-              console.log(1)
+              currentData.value = {
+                id: "",
+                projectId: row.projectId,
+                parentId: row.id,
+                name: "",
+                moduleId: row.moduleId,
+                requirementId: row.requirementId,
+                stageId: row.stageId
+              }
+              drawerActive.value = true
             }
           },
           {
