@@ -317,7 +317,7 @@ const rules = {
         <n-form-item label="区域编码" path="region" label-placement="left" label-align="left">
           <n-input v-model:value="checkedData.region" placeholder="请输入区域编码" />
         </n-form-item>
-        <n-form-item label="是否HTTPS" path="selfDomain" label-placement="left" label-align="left">
+        <n-form-item label="自定义域名" path="selfDomain" label-placement="left" label-align="left">
           <n-radio-group v-model:value="checkedData.selfDomain" name="selfDomain">
             <n-space>
               <n-radio :value="1">是</n-radio>
@@ -325,7 +325,7 @@ const rules = {
             </n-space>
           </n-radio-group>
         </n-form-item>
-        <n-form-item label="自定义域名" path="secure" label-placement="left" label-align="left">
+        <n-form-item label="是否HTTPS" path="secure" label-placement="left" label-align="left">
           <n-radio-group v-model:value="checkedData.secure" name="secure">
             <n-space>
               <n-radio :value="1">是</n-radio>
