@@ -87,7 +87,11 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 					return c.Status(fiber.StatusInternalServerError).SendString("系统错误")
 				}
 				for _, role := range roles {
+					// 缓存用户的角色
 					_, _ = conn.Do("SADD", shared.RedisKeyUserRoles+uid, role.ID)
+					// 缓存角色的数据权限
+					_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, role.ID, role.DataPermission)
+
 					if userDataPerm == 0 || role.DataPermission < userDataPerm {
 						userDataPerm = role.DataPermission
 					}
@@ -97,6 +101,7 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 			}
 			_, _ = conn.Do("EXPIRE", shared.RedisKeyUserRoles+uid, 3*24*60*60)
 			_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uid, 3*24*60*60)
+			_, _ = conn.Do("EXPIRE", constant.RedisKeyRoleDataPerm, 3*24*60*60)
 
 			hasAuth := false
 			if _, ok := codeMap["user"]; ok {

@@ -2,8 +2,11 @@ package service
 
 import (
 	"errors"
+	"github.com/gomodule/redigo/redis"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/uc/model"
+	"github.com/yockii/ruomu-core/cache"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -67,6 +70,7 @@ func (s *roleService) Update(instance *model.Role) (success bool, err error) {
 		return
 	}
 	success = true
+	s.removeCache(instance.ID)
 	return
 }
 
@@ -204,4 +208,12 @@ func (*roleService) SetDefault(id uint64) error {
 		}
 		return nil
 	})
+}
+
+func (s *roleService) removeCache(id uint64) {
+	conn := cache.Get()
+	defer func(conn redis.Conn) {
+		_ = conn.Close()
+	}(conn)
+	_, _ = conn.Do("HDEL", constant.RedisKeyRoleDataPerm, id)
 }
