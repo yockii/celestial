@@ -146,9 +146,27 @@ func (s *projectModuleService) Delete(id uint64) (success bool, err error) {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.ProjectModule{ID: id}).Delete(&model.ProjectModule{}).Error
-	if err != nil {
-		logger.Errorln(err)
+
+	// 事务处理，如果有更新父级的子数量
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		var parentID uint64
+		if err = tx.Model(&model.ProjectModule{ID: id}).Select("parent_id").First(&parentID).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除
+		if err = tx.Delete(&model.ProjectModule{ID: id}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if parentID != 0 {
+			if err = tx.Model(&model.ProjectModule{ID: parentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
