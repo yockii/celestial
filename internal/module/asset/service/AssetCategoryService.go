@@ -104,9 +104,26 @@ func (s *assetCategoryService) Delete(id uint64) (success bool, err error) {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.AssetCategory{ID: id}).Delete(&model.AssetCategory{}).Error
-	if err != nil {
-		logger.Errorln(err)
+
+	// 事务处理，删除资源的同时，更新父级的子级数量
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		var parentID uint64
+		if err = tx.Model(&model.AssetCategory{ID: id}).Select("parent_id").Scan(&parentID).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if err = tx.Where(&model.AssetCategory{ID: id}).Delete(&model.AssetCategory{}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if parentID != 0 {
+			if err = tx.Model(&model.AssetCategory{ID: parentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
