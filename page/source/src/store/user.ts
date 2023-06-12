@@ -1,5 +1,6 @@
 import { defineStore } from "pinia"
 import { User } from "@/types/user"
+import { RouteHistory } from "@/types/app"
 
 export const useUserStore = defineStore("user", {
   state: (): {
@@ -8,6 +9,7 @@ export const useUserStore = defineStore("user", {
     isSuperAdmin: boolean
     resourceCodes: string[]
     dataPermission: number
+    history: RouteHistory[]
   } => ({
     user: {
       id: "",
@@ -17,7 +19,8 @@ export const useUserStore = defineStore("user", {
     token: "",
     isSuperAdmin: false,
     resourceCodes: [],
-    dataPermission: 0
+    dataPermission: 0,
+    history: []
   }),
   getters: {
     username: (state) => state.user.username,
@@ -43,6 +46,19 @@ export const useUserStore = defineStore("user", {
     },
     hasResourceCode(resourceCode: string) {
       return this.isSuperAdmin || this.resourceCodes.includes(resourceCode)
+    },
+    addRoute(route: RouteHistory) {
+      // 如果当前路由已经存在，删除之前的记录
+      const index = this.history.findIndex((item) => item.url === route.url)
+      if (index > -1) {
+        this.history.splice(index, 1)
+      }
+      if (this.history.length >= 20) {
+        // 超过20条记录，删除最早的一条
+        this.history.shift()
+      }
+      // 添加新的记录
+      this.history.push(route)
     }
   },
   persist: {

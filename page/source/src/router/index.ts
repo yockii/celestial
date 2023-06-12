@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
 import { useUserStore } from "@/store/user"
 import { createDiscreteApi } from "naive-ui"
+import { useProjectStore } from "@/store/project"
 const { loadingBar } = createDiscreteApi(["loadingBar"])
 
 const routes: Array<RouteRecordRaw> = [
@@ -20,11 +21,17 @@ const routes: Array<RouteRecordRaw> = [
     alias: "/",
     component: () => import("@/layout/Primary.vue"),
     redirect: { name: "Dashboard" },
+    meta: {
+      label: () => "首页"
+    },
     children: [
       {
         path: "dashboard",
         name: "Dashboard",
-        component: () => import("@/views/index/dashboard/index.vue")
+        component: () => import("@/views/index/dashboard/index.vue"),
+        meta: {
+          label: () => "首页"
+        }
       }
     ]
   },
@@ -32,16 +39,109 @@ const routes: Array<RouteRecordRaw> = [
     path: "/project",
     name: "Project",
     component: () => import("@/layout/Primary.vue"),
+    meta: {
+      label: () => "项目列表"
+    },
     children: [
       {
         path: "list",
         name: "ProjectList",
-        component: () => import("@/views/project/list/index.vue")
+        component: () => import("@/views/project/list/index.vue"),
+        meta: {
+          label: () => "项目列表"
+        }
       },
       {
         path: "detail/:id",
         name: "ProjectDetail",
-        component: () => import("@/views/project/detail/index.vue")
+        component: () => import("@/views/project/detail/index.vue"),
+        meta: {
+          label: () => `项目[${useProjectStore().project.name}]总览`
+        },
+        children: [
+          {
+            path: "dashboard",
+            alias: "",
+            name: "ProjectDashboard",
+            meta: {
+              title: "项目总览",
+              label: () => `项目[${useProjectStore().project.name}]总览`
+            },
+            component: () => import("@/views/project/detail/dashboard/index.vue")
+          },
+          {
+            path: "plan",
+            name: "ProjectPlan",
+            meta: {
+              title: "项目计划",
+              label: () => `项目[${useProjectStore().project.name}]计划`
+            },
+            component: () => import("@/views/project/detail/plan/index.vue")
+          },
+          {
+            path: "module",
+            name: "ProjectModule",
+            meta: {
+              title: "功能模块",
+              label: () => `项目[${useProjectStore().project.name}]功能模块`
+            },
+            component: () => import("@/views/project/detail/module/index.vue")
+          },
+          {
+            path: "requirement",
+            name: "ProjectRequirement",
+            meta: {
+              title: "项目需求",
+              label: () => `项目[${useProjectStore().project.name}]需求`
+            },
+            component: () => import("@/views/project/detail/requirement/index.vue")
+          },
+          {
+            path: "task",
+            name: "ProjectTask",
+            meta: {
+              title: "工作任务",
+              label: () => `项目[${useProjectStore().project.name}]工作任务`
+            },
+            component: () => import("@/views/project/detail/task/index.vue")
+          },
+          {
+            path: "test",
+            name: "ProjectTest",
+            meta: {
+              title: "测试用例",
+              label: () => `项目[${useProjectStore().project.name}]测试用例`
+            },
+            component: () => import("@/views/project/detail/test/index.vue")
+          },
+          {
+            path: "issue",
+            name: "ProjectIssue",
+            meta: {
+              title: "项目缺陷",
+              label: () => `项目[${useProjectStore().project.name}]缺陷`
+            },
+            component: () => import("@/views/project/detail/issue/index.vue")
+          },
+          {
+            path: "risk",
+            name: "ProjectRisk",
+            meta: {
+              title: "项目风险",
+              label: () => `项目[${useProjectStore().project.name}]风险`
+            },
+            component: () => import("@/views/project/detail/risk/index.vue")
+          },
+          {
+            path: "asset",
+            name: "ProjectAsset",
+            meta: {
+              title: "项目资产",
+              label: () => `项目[${useProjectStore().project.name}]资产`
+            },
+            component: () => import("@/views/project/detail/asset/index.vue")
+          }
+        ]
       }
     ]
   },
@@ -53,7 +153,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "list",
         name: "TaskList",
-        component: () => import("@/views/project/list/index.vue")
+        component: () => import("@/views/project/list/index.vue"),
+        meta: {
+          label: () => "任务列表"
+        }
       }
     ]
   },
@@ -65,7 +168,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "list",
         name: "TestList",
-        component: () => import("@/views/project/list/index.vue")
+        component: () => import("@/views/project/list/index.vue"),
+        meta: {
+          label: () => "测试列表"
+        }
       }
     ]
   },
@@ -77,12 +183,18 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "file",
         name: "File",
-        component: () => import("@/views/asset/file/index.vue")
+        component: () => import("@/views/asset/file/index.vue"),
+        meta: {
+          label: () => "资产文件管理"
+        }
       },
       {
         path: "testcaselib",
         name: "TestCaseLib",
-        component: () => import("@/views/asset/testCaseLib/index.vue")
+        component: () => import("@/views/asset/testCaseLib/index.vue"),
+        meta: {
+          label: () => "测试用例库"
+        }
       }
     ]
   },
@@ -94,32 +206,50 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "user",
         name: "User",
-        component: () => import("@/views/system/user/index.vue")
+        component: () => import("@/views/system/user/index.vue"),
+        meta: {
+          label: () => "用户管理"
+        }
       },
       {
         path: "role",
         name: "Role",
-        component: () => import("@/views/system/role/index.vue")
+        component: () => import("@/views/system/role/index.vue"),
+        meta: {
+          label: () => "角色管理"
+        }
       },
       {
         path: "stage",
         name: "Stage",
-        component: () => import("@/views/system/stage/index.vue")
+        component: () => import("@/views/system/stage/index.vue"),
+        meta: {
+          label: () => "阶段管理"
+        }
       },
       {
         path: "assetCategory",
         name: "AssetCategory",
-        component: () => import("@/views/system/assetCategory/index.vue")
+        component: () => import("@/views/system/assetCategory/index.vue"),
+        meta: {
+          label: () => "资产分类管理"
+        }
       },
       {
         path: "thirdSource",
         name: "ThirdSource",
-        component: () => import("@/views/system/thirdSource/index.vue")
+        component: () => import("@/views/system/thirdSource/index.vue"),
+        meta: {
+          label: () => "第三方登录源管理"
+        }
       },
       {
         path: "ossConfig",
         name: "OssConfig",
-        component: () => import("@/views/system/ossConfig/index.vue")
+        component: () => import("@/views/system/ossConfig/index.vue"),
+        meta: {
+          label: () => "OSS配置管理"
+        }
       }
     ]
   }
@@ -131,8 +261,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  loadingBar.start()
   const userStore = useUserStore()
+  userStore.addRoute({
+    url: from.fullPath as string,
+    label: (from.meta?.label ? from.meta?.label() : from.name || from.fullPath) as string,
+    time: new Date().getTime()
+  })
+  loadingBar.start()
   if (!userStore.token && to.name !== "Login" && to.name !== "Auth") {
     next({ name: "Login" })
   } else {

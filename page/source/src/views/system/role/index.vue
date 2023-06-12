@@ -225,14 +225,14 @@ const columns = [
           NTooltip,
           {},
           {
-            default: () => "分配资源",
+            default: () => (row.type === -1 ? "超级管理员无需分配资源" : "分配资源"),
             trigger: () =>
               h(
                 NButton,
                 {
                   size: "small",
                   type: "warning",
-                  disabled: !userStore.hasResourceCode("system:role:dispatchResources"),
+                  disabled: !userStore.hasResourceCode("system:role:dispatchResources") || row.type === -1,
                   onClick: () => handleAssignResource(row)
                 },
                 {

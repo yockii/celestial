@@ -5,33 +5,46 @@
   </n-text>
   <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">
-    <n-switch size="small" :value="themeMode" :on-update:value="changeTheme">
-      <template #checked>
-        <n-icon>
-          <Sunny />
-        </n-icon>
-      </template>
-      <template #unchecked>
-        <n-icon>
-          <Moon />
-        </n-icon>
-      </template>
-    </n-switch>
-    <span style="margin-left: 16px"> {{ welcome }}, <user-dropdown :name="realName || '未登录'" />!</span>
+    <n-space>
+      <n-dropdown trigger="hover" :options="history" key-field="url" show-arrow @select="gotoHistory" :render-option="renderHistory">
+        <n-text class="cursor-pointer">
+          <n-icon>
+            <Footsteps />
+          </n-icon>
+        </n-text>
+      </n-dropdown>
+      <n-switch size="small" :value="themeMode" :on-update:value="changeTheme">
+        <template #checked>
+          <n-icon>
+            <Sunny />
+          </n-icon>
+        </template>
+        <template #unchecked>
+          <n-icon>
+            <Moon />
+          </n-icon>
+        </template>
+      </n-switch>
+      <span> {{ welcome }}, <user-dropdown :name="realName || '未登录'" />!</span>
+    </n-space>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
-import { Sunny, Moon } from "@vicons/ionicons5"
+import { ref, computed, onMounted, VNode } from "vue"
+import { Sunny, Moon, Footsteps } from "@vicons/ionicons5"
 import { useAppStore } from "@/store/app"
 import { useUserStore } from "@/store/user"
 import { useMemStore } from "@/store/mem"
 import { storeToRefs } from "pinia"
 import UserDropdown from "@/components/user/UserDropdown.vue"
+import { RouteHistory } from "@/types/app"
+import { NTooltip } from "naive-ui"
+import dayjs from "dayjs"
 const appStore = useAppStore()
 const userStore = useUserStore()
 const memStore = useMemStore()
+const router = useRouter()
 
 const themeMode = computed(() => {
   return appStore.theme === "dark"
@@ -40,7 +53,7 @@ const logoColor = computed(() => {
   return appStore.theme === "dark" ? "#fff" : "#0582EE"
 })
 const welcome = ref<string>("欢迎")
-const { realName } = storeToRefs(userStore)
+const { realName, history } = storeToRefs(userStore)
 
 const changeTheme = (value: boolean) => {
   appStore.setTheme(value ? "dark" : "light")
@@ -48,6 +61,20 @@ const changeTheme = (value: boolean) => {
 
 const { mainMenus: menuOptions } = storeToRefs(memStore)
 
+const renderHistory = ({ node, option }: { node: VNode; option: RouteHistory }) => {
+  console.log(option)
+  return h(
+    NTooltip,
+    { keepAliveOnHover: false, style: { width: "max-content" } },
+    {
+      trigger: () => [node],
+      default: () => dayjs(option.time).fromNow() + " " + option.url
+    }
+  )
+}
+const gotoHistory = (key: string | number) => {
+  router.push(key as string)
+}
 onMounted(() => {
   const hour = new Date().getHours()
   if (hour >= 6 && hour < 12) {

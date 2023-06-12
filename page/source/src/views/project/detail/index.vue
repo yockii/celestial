@@ -5,22 +5,24 @@ import { Project } from "@/types/project"
 import { deleteProject, getProjectDetail, updateProject } from "@/service/api/project/project"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
-import Dashboard from "./dashboard/index.vue"
-import Plan from "./plan/index.vue"
-import Module from "./module/index.vue"
-import Requirement from "./requirement/index.vue"
-import Task from "./task/index.vue"
-import Test from "./test/index.vue"
-import Issue from "./issue/index.vue"
-import Risk from "./risk/index.vue"
-import Asset from "./asset/index.vue"
+// import Dashboard from "./dashboard/index.vue"
+// import Plan from "./plan/index.vue"
+// import Module from "./module/index.vue"
+// import Requirement from "./requirement/index.vue"
+// import Task from "./task/index.vue"
+// import Test from "./test/index.vue"
+// import Issue from "./issue/index.vue"
+// import Risk from "./risk/index.vue"
+// import Asset from "./asset/index.vue"
 import { FormInst, NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 
 const router = useRouter()
-const id = useRoute().params.id as string
-const { project, tab } = storeToRefs(useProjectStore())
+const route = useRoute()
+const id = route.params.id as string
+const tab = computed(() => route.meta.title as string)
+const { project } = storeToRefs(useProjectStore())
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
@@ -79,6 +81,38 @@ const doDeleteProject = () => {
   }
 }
 
+const handleChangeTab = (value: string | number) => {
+  switch (value) {
+    case "项目总览":
+      router.push(`/project/detail/${id}`)
+      break
+    case "项目计划":
+      router.push(`/project/detail/${id}/plan`)
+      break
+    case "功能模块":
+      router.push(`/project/detail/${id}/module`)
+      break
+    case "项目需求":
+      router.push(`/project/detail/${id}/requirement`)
+      break
+    case "工作任务":
+      router.push(`/project/detail/${id}/task`)
+      break
+    case "测试用例":
+      router.push(`/project/detail/${id}/test`)
+      break
+    case "项目缺陷":
+      router.push(`/project/detail/${id}/issue`)
+      break
+    case "项目风险":
+      router.push(`/project/detail/${id}/risk`)
+      break
+    case "项目资产":
+      router.push(`/project/detail/${id}/asset`)
+      break
+  }
+}
+
 onMounted(() => {
   getProjectDetail(id).then((res) => {
     project.value = res
@@ -100,7 +134,7 @@ onMounted(() => {
         </n-gi>
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
-            <n-tabs id="project-tabs" v-model:value="tab" type="line" justify-content="space-between">
+            <n-tabs id="project-tabs" :value="tab" type="line" justify-content="space-between" @update:value="handleChangeTab">
               <n-tab name="项目总览" v-resource-code="'project:detail'"></n-tab>
               <n-tab name="项目计划" v-resource-code="'project:detail:plan'"></n-tab>
               <n-tab name="功能模块" v-resource-code="'project:detail:module'"></n-tab>
@@ -130,7 +164,12 @@ onMounted(() => {
     </n-layout-header>
     <n-layout-content content-style="margin: 16px;">
       <template v-if="project?.id">
-        <keep-alive>
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
+        <!-- <keep-alive>
           <dashboard v-if="project && tab == '项目总览'" />
         </keep-alive>
         <keep-alive>
@@ -156,7 +195,7 @@ onMounted(() => {
         </keep-alive>
         <keep-alive>
           <asset v-if="project && tab == '项目资产'" />
-        </keep-alive>
+        </keep-alive> -->
       </template>
     </n-layout-content>
   </n-layout>
