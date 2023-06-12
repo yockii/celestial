@@ -56,21 +56,23 @@ export type ProjectPlanCondition = Condition & {
 export type ProjectRisk = {
   id: string
   projectId: string
-  stageId: string
+  stageId?: string
   riskName: string
-  riskProbability: number
-  riskImpact: number
-  riskLevel: number
+  riskDesc?: string
+  riskProbability?: number
+  riskImpact?: number
+  riskLevel?: number
   status: number
-  response: string
-  startTime: number
-  endTime: number
-  result: string
+  response?: string
+  startTime?: number
+  endTime?: number
+  result?: string
   createTime?: number
 }
 export type ProjectRiskCondition = Condition & {
-  name: string
-  stageId: string
+  name?: string
+  projectId: string
+  status?: number
 }
 
 export type ProjectTaskWorkTimeStatistics = {

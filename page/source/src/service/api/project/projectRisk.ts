@@ -24,7 +24,7 @@ export function addProjectRisk(projectRisk: ProjectRisk) {
  * 获取项目风险详情
  * @param id - 项目风险id
  */
-export function getProjectRiskDetail(id: string) {
+export function getProjectRisk(id: string) {
   return request.get<ProjectRisk>(`/projectRisk/instance?id=${id}`)
 }
 
@@ -41,4 +41,20 @@ export function getProjectRiskCoefficient(projectId: string) {
       projectId
     }
   })
+}
+
+/**
+ * 修改项目风险
+ * @param projectRisk - 项目风险信息
+ */
+export function updateProjectRisk(projectRisk: ProjectRisk) {
+  return request.put<boolean>("/projectRisk/update", projectRisk)
+}
+
+/**
+ * 删除项目风险
+ * @param id - 项目风险id
+ */
+export function deleteProjectRisk(id: string) {
+  return request.delete<boolean>(`/projectRisk/delete?id=${id}`)
 }

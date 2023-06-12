@@ -56,6 +56,7 @@ func (s *projectRiskService) Update(instance *model.ProjectRisk) (success bool, 
 		ProjectID:       instance.ProjectID,
 		StageID:         instance.StageID,
 		RiskName:        instance.RiskName,
+		RiskDesc:        instance.RiskDesc,
 		RiskProbability: instance.RiskProbability,
 		RiskImpact:      instance.RiskImpact,
 		RiskLevel:       instance.RiskLevel,
@@ -63,7 +64,7 @@ func (s *projectRiskService) Update(instance *model.ProjectRisk) (success bool, 
 		StartTime:       instance.StartTime,
 		EndTime:         instance.EndTime,
 		Result:          instance.Result,
-		CreateUserID:    instance.CreateUserID,
+		CreatorID:       instance.CreatorID,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -90,7 +91,7 @@ func (s *projectRiskService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *projectRiskService) PaginateBetweenTimes(condition *model.ProjectRisk, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectRisk, err error) {
-	tx := database.DB.Model(&model.ProjectRisk{}).Limit(100)
+	tx := database.DB.Model(&model.ProjectRisk{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}
@@ -120,13 +121,16 @@ func (s *projectRiskService) PaginateBetweenTimes(condition *model.ProjectRisk, 
 		}
 	}
 
+	// 忽略大字段
+	tx.Omit("risk_desc", "response", "result")
+
 	err = tx.Find(&list, &model.ProjectRisk{
 		ProjectID:       condition.ProjectID,
 		StageID:         condition.StageID,
 		RiskProbability: condition.RiskProbability,
 		RiskImpact:      condition.RiskImpact,
 		RiskLevel:       condition.RiskLevel,
-		CreateUserID:    condition.CreateUserID,
+		CreatorID:       condition.CreatorID,
 		Status:          condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {

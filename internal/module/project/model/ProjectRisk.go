@@ -18,6 +18,7 @@ type ProjectRisk struct {
 	ProjectID       uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
 	StageID         uint64         `json:"stageId,omitempty,string" gorm:"index;comment:阶段ID"`
 	RiskName        string         `json:"riskName,omitempty" gorm:"size:50;comment:风险名称"`
+	RiskDesc        string         `json:"riskDesc,omitempty" gorm:"comment:风险描述"`
 	RiskProbability int            `json:"riskProbability,omitempty" gorm:"comment:风险概率 1-低 2-中 3-高"`
 	RiskImpact      int            `json:"riskImpact,omitempty" gorm:"comment:风险影响 1-低 2-中 3-高"`
 	RiskLevel       int            `json:"riskLevel,omitempty" gorm:"comment:风险等级 1-低 2-中 3-高"`
@@ -26,7 +27,7 @@ type ProjectRisk struct {
 	StartTime       int64          `json:"startTime,omitempty" gorm:"comment:开始时间"`
 	EndTime         int64          `json:"endTime,omitempty" gorm:"comment:结束时间"`
 	Result          string         `json:"result,omitempty" gorm:"comment:应对结果总结"`
-	CreateUserID    uint64         `json:"createUserId,omitempty,string" gorm:"index;comment:创建人ID"`
+	CreatorID       uint64         `json:"creatorId,omitempty,string" gorm:"index;comment:创建人ID"`
 	CreateTime      int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime      int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime      gorm.DeletedAt `json:"deleteTime" gorm:"index"`
@@ -42,6 +43,7 @@ func (pr *ProjectRisk) UnmarshalJSON(b []byte) error {
 	pr.ProjectID = j.Get("projectId").Uint()
 	pr.StageID = j.Get("stageId").Uint()
 	pr.RiskName = j.Get("riskName").String()
+	pr.RiskDesc = j.Get("riskDesc").String()
 	pr.RiskProbability = int(j.Get("riskProbability").Int())
 	pr.RiskImpact = int(j.Get("riskImpact").Int())
 	pr.RiskLevel = int(j.Get("riskLevel").Int())
@@ -50,7 +52,7 @@ func (pr *ProjectRisk) UnmarshalJSON(b []byte) error {
 	pr.StartTime = j.Get("startTime").Int()
 	pr.EndTime = j.Get("endTime").Int()
 	pr.Result = j.Get("result").String()
-	pr.CreateUserID = j.Get("createUserId").Uint()
+	pr.CreatorID = j.Get("creatorId").Uint()
 
 	return nil
 }
