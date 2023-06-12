@@ -7,9 +7,8 @@ import { addProjectTask, getProjectTaskList, updateProjectTask } from "@/service
 import { getProjectRequirementList } from "@/service/api/project/projectRequirement"
 const message = useMessage()
 const projectStore = useProjectStore()
-const { modules, moduleTree, memberList } = storeToRefs(projectStore)
+const { project, modules, moduleTree, memberList } = storeToRefs(projectStore)
 const props = defineProps<{
-  projectId: string
   drawerActive: boolean
   data: ProjectTask
 }>()
@@ -68,7 +67,7 @@ const loadRequirementList = (moduleId: string) => {
     if (module) {
       // 从接口获取需求列表
       getProjectRequirementList({
-        projectId: props.projectId,
+        projectId: project.value.id,
         fullPath: module.fullPath,
         offset: -1,
         limit: -1
@@ -150,7 +149,7 @@ const loadParentTask = (keyword = "", id = "") => {
   loadingParentTask.value = true
   const params = {
     id,
-    projectId: props.projectId,
+    projectId: project.value.id,
     offset: 0,
     limit: 10,
     name: keyword

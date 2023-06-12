@@ -38,13 +38,23 @@ func (s *projectTaskService) Add(instance *model.ProjectTask, members []*domain.
 	}
 
 	// 获取对应的需求，赋值fullPath
-	requirement := &projectModel.ProjectRequirement{ID: instance.RequirementID}
-	if err = database.DB.Model(requirement).First(&requirement).Error; err != nil {
-		logger.Errorln(err)
-		return
+	// 如果有父级任务，赋值fullPath
+	var parent *model.ProjectTask
+	if instance.ParentID != 0 {
+		parent = &model.ProjectTask{ID: instance.ParentID}
+		if err = database.DB.Model(parent).First(&parent).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.FullPath = parent.FullPath + "/" + instance.Name
+	} else {
+		requirement := &projectModel.ProjectRequirement{ID: instance.RequirementID}
+		if err = database.DB.Model(requirement).First(&requirement).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.FullPath = requirement.FullPath + "/" + instance.Name
 	}
-	instance.FullPath = requirement.FullPath + "/" + instance.Name
-
 	instance.ID = util.SnowflakeId()
 	instance.Status = model.ProjectTaskStatusNotStart
 
@@ -54,6 +64,15 @@ func (s *projectTaskService) Add(instance *model.ProjectTask, members []*domain.
 			logger.Errorln(err)
 			return err
 		}
+
+		// 更新父级任务的子任务数量
+		if parent != nil {
+			if err = tx.Model(parent).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
 		for _, m := range members {
 			member := &m.ProjectTaskMember
 			member.ID = util.SnowflakeId()
@@ -81,13 +100,26 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 		return
 	}
 
-	if instance.RequirementID != 0 {
-		// 判断需求ID是否发生变更，如果发生变更，则更新fullPath
-		var oldInstance model.ProjectTask
-		if err = database.DB.Model(&model.ProjectTask{}).First(&oldInstance, instance.ID).Error; err != nil {
-			logger.Errorln(err)
-			return
+	// 判断父级任务是否发生变更，如果变更，更新full path，后面事务中还要更新各自父级数量
+	var oldInstance model.ProjectTask
+	if err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).First(&oldInstance).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	fullPathChanged := false
+	parentChanged := false
+	if instance.ParentID != 0 {
+		if oldInstance.ParentID != instance.ParentID {
+			parent := &model.ProjectTask{ID: instance.ParentID}
+			if err = database.DB.Model(&model.ProjectTask{}).Where(parent).First(&parent).Error; err != nil {
+				logger.Errorln(err)
+				return
+			}
+			instance.FullPath = parent.FullPath + "/" + instance.Name
+			fullPathChanged = true
+			parentChanged = true
 		}
+	} else {
 		if oldInstance.RequirementID != instance.RequirementID {
 			requirement := &projectModel.ProjectRequirement{ID: instance.RequirementID}
 			if err = database.DB.Model(requirement).First(&requirement).Error; err != nil {
@@ -95,10 +127,12 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 				return
 			}
 			instance.FullPath = requirement.FullPath + "/" + instance.Name
+			fullPathChanged = true
 		}
 	}
 
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 更新
 		err = tx.Where(&model.ProjectTask{ID: instance.ID}).Updates(&model.ProjectTask{
 			ProjectID:        instance.ProjectID,
 			StageID:          instance.StageID,
@@ -115,11 +149,32 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 			EstimateDuration: instance.EstimateDuration,
 			ActualDuration:   instance.ActualDuration,
 			Status:           instance.Status,
+			FullPath:         instance.FullPath,
 		}).Error
 		if err != nil {
 			logger.Errorln(err)
 			return err
 		}
+		// 如果parentChanged，更新原有父级任务的子任务数量和现父级任务子任务数量
+		if parentChanged {
+			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: oldInstance.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ParentID}).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		// 如果fullPathChanged，更新子任务的fullPath
+		if fullPathChanged {
+			if err = tx.Model(&model.ProjectTask{}).Where("full_path like ?", instance.FullPath+"%").Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
 		// 取出原有members，进行对比，并进行新增和删除
 		var oldMembers []*model.ProjectTaskMember
 		if err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{TaskID: instance.ID}).Find(&oldMembers).Error; err != nil {
@@ -187,9 +242,31 @@ func (s *projectTaskService) Delete(id uint64) (success bool, err error) {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.ProjectTask{ID: id}).Delete(&model.ProjectTask{}).Error
+
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 删除，如果有父级，需要更新父级的子任务数量
+		task := new(model.ProjectTask)
+		if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).First(&task).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		if task.ParentID != 0 {
+			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: task.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		err = database.DB.Where(&model.ProjectTask{ID: id}).Delete(&model.ProjectTask{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
 	success = true

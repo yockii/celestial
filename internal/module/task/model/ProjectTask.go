@@ -31,6 +31,7 @@ type ProjectTask struct {
 	ActualEndTime    int64          `json:"actualEndTime,omitempty" gorm:"comment:实际结束时间"`
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
+	ChildrenCount    int            `json:"childrenCount,omitempty" gorm:"comment:子任务数量"`
 	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成"`
 	CreatorID        uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	FullPath         string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径, 需求全路径 + / + 需求名 + / + 任务名"`
@@ -61,6 +62,7 @@ func (pt *ProjectTask) UnmarshalJSON(b []byte) error {
 	pt.ActualEndTime = j.Get("actualEndTime").Int()
 	pt.EstimateDuration = j.Get("estimateDuration").Int()
 	pt.ActualDuration = j.Get("actualDuration").Int()
+	pt.ChildrenCount = int(j.Get("childrenCount").Int())
 	pt.Status = int(j.Get("status").Int())
 	pt.CreatorID = j.Get("creatorId").Uint()
 	pt.FullPath = j.Get("fullPath").String()

@@ -160,6 +160,9 @@ export type ProjectTask = {
   updateTime?: number
   creatorId?: string
   members?: ProjectMember[]
+  children?: ProjectTask[]
+  isLeaf?: boolean
+  childrenCount?: number
 }
 
 export type ProjectTaskCondition = Condition & {
