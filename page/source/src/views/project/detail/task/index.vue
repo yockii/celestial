@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getProjectModuleList } from "@/service/api/project/projectModule"
-import { deleteProjectTask } from "@/service/api/project/projectTask"
+import { deleteProjectTask, getProjectTask } from "@/service/api/project/projectTask"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
 import { useMessage, NButton, NIcon } from "naive-ui"
@@ -75,13 +75,14 @@ const handleAddProjectTask = (
 const childDrawer = ref<typeof ChildDrawer>()
 const childDrawerActive = ref(false)
 const handleShowChild = (row: ProjectTask) => {
-  currentData.value = {
-    id: row.id,
-    projectId: row.projectId,
-    name: row.name
-  }
-  childDrawerActive.value = true
-  childDrawer.value?.refresh()
+  // 先获取任务详情，再打开抽屉
+  getProjectTask(row.id).then((res) => {
+    if (res) {
+      currentData.value = res
+      childDrawerActive.value = true
+      childDrawer.value?.refresh()
+    }
+  })
 }
 
 // 加载页面
@@ -131,7 +132,7 @@ const loadModules = () => {
               <template #checked>仅显示主任务</template>
               <template #unchecked>显示所有任务</template>
             </n-switch>
-            <n-button type="primary" @click="handleAddProjectTask" v-resource-code="'project:detail:task:add'">新增任务</n-button>
+            <n-button type="primary" @click="handleAddProjectTask()" v-resource-code="'project:detail:task:add'">新增任务</n-button>
           </n-space>
         </n-gi>
         <n-gi v-resource-code="'project:detail:task:list'">

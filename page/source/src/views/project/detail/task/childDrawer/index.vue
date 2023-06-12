@@ -44,7 +44,12 @@ const handleAddProjectTask = (
   row: ProjectTask = {
     id: "",
     name: "",
-    projectId: ""
+    projectId: props.data.projectId,
+    parentId: props.data.id,
+    moduleId: props.data.moduleId,
+    requirementId: props.data.requirementId,
+    priority: props.data.priority,
+    taskDesc: props.data.taskDesc
   }
 ) => {
   if (row.id === "") {
@@ -97,7 +102,12 @@ defineExpose({
   >
     <n-drawer-content :title="data.name + '的子任务'" closable>
       <n-grid :cols="1" y-gap="8">
-        <n-gi>aaa</n-gi>
+        <n-gi>
+          <n-space justify="space-between">
+            <span></span>
+            <n-button type="primary" @click="handleAddProjectTask()">新建子任务</n-button>
+          </n-space>
+        </n-gi>
         <n-gi>
           <list
             ref="listComp"

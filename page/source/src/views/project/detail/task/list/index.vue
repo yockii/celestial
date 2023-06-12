@@ -13,8 +13,7 @@ import {
   PaginationProps,
   NTooltip,
   NDropdown,
-  NAvatar,
-  DataTableColumn
+  NAvatar
 } from "naive-ui"
 import { ArrowsSplit } from "@vicons/tabler"
 import { Delete, Edit, ParentChild } from "@vicons/carbon"
@@ -72,7 +71,7 @@ const refresh = () => {
     })
 }
 
-const expandColumn = reactive<DataTableColumn>({
+const expandColumn = reactive({
   key: "expand",
   type: "expand",
   expandable: () => userStore.hasResourceCode("project:detail:task:instance"),
@@ -250,7 +249,7 @@ const actionColumn = reactive({
   // 返回VNode, 用于渲染操作按钮
   render: (row: ProjectTask) => {
     const bg: VNode[] = []
-    if (condition.value.onlyParent && row.childrenCount > 0) {
+    if (condition.value.onlyParent && row.childrenCount && row.childrenCount > 0) {
       bg.push(
         h(
           NTooltip,
