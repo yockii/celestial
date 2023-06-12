@@ -86,7 +86,7 @@ func (s *thirdSourceService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *thirdSourceService) PaginateBetweenTimes(condition *model.ThirdSource, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ThirdSource, err error) {
-	tx := database.DB.Limit(100)
+	tx := database.DB
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

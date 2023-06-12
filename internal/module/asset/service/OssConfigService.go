@@ -92,7 +92,7 @@ func (s *ossConfigService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *ossConfigService) PaginateBetweenTimes(condition *model.OssConfig, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.OssConfig, err error) {
-	tx := database.DB.Model(&model.OssConfig{}).Limit(100)
+	tx := database.DB.Model(&model.OssConfig{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

@@ -208,7 +208,7 @@ func (s *departmentService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *departmentService) PaginateBetweenTimes(condition *model.Department, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Department, err error) {
-	tx := database.DB.Model(&model.Department{}).Limit(100)
+	tx := database.DB.Model(&model.Department{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

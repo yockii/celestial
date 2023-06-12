@@ -43,7 +43,7 @@ func (s *stageService) Add(instance *model.Log) (duplicated bool, success bool, 
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *stageService) PaginateBetweenTimes(condition *model.Log, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Log, err error) {
-	tx := database.DB.Model(&model.Log{}).Limit(100)
+	tx := database.DB.Model(&model.Log{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

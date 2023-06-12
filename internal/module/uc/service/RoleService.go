@@ -91,7 +91,7 @@ func (s *roleService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *roleService) PaginateBetweenTimes(condition *model.Role, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Role, err error) {
-	tx := database.DB.Limit(100)
+	tx := database.DB
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

@@ -75,6 +75,14 @@ const (
 	ResourceProjectAssetUpdate   = ResourceProjectAsset + ":update"
 	ResourceProjectAssetList     = ResourceProjectAsset + ":list"
 	ResourceProjectAssetInstance = ResourceProjectAsset + ":instance"
+
+	// 项目风险
+	ResourceProjectRisk         = ResourceProjectInstance + ":risk"
+	ResourceProjectRiskAdd      = ResourceProjectRisk + ":add"
+	ResourceProjectRiskDelete   = ResourceProjectRisk + ":delete"
+	ResourceProjectRiskUpdate   = ResourceProjectRisk + ":update"
+	ResourceProjectRiskList     = ResourceProjectRisk + ":list"
+	ResourceProjectRiskInstance = ResourceProjectRisk + ":instance"
 )
 
 // 任务

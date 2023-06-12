@@ -265,6 +265,40 @@ func InitData() {
 				})
 			}
 
+			// 项目风险
+			{
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目风险",
+					ResourceCode: constant.ResourceProjectRisk,
+					Type:         2,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "添加项目风险",
+					ResourceCode: constant.ResourceProjectRiskAdd,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "更新项目风险",
+					ResourceCode: constant.ResourceProjectRiskUpdate,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "删除项目风险",
+					ResourceCode: constant.ResourceProjectRiskDelete,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目风险列表",
+					ResourceCode: constant.ResourceProjectRiskList,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目风险详情",
+					ResourceCode: constant.ResourceProjectRiskInstance,
+					Type:         3,
+				})
+			}
+
 			// 项目资产
 			{
 				resources = append(resources, &model.Resource{

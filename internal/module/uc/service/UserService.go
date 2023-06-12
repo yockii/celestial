@@ -153,7 +153,7 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 	if condition.Password != "" {
 		condition.Password = ""
 	}
-	tx := database.DB.Limit(100)
+	tx := database.DB
 	if limit > -1 {
 		tx.Limit(limit)
 	}

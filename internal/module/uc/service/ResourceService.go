@@ -80,7 +80,7 @@ func (s *resourceService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *resourceService) PaginateBetweenTimes(condition *model.Resource, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Resource, err error) {
-	tx := database.DB.Model(&model.Resource{}).Limit(100)
+	tx := database.DB.Model(&model.Resource{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}

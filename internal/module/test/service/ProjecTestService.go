@@ -84,7 +84,7 @@ func (s *projectTestService) Delete(id uint64) (success bool, err error) {
 
 // PaginateBetweenTimes 带时间范围的分页查询
 func (s *projectTestService) PaginateBetweenTimes(condition *model.ProjectTest, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTest, err error) {
-	tx := database.DB.Model(&model.ProjectTest{}).Limit(100)
+	tx := database.DB.Model(&model.ProjectTest{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}
