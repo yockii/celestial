@@ -6,7 +6,7 @@
   <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">
     <n-space>
-      <n-dropdown trigger="hover" :options="history" key-field="url" show-arrow @select="gotoHistory" :render-option="renderHistory">
+      <n-dropdown trigger="hover" :options="historyList" key-field="url" show-arrow @select="gotoHistory" :render-option="renderHistory">
         <n-text class="cursor-pointer">
           <n-icon>
             <Footsteps />
@@ -61,6 +61,7 @@ const changeTheme = (value: boolean) => {
 
 const { mainMenus: menuOptions } = storeToRefs(memStore)
 
+const historyList = computed(() => [...history.value].reverse())
 const renderHistory = ({ node, option }: { node: VNode; option: RouteHistory }) => {
   console.log(option)
   return h(

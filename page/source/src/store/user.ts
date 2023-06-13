@@ -53,8 +53,8 @@ export const useUserStore = defineStore("user", {
       if (index > -1) {
         this.history.splice(index, 1)
       }
-      if (this.history.length >= 20) {
-        // 超过20条记录，删除最早的一条
+      if (this.history.length >= 15) {
+        // 超过15条记录，删除最早的一条
         this.history.shift()
       }
       // 添加新的记录
