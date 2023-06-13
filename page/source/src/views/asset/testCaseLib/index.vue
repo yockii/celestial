@@ -334,7 +334,10 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="16">
     <n-gi>
-      <n-button @click="handleNewCase" v-resource-code="'asset:commonTestCase:add'">新增用例</n-button>
+      <n-space justify="space-between">
+        <span></span>
+        <n-button type="primary" @click="handleNewCase" v-resource-code="'asset:commonTestCase:add'">新增用例</n-button>
+      </n-space>
     </n-gi>
     <n-gi v-resource-code="'asset:commonTestCase:list'">
       <n-data-table

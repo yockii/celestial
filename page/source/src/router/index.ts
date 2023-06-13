@@ -56,7 +56,7 @@ const routes: Array<RouteRecordRaw> = [
         name: "ProjectDetail",
         component: () => import("@/views/project/detail/index.vue"),
         meta: {
-          label: () => `项目[${useProjectStore().project.name}]总览`
+          label: () => `【${useProjectStore().project.name}】总览`
         },
         children: [
           {
@@ -65,7 +65,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectDashboard",
             meta: {
               title: "项目总览",
-              label: () => `项目[${useProjectStore().project.name}]总览`
+              label: () => `【${useProjectStore().project.name}】总览`
             },
             component: () => import("@/views/project/detail/dashboard/index.vue")
           },
@@ -74,7 +74,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectPlan",
             meta: {
               title: "项目计划",
-              label: () => `项目[${useProjectStore().project.name}]计划`
+              label: () => `【${useProjectStore().project.name}】计划`
             },
             component: () => import("@/views/project/detail/plan/index.vue")
           },
@@ -83,7 +83,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectModule",
             meta: {
               title: "功能模块",
-              label: () => `项目[${useProjectStore().project.name}]功能模块`
+              label: () => `【${useProjectStore().project.name}】功能模块`
             },
             component: () => import("@/views/project/detail/module/index.vue")
           },
@@ -92,7 +92,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectRequirement",
             meta: {
               title: "项目需求",
-              label: () => `项目[${useProjectStore().project.name}]需求`
+              label: () => `【${useProjectStore().project.name}】需求`
             },
             component: () => import("@/views/project/detail/requirement/index.vue")
           },
@@ -101,7 +101,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectTask",
             meta: {
               title: "工作任务",
-              label: () => `项目[${useProjectStore().project.name}]工作任务`
+              label: () => `【${useProjectStore().project.name}】工作任务`
             },
             component: () => import("@/views/project/detail/task/index.vue")
           },
@@ -109,8 +109,8 @@ const routes: Array<RouteRecordRaw> = [
             path: "test",
             name: "ProjectTest",
             meta: {
-              title: "测试用例",
-              label: () => `项目[${useProjectStore().project.name}]测试用例`
+              title: "项目测试",
+              label: () => `【${useProjectStore().project.name}】项目测试`
             },
             component: () => import("@/views/project/detail/test/index.vue")
           },
@@ -119,7 +119,7 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectIssue",
             meta: {
               title: "项目缺陷",
-              label: () => `项目[${useProjectStore().project.name}]缺陷`
+              label: () => `【${useProjectStore().project.name}】缺陷`
             },
             component: () => import("@/views/project/detail/issue/index.vue")
           },
@@ -128,16 +128,25 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectRisk",
             meta: {
               title: "项目风险",
-              label: () => `项目[${useProjectStore().project.name}]风险`
+              label: () => `【${useProjectStore().project.name}】风险`
             },
             component: () => import("@/views/project/detail/risk/index.vue")
+          },
+          {
+            path: "change",
+            name: "ProjectChange",
+            meta: {
+              title: "项目变更",
+              label: () => `【${useProjectStore().project.name}】变更`
+            },
+            component: () => import("@/views/project/detail/change/index.vue")
           },
           {
             path: "asset",
             name: "ProjectAsset",
             meta: {
               title: "项目资产",
-              label: () => `项目[${useProjectStore().project.name}]资产`
+              label: () => `【${useProjectStore().project.name}】资产`
             },
             component: () => import("@/views/project/detail/asset/index.vue")
           }

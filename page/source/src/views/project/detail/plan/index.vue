@@ -357,7 +357,10 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="16">
     <n-gi>
-      <n-button @click="newInstance" v-resource-code="'project:detail:plan:add'">新建计划</n-button>
+      <n-space justify="space-between">
+        <span></span>
+        <n-button type="primary" @click="newInstance" v-resource-code="'project:detail:plan:add'">新建计划</n-button>
+      </n-space>
     </n-gi>
     <n-gi>
       <n-data-table

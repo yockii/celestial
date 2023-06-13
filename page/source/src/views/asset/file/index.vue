@@ -176,7 +176,10 @@ onMounted(() => {
     <n-gi :span="5">
       <n-grid :cols="1" y-gap="16">
         <n-gi>
-          <n-button type="primary" @click="handleAddFile" v-resource-code="'asset:file:add'">新增文件</n-button>
+          <n-space justify="space-between">
+            <span></span>
+            <n-button type="primary" @click="handleAddFile" v-resource-code="'asset:file:add'">新增文件</n-button>
+          </n-space>
         </n-gi>
         <n-gi>
           <n-data-table

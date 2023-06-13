@@ -582,7 +582,10 @@ const loadModules = () => {
     <n-gi :span="5">
       <n-grid :cols="1" y-gap="16">
         <n-gi>
-          <n-button type="primary" @click="handleAddProjectRequirement" v-resource-code="'project:detail:requirement:add'">新增需求</n-button>
+          <n-space justify="space-between">
+            <span></span>
+            <n-button type="primary" @click="handleAddProjectRequirement" v-resource-code="'project:detail:requirement:add'">新增需求</n-button>
+          </n-space>
         </n-gi>
         <n-gi>
           <n-data-table

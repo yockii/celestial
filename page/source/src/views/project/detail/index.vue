@@ -98,11 +98,14 @@ const handleChangeTab = (value: string | number) => {
     case "工作任务":
       router.push(`/project/detail/${id}/task`)
       break
-    case "测试用例":
+    case "项目测试":
       router.push(`/project/detail/${id}/test`)
       break
     case "项目缺陷":
       router.push(`/project/detail/${id}/issue`)
+      break
+    case "项目变更":
+      router.push(`/project/detail/${id}/change`)
       break
     case "项目风险":
       router.push(`/project/detail/${id}/risk`)
@@ -140,8 +143,9 @@ onMounted(() => {
               <n-tab name="功能模块" v-resource-code="'project:detail:module'"></n-tab>
               <n-tab name="项目需求" v-resource-code="'project:detail:requirement'"></n-tab>
               <n-tab name="工作任务" v-resource-code="'project:detail:task'"></n-tab>
-              <n-tab name="测试用例" v-resource-code="'project:detail:testCase'"></n-tab>
+              <n-tab name="项目测试" v-resource-code="'project:detail:test'"></n-tab>
               <n-tab name="项目缺陷" v-resource-code="'project:detail:issue'"></n-tab>
+              <n-tab name="项目变更" v-resource-code="'project:detail:change'"></n-tab>
               <n-tab name="项目风险" v-resource-code="'project:detail:risk'"></n-tab>
               <n-tab name="项目资产" v-resource-code="'project:detail:asset'"></n-tab>
             </n-tabs>
@@ -185,7 +189,7 @@ onMounted(() => {
           <task v-if="project && tab == '工作任务'" />
         </keep-alive>
         <keep-alive>
-          <test v-if="project && tab == '测试用例'" />
+          <test v-if="project && tab == '项目测试'" />
         </keep-alive>
         <keep-alive>
           <issue v-if="project && tab == '项目缺陷'" />
