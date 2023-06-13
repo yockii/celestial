@@ -7,15 +7,14 @@ import (
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/celestial/internal/module/test/service"
 	"github.com/yockii/ruomu-core/server"
-	"sync"
 )
 
-var ProjectTestCaseController = new(projectTestCaseController)
+var ProjectTestCaseItemController = new(projectTestCaseItemController)
 
-type projectTestCaseController struct{}
+type projectTestCaseItemController struct{}
 
-func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCase)
+func (c *projectTestCaseItemController) Add(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItem)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -32,7 +31,7 @@ func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	duplicated, success, err := service.ProjectTestCaseService.Add(instance)
+	duplicated, success, err := service.ProjectTestCaseItemService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -56,8 +55,8 @@ func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCase)
+func (c *projectTestCaseItemController) Update(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItem)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -74,7 +73,7 @@ func (c *projectTestCaseController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestCaseService.Update(instance)
+	success, err := service.ProjectTestCaseItemService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -87,8 +86,8 @@ func (c *projectTestCaseController) Update(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseController) Delete(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCase)
+func (c *projectTestCaseItemController) Delete(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItem)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -105,7 +104,7 @@ func (c *projectTestCaseController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestCaseService.Delete(instance.ID)
+	success, err := service.ProjectTestCaseItemService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -118,8 +117,8 @@ func (c *projectTestCaseController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseController) List(ctx *fiber.Ctx) error {
-	instance := new(domain.ProjectTestCaseListRequest)
+func (c *projectTestCaseItemController) List(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectTestCaseItemListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -148,7 +147,7 @@ func (c *projectTestCaseController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectTestCaseService.PaginateBetweenTimes(&instance.ProjectTestCase, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.ProjectTestCaseItemService.PaginateBetweenTimes(&instance.ProjectTestCaseItem, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -165,8 +164,8 @@ func (c *projectTestCaseController) List(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseController) Instance(ctx *fiber.Ctx) error {
-	condition := new(model.ProjectTestCase)
+func (c *projectTestCaseItemController) Instance(ctx *fiber.Ctx) error {
+	condition := new(model.ProjectTestCaseItem)
 	if err := ctx.QueryParser(condition); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -180,7 +179,7 @@ func (c *projectTestCaseController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.ProjectTestCaseService.Instance(condition.ID)
+	dept, err := service.ProjectTestCaseItemService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -189,72 +188,5 @@ func (c *projectTestCaseController) Instance(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
-	})
-}
-
-func (c *projectTestCaseController) ListWithItems(ctx *fiber.Ctx) error {
-	instance := new(domain.ProjectTestCaseListRequest)
-	if err := ctx.QueryParser(instance); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-	paginate := new(server.Paginate)
-	if err := ctx.QueryParser(paginate); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-	if paginate.Limit == 0 {
-		paginate.Limit = 10
-	}
-	tcList := make(map[string]*server.TimeCondition)
-	if instance.CreateTimeCondition != nil {
-		tcList["create_time"] = instance.CreateTimeCondition
-	}
-	if instance.UpdateTimeCondition != nil {
-		tcList["update_time"] = instance.UpdateTimeCondition
-	}
-	total, list, err := service.ProjectTestCaseService.PaginateBetweenTimes(&instance.ProjectTestCase, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
-		})
-	}
-
-	var resultList []*domain.ProjectTestCaseWithItems
-	var wg sync.WaitGroup
-	for _, item := range list {
-		wg.Add(1)
-		result := &domain.ProjectTestCaseWithItems{
-			ProjectTestCase: *item,
-		}
-		resultList = append(resultList, result)
-		go func(ctcwi *domain.ProjectTestCaseWithItems) {
-			defer wg.Done()
-			_, itemList, err := service.ProjectTestCaseItemService.PaginateBetweenTimes(&model.ProjectTestCaseItem{
-				TestCaseID: ctcwi.ID,
-			}, -1, -1, "", nil)
-			if err != nil {
-				logger.Errorln(err)
-				return
-			}
-			ctcwi.Items = itemList
-		}(result)
-	}
-	wg.Wait()
-
-	return ctx.JSON(&server.CommonResponse{
-		Data: &server.Paginate{
-			Total:  total,
-			Items:  resultList,
-			Limit:  paginate.Limit,
-			Offset: paginate.Offset,
-		},
 	})
 }

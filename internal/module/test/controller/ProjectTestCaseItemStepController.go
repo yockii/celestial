@@ -9,12 +9,12 @@ import (
 	"github.com/yockii/ruomu-core/server"
 )
 
-var ProjectTestCaseStepController = new(projectTestCaseStepController)
+var ProjectTestCaseItemStepController = new(projectTestCaseItemStepController)
 
-type projectTestCaseStepController struct{}
+type projectTestCaseItemStepController struct{}
 
-func (c *projectTestCaseStepController) Add(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCaseStep)
+func (c *projectTestCaseItemStepController) Add(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItemStep)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -24,14 +24,14 @@ func (c *projectTestCaseStepController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.CaseID == 0 || instance.OrderNum == 0 {
+	if instance.CaseItemID == 0 || instance.OrderNum == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " caseId & orderNum",
 		})
 	}
 
-	duplicated, success, err := service.ProjectTestCaseStepService.Add(instance)
+	duplicated, success, err := service.ProjectTestCaseItemStepService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -55,8 +55,8 @@ func (c *projectTestCaseStepController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseStepController) Update(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCaseStep)
+func (c *projectTestCaseItemStepController) Update(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItemStep)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -73,7 +73,7 @@ func (c *projectTestCaseStepController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestCaseStepService.Update(instance)
+	success, err := service.ProjectTestCaseItemStepService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -86,8 +86,8 @@ func (c *projectTestCaseStepController) Update(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseStepController) Delete(ctx *fiber.Ctx) error {
-	instance := new(model.ProjectTestCaseStep)
+func (c *projectTestCaseItemStepController) Delete(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItemStep)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -104,7 +104,7 @@ func (c *projectTestCaseStepController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTestCaseStepService.Delete(instance.ID)
+	success, err := service.ProjectTestCaseItemStepService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -117,8 +117,8 @@ func (c *projectTestCaseStepController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseStepController) List(ctx *fiber.Ctx) error {
-	instance := new(domain.ProjectTestCaseStepListRequest)
+func (c *projectTestCaseItemStepController) List(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectTestCaseItemStepListRequest)
 	if err := ctx.QueryParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -147,7 +147,7 @@ func (c *projectTestCaseStepController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectTestCaseStepService.PaginateBetweenTimes(&instance.ProjectTestCaseStep, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.ProjectTestCaseItemStepService.PaginateBetweenTimes(&instance.ProjectTestCaseItemStep, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -164,8 +164,8 @@ func (c *projectTestCaseStepController) List(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTestCaseStepController) Instance(ctx *fiber.Ctx) error {
-	condition := new(model.ProjectTestCaseStep)
+func (c *projectTestCaseItemStepController) Instance(ctx *fiber.Ctx) error {
+	condition := new(model.ProjectTestCaseItemStep)
 	if err := ctx.QueryParser(condition); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -179,7 +179,7 @@ func (c *projectTestCaseStepController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.ProjectTestCaseStepService.Instance(condition.ID)
+	dept, err := service.ProjectTestCaseItemStepService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

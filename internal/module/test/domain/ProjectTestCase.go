@@ -11,3 +11,13 @@ type ProjectTestCaseListRequest struct {
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
 }
+
+type ProjectTestCaseWithItems struct {
+	model.ProjectTestCase
+	Items []*model.ProjectTestCaseItem `json:"items"`
+}
+
+type ProjectTestCaseWithItemsWithSteps struct {
+	model.ProjectTestCase
+	Items []*ProjectTestCaseItemWithSteps `json:"items"`
+}

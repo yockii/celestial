@@ -1,4 +1,3 @@
-import { type } from "os"
 import { Condition } from "./common"
 
 export type ProjectMember = {
@@ -196,4 +195,50 @@ export type ProjectAssetCondition = Condition & {
   projectId: string
   type: number
   status: number
+}
+
+export type ProjectTest = {
+  id?: string
+  projectId: string
+  round?: number
+  testRecord?: string
+  remark?: string
+  startTime?: number
+  endTime?: number
+}
+
+export type ProjectTestCase = {
+  id: string
+  projectId: string
+  relatedId?: string
+  relatedType?: number
+  name: string
+  remark?: string
+  creatorId?: string
+  createTime?: number
+  items?: ProjectTestCaseItem[]
+}
+export type ProjectTestCaseCondition = Condition & {
+  projectId: string
+  name?: string
+}
+
+export type ProjectTestCaseItem = {
+  id?: string
+  projectId?: string
+  testCaseId?: string
+  name?: string
+  type?: number
+  content?: string
+  status?: number
+  steps?: ProjectTestCaseItemStep[]
+}
+
+export type ProjectTestCaseItemStep = {
+  id?: string
+  caseItemId?: string
+  orderNum?: number
+  content?: string
+  expect?: string
+  status?: number
 }

@@ -264,7 +264,145 @@ func InitData() {
 					Type:         3,
 				})
 			}
+			// 测试
+			{
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目测试",
+					ResourceCode: constant.ResourceProjectTest,
+					Type:         2,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "增加项目测试轮",
+					ResourceCode: constant.ResourceProjectTestAdd,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "更新项目测试轮",
+					ResourceCode: constant.ResourceProjectTestUpdate,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "删除项目测试轮",
+					ResourceCode: constant.ResourceProjectTestDelete,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目测试轮封版",
+					ResourceCode: constant.ResourceProjectTestClose,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目测试列表",
+					ResourceCode: constant.ResourceProjectTestList,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目测试详情",
+					ResourceCode: constant.ResourceProjectTestInstance,
+					Type:         3,
+				})
 
+				// 测试用例
+				{
+					resources = append(resources, &model.Resource{
+						ResourceName: "项目测试用例",
+						ResourceCode: constant.ResourceProjectTestCase,
+						Type:         2,
+					})
+					resources = append(resources, &model.Resource{
+						ResourceName: "添加项目测试用例",
+						ResourceCode: constant.ResourceProjectTestCaseAdd,
+						Type:         3,
+					})
+					resources = append(resources, &model.Resource{
+						ResourceName: "更新项目测试用例",
+						ResourceCode: constant.ResourceProjectTestCaseUpdate,
+						Type:         3,
+					})
+					resources = append(resources, &model.Resource{
+						ResourceName: "删除项目测试用例",
+						ResourceCode: constant.ResourceProjectTestCaseDelete,
+						Type:         3,
+					})
+					resources = append(resources, &model.Resource{
+						ResourceName: "项目测试用例列表",
+						ResourceCode: constant.ResourceProjectTestCaseList,
+						Type:         3,
+					})
+					resources = append(resources, &model.Resource{
+						ResourceName: "项目测试用例详情",
+						ResourceCode: constant.ResourceProjectTestCaseInstance,
+						Type:         3,
+					})
+					// 测试用例项
+					{
+						resources = append(resources, &model.Resource{
+							ResourceName: "项目测试用例项",
+							ResourceCode: constant.ResourceProjectTestCaseItem,
+							Type:         2,
+						})
+						resources = append(resources, &model.Resource{
+							ResourceName: "添加项目测试用例项",
+							ResourceCode: constant.ResourceProjectTestCaseItemAdd,
+							Type:         3,
+						})
+						resources = append(resources, &model.Resource{
+							ResourceName: "更新项目测试用例项",
+							ResourceCode: constant.ResourceProjectTestCaseItemUpdate,
+							Type:         3,
+						})
+						resources = append(resources, &model.Resource{
+							ResourceName: "删除项目测试用例项",
+							ResourceCode: constant.ResourceProjectTestCaseItemDelete,
+							Type:         3,
+						})
+						resources = append(resources, &model.Resource{
+							ResourceName: "项目测试用例项列表",
+							ResourceCode: constant.ResourceProjectTestCaseItemList,
+							Type:         3,
+						})
+						resources = append(resources, &model.Resource{
+							ResourceName: "项目测试用例项详情",
+							ResourceCode: constant.ResourceProjectTestCaseItemInstance,
+							Type:         3,
+						})
+
+						// 测试用例项步骤
+						{
+							resources = append(resources, &model.Resource{
+								ResourceName: "项目测试用例项步骤",
+								ResourceCode: constant.ResourceProjectTestCaseItemStep,
+								Type:         2,
+							})
+							resources = append(resources, &model.Resource{
+								ResourceName: "添加项目测试用例项步骤",
+								ResourceCode: constant.ResourceProjectTestCaseItemStepAdd,
+								Type:         3,
+							})
+							resources = append(resources, &model.Resource{
+								ResourceName: "更新项目测试用例项步骤",
+								ResourceCode: constant.ResourceProjectTestCaseItemStepUpdate,
+								Type:         3,
+							})
+							resources = append(resources, &model.Resource{
+								ResourceName: "删除项目测试用例项步骤",
+								ResourceCode: constant.ResourceProjectTestCaseItemStepDelete,
+								Type:         3,
+							})
+							resources = append(resources, &model.Resource{
+								ResourceName: "项目测试用例项步骤列表",
+								ResourceCode: constant.ResourceProjectTestCaseItemStepList,
+								Type:         3,
+							})
+							resources = append(resources, &model.Resource{
+								ResourceName: "项目测试用例项步骤详情",
+								ResourceCode: constant.ResourceProjectTestCaseItemStepInstance,
+								Type:         3,
+							})
+						}
+					}
+				}
+			}
 			// 项目风险
 			{
 				resources = append(resources, &model.Resource{

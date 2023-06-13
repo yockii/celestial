@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-var ProjectTestCaseService = new(projectTestCaseService)
+var ProjectTestCaseItemService = new(projectTestCaseItemService)
 
-type projectTestCaseService struct{}
+type projectTestCaseItemService struct{}
 
 // Add 添加资源
-func (s *projectTestCaseService) Add(instance *model.ProjectTestCase) (duplicated bool, success bool, err error) {
-	if instance.TestID == 0 || instance.Name == "" {
+func (s *projectTestCaseItemService) Add(instance *model.ProjectTestCaseItem) (duplicated bool, success bool, err error) {
+	if instance.TestCaseID == 0 || instance.Name == "" {
 		err = errors.New("Name and test Id is required ")
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.ProjectTestCase{}).Where(&model.ProjectTestCase{
-		ProjectID: instance.ProjectID,
-		TestID:    instance.TestID,
-		Name:      instance.Name,
+	err = database.DB.Model(&model.ProjectTestCaseItem{}).Where(&model.ProjectTestCaseItem{
+		ProjectID:  instance.ProjectID,
+		TestCaseID: instance.TestCaseID,
+		Name:       instance.Name,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -46,19 +46,19 @@ func (s *projectTestCaseService) Add(instance *model.ProjectTestCase) (duplicate
 }
 
 // Update 更新资源基本信息
-func (s *projectTestCaseService) Update(instance *model.ProjectTestCase) (success bool, err error) {
+func (s *projectTestCaseItemService) Update(instance *model.ProjectTestCaseItem) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	err = database.DB.Where(&model.ProjectTestCase{ID: instance.ID}).Updates(&model.ProjectTestCase{
-		ProjectID: instance.ProjectID,
-		TestID:    instance.TestID,
-		Name:      instance.Name,
-		Type:      instance.Type,
-		Content:   instance.Content,
-		Status:    instance.Status,
+	err = database.DB.Where(&model.ProjectTestCaseItem{ID: instance.ID}).Updates(&model.ProjectTestCaseItem{
+		ProjectID:  instance.ProjectID,
+		TestCaseID: instance.TestCaseID,
+		Name:       instance.Name,
+		Type:       instance.Type,
+		Content:    instance.Content,
+		Status:     instance.Status,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -69,12 +69,12 @@ func (s *projectTestCaseService) Update(instance *model.ProjectTestCase) (succes
 }
 
 // Delete 删除资源
-func (s *projectTestCaseService) Delete(id uint64) (success bool, err error) {
+func (s *projectTestCaseItemService) Delete(id uint64) (success bool, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.ProjectTestCase{ID: id}).Delete(&model.ProjectTestCase{}).Error
+	err = database.DB.Where(&model.ProjectTestCaseItem{ID: id}).Delete(&model.ProjectTestCaseItem{}).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -84,8 +84,8 @@ func (s *projectTestCaseService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *projectTestCaseService) PaginateBetweenTimes(condition *model.ProjectTestCase, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTestCase, err error) {
-	tx := database.DB.Model(&model.ProjectTestCase{})
+func (s *projectTestCaseItemService) PaginateBetweenTimes(condition *model.ProjectTestCaseItem, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTestCaseItem, err error) {
+	tx := database.DB.Model(&model.ProjectTestCaseItem{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
 	}
@@ -115,11 +115,11 @@ func (s *projectTestCaseService) PaginateBetweenTimes(condition *model.ProjectTe
 		}
 	}
 
-	err = tx.Find(&list, &model.ProjectTestCase{
-		ProjectID: condition.ProjectID,
-		TestID:    condition.TestID,
-		Type:      condition.Type,
-		Status:    condition.Status,
+	err = tx.Find(&list, &model.ProjectTestCaseItem{
+		ProjectID:  condition.ProjectID,
+		TestCaseID: condition.TestCaseID,
+		Type:       condition.Type,
+		Status:     condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -129,13 +129,13 @@ func (s *projectTestCaseService) PaginateBetweenTimes(condition *model.ProjectTe
 }
 
 // Instance 获取资源实例
-func (s *projectTestCaseService) Instance(id uint64) (instance *model.ProjectTestCase, err error) {
+func (s *projectTestCaseItemService) Instance(id uint64) (instance *model.ProjectTestCaseItem, err error) {
 	if id == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	instance = &model.ProjectTestCase{}
-	if err = database.DB.Where(&model.ProjectTestCase{ID: id}).First(instance).Error; err != nil {
+	instance = &model.ProjectTestCaseItem{}
+	if err = database.DB.Where(&model.ProjectTestCaseItem{ID: id}).First(instance).Error; err != nil {
 		logger.Errorln(err)
 		return
 	}

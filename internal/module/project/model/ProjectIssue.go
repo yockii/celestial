@@ -19,8 +19,8 @@ type ProjectIssue struct {
 	SolveTime    int64          `json:"solveTime,omitempty" gorm:"comment:解决耗时"`
 	IssueCause   string         `json:"issueCause,omitempty" gorm:"comment:问题原因"`
 	SolveMethod  string         `json:"solveMethod,omitempty" gorm:"comment:解决方法"`
-	CreateTime   uint64         `json:"createTime,omitempty,string" gorm:"comment:创建时间"`
-	UpdateTime   uint64         `json:"updateTime,omitempty,string" gorm:"comment:更新时间"`
+	CreateTime   uint64         `json:"createTime,omitempty,string" gorm:"autoCreateTime:milli"`
+	UpdateTime   uint64         `json:"updateTime,omitempty,string" gorm:"autoUpdateTime:milli"`
 	DeleteTime   gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 

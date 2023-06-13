@@ -6,34 +6,37 @@ import (
 	"gorm.io/gorm"
 )
 
+// ProjectTest 项目测试记录
 type ProjectTest struct {
-	ID          uint64         `json:"ID,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	ProjectID   uint64         `json:"projectID,omitempty,string" gorm:"index;comment:项目ID"`
-	RelatedID   uint64         `json:"relatedID,omitempty,string" gorm:"index;comment:关联ID"`
-	RelatedType int            `json:"relatedType,omitempty" gorm:"index;comment:关联类型 1-需求 2-任务 3-缺陷问题"`
-	Name        string         `json:"name,omitempty" gorm:"size:50;comment:测试名称"`
-	Remark      string         `json:"remark,omitempty" gorm:"size:500;comment:备注"`
-	CreatorID   uint64         `json:"creatorID,omitempty,string" gorm:"comment:创建人ID"`
-	CreateTime  int64          `json:"createTime,omitempty" gorm:"comment:创建时间"`
-	UpdateTime  int64          `json:"updateTime,omitempty" gorm:"comment:更新时间"`
-	DeleteTime  gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
+	ID         uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	ProjectID  uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	Round      int            `json:"round,omitempty" gorm:"comment:测试轮次"`
+	TestRecord string         `json:"testRecord,omitempty" gorm:"comment:测试记录"`
+	Remark     string         `json:"remark,omitempty" gorm:"size:500;comment:备注"`
+	StartTime  int64          `json:"startTime,omitempty" gorm:"comment:开始时间"`
+	EndTime    int64          `json:"endTime,omitempty" gorm:"comment:结束时间"`
+	CreatorID  uint64         `json:"creatorID,omitempty,string" gorm:"comment:创建人ID"`
+	CloserID   uint64         `json:"closerID,omitempty,string" gorm:"comment:封版人ID"`
+	CreateTime int64          `json:"createTime,omitempty" gorm:"autoCreateTime:milli"`
+	DeleteTime gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 
 func (*ProjectTest) TableComment() string {
-	return "项目测试表"
+	return "项目测试记录表"
 }
 
 func (pt *ProjectTest) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
-	pt.ID = j.Get("ID").Uint()
-	pt.ProjectID = j.Get("projectID").Uint()
-	pt.RelatedID = j.Get("relatedID").Uint()
-	pt.RelatedType = int(j.Get("relatedType").Int())
-	pt.Name = j.Get("name").String()
+	pt.ID = j.Get("id").Uint()
+	pt.ProjectID = j.Get("projectId").Uint()
+	pt.Round = int(j.Get("round").Int())
+	pt.TestRecord = j.Get("testRecord").String()
 	pt.Remark = j.Get("remark").String()
-	pt.CreatorID = j.Get("creatorID").Uint()
+	pt.StartTime = j.Get("startTime").Int()
+	pt.EndTime = j.Get("endTime").Int()
+	pt.CreatorID = j.Get("creatorId").Uint()
+	pt.CloserID = j.Get("closerId").Uint()
 	pt.CreateTime = j.Get("createTime").Int()
-	pt.UpdateTime = j.Get("updateTime").Int()
 	return nil
 }
 

@@ -5,9 +5,14 @@ import (
 	"github.com/yockii/ruomu-core/server"
 )
 
-type ProjectTestListRequest struct {
-	model.ProjectTest
+type ProjectTestCaseItemListRequest struct {
+	model.ProjectTestCaseItem
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
+}
+
+type ProjectTestCaseItemWithSteps struct {
+	model.ProjectTestCaseItem
+	Steps []*model.ProjectTestCaseItemStep `json:"steps"`
 }

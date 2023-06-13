@@ -68,13 +68,35 @@ const (
 	ResourceProjectTaskList     = ResourceProjectTask + ":list"
 	ResourceProjectTaskInstance = ResourceProjectTask + ":instance"
 
-	// 项目资产
-	ResourceProjectAsset         = ResourceProjectInstance + ":asset"
-	ResourceProjectAssetAdd      = ResourceProjectAsset + ":add"
-	ResourceProjectAssetDelete   = ResourceProjectAsset + ":delete"
-	ResourceProjectAssetUpdate   = ResourceProjectAsset + ":update"
-	ResourceProjectAssetList     = ResourceProjectAsset + ":list"
-	ResourceProjectAssetInstance = ResourceProjectAsset + ":instance"
+	// 测试
+	ResourceProjectTest         = ResourceProjectInstance + ":test"
+	ResourceProjectTestAdd      = ResourceProjectTest + ":add"
+	ResourceProjectTestDelete   = ResourceProjectTest + ":delete"
+	ResourceProjectTestUpdate   = ResourceProjectTest + ":update"
+	ResourceProjectTestClose    = ResourceProjectTest + ":close"
+	ResourceProjectTestList     = ResourceProjectTest + ":list"
+	ResourceProjectTestInstance = ResourceProjectTest + ":instance"
+	// 测试用例
+	ResourceProjectTestCase         = ResourceProjectTest + ":testCase"
+	ResourceProjectTestCaseAdd      = ResourceProjectTestCase + ":add"
+	ResourceProjectTestCaseDelete   = ResourceProjectTestCase + ":delete"
+	ResourceProjectTestCaseUpdate   = ResourceProjectTestCase + ":update"
+	ResourceProjectTestCaseList     = ResourceProjectTestCase + ":list"
+	ResourceProjectTestCaseInstance = ResourceProjectTestCase + ":instance"
+	// 测试用例项
+	ResourceProjectTestCaseItem         = ResourceProjectTestCase + ":item"
+	ResourceProjectTestCaseItemAdd      = ResourceProjectTestCaseItem + ":add"
+	ResourceProjectTestCaseItemDelete   = ResourceProjectTestCaseItem + ":delete"
+	ResourceProjectTestCaseItemUpdate   = ResourceProjectTestCaseItem + ":update"
+	ResourceProjectTestCaseItemList     = ResourceProjectTestCaseItem + ":list"
+	ResourceProjectTestCaseItemInstance = ResourceProjectTestCaseItem + ":instance"
+	// 测试用例项步骤
+	ResourceProjectTestCaseItemStep         = ResourceProjectTestCaseItem + ":step"
+	ResourceProjectTestCaseItemStepAdd      = ResourceProjectTestCaseItemStep + ":add"
+	ResourceProjectTestCaseItemStepDelete   = ResourceProjectTestCaseItemStep + ":delete"
+	ResourceProjectTestCaseItemStepUpdate   = ResourceProjectTestCaseItemStep + ":update"
+	ResourceProjectTestCaseItemStepList     = ResourceProjectTestCaseItemStep + ":list"
+	ResourceProjectTestCaseItemStepInstance = ResourceProjectTestCaseItemStep + ":instance"
 
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"
@@ -83,6 +105,14 @@ const (
 	ResourceProjectRiskUpdate   = ResourceProjectRisk + ":update"
 	ResourceProjectRiskList     = ResourceProjectRisk + ":list"
 	ResourceProjectRiskInstance = ResourceProjectRisk + ":instance"
+
+	// 项目资产
+	ResourceProjectAsset         = ResourceProjectInstance + ":asset"
+	ResourceProjectAssetAdd      = ResourceProjectAsset + ":add"
+	ResourceProjectAssetDelete   = ResourceProjectAsset + ":delete"
+	ResourceProjectAssetUpdate   = ResourceProjectAsset + ":update"
+	ResourceProjectAssetList     = ResourceProjectAsset + ":list"
+	ResourceProjectAssetInstance = ResourceProjectAsset + ":instance"
 )
 
 // 任务
