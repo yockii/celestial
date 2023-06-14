@@ -6,12 +6,15 @@ import AutoImport from "unplugin-auto-import/vite"
 import Components from "unplugin-vue-components/vite"
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers"
 import Unocss from "unocss/vite"
-import presetUno from "@unocss/preset-uno";
-import {presetAttributify}  from "unocss";
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import presetUno from "@unocss/preset-uno"
+import { presetAttributify } from "unocss"
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    outDir: "../build"
+  },
   plugins: [
     vue(),
     eslintPlugin({
@@ -26,7 +29,7 @@ export default defineConfig({
         }
       ],
       eslintrc: {
-        enabled: false,
+        enabled: false
       }
     }),
     Components({
@@ -36,10 +39,10 @@ export default defineConfig({
       presets: [presetUno(), presetAttributify()]
     }),
     createSvgIconsPlugin({
-        // Specify the icon folder to be cached
-        iconDirs: [path.resolve(process.cwd(), 'src/assets')],
-        // Specify symbolId format
-        symbolId: 'icon-[dir]-[name]',
+      // Specify the icon folder to be cached
+      iconDirs: [path.resolve(process.cwd(), "src/assets")],
+      // Specify symbolId format
+      symbolId: "icon-[dir]-[name]"
     })
   ],
   resolve: {

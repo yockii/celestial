@@ -84,7 +84,7 @@ const doDeleteProject = () => {
 const handleChangeTab = (value: string | number) => {
   switch (value) {
     case "项目总览":
-      router.push(`/project/detail/${id}`)
+      router.push(`/project/detail/${id}/dashboard`)
       break
     case "项目计划":
       router.push(`/project/detail/${id}/plan`)
