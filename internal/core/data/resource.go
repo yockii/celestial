@@ -352,6 +352,11 @@ func InitData() {
 							Type:         3,
 						})
 						resources = append(resources, &model.Resource{
+							ResourceName: "更新项目测试用例项状态",
+							ResourceCode: constant.ResourceProjectTestCaseItemUpdateStatus,
+							Type:         3,
+						})
+						resources = append(resources, &model.Resource{
 							ResourceName: "删除项目测试用例项",
 							ResourceCode: constant.ResourceProjectTestCaseItemDelete,
 							Type:         3,

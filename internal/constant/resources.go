@@ -73,7 +73,7 @@ const (
 	ResourceProjectTestAdd      = ResourceProjectTest + ":add"
 	ResourceProjectTestDelete   = ResourceProjectTest + ":delete"
 	ResourceProjectTestUpdate   = ResourceProjectTest + ":update"
-	ResourceProjectTestClose    = ResourceProjectTest + ":close"
+	ResourceProjectTestClose    = ResourceProjectTestAdd
 	ResourceProjectTestList     = ResourceProjectTest + ":list"
 	ResourceProjectTestInstance = ResourceProjectTest + ":instance"
 	// 测试用例
@@ -84,12 +84,13 @@ const (
 	ResourceProjectTestCaseList     = ResourceProjectTestCase + ":list"
 	ResourceProjectTestCaseInstance = ResourceProjectTestCase + ":instance"
 	// 测试用例项
-	ResourceProjectTestCaseItem         = ResourceProjectTestCase + ":item"
-	ResourceProjectTestCaseItemAdd      = ResourceProjectTestCaseItem + ":add"
-	ResourceProjectTestCaseItemDelete   = ResourceProjectTestCaseItem + ":delete"
-	ResourceProjectTestCaseItemUpdate   = ResourceProjectTestCaseItem + ":update"
-	ResourceProjectTestCaseItemList     = ResourceProjectTestCaseItem + ":list"
-	ResourceProjectTestCaseItemInstance = ResourceProjectTestCaseItem + ":instance"
+	ResourceProjectTestCaseItem             = ResourceProjectTestCase + ":item"
+	ResourceProjectTestCaseItemAdd          = ResourceProjectTestCaseItem + ":add"
+	ResourceProjectTestCaseItemDelete       = ResourceProjectTestCaseItem + ":delete"
+	ResourceProjectTestCaseItemUpdate       = ResourceProjectTestCaseItem + ":update"
+	ResourceProjectTestCaseItemUpdateStatus = ResourceProjectTestCaseItem + ":updateStatus"
+	ResourceProjectTestCaseItemList         = ResourceProjectTestCaseItem + ":list"
+	ResourceProjectTestCaseItemInstance     = ResourceProjectTestCaseItem + ":instance"
 	// 测试用例项步骤
 	ResourceProjectTestCaseItemStep         = ResourceProjectTestCaseItem + ":step"
 	ResourceProjectTestCaseItemStepAdd      = ResourceProjectTestCaseItemStep + ":add"

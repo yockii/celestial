@@ -45,7 +45,7 @@ func InitRouter() {
 		projectTestCase.Post("/batchAdd", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemAdd), ProjectTestCaseItemController.BatchAdd)
 		projectTestCase.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemDelete), ProjectTestCaseItemController.Delete)
 		projectTestCase.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemUpdate), ProjectTestCaseItemController.Update)
-		projectTestCase.Put("/updateStatus", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemUpdate), ProjectTestCaseItemController.UpdateStatus)
+		projectTestCase.Put("/updateStatus", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemUpdateStatus), ProjectTestCaseItemController.UpdateStatus)
 		projectTestCase.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemList), ProjectTestCaseItemController.List)
 		projectTestCase.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemInstance), ProjectTestCaseItemController.Instance)
 

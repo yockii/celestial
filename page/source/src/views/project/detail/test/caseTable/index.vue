@@ -88,7 +88,7 @@ const caseColumn = {
                       {
                         type: "primary",
                         size: "small",
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:addItem"),
+                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:add"),
                         onClick: () => {
                           handleNewItem(row.testCase.id)
                         }
@@ -118,7 +118,7 @@ const caseColumn = {
                         type: "primary",
                         size: "small",
                         secondary: true,
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:update"),
+                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:update"),
                         onClick: () => {
                           currentTestCase.value = row.testCase
                           caseDrawerActive.value = true
@@ -148,7 +148,7 @@ const caseColumn = {
                             NButton,
                             {
                               type: "error",
-                              disabled: !userStore.hasResourceCode("asset:commonTestCase:delete"),
+                              disabled: !userStore.hasResourceCode("project:detail:test:testCase:delete"),
                               size: "small"
                             },
                             { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }
@@ -252,7 +252,7 @@ const caseItemColumn = {
                         {
                           size: "small",
                           type: "primary",
-                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                          disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
                           onClick: () => handleTestItemPass(row.item.id, true)
                         },
                         {
@@ -272,7 +272,7 @@ const caseItemColumn = {
                         {
                           size: "small",
                           type: "error",
-                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                          disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
                           onClick: () => handleTestItemPass(row.item.id, false)
                         },
                         {
@@ -304,7 +304,7 @@ const caseItemColumn = {
                         size: "small",
                         type: "primary",
                         secondary: true,
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:updateItem"),
+                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:update"),
                         onClick: () => {
                           currentItem.value = row.item
                           itemDrawerActive.value = true
@@ -334,7 +334,7 @@ const caseItemColumn = {
                             NButton,
                             {
                               type: "error",
-                              disabled: !userStore.hasResourceCode("asset:commonTestCase:deleteItem"),
+                              disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:delete"),
                               size: "small"
                             },
                             { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }
