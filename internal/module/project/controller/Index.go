@@ -107,19 +107,19 @@ func InitRouter() {
 
 	}
 
-	//// 项目变更
-	//{
-	//	projectChange := server.Group("/api/v1/projectChange")
-	//	projectChange.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectChangeAdd), ProjectChangeController.Add)
-	//	projectChange.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
-	//	projectChange.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
-	//	projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList), ProjectChangeController.List)
-	//	projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance), ProjectChangeController.Instance)
-	//
-	//	// 对于禁用put和delete方法时的处理
-	//	projectChange.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
-	//	projectChange.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
-	//}
+	// 项目变更
+	{
+		projectChange := server.Group("/api/v1/projectChange")
+		projectChange.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectChangeAdd), ProjectChangeController.Add)
+		projectChange.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
+		projectChange.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
+		projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList), ProjectChangeController.List)
+		projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance), ProjectChangeController.Instance)
+
+		// 对于禁用put和delete方法时的处理
+		projectChange.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectChangeDelete), ProjectChangeController.Delete)
+		projectChange.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectChangeUpdate), ProjectChangeController.Update)
+	}
 	//
 	//// 项目问题
 	//{

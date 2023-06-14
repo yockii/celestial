@@ -99,6 +99,14 @@ const (
 	ResourceProjectTestCaseItemStepList     = ResourceProjectTestCaseItemStep + ":list"
 	ResourceProjectTestCaseItemStepInstance = ResourceProjectTestCaseItemStep + ":instance"
 
+	// 项目变更
+	ResourceProjectChange         = ResourceProjectInstance + ":change"
+	ResourceProjectChangeAdd      = ResourceProjectChange + ":add"
+	ResourceProjectChangeDelete   = ResourceProjectChange + ":delete"
+	ResourceProjectChangeUpdate   = ResourceProjectChange + ":update"
+	ResourceProjectChangeList     = ResourceProjectChange + ":list"
+	ResourceProjectChangeInstance = ResourceProjectChange + ":instance"
+
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"
 	ResourceProjectRiskAdd      = ResourceProjectRisk + ":add"

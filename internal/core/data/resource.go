@@ -408,6 +408,41 @@ func InitData() {
 					}
 				}
 			}
+
+			// 项目变更
+			{
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目变更",
+					ResourceCode: constant.ResourceProjectChange,
+					Type:         2,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "添加项目变更",
+					ResourceCode: constant.ResourceProjectChangeAdd,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "更新项目变更",
+					ResourceCode: constant.ResourceProjectChangeUpdate,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "删除项目变更",
+					ResourceCode: constant.ResourceProjectChangeDelete,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目变更列表",
+					ResourceCode: constant.ResourceProjectChangeList,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目变更详情",
+					ResourceCode: constant.ResourceProjectChangeInstance,
+					Type:         3,
+				})
+			}
+
 			// 项目风险
 			{
 				resources = append(resources, &model.Resource{

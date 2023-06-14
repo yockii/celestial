@@ -17,8 +17,8 @@ type projectChangeService struct{}
 
 // Add 添加资源
 func (s *projectChangeService) Add(instance *model.ProjectChange) (duplicated bool, success bool, err error) {
-	if instance.Title == "" || instance.Type == 0 {
-		err = errors.New("assetName and projectId is required")
+	if instance.Title == "" || instance.Type == 0 || instance.ProjectID == 0 {
+		err = errors.New("title / projectId / type is required")
 		return
 	}
 	var c int64

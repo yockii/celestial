@@ -242,3 +242,28 @@ export type ProjectTestCaseItemStep = {
   expect?: string
   status?: number
 }
+
+export type ProjectChange = {
+  id: string
+  projectId: string
+  title: string
+  type?: number
+  level?: number
+  reason?: string
+  plan?: string
+  review?: string
+  risk?: string
+  status?: number
+  applyUserId?: string
+  reviewerIdList?: string
+  result?: string
+  reviewTime?: number
+  createTime?: number
+}
+
+export type ProjectChangeCondition = Condition & {
+  projectId: string
+  type?: number
+  level?: number
+  status?: number
+}

@@ -24,10 +24,10 @@ func (c *projectChangeController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.ProjectID == 0 || instance.Title == "" {
+	if instance.ProjectID == 0 || instance.Title == "" || instance.Type == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " projectId & title",
+			Msg:  server.ResponseMsgParamNotEnough + " projectId & title & type",
 		})
 	}
 
