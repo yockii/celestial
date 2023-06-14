@@ -135,3 +135,14 @@ func (s *commonTestCaseItemService) Instance(id uint64) (instance *model.CommonT
 	}
 	return
 }
+
+func (s *commonTestCaseItemService) ListAllOnlyShow(m *model.CommonTestCaseItem) (list []*model.CommonTestCaseItem, err error) {
+	err = database.DB.Select("id,content").Where(&model.CommonTestCaseItem{
+		TestCaseID: m.TestCaseID,
+	}).Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}

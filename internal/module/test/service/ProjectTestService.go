@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"sync"
 	"time"
 )
@@ -150,17 +151,41 @@ func (s projectTestService) Close(id, closerID uint64) (success bool, err error)
 		logger.Errorln(err)
 		return
 	}
-	// 将json存入测试记录
-	if err = database.DB.Model(&model.ProjectTest{}).Where(&model.ProjectTest{ID: id}).
-		Updates(&model.ProjectTest{
-			TestRecord: string(jsonBytes),
-			EndTime:    time.Now().UnixMilli(),
-			CloserID:   instance.CloserID,
+	// 事务处理， 将json存入测试记录，同时将所有测试用例的测试项和测试步骤状态置为未测试（1）
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 将所有测试用例项步骤状态置为未测试（1）
+		if err = tx.Model(&model.ProjectTestCaseItemStep{}).Where(&model.ProjectTestCaseItemStep{
+			ProjectID: instance.ProjectID,
+		}).Updates(&model.ProjectTestCaseItemStep{
+			Status: 1,
 		}).Error; err != nil {
-		logger.Errorln(err)
+			logger.Errorln(err)
+			return err
+		}
+		// 将所有测试用例项状态置为未测试（1）
+		if err = tx.Model(&model.ProjectTestCaseItem{}).Where(&model.ProjectTestCaseItem{
+			ProjectID: instance.ProjectID,
+		}).Updates(&model.ProjectTestCaseItem{
+			Status: 1,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		// 将json存入测试记录
+		if err = tx.Model(&model.ProjectTest{}).Where(&model.ProjectTest{ID: id}).
+			Updates(&model.ProjectTest{
+				TestRecord: string(jsonBytes),
+				EndTime:    time.Now().UnixMilli(),
+				CloserID:   closerID,
+			}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	}); err != nil {
 		return
 	}
-
 	success = true
 	return
 }

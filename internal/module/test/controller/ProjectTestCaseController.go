@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/test/domain"
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/celestial/internal/module/test/service"
@@ -53,6 +54,50 @@ func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
+	})
+}
+
+func (c *projectTestCaseController) BatchAdd(ctx *fiber.Ctx) error {
+	var list []*domain.ProjectTestCaseWithItems
+	if err := ctx.BodyParser(&list); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 处理必填
+	if len(list) == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " test case list",
+		})
+	}
+
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeUnknownError,
+			Msg:  server.ResponseMsgUnknownError + err.Error(),
+		})
+	}
+
+	success, err := service.ProjectTestCaseService.BatchAdd(list, uid)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if !success {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeUnknownError,
+			Msg:  server.ResponseMsgUnknownError,
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
 	})
 }
 

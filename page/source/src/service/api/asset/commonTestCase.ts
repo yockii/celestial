@@ -65,6 +65,13 @@ export function getCommonTestCaseList(condition: CommonTestCaseCondition) {
 }
 
 /**
+ * 获取所有通用测试用例列表，只用来显示，不需要其他字段，但要有items
+ */
+export function getAllCommonTestCaseListOnlyShow() {
+  return request.get<CommonTestCase[]>("/commonTestCase/listWithItemOnlyShow")
+}
+
+/**
  * 获取通用测试用例详情
  * @param id - 通用测试用例id
  */

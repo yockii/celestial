@@ -26,6 +26,7 @@ func InitRouter() {
 	{
 		projectTest := server.Group("/api/v1/project/testCase")
 		projectTest.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectTestCaseAdd), ProjectTestCaseController.Add)
+		projectTest.Post("/batchAdd", middleware.NeedAuthorization(constant.ResourceProjectTestCaseAdd), ProjectTestCaseController.BatchAdd)
 		projectTest.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectTestCaseDelete), ProjectTestCaseController.Delete)
 		projectTest.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectTestCaseUpdate), ProjectTestCaseController.Update)
 		projectTest.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseList), ProjectTestCaseController.List)
@@ -41,8 +42,10 @@ func InitRouter() {
 	{
 		projectTestCase := server.Group("/api/v1/project/testCaseItem")
 		projectTestCase.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemAdd), ProjectTestCaseItemController.Add)
+		projectTestCase.Post("/batchAdd", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemAdd), ProjectTestCaseItemController.BatchAdd)
 		projectTestCase.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemDelete), ProjectTestCaseItemController.Delete)
 		projectTestCase.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemUpdate), ProjectTestCaseItemController.Update)
+		projectTestCase.Put("/updateStatus", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemUpdate), ProjectTestCaseItemController.UpdateStatus)
 		projectTestCase.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemList), ProjectTestCaseItemController.List)
 		projectTestCase.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemInstance), ProjectTestCaseItemController.Instance)
 

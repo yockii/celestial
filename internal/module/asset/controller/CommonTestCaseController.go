@@ -255,3 +255,39 @@ func (c *commonTestCaseController) ListWithItem(ctx *fiber.Ctx) error {
 		},
 	})
 }
+
+func (c *commonTestCaseController) ListWithItemOnlyShow(ctx *fiber.Ctx) error {
+	list, err := service.CommonTestCaseService.ListAllOnlyShow()
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	var resultList []*domain.CommonTestCaseWithItem
+	var wg sync.WaitGroup
+	for _, item := range list {
+		wg.Add(1)
+		result := &domain.CommonTestCaseWithItem{
+			CommonTestCase: *item,
+		}
+		resultList = append(resultList, result)
+		go func(ctcwi *domain.CommonTestCaseWithItem) {
+			defer wg.Done()
+			itemList, err := service.CommonTestCaseItemService.ListAllOnlyShow(&model.CommonTestCaseItem{
+				TestCaseID: ctcwi.ID,
+			})
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+			ctcwi.Items = itemList
+		}(result)
+	}
+	wg.Wait()
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: resultList,
+	})
+}

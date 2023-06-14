@@ -55,6 +55,28 @@ func (c *projectTestCaseItemController) Add(ctx *fiber.Ctx) error {
 	})
 }
 
+func (c *projectTestCaseItemController) BatchAdd(ctx *fiber.Ctx) error {
+	var list []*model.ProjectTestCaseItem
+	if err := ctx.BodyParser(&list); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	success, err := service.ProjectTestCaseItemService.BatchAdd(list)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}
+
 func (c *projectTestCaseItemController) Update(ctx *fiber.Ctx) error {
 	instance := new(model.ProjectTestCaseItem)
 	if err := ctx.BodyParser(instance); err != nil {
@@ -74,6 +96,37 @@ func (c *projectTestCaseItemController) Update(ctx *fiber.Ctx) error {
 	}
 
 	success, err := service.ProjectTestCaseItemService.Update(instance)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}
+
+func (c *projectTestCaseItemController) UpdateStatus(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectTestCaseItem)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 处理必填
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+
+	success, err := service.ProjectTestCaseItemService.UpdateStatus(instance.ID, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

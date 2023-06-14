@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import {Add} from "@vicons/carbon"
-import {ProjectTest, ProjectTestCase} from "@/types/project"
-import {addProjectTest, closeProjectTest, getProjectTest, getProjectTestList} from "@/service/api/project/projectTest"
-import {useProjectStore} from "@/store/project"
-import {storeToRefs} from "pinia"
+import { Add } from "@vicons/carbon"
+import { ProjectTest, ProjectTestCase } from "@/types/project"
+import { addProjectTest, closeProjectTest, getProjectTest, getProjectTestList } from "@/service/api/project/projectTest"
+import { useProjectStore } from "@/store/project"
+import { storeToRefs } from "pinia"
 import dayjs from "dayjs"
 import CaseTable from "./caseTable/index.vue"
+import { CaretRight } from "@vicons/carbon"
 
 const message = useMessage()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
 const testList = ref<ProjectTest[]>([])
+const caseTableRef = ref<typeof CaseTable>()
 const needCloseTest = computed(() => {
   // 判断是否需要关闭本轮测试
   if (testList.value.length === 0) {
@@ -58,6 +60,7 @@ const openNewRound = () => {
   }).then((res) => {
     if (res) {
       refreshTest()
+      caseTableRef.value?.refresh()
     }
   })
 }
@@ -111,14 +114,21 @@ onMounted(() => {
       <n-list hoverable clickable show-divider>
         <n-tooltip v-for="test in testList" :key="test.id">
           <template #trigger>
-            <n-list-item @click="handleSelectTest(test.id)"> 第{{ test.round }}轮 </n-list-item>
+            <n-list-item @click="handleSelectTest(test.id)">
+              <n-space justify="space-between">
+                <n-text :type="!test.endTime || test.endTime === 0 ? 'info' : ''">第{{ test.round }}轮</n-text>
+                <n-icon v-if="currentTest ? test.id === currentTest.id : !test.endTime || test.endTime === 0">
+                  <CaretRight />
+                </n-icon>
+              </n-space>
+            </n-list-item>
           </template>
           {{ dayjs(test.startTime).format("YYYY-MM-DD HH:mm:ss") }} ~ {{ test.endTime ? dayjs(test.endTime).format("YYYY-MM-DD HH:mm:ss") : "进行中" }}
         </n-tooltip>
       </n-list>
     </n-gi>
     <n-gi :span="5">
-      <case-table :test="currentTest" :testCaseList="currentTestCaseList" />
+      <case-table ref="caseTableRef" :test="currentTest" :testCaseList="currentTestCaseList" />
     </n-gi>
   </n-grid>
 </template>

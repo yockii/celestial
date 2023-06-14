@@ -3,10 +3,12 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/test/domain"
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -73,9 +75,30 @@ func (s *projectTestCaseService) Delete(id uint64) (success bool, err error) {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.ProjectTestCase{ID: id}).Delete(&model.ProjectTestCase{}).Error
+
+	// 事务处理，删除测试用例的同时删除测试用例下的测试项及测试项下的测试步骤
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 删除测试步骤
+		err = tx.Where(&model.ProjectTestCaseItemStep{TestCaseID: id}).Delete(&model.ProjectTestCaseItemStep{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除测试用例下的测试项
+		err = tx.Where(&model.ProjectTestCaseItem{TestCaseID: id}).Delete(&model.ProjectTestCaseItem{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除测试用例
+		err = tx.Where(&model.ProjectTestCase{ID: id}).Delete(&model.ProjectTestCase{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
 	success = true
@@ -139,4 +162,67 @@ func (s *projectTestCaseService) Instance(id uint64) (instance *model.ProjectTes
 		return
 	}
 	return
+}
+
+func (s *projectTestCaseService) BatchAdd(list []*domain.ProjectTestCaseWithItems, creatorID uint64) (bool, error) {
+	if len(list) == 0 {
+		return false, nil
+	}
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, v := range list {
+			if v.ProjectID == 0 || v.Name == "" {
+				return errors.New("test Name and projectId is required")
+			}
+			instance := new(model.ProjectTestCase)
+			err := tx.Model(&model.ProjectTestCase{}).Where(&model.ProjectTestCase{
+				ProjectID: v.ProjectID,
+				Name:      v.Name,
+			}).First(instance).Error
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					v.ID = util.SnowflakeId()
+					v.CreatorID = creatorID
+					instance = &v.ProjectTestCase
+					if err = tx.Create(instance).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				} else {
+					logger.Errorln(err)
+					continue
+				}
+			}
+
+			for _, item := range v.Items {
+				// 去重
+				if item.Name == "" {
+					continue
+				}
+				var c int64
+				err = tx.Model(&model.ProjectTestCaseItem{}).Where(&model.ProjectTestCaseItem{
+					TestCaseID: instance.ID,
+					Name:       item.Name,
+				}).Count(&c).Error
+				if err != nil {
+					logger.Errorln(err)
+					continue
+				}
+
+				item.ID = util.SnowflakeId()
+				item.TestCaseID = instance.ID
+				item.ProjectID = instance.ProjectID
+				item.Type = 1
+				item.Status = 1
+				if err = tx.Create(item).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

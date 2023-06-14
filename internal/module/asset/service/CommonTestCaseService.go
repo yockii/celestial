@@ -142,3 +142,12 @@ func (s *commonTestCaseService) Instance(id uint64) (instance *model.CommonTestC
 	}
 	return
 }
+
+func (s *commonTestCaseService) ListAllOnlyShow() (list []*model.CommonTestCase, err error) {
+	err = database.DB.Select("id,name").Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}

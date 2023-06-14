@@ -8,7 +8,9 @@ import (
 
 type ProjectTestCaseItemStep struct {
 	ID         uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	CaseItemID uint64         `json:"caseItemId,omitempty,string" gorm:"index;comment:测试用例ID"`
+	ProjectID  uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	TestCaseID uint64         `json:"testCaseId,omitempty,string" gorm:"index;comment:测试用例ID"`
+	CaseItemID uint64         `json:"caseItemId,omitempty,string" gorm:"index;comment:测试用例项ID"`
 	OrderNum   int            `json:"orderNum,omitempty" gorm:"comment:排序号"`
 	Content    string         `json:"content,omitempty" gorm:"size:500;comment:测试步骤内容"`
 	Expect     string         `json:"expect,omitempty" gorm:"size:500;comment:预期结果"`
@@ -25,6 +27,8 @@ func (*ProjectTestCaseItemStep) TableComment() string {
 func (ptcs *ProjectTestCaseItemStep) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
 	ptcs.ID = j.Get("id").Uint()
+	ptcs.ProjectID = j.Get("projectId").Uint()
+	ptcs.TestCaseID = j.Get("testCaseId").Uint()
 	ptcs.CaseItemID = j.Get("caseItemId").Uint()
 	ptcs.OrderNum = int(j.Get("orderNum").Int())
 	ptcs.Content = j.Get("content").String()

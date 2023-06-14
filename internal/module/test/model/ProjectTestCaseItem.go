@@ -11,7 +11,7 @@ type ProjectTestCaseItem struct {
 	ProjectID  uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
 	TestCaseID uint64         `json:"testCaseId,omitempty,string" gorm:"index;comment:测试ID"`
 	Name       string         `json:"name,omitempty" gorm:"size:50;comment:测试用例名称"`
-	Type       int            `json:"type,omitempty" gorm:"comment:测试用例类型 1-功能测试 2-性能测试 3-安全测试 4-兼容性测试 5-接口测试 9-其他"`
+	Type       int            `json:"type,omitempty" gorm:"comment:测试用例类型 1-功能测试 2-性能测试 3-安全测试 4-兼容性测试 5-接口测试 6-压力测试 9-其他"`
 	Content    string         `json:"content,omitempty" gorm:"comment:测试用例内容"`
 	Status     int            `json:"status,omitempty" gorm:"comment:测试用例状态 1-未测试 2-已通过 -1-未通过"`
 	CreateTime int64          `json:"createTime,omitempty" gorm:"autoCreateTime:milli"`
