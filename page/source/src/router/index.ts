@@ -54,6 +54,9 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "detail/:id",
         name: "ProjectDetail",
+        redirect: {
+          name: "ProjectDashboard"
+        },
         component: () => import("@/views/project/detail/index.vue"),
         meta: {
           label: () => `【${useProjectStore().project.name}】总览`
@@ -61,7 +64,6 @@ const routes: Array<RouteRecordRaw> = [
         children: [
           {
             path: "dashboard",
-            alias: "",
             name: "ProjectDashboard",
             meta: {
               title: "项目总览",
