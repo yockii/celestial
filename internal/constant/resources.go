@@ -107,6 +107,14 @@ const (
 	ResourceProjectChangeList     = ResourceProjectChange + ":list"
 	ResourceProjectChangeInstance = ResourceProjectChange + ":instance"
 
+	// 项目缺陷
+	ResourceProjectIssue         = ResourceProjectInstance + ":issue"
+	ResourceProjectIssueAdd      = ResourceProjectIssue + ":add"
+	ResourceProjectIssueDelete   = ResourceProjectIssue + ":delete"
+	ResourceProjectIssueUpdate   = ResourceProjectIssue + ":update"
+	ResourceProjectIssueList     = ResourceProjectIssue + ":list"
+	ResourceProjectIssueInstance = ResourceProjectIssue + ":instance"
+
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"
 	ResourceProjectRiskAdd      = ResourceProjectRisk + ":add"

@@ -31,16 +31,6 @@ export function getProjectChange(id: string) {
 }
 
 /**
- * 根据projectId获取当前项目执行中变更
- * @param projectId - 项目id
- */
-export function getExecutingProjectChangeByProjectId(projectId: string) {
-  return request.get<ProjectChange>("/projectChange/executing", {
-    params: { projectId }
-  })
-}
-
-/**
  * 删除项目变更
  * @param id - 项目变更id
  */

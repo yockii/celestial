@@ -37,6 +37,7 @@ func (s *projectIssueService) Add(instance *model.ProjectIssue) (duplicated bool
 	}
 
 	instance.ID = util.SnowflakeId()
+	instance.Status = 1
 
 	if err = database.DB.Create(instance).Error; err != nil {
 		logger.Errorln(err)
@@ -54,17 +55,17 @@ func (s *projectIssueService) Update(instance *model.ProjectIssue) (success bool
 	}
 
 	err = database.DB.Where(&model.ProjectIssue{ID: instance.ID}).Updates(&model.ProjectIssue{
-		ProjectID:    instance.ProjectID,
-		Title:        instance.Title,
-		Content:      instance.Content,
-		Type:         instance.Type,
-		Status:       instance.Status,
-		AssignUserID: instance.AssignUserID,
-		StartTime:    instance.StartTime,
-		EndTime:      instance.EndTime,
-		SolveTime:    instance.SolveTime,
-		IssueCause:   instance.IssueCause,
-		SolveMethod:  instance.SolveMethod,
+		ProjectID:   instance.ProjectID,
+		Title:       instance.Title,
+		Content:     instance.Content,
+		Type:        instance.Type,
+		Status:      instance.Status,
+		AssigneeID:  instance.AssigneeID,
+		StartTime:   instance.StartTime,
+		EndTime:     instance.EndTime,
+		SolveTime:   instance.SolveTime,
+		IssueCause:  instance.IssueCause,
+		SolveMethod: instance.SolveMethod,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -122,10 +123,10 @@ func (s *projectIssueService) PaginateBetweenTimes(condition *model.ProjectIssue
 	}
 
 	err = tx.Find(&list, &model.ProjectIssue{
-		Type:         condition.Type,
-		ProjectID:    condition.ProjectID,
-		AssignUserID: condition.AssignUserID,
-		Status:       condition.Status,
+		Type:       condition.Type,
+		ProjectID:  condition.ProjectID,
+		AssigneeID: condition.AssigneeID,
+		Status:     condition.Status,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)

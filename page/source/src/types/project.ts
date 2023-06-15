@@ -267,3 +267,31 @@ export type ProjectChangeCondition = Condition & {
   level?: number
   status?: number
 }
+
+export type ProjectIssue = {
+  id: string
+  projectId: string
+  title: string
+  type?: number
+  level?: number
+  content?: string
+  status?: number
+  assigneeId?: string
+  creatorId?: string
+  createTime?: number
+  updateTime?: number
+  startTime?: number
+  endTime?: number
+  solveTime?: number
+  issueCause?: string
+  solveMethod?: string
+}
+
+export type ProjectIssueCondition = Condition & {
+  projectId: string
+  type?: number
+  level?: number
+  status?: number
+  assigneeId?: string
+  creatorId?: string
+}

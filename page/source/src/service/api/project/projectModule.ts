@@ -31,16 +31,6 @@ export function getProjectModule(id: string) {
 }
 
 /**
- * 根据projectId获取当前项目执行中模块
- * @param projectId - 项目id
- */
-export function getExecutingProjectModuleByProjectId(projectId: string) {
-  return request.get<ProjectModule>("/projectModule/executing", {
-    params: { projectId }
-  })
-}
-
-/**
  * 删除项目模块
  * @param id - 项目模块id
  */
