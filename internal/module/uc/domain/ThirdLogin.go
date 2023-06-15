@@ -14,6 +14,7 @@ type ThirdSourceListRequest struct {
 type ThirdSourcePublic struct {
 	ID     uint64 `json:"id,string"`
 	Name   string `json:"name"`
+	Code   string `json:"code"`
 	AppKey string `json:"appKey"`
 	CorpID string `json:"corpId"`
 }

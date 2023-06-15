@@ -385,7 +385,6 @@ const drawerTitle = computed(() => (isUpdate.value ? "修改角色" : "新增角
 const checkedData = ref<Role>({ dataPermission: 0, desc: "", type: 0, id: "", status: 1, name: "" })
 const formRef = ref<FormInst | null>(null)
 const handleCommitData = () => {
-  console.log(checkedData.value)
   formRef.value?.validate((errors) => {
     if (errors) {
       return

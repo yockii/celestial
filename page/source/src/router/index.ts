@@ -169,7 +169,7 @@ const routes: Array<RouteRecordRaw> = [
         name: "TaskList",
         component: () => import("@/views/task/list/index.vue"),
         meta: {
-          label: () => "任务列表"
+          label: () => "我的任务"
         }
       }
     ]
@@ -187,7 +187,7 @@ const routes: Array<RouteRecordRaw> = [
         name: "TestList",
         component: () => import("@/views/test/list/index.vue"),
         meta: {
-          label: () => "测试列表"
+          label: () => "我的测试"
         }
       }
     ]

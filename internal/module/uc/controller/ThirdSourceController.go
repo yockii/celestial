@@ -210,6 +210,7 @@ func (c *thirdSourceController) PublicList(ctx *fiber.Ctx) error {
 		tsp := &domain.ThirdSourcePublic{
 			ID:     item.ID,
 			Name:   item.Name,
+			Code:   item.Code,
 			CorpID: item.CorpId,
 			AppKey: appKey,
 		}

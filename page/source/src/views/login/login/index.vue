@@ -2,12 +2,14 @@
 import { ref } from "vue"
 import { FormInst, FormItemInst, FormRules, useMessage } from "naive-ui"
 import { UserPlus } from "@vicons/tabler"
-import { login } from "@/service"
+import { login, loginInDingTalk } from "@/service"
 import { useUserStore } from "@/store/user"
 import { useRouter } from "vue-router"
 import { storeToRefs } from "pinia"
 import { useAppStore } from "@/store/app"
 import { getThirdSourcePublic } from "@/service/api/settings/thirdSource"
+import dd from "dingtalk-jsapi"
+
 const formRef = ref<FormInst | null>(null)
 const rPasswordFormItemRef = ref<FormItemInst | null>(null)
 const message = useMessage()
@@ -94,14 +96,56 @@ const handleDingtalkLogin = (id: string) => {
 
 // 加载初始化
 onMounted(() => {
-  if (thirdSourceList.value.length === 0) {
-    getThirdSourcePublic().then((res) => {
-      if (res) {
-        thirdSourceList.value = res
-      }
-    })
-  }
+  getThirdSourcePublic().then((res) => {
+    if (res) {
+      thirdSourceList.value = res
+      loginInDingtalk()
+    }
+  })
 })
+
+const dingtalkThirdSource = computed(() => {
+  return thirdSourceList.value.find((item) => item.code === "dingtalk")
+})
+const loginInDingtalk = () => {
+  if (dd.env.platform === "notInDingTalk") {
+    console.warn("当前非钉钉环境，无法使用钉钉自动免登，将呈现登录页面")
+  } else {
+    if (dingtalkThirdSource.value) {
+      // 尝试钉钉自动免登
+      dd.ready(() => {
+        dd.runtime.permission
+          .requestAuthCode({
+            corpId: import.meta.env.VITE_DD_CORPID
+          })
+          .then((info: { code: string }) => {
+            dingtalkThirdSource.value &&
+              loginInDingTalk(dingtalkThirdSource.value.id, info.code).then((data) => {
+                if (data.token === "") {
+                  message.error("登录失败, 未获取到token")
+                  return
+                }
+                userStore.setToken(data.token)
+                userStore.setUserInfo(data.user)
+                message.success("登录成功")
+                const to = {
+                  name: "Home"
+                }
+                if (appStore.activeSubMenuKey !== "") {
+                  to.name = appStore.activeSubMenuKey
+                } else if (appStore.activeMenuKey !== "") {
+                  to.name = appStore.activeMenuKey
+                }
+                router.push(to)
+              })
+          })
+          .catch((e) => {
+            console.warn(e)
+          })
+      })
+    }
+  }
+}
 </script>
 
 <template>

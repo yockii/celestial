@@ -3,6 +3,7 @@ import { Condition } from "./common"
 export type ThirdSourcePublic = {
   id: string
   name: string
+  code: string
   appKey: string
   corpId: string
 }

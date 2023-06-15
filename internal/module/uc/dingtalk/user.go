@@ -39,6 +39,11 @@ func GetUserOutsideDingtalk(source *model.ThirdSource, code string) (staffId, un
 		logger.Errorln(err)
 		return
 	}
+	if uj.Get("code").Exists() && uj.Get("message").Exists() {
+		err = fmt.Errorf("获取用户信息失败，错误码：%s，错误信息：%s", uj.Get("code").String(), uj.Get("message").String())
+		logger.Errorln(err)
+		return
+	}
 	unionId = uj.Get("unionId").String()
 	if unionId == "" {
 		err = fmt.Errorf("unionId为空")
@@ -157,6 +162,11 @@ func (c *client) GetUserInfoByUserAccessToken(userAccessToken string) (userJson 
 	}(resp.Body)
 	res, err := io.ReadAll(resp.Body)
 	if err != nil {
+		return
+	}
+	if resp.StatusCode != 200 {
+		err = fmt.Errorf("获取用户信息失败，错误码：%d, 错误信息: %s", resp.StatusCode, string(res))
+		logger.Errorln(err)
 		return
 	}
 	userJson = string(res)

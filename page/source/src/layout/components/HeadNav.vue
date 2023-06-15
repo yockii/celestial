@@ -63,7 +63,6 @@ const { mainMenus: menuOptions } = storeToRefs(memStore)
 
 const historyList = computed(() => [...history.value].reverse())
 const renderHistory = ({ node, option }: { node: VNode; option: RouteHistory }) => {
-  console.log(option)
   return h(
     NTooltip,
     { keepAliveOnHover: false, style: { width: "max-content" } },

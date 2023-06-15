@@ -24,6 +24,5 @@
 import LoginForm from "./login/index.vue"
 import RegisterForm from "./register/index.vue"
 import { ref } from "vue"
-
 const isLogin = ref(true)
 </script>

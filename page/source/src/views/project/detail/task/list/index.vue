@@ -199,7 +199,6 @@ const membersColumn = reactive({
         size: 20,
         max: 5,
         options: row.members?.map((item) => {
-          console.log
           return {
             name: item.realName,
             src: item.realName
