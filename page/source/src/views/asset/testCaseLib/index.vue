@@ -45,7 +45,7 @@ const caseNameColumn = {
       {
         cols: 2
       },
-      [
+      () => [
         h(NGridItem, null, {
           default: () =>
             h(
@@ -64,32 +64,34 @@ const caseNameColumn = {
           },
           {
             default: () =>
-              h(NButtonGroup, {}, [
+              h(NButtonGroup, {}, () => [
                 h(
                   NTooltip,
                   {},
                   {
                     default: () => "新增用例项",
-                    trigger: h(
-                      NButton,
-                      {
-                        type: "primary",
-                        size: "small",
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:addItem"),
-                        onClick: () => {
-                          handleNewItem(row.testCase.id)
-                        }
-                      },
-                      {
-                        icon: h(
-                          NIcon,
-                          {},
-                          {
-                            default: () => h(PlaylistAdd)
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          type: "primary",
+                          size: "small",
+                          disabled: !userStore.hasResourceCode("asset:commonTestCase:addItem"),
+                          onClick: () => {
+                            handleNewItem(row.testCase.id)
                           }
-                        )
-                      }
-                    )
+                        },
+                        {
+                          icon: () =>
+                            h(
+                              NIcon,
+                              {},
+                              {
+                                default: () => h(PlaylistAdd)
+                              }
+                            )
+                        }
+                      )
                   }
                 ),
                 h(
@@ -97,22 +99,23 @@ const caseNameColumn = {
                   {},
                   {
                     default: () => "编辑用例",
-                    trigger: h(
-                      NButton,
-                      {
-                        type: "primary",
-                        size: "small",
-                        secondary: true,
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:update"),
-                        onClick: () => {
-                          currentCase.value = row.testCase
-                          caseDrawerActive.value = true
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          type: "primary",
+                          size: "small",
+                          secondary: true,
+                          disabled: !userStore.hasResourceCode("asset:commonTestCase:update"),
+                          onClick: () => {
+                            currentCase.value = row.testCase
+                            caseDrawerActive.value = true
+                          }
+                        },
+                        {
+                          icon: () => h(NIcon, {}, { default: () => h(Edit) })
                         }
-                      },
-                      {
-                        icon: h(NIcon, {}, { default: () => h(Edit) })
-                      }
-                    )
+                      )
                   }
                 ),
                 h(
@@ -120,25 +123,26 @@ const caseNameColumn = {
                   {},
                   {
                     default: () => "删除用例",
-                    trigger: h(
-                      NPopconfirm,
-                      {
-                        onPositiveClick: () => handleDeleteData(row.testCase.id)
-                      },
-                      {
-                        default: () => "确认删除该用例吗？",
-                        trigger: () =>
-                          h(
-                            NButton,
-                            {
-                              type: "error",
-                              disabled: !userStore.hasResourceCode("asset:commonTestCase:delete"),
-                              size: "small"
-                            },
-                            { icon: h(NIcon, {}, { default: () => h(Trash) }) }
-                          )
-                      }
-                    )
+                    trigger: () =>
+                      h(
+                        NPopconfirm,
+                        {
+                          onPositiveClick: () => handleDeleteData(row.testCase.id)
+                        },
+                        {
+                          default: () => "确认删除该用例吗？",
+                          trigger: () =>
+                            h(
+                              NButton,
+                              {
+                                type: "error",
+                                disabled: !userStore.hasResourceCode("asset:commonTestCase:delete"),
+                                size: "small"
+                              },
+                              { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }
+                            )
+                        }
+                      )
                   }
                 )
               ])
@@ -166,7 +170,7 @@ const caseItemColumn = {
       {
         cols: 2
       },
-      [
+      () => [
         h(NGridItem, null, {
           default: () =>
             h(
@@ -185,28 +189,29 @@ const caseItemColumn = {
           },
           {
             default: () =>
-              h(NButtonGroup, {}, [
+              h(NButtonGroup, {}, () => [
                 h(
                   NTooltip,
                   {},
                   {
                     default: () => "编辑用例项",
-                    trigger: h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "primary",
-                        secondary: true,
-                        disabled: !userStore.hasResourceCode("asset:commonTestCase:updateItem"),
-                        onClick: () => {
-                          currentItem.value = row.testCaseItem
-                          itemDrawerActive.value = true
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          secondary: true,
+                          disabled: !userStore.hasResourceCode("asset:commonTestCase:updateItem"),
+                          onClick: () => {
+                            currentItem.value = row.testCaseItem
+                            itemDrawerActive.value = true
+                          }
+                        },
+                        {
+                          icon: () => h(NIcon, {}, { default: () => h(Edit) })
                         }
-                      },
-                      {
-                        icon: h(NIcon, {}, { default: () => h(Edit) })
-                      }
-                    )
+                      )
                   }
                 ),
                 h(
@@ -214,25 +219,26 @@ const caseItemColumn = {
                   {},
                   {
                     default: () => "删除用例项",
-                    trigger: h(
-                      NPopconfirm,
-                      {
-                        onPositiveClick: () => handleDeleteItem(row.testCaseItem.id)
-                      },
-                      {
-                        default: () => "确认删除该用例项吗？",
-                        trigger: () =>
-                          h(
-                            NButton,
-                            {
-                              type: "error",
-                              disabled: !userStore.hasResourceCode("asset:commonTestCase:deleteItem"),
-                              size: "small"
-                            },
-                            { icon: h(NIcon, {}, { default: () => h(Trash) }) }
-                          )
-                      }
-                    )
+                    trigger: () =>
+                      h(
+                        NPopconfirm,
+                        {
+                          onPositiveClick: () => handleDeleteItem(row.testCaseItem.id)
+                        },
+                        {
+                          default: () => "确认删除该用例项吗？",
+                          trigger: () =>
+                            h(
+                              NButton,
+                              {
+                                type: "error",
+                                disabled: !userStore.hasResourceCode("asset:commonTestCase:deleteItem"),
+                                size: "small"
+                              },
+                              { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }
+                            )
+                        }
+                      )
                   }
                 )
               ])

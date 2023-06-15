@@ -173,40 +173,42 @@ const columns = [
         {
           justify: "space-between"
         },
-        [
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => row.lv1Module.remark || row.lv1Module.name,
-              trigger: () => row.lv1Column
-            }
-          ),
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => "编辑",
-              trigger: () =>
-                h(
-                  NButton,
-                  {
-                    size: "small",
-                    type: "primary",
-                    secondary: true,
-                    disabled: !userStore.hasResourceCode("project:detail:module:update"),
-                    onClick: () => handleEditData(row.lv1Module)
-                  },
-                  {
-                    default: () =>
-                      h(NIcon, {
-                        component: Edit
-                      })
-                  }
-                )
-            }
-          )
-        ]
+        {
+          default: () => [
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.lv1Module.remark || row.lv1Module.name,
+                trigger: () => row.lv1Column
+              }
+            ),
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => "编辑",
+                trigger: () =>
+                  h(
+                    NButton,
+                    {
+                      size: "small",
+                      type: "primary",
+                      secondary: true,
+                      disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                      onClick: () => handleEditData(row.lv1Module)
+                    },
+                    {
+                      default: () =>
+                        h(NIcon, {
+                          component: Edit
+                        })
+                    }
+                  )
+              }
+            )
+          ]
+        }
       )
   },
   {
@@ -219,42 +221,44 @@ const columns = [
         {
           justify: "space-between"
         },
-        [
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => row.lv2Module?.remark || row.lv2Module?.name,
-              trigger: () => row.lv2Column
-            }
-          ),
-          row.lv2Module
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "编辑",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "primary",
-                        secondary: true,
-                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
-                        onClick: () => (row.lv2Module ? handleEditData(row.lv2Module) : "")
-                      },
-                      {
-                        default: () =>
-                          h(NIcon, {
-                            component: Edit
-                          })
-                      }
-                    )
-                }
-              )
-            : ""
-        ]
+        {
+          default: () => [
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.lv2Module?.remark || row.lv2Module?.name,
+                trigger: () => row.lv2Column
+              }
+            ),
+            row.lv2Module
+              ? h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "编辑",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          secondary: true,
+                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          onClick: () => (row.lv2Module ? handleEditData(row.lv2Module) : "")
+                        },
+                        {
+                          default: () =>
+                            h(NIcon, {
+                              component: Edit
+                            })
+                        }
+                      )
+                  }
+                )
+              : ""
+          ]
+        }
       )
   },
   {
@@ -267,42 +271,44 @@ const columns = [
         {
           justify: "space-between"
         },
-        [
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => row.lv3Module?.remark || row.lv3Module?.name,
-              trigger: () => row.lv3Column
-            }
-          ),
-          row.lv3Module
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "编辑",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "primary",
-                        secondary: true,
-                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
-                        onClick: () => (row.lv3Module ? handleEditData(row.lv3Module) : "")
-                      },
-                      {
-                        default: () =>
-                          h(NIcon, {
-                            component: Edit
-                          })
-                      }
-                    )
-                }
-              )
-            : ""
-        ]
+        {
+          default: () => [
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.lv3Module?.remark || row.lv3Module?.name,
+                trigger: () => row.lv3Column
+              }
+            ),
+            row.lv3Module
+              ? h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "编辑",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          secondary: true,
+                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          onClick: () => (row.lv3Module ? handleEditData(row.lv3Module) : "")
+                        },
+                        {
+                          default: () =>
+                            h(NIcon, {
+                              component: Edit
+                            })
+                        }
+                      )
+                  }
+                )
+              : ""
+          ]
+        }
       )
   },
   {
@@ -315,42 +321,44 @@ const columns = [
         {
           justify: "space-between"
         },
-        [
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => row.lv4Module?.remark || row.lv4Module?.name,
-              trigger: () => row.lv4Column
-            }
-          ),
-          row.lv4Module
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "编辑",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "primary",
-                        secondary: true,
-                        disabled: !userStore.hasResourceCode("project:detail:module:update"),
-                        onClick: () => (row.lv4Module ? handleEditData(row.lv4Module) : "")
-                      },
-                      {
-                        default: () =>
-                          h(NIcon, {
-                            component: Edit
-                          })
-                      }
-                    )
-                }
-              )
-            : ""
-        ]
+        {
+          default: () => [
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => row.lv4Module?.remark || row.lv4Module?.name,
+                trigger: () => row.lv4Column
+              }
+            ),
+            row.lv4Module
+              ? h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "编辑",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "primary",
+                          secondary: true,
+                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          onClick: () => (row.lv4Module ? handleEditData(row.lv4Module) : "")
+                        },
+                        {
+                          default: () =>
+                            h(NIcon, {
+                              component: Edit
+                            })
+                        }
+                      )
+                  }
+                )
+              : ""
+          ]
+        }
       )
   },
   {
@@ -366,51 +374,59 @@ const columns = [
             {
               justify: "space-between"
             },
-            [
-              "待评审",
-              h(NButtonGroup, {}, [
+            {
+              default: () => [
+                "待评审",
                 h(
-                  NTooltip,
+                  NButtonGroup,
                   {},
                   {
-                    default: () => "评审通过",
-                    trigger: () =>
+                    default: () => [
                       h(
-                        NButton,
+                        NTooltip,
+                        {},
                         {
-                          size: "small",
-                          type: "primary",
-                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
-                          onClick: () => handleReviewData(module, 2)
-                        },
+                          default: () => "评审通过",
+                          trigger: () =>
+                            h(
+                              NButton,
+                              {
+                                size: "small",
+                                type: "primary",
+                                disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                                onClick: () => handleReviewData(module, 2)
+                              },
+                              {
+                                default: () => h(NIcon, { component: AiStatusComplete })
+                              }
+                            )
+                        }
+                      ),
+                      h(
+                        NTooltip,
+                        {},
                         {
-                          default: () => h(NIcon, { component: AiStatusComplete })
+                          default: () => "评审不通过",
+                          trigger: () =>
+                            h(
+                              NButton,
+                              {
+                                size: "small",
+                                type: "error",
+                                disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                                onClick: () => handleReviewData(module, -1)
+                              },
+                              {
+                                default: () => h(NIcon, { component: AiStatusFailed })
+                              }
+                            )
                         }
                       )
-                  }
-                ),
-                h(
-                  NTooltip,
-                  {},
-                  {
-                    default: () => "评审不通过",
-                    trigger: () =>
-                      h(
-                        NButton,
-                        {
-                          size: "small",
-                          type: "error",
-                          disabled: !userStore.hasResourceCode("project:detail:module:review"),
-                          onClick: () => handleReviewData(module, -1)
-                        },
-                        {
-                          default: () => h(NIcon, { component: AiStatusFailed })
-                        }
-                      )
+                    ]
                   }
                 )
-              ])
-            ]
+              ]
+            }
           )
         case 2:
           return "评审通过"

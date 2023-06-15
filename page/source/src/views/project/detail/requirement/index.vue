@@ -185,122 +185,152 @@ const statusColumn = reactive({
     switch (row.status) {
       case 1:
         // "待设计"
-        return h(NSpace, { justify: "space-between" }, [
-          h("span", {}, { default: () => "待设计" }),
-          userStore.hasResourceCode("project:detail:requirement:statusDesign")
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "设计完成",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "info",
-                        onClick: () => handleDesigned(row)
-                      },
-                      { default: () => h(NIcon, { component: BrushFreehand }) }
-                    )
-                }
-              )
-            : ""
-        ])
+        return h(
+          NSpace,
+          { justify: "space-between" },
+          {
+            default: () => [
+              h("span", {}, { default: () => "待设计" }),
+              userStore.hasResourceCode("project:detail:requirement:statusDesign")
+                ? h(
+                    NTooltip,
+                    {},
+                    {
+                      default: () => "设计完成",
+                      trigger: () =>
+                        h(
+                          NButton,
+                          {
+                            size: "small",
+                            type: "info",
+                            onClick: () => handleDesigned(row)
+                          },
+                          { default: () => h(NIcon, { component: BrushFreehand }) }
+                        )
+                    }
+                  )
+                : ""
+            ]
+          }
+        )
       case 2:
         // "待评审"
-        return h(NSpace, { justify: "space-between" }, [
-          h("span", {}, { default: () => "待评审" }),
-          userStore.hasResourceCode("project:detail:requirement:statusReview")
-            ? h(NButtonGroup, {}, [
-                h(
-                  NTooltip,
-                  {},
-                  {
-                    default: () => "评审通过",
-                    trigger: () =>
-                      h(
-                        NButton,
-                        {
-                          size: "small",
-                          type: "primary",
-                          onClick: () => handleReview(row, 3)
-                        },
-                        { default: () => h(NIcon, { component: AiStatusComplete }) }
-                      )
-                  }
-                ),
-                h(
-                  NTooltip,
-                  {},
-                  {
-                    default: () => "评审不通过",
-                    trigger: () =>
-                      h(
-                        NButton,
-                        {
-                          size: "small",
-                          type: "error",
-                          onClick: () => handleReview(row, -1)
-                        },
-                        { default: () => h(NIcon, { component: AiStatusFailed }) }
-                      )
-                  }
-                )
-              ])
-            : ""
-        ])
+        return h(
+          NSpace,
+          { justify: "space-between" },
+          {
+            default: () => [
+              h("span", {}, { default: () => "待评审" }),
+              userStore.hasResourceCode("project:detail:requirement:statusReview")
+                ? h(
+                    NButtonGroup,
+                    {},
+                    {
+                      default: () => [
+                        h(
+                          NTooltip,
+                          {},
+                          {
+                            default: () => "评审通过",
+                            trigger: () =>
+                              h(
+                                NButton,
+                                {
+                                  size: "small",
+                                  type: "primary",
+                                  onClick: () => handleReview(row, 3)
+                                },
+                                { default: () => h(NIcon, { component: AiStatusComplete }) }
+                              )
+                          }
+                        ),
+                        h(
+                          NTooltip,
+                          {},
+                          {
+                            default: () => "评审不通过",
+                            trigger: () =>
+                              h(
+                                NButton,
+                                {
+                                  size: "small",
+                                  type: "error",
+                                  onClick: () => handleReview(row, -1)
+                                },
+                                { default: () => h(NIcon, { component: AiStatusFailed }) }
+                              )
+                          }
+                        )
+                      ]
+                    }
+                  )
+                : ""
+            ]
+          }
+        )
       case 3:
         // "评审通过"
-        return h(NSpace, { justify: "space-between" }, [
-          h("span", {}, { default: () => "评审通过" }),
-          userStore.hasResourceCode("project:detail:requirement:statusComplete")
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "完成",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "primary",
-                        secondary: true,
-                        onClick: () => handleCompleted(row)
-                      },
-                      { default: () => h(NIcon, { component: CodeOutlined }) }
-                    )
-                }
-              )
-            : ""
-        ])
+        return h(
+          NSpace,
+          { justify: "space-between" },
+          {
+            default: () => [
+              h("span", {}, { default: () => "评审通过" }),
+              userStore.hasResourceCode("project:detail:requirement:statusComplete")
+                ? h(
+                    NTooltip,
+                    {},
+                    {
+                      default: () => "完成",
+                      trigger: () =>
+                        h(
+                          NButton,
+                          {
+                            size: "small",
+                            type: "primary",
+                            secondary: true,
+                            onClick: () => handleCompleted(row)
+                          },
+                          { default: () => h(NIcon, { component: CodeOutlined }) }
+                        )
+                    }
+                  )
+                : ""
+            ]
+          }
+        )
       case 9:
         return "已完成"
       case -1:
         // "评审未通过", 可以再次设计完成
-        return h(NSpace, { justify: "space-between" }, [
-          h("span", {}, { default: () => "评审未通过" }),
-          userStore.hasResourceCode("project:detail:requirement:statusDesign")
-            ? h(
-                NTooltip,
-                {},
-                {
-                  default: () => "设计完成",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "info",
-                        onClick: () => handleDesigned(row)
-                      },
-                      { default: () => h(NIcon, { component: BrushFreehand }) }
-                    )
-                }
-              )
-            : ""
-        ])
+        return h(
+          NSpace,
+          { justify: "space-between" },
+          {
+            default: () => [
+              h("span", {}, { default: () => "评审未通过" }),
+              userStore.hasResourceCode("project:detail:requirement:statusDesign")
+                ? h(
+                    NTooltip,
+                    {},
+                    {
+                      default: () => "设计完成",
+                      trigger: () =>
+                        h(
+                          NButton,
+                          {
+                            size: "small",
+                            type: "info",
+                            onClick: () => handleDesigned(row)
+                          },
+                          { default: () => h(NIcon, { component: BrushFreehand }) }
+                        )
+                    }
+                  )
+                : ""
+            ]
+          }
+        )
       default:
         return "未知"
     }

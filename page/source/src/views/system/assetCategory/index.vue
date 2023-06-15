@@ -233,7 +233,7 @@ const rules = {
 // 加载子级
 const getChildren = (parentId: string, type = 0) => {
   return getAssetCategoryList({ type, parentId, offset: -1, limit: -1, onlyParent: !parentId }).then((res) => {
-    return res.items
+    return res.items || []
   })
 }
 const loadChildren = (row: AssetCategory) => {

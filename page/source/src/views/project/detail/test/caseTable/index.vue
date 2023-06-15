@@ -388,7 +388,7 @@ const refresh = () => {
   getProjectTestCaseListWithItems(condition.value)
     .then((res) => {
       if (res) {
-        dynamicTestCaseList.value = res.items
+        dynamicTestCaseList.value = res.items || []
         pagination.itemCount = res.total
         pagination.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
         pagination.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1

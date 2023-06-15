@@ -173,33 +173,6 @@ onMounted(() => {
             <component :is="Component" />
           </keep-alive>
         </router-view>
-        <!-- <keep-alive>
-          <dashboard v-if="project && tab == '项目总览'" />
-        </keep-alive>
-        <keep-alive>
-          <plan v-if="project && tab == '项目计划'" />
-        </keep-alive>
-        <keep-alive>
-          <module v-if="project && tab == '功能模块'" />
-        </keep-alive>
-        <keep-alive>
-          <requirement v-if="project && tab == '项目需求'" />
-        </keep-alive>
-        <keep-alive>
-          <task v-if="project && tab == '工作任务'" />
-        </keep-alive>
-        <keep-alive>
-          <test v-if="project && tab == '项目测试'" />
-        </keep-alive>
-        <keep-alive>
-          <issue v-if="project && tab == '项目缺陷'" />
-        </keep-alive>
-        <keep-alive>
-          <risk v-if="project && tab == '项目风险'" />
-        </keep-alive>
-        <keep-alive>
-          <asset v-if="project && tab == '项目资产'" />
-        </keep-alive> -->
       </template>
     </n-layout-content>
   </n-layout>

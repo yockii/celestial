@@ -255,7 +255,7 @@ const refresh = () => {
   loading.value = true
   getProjectAssetList(condition.value)
     .then((res) => {
-      list.value = res.items
+      list.value = res.items || []
       pagination.itemCount = res.total
       pagination.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
       pagination.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1

@@ -49,13 +49,13 @@ export const useMemStore = defineStore("mem", {
         icon: renderIcon(ProjectOutlined)
       },
       {
-        label: "任务",
+        label: renderLinkedLabel("任务", "Task", true),
         key: "Task",
         code: "task",
         icon: renderIcon(TaskView)
       },
       {
-        label: "测试",
+        label: renderLinkedLabel("测试", "Test", true),
         key: "Test",
         code: "test",
         icon: renderIcon(ToolKit)

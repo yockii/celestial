@@ -16,13 +16,13 @@ type ProjectIssue struct {
 	Status      uint8          `json:"status,omitempty" gorm:"comment:问题状态 1-新建 2-已指定 3-处理中 4-待验证 5-已解决 9-已关闭"`
 	CreatorID   uint64         `json:"creatorId,omitempty,string" gorm:"index;comment:创建人ID"`
 	AssigneeID  uint64         `json:"assigneeId,omitempty,string" gorm:"index;comment:指派人ID"`
-	StartTime   uint64         `json:"startTime,omitempty,string" gorm:"comment:开始解决时间"`
-	EndTime     uint64         `json:"endTime,omitempty,string" gorm:"comment:解决完成时间"`
+	StartTime   int64          `json:"startTime,omitempty" gorm:"comment:开始解决时间"`
+	EndTime     int64          `json:"endTime,omitempty" gorm:"comment:解决完成时间"`
 	SolveTime   int64          `json:"solveTime,omitempty" gorm:"comment:解决耗时"`
 	IssueCause  string         `json:"issueCause,omitempty" gorm:"comment:问题原因"`
 	SolveMethod string         `json:"solveMethod,omitempty" gorm:"comment:解决方法"`
-	CreateTime  uint64         `json:"createTime,omitempty,string" gorm:"autoCreateTime:milli"`
-	UpdateTime  uint64         `json:"updateTime,omitempty,string" gorm:"autoUpdateTime:milli"`
+	CreateTime  int64          `json:"createTime,omitempty" gorm:"autoCreateTime:milli"`
+	UpdateTime  int64          `json:"updateTime,omitempty" gorm:"autoUpdateTime:milli"`
 	DeleteTime  gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 
@@ -41,8 +41,8 @@ func (pi *ProjectIssue) UnmarshalJSON(b []byte) error {
 	pi.Status = uint8(j.Get("status").Uint())
 	pi.CreatorID = j.Get("creatorId").Uint()
 	pi.AssigneeID = j.Get("assigneeId").Uint()
-	pi.StartTime = j.Get("startTime").Uint()
-	pi.EndTime = j.Get("endTime").Uint()
+	pi.StartTime = j.Get("startTime").Int()
+	pi.EndTime = j.Get("endTime").Int()
 	pi.SolveTime = j.Get("solveTime").Int()
 	pi.IssueCause = j.Get("issueCause").String()
 	pi.SolveMethod = j.Get("solveMethod").String()

@@ -159,12 +159,15 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/task",
     name: "Task",
+    redirect: {
+      name: "TaskList"
+    },
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
         name: "TaskList",
-        component: () => import("@/views/project/list/index.vue"),
+        component: () => import("@/views/task/list/index.vue"),
         meta: {
           label: () => "任务列表"
         }
@@ -174,12 +177,15 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/test",
     name: "Test",
+    redirect: {
+      name: "TestList"
+    },
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "list",
         name: "TestList",
-        component: () => import("@/views/project/list/index.vue"),
+        component: () => import("@/views/test/list/index.vue"),
         meta: {
           label: () => "测试列表"
         }

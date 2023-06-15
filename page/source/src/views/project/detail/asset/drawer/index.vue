@@ -147,7 +147,7 @@ const loadCategory = (option: AssetCategory) => {
       limit: -1,
       type: 2
     }).then((res) => {
-      option.children = res.items
+      option.children = res.items || []
       resolve()
     })
   })
