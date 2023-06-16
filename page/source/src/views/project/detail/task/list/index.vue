@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getProjectTask, getProjectTaskList } from "@/service/api/project/projectTask"
+import { getProjectTask, getProjectTaskList } from "@/service/api"
 import { ProjectTask, ProjectTaskCondition } from "@/types/project"
 import {
   NAvatarGroup,
@@ -412,9 +412,9 @@ defineExpose({
   refresh
 })
 
-onMounted(() => {
-  refresh()
-})
+// onMounted(() => {
+//   refresh()
+// })
 </script>
 
 <template>

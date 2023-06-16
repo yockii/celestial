@@ -125,6 +125,7 @@ func (s *projectRiskService) PaginateBetweenTimes(condition *model.ProjectRisk, 
 	tx.Omit("risk_desc", "response", "result")
 
 	err = tx.Find(&list, &model.ProjectRisk{
+		ID:              condition.ID,
 		ProjectID:       condition.ProjectID,
 		StageID:         condition.StageID,
 		RiskProbability: condition.RiskProbability,

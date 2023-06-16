@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router"
 import { ref, onMounted } from "vue"
 import { Project } from "@/types/project"
-import { deleteProject, getProjectDetail, updateProject } from "@/service/api/project/project"
+import { deleteProject, getProjectDetail, updateProject } from "@/service/api"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
 // import Dashboard from "./dashboard/index.vue"

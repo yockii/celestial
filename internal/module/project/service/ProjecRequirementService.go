@@ -156,6 +156,7 @@ func (s *projectRequirementService) PaginateBetweenTimes(condition *model.Projec
 	tx.Omit("detail", "full_path")
 
 	err = tx.Find(&list, &model.ProjectRequirement{
+		ID:          condition.ID,
 		ProjectID:   condition.ProjectID,
 		StageID:     condition.StageID,
 		Type:        condition.Type,

@@ -4,7 +4,7 @@ import { Search } from "@vicons/carbon"
 import { ThirdSource, ThirdSourceCondition } from "@/types/thirdSource"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule } from "naive-ui"
-import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, updateThirdSource } from "@/service/api/settings/thirdSource"
+import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, updateThirdSource } from "@/service/api"
 import { useUserStore } from "@/store/user"
 const message = useMessage()
 const userStore = useUserStore()

@@ -7,7 +7,7 @@ import { useUserStore } from "@/store/user"
 import { useRouter } from "vue-router"
 import { storeToRefs } from "pinia"
 import { useAppStore } from "@/store/app"
-import { getThirdSourcePublic } from "@/service/api/settings/thirdSource"
+import { getThirdSourcePublic } from "@/service/api"
 import dd from "dingtalk-jsapi"
 
 const formRef = ref<FormInst | null>(null)

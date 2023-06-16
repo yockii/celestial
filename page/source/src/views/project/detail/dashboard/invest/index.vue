@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Project, ProjectMember, ProjectTaskWorkTimeStatistics } from "@/types/project"
-import { getProjectWorkTimeStatistics } from "@/service/api/project/projectTask"
+import { getProjectWorkTimeStatistics } from "@/service/api"
 
 const props = defineProps<{
   project: Project

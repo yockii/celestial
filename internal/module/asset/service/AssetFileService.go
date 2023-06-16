@@ -143,6 +143,7 @@ func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int
 	}
 
 	err = tx.Find(&list, &model.File{
+		ID:         condition.ID,
 		CategoryID: condition.CategoryID,
 		CreatorID:  condition.CreatorID,
 	}).Offset(-1).Limit(-1).Count(&total).Error

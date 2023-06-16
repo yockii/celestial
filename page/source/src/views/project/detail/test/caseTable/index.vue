@@ -5,12 +5,7 @@ import { ProjectTest, ProjectTestCase, ProjectTestCaseCondition, ProjectTestCase
 import { NGrid, NButtonGroup, NPopconfirm, NButton, NIcon, NTooltip, NSpace, NText } from "naive-ui"
 import { storeToRefs } from "pinia"
 import { Edit, PlaylistAdd, Trash } from "@vicons/tabler"
-import {
-  deleteProjectTestCase,
-  deleteProjectTestCaseItem,
-  getProjectTestCaseListWithItems,
-  updateProjectTestCaseItemStatus
-} from "@/service/api/project/projectTest"
+import { deleteProjectTestCase, deleteProjectTestCaseItem, getProjectTestCaseListWithItems, updateProjectTestCaseItemStatus } from "@/service/api"
 import CaseDrawer from "../caseDrawer/index.vue"
 import ItemDrawer from "../itemDrawer/index.vue"
 import { AiStatusComplete, AiStatusFailed } from "@vicons/carbon"

@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -60,6 +64,20 @@ func (c *projectIssueController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:    instance.ID,
+		Title: instance.Title,
+		Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
+			instance.Content,
+			instance.IssueCause,
+			instance.SolveMethod,
+		),
+		Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", instance.ProjectID, instance.ID),
+		CreateTime: instance.CreateTime,
+		UpdateTime: instance.UpdateTime,
+	}, instance.CreatorID))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -91,6 +109,28 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			d, e := service.ProjectIssueService.Instance(id)
+			if e != nil {
+				logger.Errorln(e)
+				return func() {}
+			}
+			return data.AddDocumentAntsWrapper(&search.Document{
+				ID:    instance.ID,
+				Title: instance.Title,
+				Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
+					instance.Content,
+					instance.IssueCause,
+					instance.SolveMethod,
+				),
+				Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", instance.ProjectID, instance.ID),
+				CreateTime: instance.CreateTime,
+				UpdateTime: instance.UpdateTime,
+			}, d.CreatorID, d.AssigneeID)
+		}(instance.ID))
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -120,6 +160,10 @@ func (c *projectIssueController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{

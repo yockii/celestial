@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, VNode } from "vue"
 import { Sunny, Moon, Footsteps } from "@vicons/ionicons5"
 import { useAppStore } from "@/store/app"
 import { useUserStore } from "@/store/user"

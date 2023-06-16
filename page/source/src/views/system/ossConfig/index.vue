@@ -4,7 +4,7 @@ import { Search } from "@vicons/carbon"
 import { OssConfig, OssConfigCondition } from "@/types/ossConfig"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, NSwitch } from "naive-ui"
-import { addOssConfig, deleteOssConfig, getOssConfigDetail, getOssConfigList, updateOssConfig, updateOssConfigStatus } from "@/service/api/settings/ossConfig"
+import { addOssConfig, deleteOssConfig, getOssConfigDetail, getOssConfigList, updateOssConfig, updateOssConfigStatus } from "@/service/api"
 import { useUserStore } from "@/store/user"
 const message = useMessage()
 const userStore = useUserStore()

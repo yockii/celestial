@@ -1,11 +1,15 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -50,9 +54,56 @@ func (c *commonTestCaseItemController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	c.addSearchDocument(instance.TestCaseID)
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
+}
+
+func (c *commonTestCaseItemController) addSearchDocument(testCaseID uint64) {
+	_ = ants.Submit(func(parentId uint64) func() {
+		// 获取父级
+		testCase, err := service.CommonTestCaseService.Instance(parentId)
+		if err != nil {
+			logger.Errorln(err)
+			return func() {}
+		}
+		_, items, err := service.CommonTestCaseItemService.PaginateBetweenTimes(&model.CommonTestCaseItem{TestCaseID: parentId}, -1, -1, "", nil)
+		if err != nil {
+			logger.Errorln(err)
+			return func() {}
+		}
+		content := testCase.Remark
+		relatedUidMap := map[uint64]struct{}{}
+		relatedUidMap[testCase.CreatorID] = struct{}{}
+		updateTime := testCase.UpdateTime
+		if len(items) > 0 {
+			for _, item := range items {
+				content += "\n" + item.Content
+				relatedUidMap[item.CreatorID] = struct{}{}
+				if item.UpdateTime > (updateTime) {
+					updateTime = item.UpdateTime
+				}
+			}
+		}
+		var relatedUidList []uint64
+		for uid, _ := range relatedUidMap {
+			relatedUidList = append(relatedUidList, uid)
+		}
+
+		return func() {
+			_ = data.AddDocument(&search.Document{
+				ID:         testCase.ID,
+				Title:      testCase.Name,
+				Content:    content,
+				Route:      fmt.Sprintf("/asset/testcase?id=%d", testCase.ID),
+				CreateTime: testCase.CreateTime,
+				UpdateTime: updateTime,
+			}, relatedUidList...)
+		}
+	}(testCaseID))
 }
 
 func (c *commonTestCaseItemController) Delete(ctx *fiber.Ctx) error {
@@ -79,6 +130,10 @@ func (c *commonTestCaseItemController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -110,6 +165,15 @@ func (c *commonTestCaseItemController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		instance, err = service.CommonTestCaseItemService.Instance(instance.ID)
+		if err != nil {
+			logger.Errorln(err)
+		} else {
+			c.addSearchDocument(instance.TestCaseID)
+		}
 	}
 
 	return ctx.JSON(&server.CommonResponse{

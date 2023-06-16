@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -60,6 +64,59 @@ func (c *projectRiskController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(func(d *model.ProjectRisk) func() {
+		p := "低"
+		switch d.RiskProbability {
+		case 1:
+			p = "低"
+		case 2:
+			p = "中"
+		case 3:
+			p = "高"
+		}
+		e := "低"
+		switch d.RiskImpact {
+		case 1:
+			e = "低"
+		case 2:
+			e = "中"
+		case 3:
+			e = "高"
+		}
+		l := "低"
+		switch d.RiskLevel {
+		case 1:
+			l = "低"
+		case 2:
+			l = "中"
+		case 3:
+			l = "高"
+		}
+		status := "已识别"
+		//风险状态 1-已识别 2-已应对 3-已发生 4-已解决
+		switch d.Status {
+		case 1:
+			status = "已识别"
+		case 2:
+			status = "已应对"
+		case 3:
+			status = "已发生"
+		case 4:
+			status = "已解决"
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.RiskName,
+			Content: fmt.Sprintf("%s\n概率：%s, 影响：%s, 等级：%s, 状态：%s\n应对措施：%s\n总结：%s",
+				d.RiskDesc, p, e, l, status, d.Response, d.Result,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/risk?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, d.CreatorID)
+	}(instance))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -91,6 +148,10 @@ func (c *projectRiskController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		c.addSearchDocument(instance.ID)
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -120,6 +181,10 @@ func (c *projectRiskController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -230,4 +295,63 @@ func (c *projectRiskController) CalculateRiskByProject(ctx *fiber.Ctx) error {
 			MaxRisk:         maxRiskInfo,
 		},
 	})
+}
+
+func (c *projectRiskController) addSearchDocument(id uint64) {
+	_ = ants.Submit(func(id uint64) func() {
+		d, er := service.ProjectRiskService.Instance(id)
+		if er != nil {
+			logger.Errorln(er)
+			return func() {}
+		}
+		p := "低"
+		switch d.RiskProbability {
+		case 1:
+			p = "低"
+		case 2:
+			p = "中"
+		case 3:
+			p = "高"
+		}
+		e := "低"
+		switch d.RiskImpact {
+		case 1:
+			e = "低"
+		case 2:
+			e = "中"
+		case 3:
+			e = "高"
+		}
+		l := "低"
+		switch d.RiskLevel {
+		case 1:
+			l = "低"
+		case 2:
+			l = "中"
+		case 3:
+			l = "高"
+		}
+		status := "已识别"
+		//风险状态 1-已识别 2-已应对 3-已发生 4-已解决
+		switch d.Status {
+		case 1:
+			status = "已识别"
+		case 2:
+			status = "已应对"
+		case 3:
+			status = "已发生"
+		case 4:
+			status = "已解决"
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.RiskName,
+			Content: fmt.Sprintf("%s\n概率：%s, 影响：%s, 等级：%s, 状态：%s\n应对措施：%s\n总结：%s",
+				d.RiskDesc, p, e, l, status, d.Response, d.Result,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/risk?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, d.CreatorID)
+	}(id))
 }

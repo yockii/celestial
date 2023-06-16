@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteCommonTestCase, deleteCommonTestCaseItem, getCommonTestCaseList } from "@/service/api/asset/commonTestCase"
+import { deleteCommonTestCase, deleteCommonTestCaseItem, getCommonTestCaseList } from "@/service/api"
 import { CommonTestCase, CommonTestCaseCondition, CommonTestCaseItem } from "@/types/asset"
 import { PaginationProps, NGrid, NGridItem, NButton, NPopconfirm, useMessage, NButtonGroup, NIcon, NTooltip } from "naive-ui"
 import CaseDrawer from "./caseDrawer/index.vue"
@@ -334,6 +334,14 @@ const handleNewItem = (testCaseId: string) => {
 // 界面加载
 onMounted(() => {
   refresh()
+})
+
+const route = useRoute()
+onBeforeUpdate(() => {
+  if (route.query.id) {
+    condition.value.id = route.query.id as string
+    refresh()
+  }
 })
 </script>
 

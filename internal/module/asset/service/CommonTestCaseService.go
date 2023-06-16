@@ -120,6 +120,7 @@ func (s *commonTestCaseService) PaginateBetweenTimes(condition *model.CommonTest
 	}
 
 	err = tx.Find(&list, &model.CommonTestCase{
+		ID:        condition.ID,
 		CreatorID: condition.CreatorID,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {

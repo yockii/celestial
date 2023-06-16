@@ -53,7 +53,7 @@ export function updateProjectModule(projectModule: ProjectModule) {
  * @param id - 项目模块id
  * @param status - 评审状态
  */
-export function review(id: string, status: number) {
+export function moduleReview(id: string, status: number) {
   return request.put<boolean>("/projectModule/review", {
     id,
     status

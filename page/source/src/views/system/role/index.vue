@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getRoleList, updateRole, addRole, deleteRole, setDefaultRole, getRoleResourceCodeList } from "@/service/api/settings/role"
+import { getRoleList, updateRole, addRole, deleteRole, setDefaultRole, getRoleResourceCodeList } from "@/service/api"
 import { RoleCondition, Role } from "@/types/user"
 import { DataSet, Delete, Edit, GroupResource, Search } from "@vicons/carbon"
 import dayjs from "dayjs"

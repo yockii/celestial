@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CommonTestCaseItem } from "@/types/asset"
 import { useMessage, FormInst } from "naive-ui"
-import { addCommonTestCaseItem, updateCommonTestCaseItem } from "@/service/api/asset/commonTestCase"
+import { addCommonTestCaseItem, updateCommonTestCaseItem } from "@/service/api"
 const message = useMessage()
 const props = defineProps<{
   drawerActive: boolean

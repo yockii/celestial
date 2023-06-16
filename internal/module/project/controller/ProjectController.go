@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 	"strings"
 	"sync"
@@ -67,6 +71,17 @@ func (_ *projectController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:           instance.ID,
+		Title:        instance.Name,
+		Content:      instance.Description,
+		Route:        fmt.Sprintf("/project/detail/%d", instance.ID),
+		RelatedUsers: nil,
+		CreateTime:   instance.CreateTime,
+		UpdateTime:   instance.UpdateTime,
+	}, instance.OwnerID))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -96,6 +111,37 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			d, e := service.ProjectService.Instance(id)
+			if e != nil {
+				logger.Errorln(e)
+				return func() {
+				}
+			}
+			_, members, e := service.ProjectMemberService.PaginateBetweenTimes(&model.ProjectMember{ProjectID: id}, -1, -1, "", nil)
+			if e != nil {
+				logger.Errorln(e)
+				return func() {
+				}
+			}
+			relatedIdList := []uint64{d.OwnerID}
+			for _, member := range members {
+				relatedIdList = append(relatedIdList, member.UserID)
+			}
+			return data.AddDocumentAntsWrapper(&search.Document{
+				ID:           d.ID,
+				Title:        d.Name,
+				Content:      d.Description,
+				Route:        fmt.Sprintf("/project/detail/%d", d.ID),
+				RelatedUsers: nil,
+				CreateTime:   d.CreateTime,
+				UpdateTime:   d.UpdateTime,
+			}, relatedIdList...)
+		}(instance.ID))
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -126,6 +172,11 @@ func (_ *projectController) Delete(ctx *fiber.Ctx) error {
 		})
 
 	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})

@@ -1,11 +1,15 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 	"sync"
 )
@@ -51,6 +55,16 @@ func (c *commonTestCaseController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:         instance.ID,
+		Title:      instance.Name,
+		Content:    instance.Remark,
+		Route:      fmt.Sprintf("/asset/testcaselib?id=%d", instance.ID),
+		CreateTime: instance.CreateTime,
+		UpdateTime: instance.UpdateTime,
+	}, instance.CreatorID))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -80,6 +94,26 @@ func (c *commonTestCaseController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			return func() {
+				d, e := service.CommonTestCaseService.Instance(id)
+				if e != nil {
+					logger.Errorln(err)
+					return
+				}
+				_ = data.AddDocument(&search.Document{
+					ID:         d.ID,
+					Title:      d.Name,
+					Content:    d.Remark,
+					Route:      fmt.Sprintf("/asset/testcaselib?id=%d", d.ID),
+					CreateTime: d.CreateTime,
+					UpdateTime: d.UpdateTime,
+				}, d.CreatorID)
+			}
+		}(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -113,6 +147,9 @@ func (c *commonTestCaseController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})

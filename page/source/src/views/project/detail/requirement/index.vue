@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { getProjectModuleList } from "@/service/api/project/projectModule"
 import {
-  completed,
+  getProjectModuleList,
+  requirementCompleted,
   deleteProjectRequirement,
-  designed,
+  requirementDesigned,
   getProjectRequirement,
   getProjectRequirementList,
-  review
-} from "@/service/api/project/projectRequirement"
+  requirementReview
+} from "@/service/api"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectRequirement, ProjectRequirementCondition, ProjectTask } from "@/types/project"
 import { useMessage, NButton, NButtonGroup, NPopconfirm, PaginationProps, DataTableFilterState, DataTableBaseColumn, NSpace, NIcon, NTooltip } from "naive-ui"
@@ -75,7 +75,7 @@ const refresh = () => {
 
 // 状态修改
 const handleDesigned = (row: ProjectRequirement) => {
-  designed(row.id).then((res) => {
+  requirementDesigned(row.id).then((res) => {
     if (res) {
       message.success(row.name + "设计完成")
       refresh()
@@ -85,7 +85,7 @@ const handleDesigned = (row: ProjectRequirement) => {
   })
 }
 const handleReview = (row: ProjectRequirement, status: number) => {
-  review(row.id, status).then((res) => {
+  requirementReview(row.id, status).then((res) => {
     if (res) {
       message.success(row.name + "评审完成")
       refresh()
@@ -95,7 +95,7 @@ const handleReview = (row: ProjectRequirement, status: number) => {
   })
 }
 const handleCompleted = (row: ProjectRequirement) => {
-  completed(row.id).then((res) => {
+  requirementCompleted(row.id).then((res) => {
     if (res) {
       message.success(row.name + "已完成")
       refresh()
@@ -448,7 +448,7 @@ const columns = [
                   size: "small",
                   secondary: true,
                   type: "primary",
-                  disabled: !userStore.hasResourceCode("project:detail:requirement:edit"),
+                  disabled: !userStore.hasResourceCode("project:detail:requirement:edit") || (row.status && row.status > 2),
                   onClick: () => handleEditData(row)
                 },
                 {
@@ -570,13 +570,6 @@ const handleAddProjectTask = (requirement: ProjectRequirement) => {
 }
 
 // 加载页面
-onMounted(() => {
-  refresh()
-  // 如果功能模块列表为空, 则加载
-  if (!moduleTree.value.length) {
-    loadModules()
-  }
-})
 const loadModules = () => {
   getProjectModuleList({
     projectId: project.value.id,
@@ -588,6 +581,30 @@ const loadModules = () => {
     }
   })
 }
+
+const reload = () => {
+  if (route.query.id) {
+    condition.value = {
+      id: route.query.id as string,
+      projectId: project.value.id
+    }
+  }
+  refresh()
+
+  // 如果功能模块列表为空, 则加载
+  if (!moduleTree.value.length) {
+    loadModules()
+  }
+}
+
+onMounted(() => {
+  reload()
+})
+
+const route = useRoute()
+onBeforeUpdate(() => {
+  reload()
+})
 </script>
 
 <template>

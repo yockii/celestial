@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Stage, ProjectPlan } from "@/types/project"
 import { Role } from "@/types/user"
-import { getProjectMembers } from "@/service/api/project/project"
-import { getProjectRiskCoefficient, ProjectRiskCoefficient } from "@/service/api/project/projectRisk"
-import { getStageDetail } from "@/service/api/settings/stage"
-import { getExecutingProjectPlanByProjectId } from "@/service/api/project/projectPlan"
-import { getRoleList } from "@/service/api/settings/role"
+import {
+  getProjectMembers,
+  getProjectRiskCoefficient,
+  ProjectRiskCoefficient,
+  getStageDetail,
+  getExecutingProjectPlanByProjectId,
+  getRoleList
+} from "@/service/api"
 import Members from "./members/index.vue"
 import Invest from "./invest/index.vue"
 import Requirement from "./requirement/index.vue"

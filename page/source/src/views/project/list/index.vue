@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue"
-import { getProjectList, addProject, getProjectStageStatistics } from "@/service/api/project/project"
+import { getProjectList, addProject, getProjectStageStatistics } from "@/service/api"
 import { Project, ProjectCondition, ProjectMember, ProjectStageStatistics } from "@/types/project"
 import { Search } from "@vicons/carbon"
 import { NButton, FormInst } from "naive-ui"

@@ -1,14 +1,18 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
 	ucModel "github.com/yockii/celestial/internal/module/uc/model"
 	ucService "github.com/yockii/celestial/internal/module/uc/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 	"mime/multipart"
 	"strconv"
@@ -127,6 +131,16 @@ func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 				}
 			}
 		}
+
+		_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+			ID:         instance.ID,
+			Title:      instance.Name,
+			Content:    instance.OriginName,
+			Route:      fmt.Sprintf("/asset/file?id=%d", instance.ID),
+			CreateTime: instance.CreateTime,
+			UpdateTime: instance.UpdateTime,
+		}, instance.CreatorID))
+
 		return ctx.JSON(&server.CommonResponse{
 			Data: instance,
 		})
@@ -157,6 +171,26 @@ func (c *assetFileController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			return func() {
+				d, e := service.AssetFileService.Instance(id)
+				if e != nil {
+					logger.Errorln(err)
+					return
+				}
+				_ = data.AddDocument(&search.Document{
+					ID:         d.ID,
+					Title:      d.Name,
+					Content:    d.OriginName,
+					Route:      fmt.Sprintf("/asset/file?id=%d", d.ID),
+					CreateTime: d.CreateTime,
+					UpdateTime: d.UpdateTime,
+				}, d.CreatorID)
+			}
+		}(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -190,6 +224,9 @@ func (c *assetFileController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})

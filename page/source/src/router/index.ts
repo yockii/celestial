@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
+import { createRouter, createWebHistory, isNavigationFailure, RouteRecordRaw } from "vue-router"
 import { useUserStore } from "@/store/user"
 import { createDiscreteApi } from "naive-ui"
 import { useProjectStore } from "@/store/project"
+import { useAppStore } from "@/store/app"
 const { loadingBar } = createDiscreteApi(["loadingBar"])
 
 const routes: Array<RouteRecordRaw> = [
@@ -22,7 +23,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/layout/Primary.vue"),
     redirect: { name: "Dashboard" },
     meta: {
-      label: () => "首页"
+      label: () => "首页",
+      activeMenuKey: "Home",
+      activeSubMenuKey: "Dashboard"
     },
     children: [
       {
@@ -30,7 +33,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "Dashboard",
         component: () => import("@/views/index/dashboard/index.vue"),
         meta: {
-          label: () => "首页"
+          label: () => "首页",
+          activeMenuKey: "Home",
+          activeSubMenuKey: "Dashboard"
         }
       }
     ]
@@ -40,7 +45,9 @@ const routes: Array<RouteRecordRaw> = [
     name: "Project",
     component: () => import("@/layout/Primary.vue"),
     meta: {
-      label: () => "项目列表"
+      label: () => "项目列表",
+      activeMenuKey: "ProjectList",
+      activeSubMenuKey: "ProjectList"
     },
     children: [
       {
@@ -48,7 +55,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "ProjectList",
         component: () => import("@/views/project/list/index.vue"),
         meta: {
-          label: () => "项目列表"
+          label: () => "项目列表",
+          activeMenuKey: "ProjectList",
+          activeSubMenuKey: "ProjectList"
         }
       },
       {
@@ -59,7 +68,9 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import("@/views/project/detail/index.vue"),
         meta: {
-          label: () => `【${useProjectStore().project.name}】总览`
+          label: () => `【${useProjectStore().project.name}】总览`,
+          activeMenuKey: "ProjectList",
+          activeSubMenuKey: "ProjectList"
         },
         children: [
           {
@@ -67,7 +78,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectDashboard",
             meta: {
               title: "项目总览",
-              label: () => `【${useProjectStore().project.name}】总览`
+              label: () => `【${useProjectStore().project.name}】总览`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/dashboard/index.vue")
           },
@@ -76,7 +89,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectPlan",
             meta: {
               title: "项目计划",
-              label: () => `【${useProjectStore().project.name}】计划`
+              label: () => `【${useProjectStore().project.name}】计划`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/plan/index.vue")
           },
@@ -85,7 +100,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectModule",
             meta: {
               title: "功能模块",
-              label: () => `【${useProjectStore().project.name}】功能模块`
+              label: () => `【${useProjectStore().project.name}】功能模块`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/module/index.vue")
           },
@@ -94,7 +111,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectRequirement",
             meta: {
               title: "项目需求",
-              label: () => `【${useProjectStore().project.name}】需求`
+              label: () => `【${useProjectStore().project.name}】需求`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/requirement/index.vue")
           },
@@ -103,7 +122,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectTask",
             meta: {
               title: "工作任务",
-              label: () => `【${useProjectStore().project.name}】工作任务`
+              label: () => `【${useProjectStore().project.name}】工作任务`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/task/index.vue")
           },
@@ -112,7 +133,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectTest",
             meta: {
               title: "项目测试",
-              label: () => `【${useProjectStore().project.name}】项目测试`
+              label: () => `【${useProjectStore().project.name}】项目测试`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/test/index.vue")
           },
@@ -121,7 +144,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectIssue",
             meta: {
               title: "项目缺陷",
-              label: () => `【${useProjectStore().project.name}】缺陷`
+              label: () => `【${useProjectStore().project.name}】缺陷`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/issue/index.vue")
           },
@@ -130,7 +155,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectRisk",
             meta: {
               title: "项目风险",
-              label: () => `【${useProjectStore().project.name}】风险`
+              label: () => `【${useProjectStore().project.name}】风险`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/risk/index.vue")
           },
@@ -139,7 +166,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectChange",
             meta: {
               title: "项目变更",
-              label: () => `【${useProjectStore().project.name}】变更`
+              label: () => `【${useProjectStore().project.name}】变更`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/change/index.vue")
           },
@@ -148,7 +177,9 @@ const routes: Array<RouteRecordRaw> = [
             name: "ProjectAsset",
             meta: {
               title: "项目资产",
-              label: () => `【${useProjectStore().project.name}】资产`
+              label: () => `【${useProjectStore().project.name}】资产`,
+              activeMenuKey: "ProjectList",
+              activeSubMenuKey: "ProjectList"
             },
             component: () => import("@/views/project/detail/asset/index.vue")
           }
@@ -169,7 +200,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "TaskList",
         component: () => import("@/views/task/list/index.vue"),
         meta: {
-          label: () => "我的任务"
+          label: () => "我的任务",
+          activeMenuKey: "Task",
+          activeSubMenuKey: "Task"
         }
       }
     ]
@@ -187,7 +220,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "TestList",
         component: () => import("@/views/test/list/index.vue"),
         meta: {
-          label: () => "我的测试"
+          label: () => "我的测试",
+          activeMenuKey: "Test",
+          activeSubMenuKey: "Test"
         }
       }
     ]
@@ -196,13 +231,19 @@ const routes: Array<RouteRecordRaw> = [
     path: "/asset",
     name: "Asset",
     component: () => import("@/layout/Primary.vue"),
+    meta: {
+      activeMenuKey: "Asset",
+      activeSubMenuKey: "File"
+    },
     children: [
       {
         path: "file",
         name: "File",
         component: () => import("@/views/asset/file/index.vue"),
         meta: {
-          label: () => "资产文件管理"
+          label: () => "资产文件管理",
+          activeMenuKey: "Asset",
+          activeSubMenuKey: "File"
         }
       },
       {
@@ -210,7 +251,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "TestCaseLib",
         component: () => import("@/views/asset/testCaseLib/index.vue"),
         meta: {
-          label: () => "测试用例库"
+          label: () => "测试用例库",
+          activeMenuKey: "Asset",
+          activeSubMenuKey: "TestCaseLib"
         }
       }
     ]
@@ -219,13 +262,19 @@ const routes: Array<RouteRecordRaw> = [
     path: "/system",
     name: "System",
     component: () => import("@/layout/Primary.vue"),
+    meta: {
+      activeMenuKey: "System",
+      activeSubMenuKey: "User"
+    },
     children: [
       {
         path: "user",
         name: "User",
         component: () => import("@/views/system/user/index.vue"),
         meta: {
-          label: () => "用户管理"
+          label: () => "用户管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "User"
         }
       },
       {
@@ -233,7 +282,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "Role",
         component: () => import("@/views/system/role/index.vue"),
         meta: {
-          label: () => "角色管理"
+          label: () => "角色管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "Role"
         }
       },
       {
@@ -241,7 +292,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "Stage",
         component: () => import("@/views/system/stage/index.vue"),
         meta: {
-          label: () => "阶段管理"
+          label: () => "阶段管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "Stage"
         }
       },
       {
@@ -249,7 +302,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "AssetCategory",
         component: () => import("@/views/system/assetCategory/index.vue"),
         meta: {
-          label: () => "资产分类管理"
+          label: () => "资产分类管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "AssetCategory"
         }
       },
       {
@@ -257,7 +312,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "ThirdSource",
         component: () => import("@/views/system/thirdSource/index.vue"),
         meta: {
-          label: () => "第三方登录源管理"
+          label: () => "第三方登录源管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "ThirdSource"
         }
       },
       {
@@ -265,7 +322,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "OssConfig",
         component: () => import("@/views/system/ossConfig/index.vue"),
         meta: {
-          label: () => "OSS配置管理"
+          label: () => "OSS配置管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "OssConfig"
         }
       }
     ]
@@ -291,8 +350,15 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
-router.afterEach(() => {
+router.afterEach((to, from, failure) => {
   loadingBar.finish()
+  if (isNavigationFailure(failure)) {
+    console.log("failed navigation", failure)
+    return
+  }
+  const appStore = useAppStore()
+  appStore.activeMenuKey = to.meta.activeMenuKey as string
+  appStore.activeSubMenuKey = to.meta.activeSubMenuKey as string
 })
 
 export default router

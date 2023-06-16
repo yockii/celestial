@@ -6,10 +6,12 @@ import (
 	"github.com/yockii/celestial/internal/core/data"
 	assetController "github.com/yockii/celestial/internal/module/asset/controller"
 	logController "github.com/yockii/celestial/internal/module/log/controller"
+	luceneController "github.com/yockii/celestial/internal/module/lucene/controller"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
 	taskController "github.com/yockii/celestial/internal/module/task/controller"
 	testController "github.com/yockii/celestial/internal/module/test/controller"
 	ucController "github.com/yockii/celestial/internal/module/uc/controller"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
 
@@ -31,9 +33,16 @@ func main() {
 	//defer ruomu_module.Destroy()
 	//logger.Infoln("模块管理加载完毕")
 
+	// 初始化搜索引擎
+	if err := search.InitMeiliSearch(config.GetString("meilisearch.host"), config.GetString("meilisearch.apiKey"), config.GetString("meilisearch.index")); err != nil {
+		logger.Warnln(err)
+	}
+
 	// 初始化数据
 	data.InitData()
 
+	// 开启全文检索
+	luceneController.InitRouter()
 	// 统一用户中心模块
 	ucController.InitRouter()
 	// 项目管理模块

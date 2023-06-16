@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -60,6 +64,22 @@ func (c *projectPlanController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:    instance.ID,
+		Title: instance.PlanName,
+		Content: fmt.Sprintf("%s\n目标：%s\n范围：%s\n进度：%s\n资源%s",
+			instance.PlanDesc,
+			instance.Target,
+			instance.Scope,
+			instance.Schedule,
+			instance.Resource,
+		),
+		Route:      fmt.Sprintf("/project/detail/%d/plan?id=%d", instance.ProjectID, instance.ID),
+		CreateTime: instance.CreateTime,
+		UpdateTime: instance.UpdateTime,
+	}, instance.CreateUserID))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -91,6 +111,29 @@ func (c *projectPlanController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			d, e := service.ProjectPlanService.Instance(&model.ProjectPlan{ID: id})
+			if e != nil {
+				logger.Errorln(e)
+				return func() {}
+			}
+			return data.AddDocumentAntsWrapper(&search.Document{
+				ID:    d.ID,
+				Title: d.PlanName,
+				Content: fmt.Sprintf("%s\n目标：%s\n范围：%s\n进度：%s\n资源%s",
+					instance.PlanDesc,
+					instance.Target,
+					instance.Scope,
+					instance.Schedule,
+					instance.Resource,
+				),
+				Route:      fmt.Sprintf("/project/detail/%d/plan?id=%d", d.ProjectID, d.ID),
+				CreateTime: d.CreateTime,
+				UpdateTime: d.UpdateTime,
+			}, d.CreateUserID)
+		}(instance.ID))
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -120,6 +163,10 @@ func (c *projectPlanController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{

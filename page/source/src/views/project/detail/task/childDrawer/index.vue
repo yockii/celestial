@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteProjectTask } from "@/service/api/project/projectTask"
+import { deleteProjectTask } from "@/service/api"
 import { ProjectTask, ProjectTaskCondition } from "@/types/project"
 import List from "../list/index.vue"
 import Drawer from "../drawer/index.vue"

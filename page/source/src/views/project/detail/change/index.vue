@@ -14,7 +14,7 @@ import {
   NTooltip,
   PaginationProps
 } from "naive-ui"
-import { addProjectChange, deleteProjectChange, getProjectChange, getProjectChangeList, updateProjectChange } from "@/service/api/project/projectChange"
+import { addProjectChange, deleteProjectChange, getProjectChange, getProjectChangeList, updateProjectChange } from "@/service/api"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
@@ -345,8 +345,21 @@ const submit = (e: MouseEvent) => {
 }
 
 // 加载完毕
-onMounted(() => {
+const route = useRoute()
+const reload = () => {
+  if (route.query.id) {
+    condition.value = {
+      id: route.query.id as string,
+      projectId: project.value.id
+    }
+  }
   refresh()
+}
+onMounted(() => {
+  reload()
+})
+onBeforeUpdate(() => {
+  reload()
 })
 </script>
 

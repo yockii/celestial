@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { getProjectModuleList } from "@/service/api/project/projectModule"
-import { deleteProjectTask, getProjectTask } from "@/service/api/project/projectTask"
+import { getProjectModuleList, deleteProjectTask, getProjectTask } from "@/service/api"
 import { useProjectStore } from "@/store/project"
 import { ProjectModule, ProjectTask, ProjectTaskCondition } from "@/types/project"
 import { useMessage, NButton, NIcon } from "naive-ui"
@@ -86,12 +85,6 @@ const handleShowChild = (row: ProjectTask) => {
 }
 
 // 加载页面
-onMounted(() => {
-  // 如果功能模块列表为空, 则加载
-  if (!moduleTree.value.length) {
-    loadModules()
-  }
-})
 const loadModules = () => {
   getProjectModuleList({
     projectId: project.value.id,
@@ -103,6 +96,32 @@ const loadModules = () => {
     }
   })
 }
+
+const reload = () => {
+  // 如果功能模块列表为空, 则加载
+  if (!moduleTree.value.length) {
+    loadModules()
+  }
+  if (route.query.id) {
+    condition.value = {
+      id: route.query.id as string,
+      projectId: project.value.id
+    }
+  } else {
+    condition.value = {
+      projectId: project.value.id
+    }
+  }
+  listComp.value?.refresh()
+}
+
+onMounted(() => {
+  reload()
+})
+const route = useRoute()
+onBeforeUpdate(() => {
+  reload()
+})
 </script>
 
 <template>

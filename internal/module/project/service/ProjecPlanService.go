@@ -127,6 +127,7 @@ func (s *projectPlanService) PaginateBetweenTimes(condition *model.ProjectPlan, 
 	tx.Omit("plan_desc", "target", "scope", "schedule", "resource")
 
 	err = tx.Find(&list, &model.ProjectPlan{
+		ID:        condition.ID,
 		ProjectID: condition.ProjectID,
 		StageID:   condition.StageID,
 		Status:    condition.Status,

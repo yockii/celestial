@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Add } from "@vicons/carbon"
 import { ProjectTest, ProjectTestCase } from "@/types/project"
-import { addProjectTest, closeProjectTest, getProjectTest, getProjectTestList } from "@/service/api/project/projectTest"
+import { addProjectTest, closeProjectTest, getProjectTest, getProjectTestList } from "@/service/api"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import dayjs from "dayjs"

@@ -39,6 +39,7 @@ export type CommonTestCaseItem = {
 }
 
 export type CommonTestCaseCondition = Condition & {
+  id?: string
   name?: string
   categoryId?: string
 }
@@ -57,6 +58,7 @@ export type File = {
 }
 
 export type FileCondition = Condition & {
+  id?: string
   categoryId?: string
   name?: string
   suffix?: string

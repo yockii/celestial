@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { addProjectAsset, updateProjectAsset } from "@/service/api/project/projectAsset"
+import { getAssetFile, getAssetCategoryList, addProjectAsset, updateProjectAsset } from "@/service/api"
 import { ProjectAsset } from "@/types/project"
 import { FormInst, FormItemRule, UploadFileInfo } from "naive-ui"
 import { ArchiveOutline } from "@vicons/ionicons5"
 import { useUserStore } from "@/store/user"
 import { AssetCategory } from "@/types/asset"
-import { getAssetCategoryList } from "@/service/api/asset/assetCategory"
-import { getAssetFile } from "@/service/api/asset/assetFile"
 
 const message = useMessage()
 const userStore = useUserStore()

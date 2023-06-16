@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ProjectTestCaseItem } from "@/types/project"
 import { useMessage, FormInst } from "naive-ui"
-import { addProjectTestCaseItem, batchSubmitProjectTestCaseItem, updateProjectTestCaseItem } from "@/service/api/project/projectTest"
+import { addProjectTestCaseItem, batchSubmitProjectTestCaseItem, updateProjectTestCaseItem } from "@/service/api"
 import CaseLib from "../caseLib/index.vue"
 
 const message = useMessage()

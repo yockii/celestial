@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { getAssetCategoryList } from "@/service/api/asset/assetCategory"
-import { getAssetFileList } from "@/service/api/asset/assetFile"
 import { AssetCategory, File, FileCondition } from "@/types/asset"
+import { getAssetCategoryList, getAssetFileList } from "@/service/api"
 import dayjs from "dayjs"
 import { NTooltip, PaginationProps } from "naive-ui"
 import NameAvatar from "@/components/NameAvatar.vue"
@@ -152,8 +151,15 @@ onMounted(() => {
       return item
     })
   })
-
   refresh()
+})
+
+const route = useRoute()
+onBeforeUpdate(() => {
+  if (route.query.id) {
+    condition.value.id = route.query.id as string
+    refresh()
+  }
 })
 </script>
 

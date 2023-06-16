@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { loginByDingTalk } from "@/service/api/settings/thirdSource"
+import { loginByDingTalk } from "@/service/api"
 import { useUserStore } from "@/store/user"
 
 const message = useMessage()

@@ -104,9 +104,11 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 					return err
 				}
 				// 旧的父级的子数量减1
-				if err = tx.Model(&model.ProjectModule{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
-					logger.Errorln(err)
-					return err
+				if oldParentID != 0 {
+					if err = tx.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
 				}
 			}
 			if err = tx.Model(&model.ProjectModule{ID: instance.ID}).Updates(&model.ProjectModule{
@@ -206,6 +208,7 @@ func (s *projectModuleService) PaginateBetweenTimes(condition *model.ProjectModu
 	}
 
 	err = tx.Find(&list, &model.ProjectModule{
+		ID:        condition.ID,
 		ProjectID: condition.ProjectID,
 		ParentID:  condition.ParentID,
 		Status:    condition.Status,

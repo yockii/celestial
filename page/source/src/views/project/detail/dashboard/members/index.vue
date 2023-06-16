@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addProjectMembers } from "@/service/api/project/project"
+import { addProjectMembers } from "@/service/api"
 import { Role } from "@/types/user"
 import { Project, ProjectMember } from "@/types/project"
 import { computed } from "vue"

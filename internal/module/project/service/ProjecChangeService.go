@@ -124,6 +124,7 @@ func (s *projectChangeService) PaginateBetweenTimes(condition *model.ProjectChan
 	}
 
 	err = tx.Find(&list, &model.ProjectChange{
+		ID:        condition.ID,
 		Type:      condition.Type,
 		ProjectID: condition.ProjectID,
 		Level:     condition.Level,

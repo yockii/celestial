@@ -52,7 +52,7 @@ export function updateProjectRequirement(projectRequirement: ProjectRequirement)
  * 需求设计完毕
  * @param id - 项目需求id
  */
-export function designed(id: string) {
+export function requirementDesigned(id: string) {
   return request.put<boolean>("/projectRequirement/designed", {
     id
   })
@@ -63,7 +63,7 @@ export function designed(id: string) {
  * @param id - 项目需求id
  * @param status - 评审状态
  */
-export function review(id: string, status: number) {
+export function requirementReview(id: string, status: number) {
   return request.put<boolean>("/projectRequirement/review", {
     id,
     status
@@ -74,7 +74,7 @@ export function review(id: string, status: number) {
  * 需求完成
  * @param id - 项目需求id
  */
-export function completed(id: string) {
+export function requirementCompleted(id: string) {
   return request.put<boolean>("/projectRequirement/completed", {
     id
   })

@@ -25,6 +25,7 @@ type ProjectModule struct {
 	CreatorID     uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	Status        int            `json:"status,omitempty" gorm:"comment:状态 1-待评审 2-评审通过待开发 9-已完成 -1-评审不通过"`
 	CreateTime    int64          `json:"createTime" gorm:"autoCreateTime:milli"`
+	UpdateTime    int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime    gorm.DeletedAt `json:"deleteTime" gorm:"index"`
 }
 
@@ -43,8 +44,9 @@ func (pm *ProjectModule) UnmarshalJSON(b []byte) error {
 	pm.ChildrenCount = int(j.Get("childrenCount").Int())
 	pm.FullPath = j.Get("fullPath").String()
 	pm.CreatorID = j.Get("creatorId").Uint()
-	pm.CreateTime = j.Get("createTime").Int()
 	pm.Status = int(j.Get("status").Int())
+	pm.CreateTime = j.Get("createTime").Int()
+	pm.UpdateTime = j.Get("updateTime").Int()
 
 	return nil
 }

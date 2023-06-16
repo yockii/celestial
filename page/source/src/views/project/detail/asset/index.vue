@@ -7,7 +7,7 @@ import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon
 import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
-import { getProjectAssetList } from "@/service/api/project/projectAsset"
+import { getProjectAssetList } from "@/service/api"
 import { Delete, Edit } from "@vicons/carbon"
 const userStore = useUserStore()
 const projectStore = useProjectStore()

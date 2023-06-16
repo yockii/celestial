@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 	"sync"
 )
@@ -64,6 +68,44 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(func(d *domain.ProjectTaskWithMembers) func() {
+		var relatedUids []uint64
+		ruMap := make(map[uint64]struct{})
+		ruMap[d.OwnerID] = struct{}{}
+		ruMap[d.CreatorID] = struct{}{}
+		for _, member := range d.Members {
+			ruMap[member.UserID] = struct{}{}
+		}
+		for uid := range ruMap {
+			relatedUids = append(relatedUids, uid)
+		}
+
+		p := "低"
+		switch d.Priority {
+		case 1:
+			p = "低"
+		case 2:
+			p = "中"
+		case 3:
+			p = "高"
+		}
+		status := "未开始"
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.Name,
+			Content: fmt.Sprintf("[%s]: %s, 状态：%s",
+				p,
+
+				d.TaskDesc,
+				status,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/task?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, relatedUids...)
+	}(instance))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -95,6 +137,10 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		c.addSearchDocument(instance.ID)
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -124,6 +170,10 @@ func (c *projectTaskController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -268,4 +318,66 @@ func (c *projectTaskController) TaskDurationByProject(ctx *fiber.Ctx) error {
 	return ctx.JSON(&server.CommonResponse{
 		Data: result,
 	})
+}
+
+func (c *projectTaskController) addSearchDocument(id uint64) {
+	_ = ants.Submit(func(id uint64) func() {
+		d, e := service.ProjectTaskService.Instance(id)
+		if e != nil {
+			logger.Errorln(e)
+			return func() {}
+		}
+		members, err := service.ProjectTaskMemberService.List(&model.ProjectTaskMember{TaskID: id})
+		if err != nil {
+			logger.Errorln(err)
+			return func() {}
+		}
+
+		var relatedUids []uint64
+		ruMap := make(map[uint64]struct{})
+		ruMap[d.OwnerID] = struct{}{}
+		ruMap[d.CreatorID] = struct{}{}
+		for _, member := range members {
+			ruMap[member.UserID] = struct{}{}
+		}
+		for uid := range ruMap {
+			relatedUids = append(relatedUids, uid)
+		}
+
+		p := "低"
+		switch d.Priority {
+		case 1:
+			p = "低"
+		case 2:
+			p = "中"
+		case 3:
+			p = "高"
+		}
+		status := "未开始"
+		//任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成
+		switch d.Status {
+		case -1:
+			status = "已取消"
+		case 1:
+			status = "未开始"
+		case 2:
+			status = "已确认"
+		case 3:
+			status = "进行中"
+		case 9:
+			status = "已完成"
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.Name,
+			Content: fmt.Sprintf("[%s]: %s, 状态：%s",
+				p,
+				d.TaskDesc,
+				status,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/task?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, relatedUids...)
+	}(id))
 }

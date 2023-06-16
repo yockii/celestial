@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAllCommonTestCaseListOnlyShow } from "@/service/api/asset/commonTestCase"
+import { getAllCommonTestCaseListOnlyShow } from "@/service/api"
 import { useProjectStore } from "@/store/project"
 import { CommonTestCase } from "@/types/asset"
 import { ProjectTestCase, ProjectTestCaseItem } from "@/types/project"

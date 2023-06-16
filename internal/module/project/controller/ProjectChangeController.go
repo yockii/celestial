@@ -1,12 +1,18 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
+	"strconv"
+	"strings"
 )
 
 var ProjectChangeController = new(projectChangeController)
@@ -50,6 +56,23 @@ func (c *projectChangeController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	status := "待评审"
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:    instance.ID,
+		Title: instance.Title,
+		Content: fmt.Sprintf("原因:%s\n计划:%s\n评审:%s\n风险:%s\n状态:%s",
+			instance.Reason,
+			instance.Plan,
+			instance.Review,
+			instance.Risk,
+			status,
+		),
+		Route:      fmt.Sprintf("/project/detail/%d/change?id=%d", instance.ProjectID, instance.ID),
+		CreateTime: instance.CreateTime,
+		UpdateTime: instance.UpdateTime,
+	}, instance.ApplyUserID))
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -81,6 +104,49 @@ func (c *projectChangeController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		_ = ants.Submit(func(id uint64) func() {
+			d, e := service.ProjectChangeService.Instance(id)
+			if e != nil {
+				logger.Errorln(e)
+				return func() {}
+			}
+			status := "待评审"
+			switch d.Status {
+			case 1:
+				status = "待评审"
+			case 2:
+				status = "已批准"
+			case -1:
+				status = "已拒绝"
+			case 9:
+				status = "已关闭"
+			}
+			relatedIdList := []uint64{d.ApplyUserID}
+			reviewerIDList := strings.Split(d.ReviewerIDList, ",")
+			for _, reviewerIDStr := range reviewerIDList {
+				reviewerID, _ := strconv.ParseUint(strings.TrimSpace(reviewerIDStr), 10, 64)
+				if reviewerID > 0 {
+					relatedIdList = append(relatedIdList, reviewerID)
+				}
+			}
+			return data.AddDocumentAntsWrapper(&search.Document{
+				ID:    d.ID,
+				Title: d.Title,
+				Content: fmt.Sprintf("原因:%s\n计划:%s\n评审:%s\n风险:%s\n状态:%s",
+					d.Reason,
+					d.Plan,
+					d.Review,
+					d.Risk,
+					status,
+				),
+				Route:      fmt.Sprintf("/project/detail/%d/change?id=%d", d.ProjectID, d.ID),
+				CreateTime: d.CreateTime,
+				UpdateTime: d.UpdateTime,
+			}, relatedIdList...)
+		}(instance.ID))
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
@@ -110,6 +176,10 @@ func (c *projectChangeController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{

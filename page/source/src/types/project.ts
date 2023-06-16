@@ -46,6 +46,7 @@ export type ProjectPlan = {
   updateTime?: number
 }
 export type ProjectPlanCondition = Condition & {
+  id?: string
   projectId: string
   planName?: string
   stageId?: string
@@ -69,6 +70,7 @@ export type ProjectRisk = {
   createTime?: number
 }
 export type ProjectRiskCondition = Condition & {
+  id?: string
   name?: string
   projectId: string
   status?: number
@@ -108,6 +110,7 @@ export type ProjectModule = {
 }
 
 export type ProjectModuleCondition = Condition & {
+  id?: string
   projectId: string
   parentId?: string
   name?: string
@@ -131,6 +134,7 @@ export type ProjectRequirement = {
 }
 
 export type ProjectRequirementCondition = Condition & {
+  id?: string
   projectId: string
   status?: number
   feasibility?: number
@@ -167,6 +171,7 @@ export type ProjectTask = {
 }
 
 export type ProjectTaskCondition = Condition & {
+  id?: string
   projectId: string
   onlyParent?: boolean
   name?: string
@@ -262,6 +267,7 @@ export type ProjectChange = {
 }
 
 export type ProjectChangeCondition = Condition & {
+  id?: string
   projectId: string
   type?: number
   level?: number
@@ -288,6 +294,7 @@ export type ProjectIssue = {
 }
 
 export type ProjectIssueCondition = Condition & {
+  id?: string
   projectId: string
   type?: number
   level?: number

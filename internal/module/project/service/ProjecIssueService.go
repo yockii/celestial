@@ -123,6 +123,7 @@ func (s *projectIssueService) PaginateBetweenTimes(condition *model.ProjectIssue
 	}
 
 	err = tx.Find(&list, &model.ProjectIssue{
+		ID:         condition.ID,
 		Type:       condition.Type,
 		ProjectID:  condition.ProjectID,
 		AssigneeID: condition.AssigneeID,

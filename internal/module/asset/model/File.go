@@ -17,6 +17,7 @@ type File struct {
 	ObjName     string         `json:"objName,omitempty" gorm:"size:200;comment:存储的对象名称"`
 	CreatorID   uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建者ID"`
 	CreateTime  int64          `json:"createTime" gorm:"autoCreateTime:milli"`
+	UpdateTime  int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime  gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 
@@ -36,6 +37,7 @@ func (af *File) UnmarshalJSON(b []byte) error {
 	af.ObjName = j.Get("objName").String()
 	af.CreatorID = j.Get("creatorId").Uint()
 	af.CreateTime = j.Get("createTime").Int()
+	af.UpdateTime = j.Get("updateTime").Int()
 	return nil
 }
 

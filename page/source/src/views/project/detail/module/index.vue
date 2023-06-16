@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ProjectModule, ProjectModuleCondition, ProjectRequirement } from "@/types/project"
 import { ComputedRef, computed, ref, RendererElement, RendererNode } from "vue"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, NTooltip, NSpace, NIcon } from "naive-ui"
-import { addProjectModule, deleteProjectModule, getProjectModuleList, review, updateProjectModule } from "@/service/api/project/projectModule"
+import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, NTooltip, NSpace, NIcon, NText } from "naive-ui"
+import { addProjectModule, deleteProjectModule, getProjectModuleList, moduleReview, updateProjectModule } from "@/service/api"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import Drawer from "../requirement/drawer/index.vue"
@@ -153,7 +153,7 @@ const countModules = (lv: number, cm: CombinedModule) => {
 }
 
 const handleReviewData = (module: ProjectModule, status: number) => {
-  review(module.id, status).then((res) => {
+  moduleReview(module.id, status).then((res) => {
     if (res) {
       message.success(module.name + "评审成功")
       refresh()
@@ -180,7 +180,7 @@ const columns = [
               {},
               {
                 default: () => row.lv1Module.remark || row.lv1Module.name,
-                trigger: () => row.lv1Column
+                trigger: () => (markedModuleId.value !== row.lv1Module?.id ? row.lv1Column : h(NText, { type: "error" }, { default: () => row.lv1Column }))
               }
             ),
             h(
@@ -195,7 +195,7 @@ const columns = [
                       size: "small",
                       type: "primary",
                       secondary: true,
-                      disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                      disabled: !userStore.hasResourceCode("project:detail:module:update") || row.lv1Module.status > 1,
                       onClick: () => handleEditData(row.lv1Module)
                     },
                     {
@@ -228,7 +228,7 @@ const columns = [
               {},
               {
                 default: () => row.lv2Module?.remark || row.lv2Module?.name,
-                trigger: () => row.lv2Column
+                trigger: () => (markedModuleId.value !== row.lv2Module?.id ? row.lv2Column : h(NText, { type: "error" }, { default: () => row.lv2Column }))
               }
             ),
             row.lv2Module
@@ -244,7 +244,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv2Module && row.lv2Module.status > 1),
                           onClick: () => (row.lv2Module ? handleEditData(row.lv2Module) : "")
                         },
                         {
@@ -278,7 +278,7 @@ const columns = [
               {},
               {
                 default: () => row.lv3Module?.remark || row.lv3Module?.name,
-                trigger: () => row.lv3Column
+                trigger: () => (markedModuleId.value !== row.lv3Module?.id ? row.lv3Column : h(NText, { type: "error" }, { default: () => row.lv3Column }))
               }
             ),
             row.lv3Module
@@ -294,7 +294,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv3Module && row.lv3Module.status > 1),
                           onClick: () => (row.lv3Module ? handleEditData(row.lv3Module) : "")
                         },
                         {
@@ -328,7 +328,7 @@ const columns = [
               {},
               {
                 default: () => row.lv4Module?.remark || row.lv4Module?.name,
-                trigger: () => row.lv4Column
+                trigger: () => (markedModuleId.value !== row.lv4Module?.id ? row.lv4Column : h(NText, { type: "error" }, { default: () => row.lv4Column }))
               }
             ),
             row.lv4Module
@@ -344,7 +344,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update"),
+                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv4Module && row.lv4Module.status > 1),
                           onClick: () => (row.lv4Module ? handleEditData(row.lv4Module) : "")
                         },
                         {
@@ -603,11 +603,23 @@ const handleNewRequirement = (module: ProjectModule) => {
   showNewRequirement.value = true
 }
 
+const markedModuleId = computed(() => {
+  const id = route.query.id as string
+  return id
+})
+
 // 加载动作
-onMounted(() => {
+const reload = () => {
   if (list.value.length === 0) {
     refresh()
   }
+}
+onMounted(() => {
+  reload()
+})
+const route = useRoute()
+onBeforeUpdate(() => {
+  reload()
 })
 </script>
 

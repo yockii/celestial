@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addProjectTestCase, batchSubmitProjectTestCase, updateProjectTestCase } from "@/service/api/project/projectTest"
+import { addProjectTestCase, batchSubmitProjectTestCase, updateProjectTestCase } from "@/service/api"
 import { ProjectTestCase } from "@/types/project"
 import { useMessage, FormInst } from "naive-ui"
 import CaseLib from "../caseLib/index.vue"

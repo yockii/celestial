@@ -1,11 +1,15 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -50,6 +54,15 @@ func (c *projectModuleController) Add(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
+
+	_ = ants.Submit(data.AddDocumentAntsWrapper(&search.Document{
+		ID:         instance.ID,
+		Title:      instance.Name,
+		Content:    instance.Remark + ", \n状态：待评审",
+		Route:      fmt.Sprintf("/project/detail/%d/module?id=%d", instance.ProjectID, instance.ID),
+		CreateTime: instance.CreateTime,
+		UpdateTime: instance.UpdateTime,
+	}, instance.CreatorID))
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -81,9 +94,43 @@ func (c *projectModuleController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if success {
+		c.addSearchDocument(instance.ID)
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
+}
+
+func (c *projectModuleController) addSearchDocument(id uint64) {
+	_ = ants.Submit(func(id uint64) func() {
+		d, e := service.ProjectModuleService.Instance(id)
+		if e != nil {
+			logger.Errorln(e)
+			return func() {}
+		}
+		//状态 1-待评审 2-评审通过待开发 9-已完成 -1-评审不通过
+		status := "待评审"
+		switch d.Status {
+		case 1:
+			status = "待评审"
+		case 2:
+			status = "评审通过待开发"
+		case 9:
+			status = "已完成"
+		case -1:
+			status = "评审不通过"
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:         d.ID,
+			Title:      d.Name,
+			Content:    d.Remark + ", \n状态: " + status,
+			Route:      fmt.Sprintf("/project/detail/%d/module?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, d.CreatorID)
+	}(id))
 }
 
 func (c *projectModuleController) Delete(ctx *fiber.Ctx) error {
@@ -110,6 +157,10 @@ func (c *projectModuleController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -212,6 +263,10 @@ func (c *projectModuleController) Review(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if success {
+		c.addSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{

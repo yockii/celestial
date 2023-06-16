@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from "vue"
-import { getAssetCategoryList, updateAssetCategory, addAssetCategory, deleteAssetCategory } from "@/service/api/asset/assetCategory"
+import { getAssetCategoryList, updateAssetCategory, addAssetCategory, deleteAssetCategory } from "@/service/api"
 import { AssetCategory, AssetCategoryCondition } from "@/types/asset"
 import { Search } from "@vicons/carbon"
 import dayjs from "dayjs"
