@@ -37,7 +37,7 @@ const findStageProjectCount = (stageId: string) => {
 onMounted(() => {
   // 获取项目的阶段统计数据
   getProjectStageStatistics().then((res) => {
-    projectStatistics.value = res
+    projectStatistics.value = res || []
     total.value = res.reduce((total, item) => total + item.count, 0)
   })
   refresh()
