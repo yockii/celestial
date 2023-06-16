@@ -62,9 +62,9 @@ const handleLoginButtonClick = (): void => {
         const to = {
           name: "Home"
         }
-        if (appStore.activeSubMenuKey !== "") {
+        if (appStore.activeSubMenuKey && appStore.activeSubMenuKey !== "") {
           to.name = appStore.activeSubMenuKey
-        } else if (appStore.activeMenuKey !== "") {
+        } else if (appStore.activeMenuKey && appStore.activeMenuKey !== "") {
           to.name = appStore.activeMenuKey
         }
         router.push(to)

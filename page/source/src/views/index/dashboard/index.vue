@@ -40,7 +40,6 @@
 
 <script setup lang="ts">
 import { luceneSearch } from "@/service/api"
-import { useAppStore } from "@/store/app"
 import { LuceneDocument } from "@/types/lecene"
 import { Search } from "@vicons/carbon"
 import dayjs from "dayjs"

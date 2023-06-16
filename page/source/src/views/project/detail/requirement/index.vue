@@ -448,7 +448,7 @@ const columns = [
                   size: "small",
                   secondary: true,
                   type: "primary",
-                  disabled: !userStore.hasResourceCode("project:detail:requirement:edit") || (row.status && row.status > 2),
+                  disabled: !(userStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)),
                   onClick: () => handleEditData(row)
                 },
                 {
