@@ -188,7 +188,7 @@ func InitData() {
 					Type:         3,
 				})
 			}
-			// 需求
+			// 项目需求
 			{
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求",
@@ -231,7 +231,7 @@ func InitData() {
 					Type:         3,
 				})
 			}
-			// 任务
+			// 项目任务
 			{
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目任务",
@@ -263,8 +263,34 @@ func InitData() {
 					ResourceCode: constant.ResourceProjectTaskInstance,
 					Type:         3,
 				})
+				// 5个更新状态
+				resources = append(resources, &model.Resource{
+					ResourceName: "取消项目任务",
+					ResourceCode: constant.ResourceProjectTaskCancel,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "任务成员确认项目任务",
+					ResourceCode: constant.ResourceProjectTaskConfirm,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "任务成员开始项目任务",
+					ResourceCode: constant.ResourceProjectTaskStart,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "任务成员完成项目任务",
+					ResourceCode: constant.ResourceProjectTaskDone,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "重启项目任务",
+					ResourceCode: constant.ResourceProjectTaskRestart,
+					Type:         3,
+				})
 			}
-			// 测试
+			// 项目测试
 			{
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目测试",

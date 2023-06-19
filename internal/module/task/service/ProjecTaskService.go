@@ -148,7 +148,6 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 			ActualEndTime:    instance.ActualEndTime,
 			EstimateDuration: instance.EstimateDuration,
 			ActualDuration:   instance.ActualDuration,
-			Status:           instance.Status,
 			FullPath:         instance.FullPath,
 		}).Error
 		if err != nil {
@@ -369,5 +368,53 @@ func (s *projectTaskService) TaskDurationByProject(projectID uint64, tcList map[
 		logger.Errorln(err)
 		return
 	}
+	return
+}
+
+// UpdateStatus 更新状态
+func (s *projectTaskService) UpdateStatus(id uint64, status int) (success bool, err error) {
+	if id == 0 {
+		err = errors.New("id is required")
+		return
+	}
+	// 检查旧状态
+	var oldStatus int
+	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).Select("status").First(&oldStatus).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logger.Errorln(err)
+			return
+		}
+		return false, nil
+	}
+	if oldStatus == status {
+		return true, nil
+	}
+
+	// 判断当前状态是否可变更为目标状态
+	var canChange bool
+	switch status {
+	case model.ProjectTaskStatusCancel: // 已取消，可以变更为未开始
+		canChange = oldStatus == model.ProjectTaskStatusNotStart
+	case model.ProjectTaskStatusNotStart: // 未开始，可以变更为已取消、已确认
+		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusConfirmed
+	case model.ProjectTaskStatusConfirmed: // 已确认，可以变更为进行中、已取消
+		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusDoing
+	case model.ProjectTaskStatusDoing: // 进行中，可以变更为已完成、已取消
+		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusDone
+	case model.ProjectTaskStatusDone: // 已完成，可以变更为已取消
+		canChange = oldStatus == model.ProjectTaskStatusCancel
+	}
+
+	if !canChange {
+		return false, nil
+	}
+
+	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).Update("status", status).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	success = true
 	return
 }

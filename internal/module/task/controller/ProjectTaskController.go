@@ -381,3 +381,73 @@ func (c *projectTaskController) addSearchDocument(id uint64) {
 		}, relatedUids...)
 	}(id))
 }
+
+func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		condition := new(model.ProjectTask)
+		if err := ctx.BodyParser(condition); err != nil {
+			logger.Errorln(err)
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamParseError,
+				Msg:  server.ResponseMsgParamParseError,
+			})
+		}
+		if condition.ID == 0 {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " id",
+			})
+		}
+
+		userID, err := helper.GetCurrentUserID(ctx)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " userID In Session",
+			})
+		}
+
+		var success bool
+		if success, err = service.ProjectTaskMemberService.UpdateStatus(condition.ID, userID, status); err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		if success {
+			c.addSearchDocument(condition.ID)
+		}
+		return ctx.JSON(&server.CommonResponse{Data: success})
+	}
+}
+
+func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		condition := new(model.ProjectTask)
+		if err := ctx.QueryParser(condition); err != nil {
+			logger.Errorln(err)
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamParseError,
+				Msg:  server.ResponseMsgParamParseError,
+			})
+		}
+		if condition.ID == 0 {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " id",
+			})
+		}
+
+		if success, err := service.ProjectTaskService.UpdateStatus(condition.ID, status); err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		} else {
+			if success {
+				c.addSearchDocument(condition.ID)
+			}
+			return ctx.JSON(&server.CommonResponse{Data: success})
+		}
+	}
+}

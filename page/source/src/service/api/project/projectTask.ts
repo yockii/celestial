@@ -15,7 +15,7 @@ export function getProjectWorkTimeStatistics(projectId: string) {
 }
 
 /**
- * 获取项目需求列表
+ * 获取项目任务列表
  * @param condition - 查询条件
  */
 export function getProjectTaskList(condition: ProjectTaskCondition) {
@@ -25,16 +25,16 @@ export function getProjectTaskList(condition: ProjectTaskCondition) {
 }
 
 /**
- * 新增项目需求
- * @param projectTask - 项目需求信息
+ * 新增项目任务
+ * @param projectTask - 项目任务信息
  */
 export function addProjectTask(projectTask: ProjectTask) {
   return request.post<boolean>("/projectTask/add", projectTask)
 }
 
 /**
- * 获取项目需求详情
- * @param id - 项目需求id
+ * 获取项目任务详情
+ * @param id - 项目任务id
  */
 export function getProjectTask(id: string) {
   return request.get<ProjectTask>("/projectTask/instance", {
@@ -43,8 +43,8 @@ export function getProjectTask(id: string) {
 }
 
 /**
- * 删除项目需求
- * @param id - 项目需求id
+ * 删除项目任务
+ * @param id - 项目任务id
  */
 export function deleteProjectTask(id: string) {
   return request.delete<boolean>("/projectTask/delete", {
@@ -53,9 +53,59 @@ export function deleteProjectTask(id: string) {
 }
 
 /**
- * 更新项目需求
- * @param projectTask - 项目需求信息
+ * 更新项目任务
+ * @param projectTask - 项目任务信息
  */
 export function updateProjectTask(projectTask: ProjectTask) {
   return request.put<boolean>("/projectTask/update", projectTask)
+}
+
+/**
+ * 取消任务
+ * @param id - 项目任务id
+ */
+export function cancelProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/cancel", {
+    id
+  })
+}
+
+/**
+ * 确认任务
+ * @param id - 项目任务id
+ */
+export function confirmProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/confirm", {
+    id
+  })
+}
+
+/**
+ * 开始任务
+ * @param id - 项目任务id
+ */
+export function startProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/start", {
+    id
+  })
+}
+
+/**
+ * 完成任务
+ * @param id - 项目任务id
+ */
+export function finishProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/finish", {
+    id
+  })
+}
+
+/**
+ * 重新开始任务
+ * @param id - 项目任务id
+ */
+export function restartProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/restart", {
+    id
+  })
 }

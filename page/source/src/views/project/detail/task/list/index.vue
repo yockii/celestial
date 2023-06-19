@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getProjectTask, getProjectTaskList } from "@/service/api"
+import { confirmProjectTask, finishProjectTask, getProjectTask, getProjectTaskList, startProjectTask } from "@/service/api"
 import { ProjectTask, ProjectTaskCondition } from "@/types/project"
 import {
   NAvatarGroup,
@@ -13,12 +13,15 @@ import {
   PaginationProps,
   NTooltip,
   NDropdown,
-  NAvatar
+  NAvatar,
+  NSpace,
+  NText
 } from "naive-ui"
 import { ArrowsSplit } from "@vicons/tabler"
 import { Delete, Edit, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
+import { BoxCheckmark20Regular, Checkmark20Regular, Play20Regular } from "@vicons/fluent"
 const userStore = useUserStore()
 
 const props = defineProps<{
@@ -109,20 +112,139 @@ const statusColumn = reactive({
   title: "状态",
   key: "status",
   render: (row: ProjectTask) => {
+    let msg = "未知"
+    let hasMe = false
+    let imConfirmed = false
+    let imStarted = false
+    let hasConfirmedMember = false
+    if (row.members) {
+      for (let i = 0; i < row.members.length; i++) {
+        const member = row.members[i]
+        if (member.status && member.status === 2) {
+          hasConfirmedMember = true
+        }
+        if (member.userId === userStore.user.id) {
+          hasMe = true
+          imConfirmed = !!member.status && member.status === 2
+          imStarted = !!member.status && member.status === 3
+        }
+        if (hasMe && hasConfirmedMember) {
+          break
+        }
+      }
+    }
+
     switch (row.status) {
       case -1:
-        return "已取消"
+        msg = "已取消"
+        break
       case 1:
-        return "未开始"
+        msg = "未开始"
+        if (hasConfirmedMember) {
+          msg = "部分确认"
+        }
+        break
       case 2:
-        return "已确认"
+        msg = "已确认"
+        break
       case 3:
-        return "进行中"
+        msg = "进行中"
+        break
       case 9:
-        return "已完成"
+        msg = "已完成"
+        break
       default:
-        return "未知"
+        msg = "未知"
     }
+
+    const group: VNode[] = []
+    group.push(h(NText, {}, () => msg))
+    if (hasMe) {
+      if (row.status === 1) {
+        if (!imConfirmed) {
+          // 显示确认按钮
+          group.push(
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => "确认签收",
+                trigger: h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "success",
+                    onClick: () => {
+                      confirmProjectTask(row.id).then(() => {
+                        refresh()
+                      })
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: BoxCheckmark20Regular })
+                  }
+                )
+              }
+            )
+          )
+        }
+      } else if (row.status === 2) {
+        // 都确认后，可以开始执行任务
+        if (!imStarted) {
+          group.push(
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => "开始执行",
+                trigger: h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "success",
+                    onClick: () => {
+                      startProjectTask(row.id).then(() => {
+                        refresh()
+                      })
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Play20Regular })
+                  }
+                )
+              }
+            )
+          )
+        } else {
+          group.push(
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => "完成任务",
+                trigger: h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "success",
+                    onClick: () => {
+                      finishProjectTask(row.id).then(() => {
+                        refresh()
+                      })
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Checkmark20Regular })
+                  }
+                )
+              }
+            )
+          )
+        }
+      }
+    }
+
+    return h(NSpace, { justify: "space-between" }, () => group)
   },
   filter: true,
   filterMultiple: false,

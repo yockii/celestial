@@ -67,6 +67,23 @@ func AddDocument(documents []*Document) (success bool, err error) {
 	return
 }
 
+func UpdateDocument(documents []*Document) (success bool, err error) {
+	if client == nil {
+		err = errors.New("No Search client initialized. ")
+		return
+	}
+	var task *meilisearch.TaskInfo
+	task, err = client.Index(index).UpdateDocuments(documents, "id")
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	if task != nil {
+		success = task.Status != meilisearch.TaskStatusFailed
+	}
+	return
+}
+
 func Search(keyword string, limit, offset int64) (total int64, result []*Document, err error) {
 	if client == nil {
 		err = errors.New("No Search client initialized. ")
