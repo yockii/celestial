@@ -6,6 +6,16 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ProjectIssueStatusNew = iota + 1
+	ProjectIssueStatusAssigned
+	ProjectIssueStatusProcessing
+	ProjectIssueStatusVerifying
+	ProjectIssueStatusResolved
+
+	ProjectIssueStatusClosed = 9
+)
+
 type ProjectIssue struct {
 	ID          uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ProjectID   uint64         `json:"projectIDd,omitempty,string" gorm:"index;comment:项目ID"`

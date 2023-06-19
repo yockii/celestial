@@ -468,8 +468,28 @@ func InitData() {
 					Type:         3,
 				})
 				resources = append(resources, &model.Resource{
-					ResourceName: "项目缺陷指派",
+					ResourceName: "项目缺陷指派处理人",
 					ResourceCode: constant.ResourceProjectIssueAssign,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "开始处理项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueStart,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "完成项目缺陷待验证",
+					ResourceCode: constant.ResourceProjectIssueDone,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "验证项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueVerify,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "关闭项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueClose,
 					Type:         3,
 				})
 			}

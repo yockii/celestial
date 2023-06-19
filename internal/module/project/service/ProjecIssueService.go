@@ -185,3 +185,49 @@ func (s *projectIssueService) Assign(id uint64, assigneeID uint64) (success bool
 	success = true
 	return
 }
+
+// UpdateStatus 更新状态
+func (s *projectIssueService) UpdateStatus(id uint64, status uint8) (success bool, err error) {
+	if id == 0 {
+		err = errors.New("id is required")
+		return
+	}
+	// 原有数据的状态
+	var oldStatus int
+	err = database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: id}).Select("status").First(&oldStatus).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		logger.Errorln(err)
+		return
+	}
+	// 验证状态是否允许更改
+	var canChange bool
+	switch oldStatus {
+	case 0:
+		fallthrough
+	case model.ProjectIssueStatusNew: // 新建的只能关闭或者指派
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusAssigned
+	case model.ProjectIssueStatusAssigned: // 已指派的只能关闭或者处理中
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusProcessing
+	case model.ProjectIssueStatusProcessing: // 处理中的只能关闭或者验证中
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusVerifying
+	case model.ProjectIssueStatusVerifying: // 验证中的只能关闭或者已解决或已指派
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusResolved || status == model.ProjectIssueStatusAssigned
+	case model.ProjectIssueStatusResolved: // 已解决的只能关闭
+		canChange = status == model.ProjectIssueStatusClosed
+	}
+
+	if canChange {
+		err = database.DB.Where(&model.ProjectIssue{ID: id}).Updates(&model.ProjectIssue{
+			Status: status,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return
+		}
+		success = true
+	}
+	return
+}

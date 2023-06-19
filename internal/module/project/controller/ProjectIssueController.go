@@ -279,3 +279,54 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 		Data: success,
 	})
 }
+
+func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler {
+
+	return func(ctx *fiber.Ctx) error {
+		instance := new(model.ProjectIssue)
+		if err := ctx.BodyParser(instance); err != nil {
+			logger.Errorln(err)
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamParseError,
+				Msg:  server.ResponseMsgParamParseError,
+			})
+		}
+
+		// 处理必填
+		if instance.ID == 0 {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " id",
+			})
+		}
+
+		if len(statusList) == 0 {
+			if instance.Status == model.ProjectIssueStatusAssigned {
+				statusList = []uint8{model.ProjectIssueStatusAssigned}
+			} else if instance.Status == model.ProjectIssueStatusResolved {
+				statusList = []uint8{model.ProjectIssueStatusResolved}
+			} else {
+				return ctx.JSON(&server.CommonResponse{
+					Code: server.ResponseCodeParamNotEnough,
+					Msg:  server.ResponseMsgParamNotEnough + " status",
+				})
+			}
+		}
+
+		success, err := service.ProjectIssueService.UpdateStatus(instance.ID, statusList[0])
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+
+		if success {
+			_ = ants.Submit(data.UpdateDocumentAntsWrapper(&search.Document{ID: instance.ID}, instance.CreatorID, instance.AssigneeID))
+		}
+
+		return ctx.JSON(&server.CommonResponse{
+			Data: success,
+		})
+	}
+}

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
+	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -130,10 +131,19 @@ func InitRouter() {
 		projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList), ProjectIssueController.List)
 		projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance), ProjectIssueController.Instance)
 		projectIssue.Put("/assign", middleware.NeedAuthorization(constant.ResourceProjectIssueAssign), ProjectIssueController.Assign)
+		projectIssue.Put("/start", middleware.NeedAuthorization(constant.ResourceProjectIssueStart), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusProcessing))
+		projectIssue.Put("/done", middleware.NeedAuthorization(constant.ResourceProjectIssueDone), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusVerifying))
+		projectIssue.Put("/verify", middleware.NeedAuthorization(constant.ResourceProjectIssueVerify), ProjectIssueController.UpdateStatus())
+		projectIssue.Put("/close", middleware.NeedAuthorization(constant.ResourceProjectIssueClose), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusClosed))
 
 		// 对于禁用put和delete方法时的处理
 		projectIssue.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)
 		projectIssue.Post("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
+		projectIssue.Post("/assign", middleware.NeedAuthorization(constant.ResourceProjectIssueAssign), ProjectIssueController.Assign)
+		projectIssue.Post("/start", middleware.NeedAuthorization(constant.ResourceProjectIssueStart), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusProcessing))
+		projectIssue.Post("/done", middleware.NeedAuthorization(constant.ResourceProjectIssueDone), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusVerifying))
+		projectIssue.Post("/verify", middleware.NeedAuthorization(constant.ResourceProjectIssueVerify), ProjectIssueController.UpdateStatus())
+		projectIssue.Post("/close", middleware.NeedAuthorization(constant.ResourceProjectIssueClose), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusClosed))
 	}
 
 	// 项目风险

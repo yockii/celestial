@@ -120,6 +120,10 @@ const (
 	ResourceProjectIssueList     = ResourceProjectIssue + ":list"
 	ResourceProjectIssueInstance = ResourceProjectIssue + ":instance"
 	ResourceProjectIssueAssign   = ResourceProjectIssue + ":assign"
+	ResourceProjectIssueStart    = ResourceProjectIssue + ":start"
+	ResourceProjectIssueDone     = ResourceProjectIssue + ":done"
+	ResourceProjectIssueVerify   = ResourceProjectIssue + ":verify"
+	ResourceProjectIssueClose    = ResourceProjectIssue + ":close"
 
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"

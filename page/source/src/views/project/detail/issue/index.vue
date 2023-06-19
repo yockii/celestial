@@ -148,7 +148,10 @@ const operationColumn = reactive({
   key: "operation",
   render: (row: ProjectIssue) => {
     const btnGroup: VNode[] = []
-    if (userStore.hasResourceCode("project:detail:issue:assign") && (row.creatorId === userStore.user.id || row.assigneeId === userStore.user.id)) {
+    if (
+      userStore.hasResourceCode("project:detail:issue:assign") &&
+      ((row.status === 1 && row.creatorId === userStore.user.id) || row.assigneeId === userStore.user.id)
+    ) {
       btnGroup.push(
         h(
           NPopselect,
