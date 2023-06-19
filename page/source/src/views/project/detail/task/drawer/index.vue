@@ -81,21 +81,14 @@ const loadRequirementList = (moduleId: string) => {
     currentData.value.moduleId = ""
   }
 }
-watch(
-  () => currentData.value.moduleId,
-  (moduleId?: string) => {
-    loadRequirementList(moduleId || "")
+
+onBeforeUpdate(() => {
+  if (props.drawerActive) {
+    loadRequirementList(currentData.value.moduleId || "")
+    loadParentTask("", currentData.value.parentId || "")
+    memberIdList.value = currentData.value.members?.map((item) => item.userId) || []
   }
-)
-watch(
-  () => currentData.value.parentId,
-  (parentId?: string) => {
-    // 加载父级任务
-    if (parentId) {
-      loadParentTask("", parentId)
-    }
-  }
-)
+})
 
 // 选择需求后自动填充任务详情
 const updateTaskDescByRequirement = (requirementId: string) => {
@@ -113,12 +106,16 @@ onMounted(() => {
 
 // 处理任务参与人
 const memberIdList = ref<string[]>([])
-watch(
-  () => currentData.value.members,
-  (members) => {
-    memberIdList.value = members?.map((item) => item.userId) || []
+
+const taskTime = computed<number[]>({
+  get: () => {
+    return [currentData.value.startTime || Date.now(), currentData.value.endTime || Date.now() + 3600 * 1000 * 24]
+  },
+  set: (val: number[]) => {
+    currentData.value.startTime = val[0]
+    currentData.value.endTime = val[1]
   }
-)
+})
 
 // 规则定义
 const rules = {
@@ -175,7 +172,7 @@ const parentTaskChanged = (parentId: string) => {
 </script>
 
 <template>
-  <n-drawer :show="drawerActive" :width="401" :on-update:show="(show: boolean) => emit('update:drawerActive', show)">
+  <n-drawer :show="drawerActive" :width="460" :on-update:show="(show: boolean) => emit('update:drawerActive', show)">
     <n-drawer-content :title="drawerTitle">
       <n-form ref="formRef" :model="currentData" label-width="100px" :rules="rules">
         <n-form-item label="任务名称" path="name">
@@ -232,6 +229,9 @@ const parentTaskChanged = (parentId: string) => {
               { label: '高', value: 3 }
             ]"
           />
+        </n-form-item>
+        <n-form-item label="预期任务时间" path="startTime">
+          <n-date-picker v-model:value="taskTime" type="datetimerange" clearable placeholder="请选择预期任务时间" />
         </n-form-item>
         <n-form-item label="任务参与人" path="members">
           <n-select

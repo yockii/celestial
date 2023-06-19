@@ -22,6 +22,7 @@ import { Delete, Edit, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import { BoxCheckmark20Regular, Checkmark20Regular, Play20Regular } from "@vicons/fluent"
+import dayjs from "dayjs"
 const userStore = useUserStore()
 
 const props = defineProps<{
@@ -474,12 +475,26 @@ const actionColumn = reactive({
     return h(NButtonGroup, {}, () => bg)
   }
 })
+const startTimeColumn = reactive({
+  title: "开始时间",
+  key: "startTime",
+  render: (row: ProjectTask) => {
+    return row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD HH:mm:ss") : ""
+  }
+})
+const endTimeColumn = reactive({
+  title: "截止时间",
+  key: "endTime",
+  render: (row: ProjectTask) => {
+    return row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss") : ""
+  }
+})
 const columns = computed(() => {
   const result = []
   if (!props.useTree) {
     result.push(expandColumn)
   }
-  result.push(nameColumn, priorityColumn, membersColumn, statusColumn, actionColumn)
+  result.push(nameColumn, priorityColumn, startTimeColumn, endTimeColumn, membersColumn, statusColumn, actionColumn)
   return result
 })
 
