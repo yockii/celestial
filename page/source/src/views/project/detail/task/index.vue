@@ -79,7 +79,6 @@ const handleShowChild = (row: ProjectTask) => {
     if (res) {
       currentData.value = res
       childDrawerActive.value = true
-      childDrawer.value?.refresh()
     }
   })
 }
@@ -119,9 +118,9 @@ onMounted(() => {
   reload()
 })
 const route = useRoute()
-onBeforeUpdate(() => {
-  reload()
-})
+// onBeforeUpdate(() => {
+//   reload()
+// })
 </script>
 
 <template>

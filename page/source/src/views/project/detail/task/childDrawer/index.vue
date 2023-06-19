@@ -20,14 +20,6 @@ const condition = ref<ProjectTaskCondition>({
   offset: 0,
   limit: 10
 })
-watch(
-  () => props.data,
-  (val) => {
-    condition.value.projectId = val.projectId
-    condition.value.parentId = val.id
-    listComp.value?.refresh()
-  }
-)
 
 const editDrawerActive = ref(false)
 const currentData = ref<ProjectTask>({
@@ -84,11 +76,9 @@ const handleShowChild = (row: ProjectTask) => {
   childDrawerActive.value = true
 }
 
-const loadData = () => {
-  // listComp.value?.refresh()
-}
-defineExpose({
-  refresh: loadData
+onBeforeUpdate(() => {
+  condition.value.parentId = props.data.id
+  listComp.value?.refresh()
 })
 </script>
 
