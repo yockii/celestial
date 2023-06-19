@@ -190,15 +190,48 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 		}
 		// 更新用户部门关系
 		err = database.DB.Transaction(func(tx *gorm.DB) error {
-			// 删除原有部门关系
+			// 查询原有部门信息，并更新用户部门关系
+			var userDeptList []*model.UserDepartment
 			if err = tx.Where(&model.UserDepartment{
 				UserID: matchingUser.ID,
-			}).Delete(&model.UserDepartment{}).Error; err != nil {
+			}).Find(&userDeptList).Error; err != nil {
 				logger.Error(err)
 				return err
 			}
-			// 添加新的部门关系
+			// 获取原有部门ID
+			var oldDeptIdList []uint64
+			for _, userDept := range userDeptList {
+				oldDeptIdList = append(oldDeptIdList, userDept.DepartmentID)
+			}
+			// 获取需要删除的部门ID
+			var deleteDeptIdList []uint64
+			for _, oldDeptId := range oldDeptIdList {
+				for _, deptId := range deptIdList {
+					if oldDeptId == deptId {
+						break
+					}
+					deleteDeptIdList = append(deleteDeptIdList, oldDeptId)
+				}
+			}
+			// 删除需要删除的部门ID
+			if len(deleteDeptIdList) > 0 {
+				if err = tx.Where(&model.UserDepartment{UserID: matchingUser.ID}).Where("department_id in ?", deleteDeptIdList).Delete(&model.UserDepartment{}).Error; err != nil {
+					logger.Error(err)
+					return err
+				}
+			}
+			// 获取需要添加的部门ID
+			var addDeptIdList []uint64
 			for _, deptId := range deptIdList {
+				for _, oldDeptId := range oldDeptIdList {
+					if deptId == oldDeptId {
+						break
+					}
+					addDeptIdList = append(addDeptIdList, deptId)
+				}
+			}
+			// 添加新的部门关系
+			for _, deptId := range addDeptIdList {
 				if err = tx.Create(&model.UserDepartment{
 					ID:           util.SnowflakeId(),
 					UserID:       matchingUser.ID,
