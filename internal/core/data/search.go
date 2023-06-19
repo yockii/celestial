@@ -66,6 +66,14 @@ func AddDocumentAntsWrapper(document *search.Document, uidList ...uint64) func()
 	}
 }
 
+func UpdateDocumentAntsWrapper(document *search.Document, uidList ...uint64) func() {
+	return func() {
+		if err := UpdateDocument(document, uidList...); err != nil {
+			logger.Error(err)
+		}
+	}
+}
+
 func DeleteDocumentsAntsWrapper(idList ...uint64) func() {
 	return func() {
 		if err := DeleteDocuments(idList...); err != nil {

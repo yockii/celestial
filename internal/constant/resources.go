@@ -119,6 +119,7 @@ const (
 	ResourceProjectIssueUpdate   = ResourceProjectIssue + ":update"
 	ResourceProjectIssueList     = ResourceProjectIssue + ":list"
 	ResourceProjectIssueInstance = ResourceProjectIssue + ":instance"
+	ResourceProjectIssueAssign   = ResourceProjectIssue + ":assign"
 
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"

@@ -435,6 +435,45 @@ func InitData() {
 				}
 			}
 
+			// 项目缺陷
+			{
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目缺陷",
+					ResourceCode: constant.ResourceProjectIssue,
+					Type:         2,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "添加项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueAdd,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "更新项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueUpdate,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "删除项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueDelete,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目缺陷列表",
+					ResourceCode: constant.ResourceProjectIssueList,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目缺陷详情",
+					ResourceCode: constant.ResourceProjectIssueInstance,
+					Type:         3,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "项目缺陷指派",
+					ResourceCode: constant.ResourceProjectIssueAssign,
+					Type:         3,
+				})
+			}
+
 			// 项目变更
 			{
 				resources = append(resources, &model.Resource{

@@ -152,3 +152,36 @@ func (s *projectIssueService) Instance(id uint64) (instance *model.ProjectIssue,
 	}
 	return
 }
+
+func (s *projectIssueService) Assign(id uint64, assigneeID uint64) (success bool, err error) {
+	if id == 0 || assigneeID == 0 {
+		err = errors.New("id is required")
+		return
+	}
+	// 原有数据的状态
+	var status int
+	err = database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: id}).Select("status").First(&status).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		logger.Errorln(err)
+		return
+	}
+
+	var changedStatus uint8 = 0
+	if status == 0 || status == 1 {
+		changedStatus = 2
+	}
+
+	err = database.DB.Where(&model.ProjectIssue{ID: id}).Updates(&model.ProjectIssue{
+		AssigneeID: assigneeID,
+		Status:     changedStatus,
+	}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	success = true
+	return
+}

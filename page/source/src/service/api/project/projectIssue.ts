@@ -47,3 +47,15 @@ export function deleteProjectIssue(id: string) {
 export function updateProjectIssue(projectIssue: ProjectIssue) {
   return request.put<boolean>("/projectIssue/update", projectIssue)
 }
+
+/**
+ * 分配项目缺陷处理人
+ * @param id - 项目缺陷id
+ * @param userId - 处理人id
+ */
+export function assignProjectIssue(id: string, userId: string) {
+  return request.put<boolean>("/projectIssue/assign", {
+    id,
+    assigneeId: userId
+  })
+}

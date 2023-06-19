@@ -244,3 +244,38 @@ func (c *projectIssueController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
+	instance := new(model.ProjectIssue)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 处理必填
+	if instance.ID == 0 || instance.AssigneeID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id, assignee_id",
+		})
+	}
+
+	success, err := service.ProjectIssueService.Assign(instance.ID, instance.AssigneeID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	if success {
+		_ = ants.Submit(data.UpdateDocumentAntsWrapper(&search.Document{ID: instance.ID}, instance.CreatorID, instance.AssigneeID))
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}

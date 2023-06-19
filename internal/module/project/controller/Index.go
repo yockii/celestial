@@ -129,6 +129,7 @@ func InitRouter() {
 		projectIssue.Put("/update", middleware.NeedAuthorization(constant.ResourceProjectIssueUpdate), ProjectIssueController.Update)
 		projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList), ProjectIssueController.List)
 		projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance), ProjectIssueController.Instance)
+		projectIssue.Put("/assign", middleware.NeedAuthorization(constant.ResourceProjectIssueAssign), ProjectIssueController.Assign)
 
 		// 对于禁用put和delete方法时的处理
 		projectIssue.Post("/delete", middleware.NeedAuthorization(constant.ResourceProjectIssueDelete), ProjectIssueController.Delete)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProjectIssue, ProjectIssueCondition } from "@/types/project"
+import { ProjectIssue, ProjectIssueCondition, ProjectMember } from "@/types/project"
 import { computed, h, reactive, ref } from "vue"
 import dayjs from "dayjs"
 import {
@@ -12,16 +12,19 @@ import {
   NGridItem,
   NIcon,
   NPopconfirm,
+  NPopselect,
   NTooltip,
   PaginationProps
 } from "naive-ui"
-import { addProjectIssue, deleteProjectIssue, getProjectIssue, getProjectIssueList, updateProjectIssue } from "@/service/api"
+import { addProjectIssue, assignProjectIssue, deleteProjectIssue, getProjectIssue, getProjectIssueList, updateProjectIssue } from "@/service/api"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
+import { AssignmentIndOutlined } from "@vicons/material"
 
-const { project } = storeToRefs(useProjectStore())
+const projectStore = useProjectStore()
+const { project } = storeToRefs(projectStore)
 const userStore = useUserStore()
 
 const expandColumn = reactive({
@@ -118,6 +121,19 @@ const statusColumn = reactive({
     }
   ]
 })
+const dealUserColumn = reactive({
+  title: "当前处理人",
+  key: "dealUser",
+  render: (row: ProjectIssue) => {
+    if (row.assigneeId && project.value?.members) {
+      const user = project.value?.members.find((item) => item.userId === row.assigneeId)
+      if (user) {
+        return user.realName
+      }
+    }
+    return "未知"
+  }
+})
 const createTimeColumn = reactive({
   title: "创建时间",
   key: "createTime",
@@ -130,60 +146,114 @@ const createTimeColumn = reactive({
 const operationColumn = reactive({
   title: "操作",
   key: "operation",
-  // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
   render: (row: ProjectIssue) => {
-    return h(NButtonGroup, {}, () => [
-      h(
-        NTooltip,
-        {},
-        {
-          default: () => "编辑",
-          trigger: () =>
-            h(
-              NButton,
-              {
-                size: "small",
-                secondary: true,
-                type: "primary",
-                disabled: !userStore.hasResourceCode("project:detail:issue:update"),
-                onClick: () => handleEditData(row)
-              },
-              {
-                default: () => h(NIcon, { component: Edit })
-              }
-            )
-        }
-      ),
-      h(
-        NPopconfirm,
-        {
-          onPositiveClick: () => handleDeleteData(row.id)
-        },
-        {
-          default: () => "确认删除",
-          trigger: () =>
+    const btnGroup: VNode[] = []
+    if (userStore.hasResourceCode("project:detail:issue:assign") && (row.creatorId === userStore.user.id || row.assigneeId === userStore.user.id)) {
+      btnGroup.push(
+        h(
+          NPopselect,
+          {
+            options: projectStore.memberList?.map((item) => ({
+              label: item.realName,
+              value: item.userId
+            })),
+            value: row.assigneeId || "",
+            valueField: "userId",
+            onUpdateValue: (value: string) => {
+              assignProjectIssue(row.id, value).then((res) => {
+                if (res) {
+                  message.success("指派成功")
+                  refresh()
+                }
+              })
+            }
+          },
+          () =>
             h(
               NTooltip,
               {},
               {
-                default: () => "删除",
+                default: () => "指派处理人",
                 trigger: () =>
                   h(
                     NButton,
                     {
                       size: "small",
-                      type: "error",
-                      disabled: !userStore.hasResourceCode("project:detail:issue:delete")
+                      secondary: true,
+                      type: "primary",
+                      disabled:
+                        !userStore.hasResourceCode("project:detail:issue:assign") ||
+                        (row.creatorId !== userStore.user.id && row.assigneeId !== userStore.user.id),
+                      onClick: () => handleAssignData(row)
                     },
                     {
-                      default: () => h(NIcon, { component: Delete })
+                      default: () => h(NIcon, { component: AssignmentIndOutlined })
                     }
                   )
               }
             )
-        }
+        )
       )
-    ])
+    }
+    if (userStore.hasResourceCode("project:detail:issue:update")) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "编辑",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !userStore.hasResourceCode("project:detail:issue:update"),
+                  onClick: () => handleEditData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: Edit })
+                }
+              )
+          }
+        )
+      )
+    }
+    if (userStore.hasResourceCode("project:detail:issue:delete")) {
+      btnGroup.push(
+        h(
+          NPopconfirm,
+          {
+            onPositiveClick: () => handleDeleteData(row.id)
+          },
+          {
+            default: () => "确认删除",
+            trigger: () =>
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "删除",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "error",
+                        disabled: !userStore.hasResourceCode("project:detail:issue:delete")
+                      },
+                      {
+                        default: () => h(NIcon, { component: Delete })
+                      }
+                    )
+                }
+              )
+          }
+        )
+      )
+    }
+    return h(NButtonGroup, {}, () => btnGroup)
   }
 })
 const columns = [
@@ -195,6 +265,7 @@ const columns = [
   startTimeColumn,
   endTimeColumn,
   statusColumn,
+  dealUserColumn,
   createTimeColumn,
   operationColumn
 ]
@@ -279,6 +350,9 @@ const planRules = {
     { required: true, message: "请输入缺陷名称", trigger: "blur" },
     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
   ]
+}
+const handleAssignData = (row: ProjectIssue) => {
+  // 进行人员指派
 }
 const handleEditData = (row: ProjectIssue) => {
   instance.value = row

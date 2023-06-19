@@ -5,6 +5,7 @@ export type ProjectMember = {
   username: string
   realName: string
   roleId: string
+  status?: number
 }
 
 export type Project = {
