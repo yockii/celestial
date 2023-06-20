@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProjectIssue, ProjectIssueCondition, ProjectMember } from "@/types/project"
+import { ProjectIssue, ProjectIssueCondition } from "@/types/project"
 import { computed, h, reactive, ref } from "vue"
 import dayjs from "dayjs"
 import {
@@ -186,8 +186,7 @@ const operationColumn = reactive({
                       type: "primary",
                       disabled:
                         !userStore.hasResourceCode("project:detail:issue:assign") ||
-                        (row.creatorId !== userStore.user.id && row.assigneeId !== userStore.user.id),
-                      onClick: () => handleAssignData(row)
+                        (row.creatorId !== userStore.user.id && row.assigneeId !== userStore.user.id)
                     },
                     {
                       default: () => h(NIcon, { component: AssignmentIndOutlined })
@@ -352,10 +351,8 @@ const planRules = {
   title: [
     { required: true, message: "请输入缺陷名称", trigger: "blur" },
     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
-  ]
-}
-const handleAssignData = (row: ProjectIssue) => {
-  // 进行人员指派
+  ],
+  type: [{ type: "number", required: true, message: "请选择缺陷类型", trigger: ["blur", "change"] }]
 }
 const handleEditData = (row: ProjectIssue) => {
   instance.value = row
@@ -458,7 +455,7 @@ onBeforeUpdate(() => {
             </n-form-item>
           </n-gi>
           <n-gi>
-            <n-form-item label="类型：">
+            <n-form-item label="类型：" path="type">
               <n-select
                 v-model:value="instance.type"
                 placeholder="请选择类型"

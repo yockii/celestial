@@ -476,14 +476,14 @@ const actionColumn = reactive({
   }
 })
 const startTimeColumn = reactive({
-  title: "开始时间",
+  title: "预计开始时间",
   key: "startTime",
   render: (row: ProjectTask) => {
     return row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD HH:mm:ss") : ""
   }
 })
 const endTimeColumn = reactive({
-  title: "截止时间",
+  title: "预计结束时间",
   key: "endTime",
   render: (row: ProjectTask) => {
     return row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss") : ""
