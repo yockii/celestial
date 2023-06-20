@@ -100,7 +100,7 @@ func (s *projectTaskMemberService) ListWithRealName(condition *model.ProjectTask
 	_ = sm.Parse(&model.ProjectTaskMember{})
 	ptmTableName := sm.Schema.Table
 
-	tx.Select(ptmTableName+".*", "real_name")
+	tx = tx.Select(ptmTableName+".*", "real_name")
 
 	err = tx.Joins("left join "+userTableName+" on "+ptmTableName+".user_id = "+userTableName+".id").Find(&list, &model.ProjectTaskMember{
 		ProjectID: condition.ProjectID,

@@ -155,38 +155,38 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 	}
 	tx := database.DB
 	if limit > -1 {
-		tx.Limit(limit)
+		tx = tx.Limit(limit)
 	}
 	if offset > -1 {
-		tx.Offset(offset)
+		tx = tx.Offset(offset)
 	}
 
 	if orderBy != "" {
-		tx.Order(orderBy)
+		tx = tx.Order(orderBy)
 	} else {
-		tx.Order("update_time desc")
+		tx = tx.Order("update_time desc")
 	}
 
 	// 处理时间字段，在某段时间之间
 	for tc, tr := range tcList {
 		if tc != "" {
 			if !tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
 			} else if tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
 			} else if !tr.Start.IsZero() && tr.End.IsZero() {
-				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
 			}
 		}
 	}
 
 	// 模糊查找
 	if condition.Username != "" {
-		tx.Where("username like ?", "%"+condition.Username+"%")
+		tx = tx.Where("username like ?", "%"+condition.Username+"%")
 		condition.Username = ""
 	}
 	if condition.RealName != "" {
-		tx.Where("real_name like ?", "%"+condition.RealName+"%")
+		tx = tx.Where("real_name like ?", "%"+condition.RealName+"%")
 		condition.RealName = ""
 	}
 	err = tx.Omit("password").Find(&list, condition).Limit(-1).Offset(-1).Count(&total).Error

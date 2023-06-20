@@ -289,11 +289,11 @@ func (s *projectTaskService) PaginateBetweenTimes(condition *model.ProjectTask, 
 	for tc, tr := range tcList {
 		if tc != "" {
 			if !tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
 			} else if tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
 			} else if !tr.Start.IsZero() && tr.End.IsZero() {
-				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
 			}
 		}
 	}
@@ -311,7 +311,7 @@ func (s *projectTaskService) PaginateBetweenTimes(condition *model.ProjectTask, 
 	}
 
 	// 大字段不查询
-	tx.Omit("task_desc", "full_path")
+	tx = tx.Omit("task_desc", "full_path")
 
 	err = tx.Find(&list, &model.ProjectTask{
 		ID:        condition.ID,
@@ -352,11 +352,11 @@ func (s *projectTaskService) TaskDurationByProject(projectID uint64, tcList map[
 	for tc, tr := range tcList {
 		if tc != "" {
 			if !tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
 			} else if tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
 			} else if !tr.Start.IsZero() && tr.End.IsZero() {
-				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
 			}
 		}
 	}

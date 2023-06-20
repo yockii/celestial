@@ -122,11 +122,11 @@ func (s *projectTestCaseService) PaginateBetweenTimes(condition *model.ProjectTe
 	for tc, tr := range tcList {
 		if tc != "" {
 			if !tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
 			} else if tr.Start.IsZero() && !tr.End.IsZero() {
-				tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
 			} else if !tr.Start.IsZero() && tr.End.IsZero() {
-				tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
 			}
 		}
 	}
