@@ -45,6 +45,7 @@ const handlePageSizeChange = (pageSize: number) => {
   condition.value.limit = pageSize
   refresh()
 }
+const syncing = ref(false)
 const columns = [
   {
     title: "ID",
@@ -80,13 +81,20 @@ const columns = [
             NButton,
             {
               size: "small",
-              disabled: !userStore.hasResourceCode("system:thirdSource:sync"),
-              onClick: () => {syncThirdSourceData(row.id).then((res) => {
-                if (res) {
-                  message.success("同步成功")
-                }
-              })
-            }},
+              disabled: !userStore.hasResourceCode("system:thirdSource:sync") || syncing.value,
+              onClick: () => {
+                syncing.value = true
+                syncThirdSourceData(row.id)
+                  .then((res) => {
+                    if (res) {
+                      message.success("同步成功")
+                    }
+                  })
+                  .finally(() => {
+                    syncing.value = false
+                  })
+              }
+            },
             {
               default: () => "同步"
             }

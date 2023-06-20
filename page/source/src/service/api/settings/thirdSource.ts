@@ -73,5 +73,7 @@ export function loginByDingTalk(thirdSourceId: string, code: string) {
  * @param id - 三方源id
  */
 export function syncThirdSourceData(id: string) {
-  return request.post<boolean>(`/thirdSource/sync?id=${id}`)
+  return request.post<boolean>(`/thirdSource/sync?id=${id}`, null, {
+    timeout: 5 * 60 * 1000
+  })
 }

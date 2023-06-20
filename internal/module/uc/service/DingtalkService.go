@@ -348,14 +348,9 @@ func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildre
 	return dept, nil
 }
 
-// SyncAll 同步所有钉钉用户和部门相关信息
-func (s *dingtalkService) SyncAll(source *model.ThirdSource) error {
-	// 检查source
-	if source == nil || source.ID == 0 {
-		return errors.New("source不能为空")
-	}
+func (s *dingtalkService) SyncChildrenDepartmentsWithStaff(source *model.ThirdSource, parentId string) error {
 	// 同步所有部门
-	deptList, err := dingtalk.GetChildrenDepartments(source, "")
+	deptList, err := dingtalk.GetChildrenDepartments(source, parentId)
 	if err != nil {
 		return err
 	}
@@ -397,31 +392,41 @@ func (s *dingtalkService) SyncAll(source *model.ThirdSource) error {
 		}
 
 		// 同步该部门下的用户
-		var staffIdList []string
-		staffIdList, err = dingtalk.GetStaffIdListInDepartment(source, dept.DeptId)
+		err = s.syncStaffInDepartment(source, dept)
 		if err != nil {
 			return err
-		}
-		for _, staffId := range staffIdList {
-			_, err = s.SyncDingUserByThirdSource(source, staffId, false)
-			if err != nil {
-				return err
-			}
 		}
 
 		// 同步子部门
-		var dingDeptList []*dingtalk.GetDepartmentResponse
-		dingDeptList, err = dingtalk.GetChildrenDepartments(source, dept.DeptId)
-		if err != nil {
+		if err = s.SyncChildrenDepartmentsWithStaff(source, dept.DeptId); err != nil {
 			return err
-		}
-		for _, dingDept := range dingDeptList {
-			_, err = s.SyncDingDept(source.CorpId, dingDept.DeptId, true)
-			if err != nil {
-				return err
-			}
 		}
 	}
 
 	return nil
+}
+
+// SyncAll 同步所有钉钉用户和部门相关信息
+func (s *dingtalkService) SyncAll(source *model.ThirdSource) error {
+	// 检查source
+	if source == nil || source.ID == 0 {
+		return errors.New("source不能为空")
+	}
+
+	return s.SyncChildrenDepartmentsWithStaff(source, "")
+}
+
+func (s *dingtalkService) syncStaffInDepartment(source *model.ThirdSource, dept *dingtalk.GetDepartmentResponse) (err error) {
+	var staffIdList []string
+	staffIdList, err = dingtalk.GetStaffIdListInDepartment(source, dept.DeptId)
+	if err != nil {
+		return
+	}
+	for _, staffId := range staffIdList {
+		_, err = s.SyncDingUserByThirdSource(source, staffId, false)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
