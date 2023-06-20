@@ -224,6 +224,7 @@ const (
 	ResourceThirdSourceUpdate   = ResourceThirdSource + ":update"
 	ResourceThirdSourceList     = ResourceThirdSource + ":list"
 	ResourceThirdSourceInstance = ResourceThirdSource + ":instance"
+	ResourceThirdSourceSync     = ResourceThirdSource + ":sync"
 
 	// oss配置
 	ResourceOssConfig         = ResourceSystem + ":ossConfig"

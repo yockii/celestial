@@ -67,3 +67,11 @@ export function loginByDingTalk(thirdSourceId: string, code: string) {
     code
   })
 }
+
+/**
+ * 同步三方源数据
+ * @param id - 三方源id
+ */
+export function syncThirdSourceData(id: string) {
+  return request.post<boolean>(`/thirdSource/sync?id=${id}`)
+}

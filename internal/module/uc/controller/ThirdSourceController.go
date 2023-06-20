@@ -201,7 +201,7 @@ func (c *thirdSourceController) PublicList(ctx *fiber.Ctx) error {
 		configJson := item.Configuration
 		cj := gjson.Parse(configJson)
 		appKey := ""
-		if item.Code == "dingtalk" {
+		if item.Code == model.ThirdSourceCodeDingtalk {
 			appKey = cj.Get("appKey").String()
 		} else {
 			continue
@@ -218,5 +218,48 @@ func (c *thirdSourceController) PublicList(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: result,
+	})
+}
+
+func (c *thirdSourceController) Sync(ctx *fiber.Ctx) error {
+	instance := new(model.ThirdSource)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	// 处理必填
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " source id",
+		})
+	}
+	var err error
+	instance, err = service.ThirdSourceService.Instance(instance)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	var success bool
+	// 同步dingtalk
+	if instance.Code == model.ThirdSourceCodeDingtalk {
+		err = service.DingtalkService.SyncAll(instance)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		success = true
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
 	})
 }

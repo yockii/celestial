@@ -86,6 +86,8 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 			} else {
 				matchingUser.Username = matchingUser.RealName
 			}
+			user.Info = dingUserResp
+			user.UserID = matchingUser.ID
 
 			// 获取默认角色
 			defaultRole := &model.Role{
@@ -106,6 +108,10 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 						logger.Error(err)
 						return err
 					}
+					if err = tx.Model(&model.ThirdUser{}).Where(&model.ThirdUser{ID: user.ID}).Updates(user).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
 					userRole := &model.UserRole{
 						ID:     util.SnowflakeId(),
 						UserID: matchingUser.ID,
@@ -120,21 +126,27 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 					return nil, err
 				}
 			} else {
-				if err = database.DB.Create(matchingUser).Error; err != nil {
-					logger.Error(err)
+				if err = database.DB.Transaction(func(tx *gorm.DB) error {
+					if err = tx.Create(matchingUser).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
+
+					if err = tx.Model(&model.ThirdUser{}).Where(&model.ThirdUser{ID: user.ID}).Updates(user).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
+
+					return nil
+				}); err != nil {
 					return nil, err
 				}
+
 			}
 		} else {
 			logger.Error(err)
 			return nil, err
 		}
-	}
-
-	// 只更新第三方用户信息的userID
-	if err = database.DB.Model(user).Update("user_id", matchingUser.ID).Error; err != nil {
-		logger.Error(err)
-		return nil, err
 	}
 
 	if withDept {
@@ -291,7 +303,7 @@ func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildre
 				parentDept := &model.Department{
 					ExternalID: dingDept.ParentId,
 				}
-				if err = database.DB.Where(&parentDept).First(&parentDept).Error; err != nil {
+				if err = database.DB.Where(parentDept).First(parentDept).Error; err != nil {
 					if errors.Is(err, gorm.ErrRecordNotFound) {
 						parentDept, err = s.SyncDingDept(corpId, dingDept.ParentId, false)
 						if err != nil {
@@ -334,4 +346,82 @@ func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildre
 	}
 
 	return dept, nil
+}
+
+// SyncAll 同步所有钉钉用户和部门相关信息
+func (s *dingtalkService) SyncAll(source *model.ThirdSource) error {
+	// 检查source
+	if source == nil || source.ID == 0 {
+		return errors.New("source不能为空")
+	}
+	// 同步所有部门
+	deptList, err := dingtalk.GetChildrenDepartments(source, "")
+	if err != nil {
+		return err
+	}
+	for _, dept := range deptList {
+		d := &model.Department{ExternalID: dept.DeptId}
+		if err = database.DB.Where(d).First(d).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				var dingDept *dingtalk.GetDepartmentResponse
+				dingDept, err = dingtalk.GetDepartment(source, dept.DeptId)
+				if err != nil {
+					return err
+				}
+				d.OrderNum = dingDept.OrderNum
+				d.Name = dingDept.Name
+				// 获取父级部门
+				if dingDept.ParentId != "" {
+					parentDept := &model.Department{
+						ExternalID: dingDept.ParentId,
+					}
+					if err = database.DB.Where(parentDept).First(parentDept).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
+					d.ParentID = parentDept.ID
+					d.FullPath = parentDept.FullPath + "/" + d.Name
+				} else {
+					d.FullPath = d.Name
+				}
+				d.ID = util.SnowflakeId()
+				d.ExternalJson = dept.OriginalJson
+				if err = database.DB.Create(d).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		// 同步该部门下的用户
+		var staffIdList []string
+		staffIdList, err = dingtalk.GetStaffIdListInDepartment(source, dept.DeptId)
+		if err != nil {
+			return err
+		}
+		for _, staffId := range staffIdList {
+			_, err = s.SyncDingUserByThirdSource(source, staffId, false)
+			if err != nil {
+				return err
+			}
+		}
+
+		// 同步子部门
+		var dingDeptList []*dingtalk.GetDepartmentResponse
+		dingDeptList, err = dingtalk.GetChildrenDepartments(source, dept.DeptId)
+		if err != nil {
+			return err
+		}
+		for _, dingDept := range dingDeptList {
+			_, err = s.SyncDingDept(source.CorpId, dingDept.DeptId, true)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

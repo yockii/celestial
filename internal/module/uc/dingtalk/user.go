@@ -281,7 +281,7 @@ func (c *client) getUser(staffId string) (string, error) {
 	//return u, nil
 }
 
-func (c *client) getUserIdsInDepartment(deptId int) ([]string, error) {
+func (c *client) getUserIdsInDepartment(dingtalkDeptId string) ([]string, error) {
 	if err := c.checkAccessToken(); err != nil {
 		return nil, err
 	}
@@ -289,7 +289,7 @@ func (c *client) getUserIdsInDepartment(deptId int) ([]string, error) {
 	resp, err := c.client.Post(
 		c.baseUrl+"/topapi/user/listid?access_token="+c.accessToken,
 		"application/json",
-		strings.NewReader(fmt.Sprintf("{\"dept_id\":%d}", deptId)),
+		strings.NewReader(fmt.Sprintf("{\"dept_id\":%s}", dingtalkDeptId)),
 	)
 	if err != nil {
 		return nil, err
@@ -332,4 +332,12 @@ func GetStaffIdByCode(source *model.ThirdSource, authCode string) (string, error
 		return "", err
 	}
 	return staffId, nil
+}
+
+func GetStaffIdListInDepartment(source *model.ThirdSource, dingtalkDeptId string) ([]string, error) {
+	c := checkClient(source)
+	if c == nil {
+		return nil, nil
+	}
+	return c.getUserIdsInDepartment(dingtalkDeptId)
 }

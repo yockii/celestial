@@ -98,6 +98,7 @@ func InitRouter() {
 		thirdSource.Get("/list", middleware.NeedAuthorization(constant.ResourceThirdSourceList), ThirdSourceController.List)
 		thirdSource.Get("/instance", middleware.NeedAuthorization(constant.ResourceThirdSourceInstance), ThirdSourceController.Instance)
 		thirdSource.Get("/publicList", ThirdSourceController.PublicList)
+		thirdSource.Post("/sync", middleware.NeedAuthorization(constant.ResourceThirdSourceSync), ThirdSourceController.Sync)
 		// 对于禁用put和delete方法时的处理
 		thirdSource.Post("/delete", middleware.NeedAuthorization(constant.ResourceThirdSourceDelete), ThirdSourceController.Delete)
 		thirdSource.Post("/update", middleware.NeedAuthorization(constant.ResourceThirdSourceUpdate), ThirdSourceController.Update)

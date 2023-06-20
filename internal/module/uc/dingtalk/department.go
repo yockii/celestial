@@ -18,6 +18,8 @@ type GetDepartmentResponse struct {
 
 	OrderNum    int
 	HasChildren bool
+
+	OriginalJson string
 }
 
 func (c *client) GetChildrenDepartments(parentId string) ([]*GetDepartmentResponse, error) {
@@ -95,11 +97,12 @@ func (c *client) GetDepartment(deptId string) (*GetDepartmentResponse, error) {
 
 	rj := resJson.Get("result")
 	dept := &GetDepartmentResponse{
-		DeptId:      rj.Get("dept_id").String(),
-		Name:        rj.Get("name").String(),
-		OrderNum:    int(rj.Get("order").Int()),
-		ParentId:    rj.Get("parent_id").String(),
-		HasChildren: rj.Get("group_contain_sub_dept").Bool(),
+		DeptId:       rj.Get("dept_id").String(),
+		Name:         rj.Get("name").String(),
+		OrderNum:     int(rj.Get("order").Int()),
+		ParentId:     rj.Get("parent_id").String(),
+		HasChildren:  rj.Get("group_contain_sub_dept").Bool(),
+		OriginalJson: string(res),
 	}
 
 	return dept, nil

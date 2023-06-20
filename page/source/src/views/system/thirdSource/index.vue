@@ -4,7 +4,7 @@ import { Search } from "@vicons/carbon"
 import { ThirdSource, ThirdSourceCondition } from "@/types/thirdSource"
 import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, FormItemRule } from "naive-ui"
-import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, updateThirdSource } from "@/service/api"
+import { addThirdSource, deleteThirdSource, getThirdSourceDetail, getThirdSourceList, syncThirdSourceData, updateThirdSource } from "@/service/api"
 import { useUserStore } from "@/store/user"
 const message = useMessage()
 const userStore = useUserStore()
@@ -73,42 +73,70 @@ const columns = [
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
     render: (row: ThirdSource) => {
-      return h(NButtonGroup, {}, () => [
-        h(
-          NButton,
-          {
-            size: "small",
-            secondary: true,
-            disabled: !userStore.hasResourceCode("system:thirdSource:update"),
-            type: "primary",
-            onClick: () => handleEditData(row)
-          },
-          {
-            default: () => "编辑"
-          }
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteData(row.id)
-          },
-          {
-            default: () => "确认删除",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("system:thirdSource:delete"),
-                  type: "error"
-                },
-                {
-                  default: () => "删除"
+      const btnGroup: VNode[] = []
+      if (userStore.hasResourceCode("system:thirdSource:sync")) {
+        btnGroup.push(
+          h(
+            NButton,
+            {
+              size: "small",
+              disabled: !userStore.hasResourceCode("system:thirdSource:sync"),
+              onClick: () => {syncThirdSourceData(row.id).then((res) => {
+                if (res) {
+                  message.success("同步成功")
                 }
-              )
-          }
+              })
+            }},
+            {
+              default: () => "同步"
+            }
+          )
         )
-      ])
+      }
+      if (userStore.hasResourceCode("system:thirdSource:update")) {
+        btnGroup.push(
+          h(
+            NButton,
+            {
+              size: "small",
+              secondary: true,
+              disabled: !userStore.hasResourceCode("system:thirdSource:update"),
+              type: "primary",
+              onClick: () => handleEditData(row)
+            },
+            {
+              default: () => "编辑"
+            }
+          )
+        )
+      }
+      if (userStore.hasResourceCode("system:thirdSource:delete")) {
+        btnGroup.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDeleteData(row.id)
+            },
+            {
+              default: () => "确认删除",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    disabled: !userStore.hasResourceCode("system:thirdSource:delete"),
+                    type: "error"
+                  },
+                  {
+                    default: () => "删除"
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]

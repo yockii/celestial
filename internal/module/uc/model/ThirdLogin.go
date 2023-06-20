@@ -9,6 +9,10 @@ const (
 	ThirdSourceStatusEnabled = 1
 )
 
+const (
+	ThirdSourceCodeDingtalk = "dingtalk"
+)
+
 type ThirdSource struct {
 	ID            uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	Name          string `json:"name,omitempty" gorm:"size:50;comment:第三方来源名称"`              // 第三方来源名称

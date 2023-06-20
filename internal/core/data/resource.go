@@ -930,6 +930,11 @@ func InitData() {
 				ResourceCode: constant.ResourceThirdSourceInstance,
 				Type:         3,
 			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "同步三方登录源数据",
+				ResourceCode: constant.ResourceThirdSourceSync,
+				Type:         3,
+			})
 		}
 		// 资产目录
 		{
