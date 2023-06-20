@@ -181,13 +181,14 @@ func (c *assetFileController) Update(ctx *fiber.Ctx) error {
 					logger.Errorln(err)
 					return
 				}
-				_ = data.UpdateDocument(&search.Document{
+				_ = data.AddDocument(&search.Document{
 					ID:         d.ID,
 					Title:      d.Name,
 					Content:    d.OriginName,
+					Route:      fmt.Sprintf("/asset/file?id=%d", d.ID),
 					CreateTime: d.CreateTime,
 					UpdateTime: d.UpdateTime,
-				})
+				}, d.CreatorID)
 			}
 		}(instance.ID))
 	}

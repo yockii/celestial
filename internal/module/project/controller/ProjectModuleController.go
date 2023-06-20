@@ -95,7 +95,7 @@ func (c *projectModuleController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		c.updateSearchDocument(instance.ID)
+		c.addSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -103,7 +103,7 @@ func (c *projectModuleController) Update(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectModuleController) updateSearchDocument(id uint64) {
+func (c *projectModuleController) addSearchDocument(id uint64) {
 	_ = ants.Submit(func(id uint64) func() {
 		d, e := service.ProjectModuleService.Instance(id)
 		if e != nil {
@@ -122,12 +122,14 @@ func (c *projectModuleController) updateSearchDocument(id uint64) {
 		case -1:
 			status = "评审不通过"
 		}
-		return data.UpdateDocumentAntsWrapper(&search.Document{
+		return data.AddDocumentAntsWrapper(&search.Document{
 			ID:         d.ID,
 			Title:      d.Name,
 			Content:    d.Remark + ", \n状态: " + status,
+			Route:      fmt.Sprintf("/project/detail/%d/module?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
 			UpdateTime: d.UpdateTime,
-		})
+		}, d.CreatorID)
 	}(id))
 }
 
@@ -264,7 +266,7 @@ func (c *projectModuleController) Review(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		c.updateSearchDocument(instance.ID)
+		c.addSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{

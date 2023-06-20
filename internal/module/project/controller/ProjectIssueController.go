@@ -116,7 +116,7 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 				logger.Errorln(e)
 				return func() {}
 			}
-			return data.UpdateDocumentAntsWrapper(&search.Document{
+			return data.AddDocumentAntsWrapper(&search.Document{
 				ID:    instance.ID,
 				Title: instance.Title,
 				Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
@@ -124,6 +124,8 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 					instance.IssueCause,
 					instance.SolveMethod,
 				),
+				Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", instance.ProjectID, instance.ID),
+				CreateTime: instance.CreateTime,
 				UpdateTime: instance.UpdateTime,
 			}, d.CreatorID, d.AssigneeID)
 		}(instance.ID))
@@ -270,12 +272,34 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		_ = ants.Submit(data.UpdateDocumentAntsWrapper(&search.Document{ID: instance.ID}, instance.CreatorID, instance.AssigneeID))
+		c.addSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
+}
+
+func (c *projectIssueController) addSearchDocument(id uint64) {
+	_ = ants.Submit(func(id uint64) func() {
+		d, e := service.ProjectIssueService.Instance(id)
+		if e != nil {
+			logger.Errorln(e)
+			return func() {}
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.Title,
+			Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
+				d.Content,
+				d.IssueCause,
+				d.SolveMethod,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, d.CreatorID, d.AssigneeID)
+	}(id))
 }
 
 func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler {
@@ -320,7 +344,7 @@ func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler
 		}
 
 		if success {
-			_ = ants.Submit(data.UpdateDocumentAntsWrapper(&search.Document{ID: instance.ID}, instance.CreatorID, instance.AssigneeID))
+			c.addSearchDocument(instance.ID)
 		}
 
 		return ctx.JSON(&server.CommonResponse{

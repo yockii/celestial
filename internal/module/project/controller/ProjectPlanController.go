@@ -118,7 +118,7 @@ func (c *projectPlanController) Update(ctx *fiber.Ctx) error {
 				logger.Errorln(e)
 				return func() {}
 			}
-			return data.UpdateDocumentAntsWrapper(&search.Document{
+			return data.AddDocumentAntsWrapper(&search.Document{
 				ID:    d.ID,
 				Title: d.PlanName,
 				Content: fmt.Sprintf("%s\n目标：%s\n范围：%s\n进度：%s\n资源%s",
@@ -128,8 +128,10 @@ func (c *projectPlanController) Update(ctx *fiber.Ctx) error {
 					instance.Schedule,
 					instance.Resource,
 				),
+				Route:      fmt.Sprintf("/project/detail/%d/plan?id=%d", d.ProjectID, d.ID),
+				CreateTime: d.CreateTime,
 				UpdateTime: d.UpdateTime,
-			})
+			}, d.CreateUserID)
 		}(instance.ID))
 	}
 	return ctx.JSON(&server.CommonResponse{
