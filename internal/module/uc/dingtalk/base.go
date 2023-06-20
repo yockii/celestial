@@ -26,6 +26,8 @@ type client struct {
 	appKey    string
 	appSecret string
 
+	agentId string
+
 	accessToken string
 	deadline    time.Time
 }
@@ -48,6 +50,8 @@ func (c *client) init(source *model.ThirdSource) {
 	c.client = &http.Client{}
 	c.baseUrl = "https://oapi.dingtalk.com"
 	c.newBaseUrl = "https://api.dingtalk.com"
+
+	c.agentId = conf.Get("agentId").String()
 }
 
 func (c *client) doGetAccessToken() (string, int64, error) {
