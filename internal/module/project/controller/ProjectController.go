@@ -130,14 +130,11 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 			for _, member := range members {
 				relatedIdList = append(relatedIdList, member.UserID)
 			}
-			return data.AddDocumentAntsWrapper(&search.Document{
-				ID:           d.ID,
-				Title:        d.Name,
-				Content:      d.Description,
-				Route:        fmt.Sprintf("/project/detail/%d", d.ID),
-				RelatedUsers: nil,
-				CreateTime:   d.CreateTime,
-				UpdateTime:   d.UpdateTime,
+			return data.UpdateDocumentAntsWrapper(&search.Document{
+				ID:         d.ID,
+				Title:      d.Name,
+				Content:    d.Description,
+				UpdateTime: d.UpdateTime,
 			}, relatedIdList...)
 		}(instance.ID))
 	}

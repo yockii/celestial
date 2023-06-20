@@ -244,7 +244,7 @@ func (c *projectRequirementController) addSearchDocument(id uint64) {
 		case -1:
 			status = "评审未通过"
 		}
-		return data.AddDocumentAntsWrapper(&search.Document{
+		return data.UpdateDocumentAntsWrapper(&search.Document{
 			ID:    d.ID,
 			Title: d.Name,
 			Content: fmt.Sprintf("[%s-%s]: %s, 可行性: %s, 状态: %s, 来源:%s",
@@ -255,10 +255,8 @@ func (c *projectRequirementController) addSearchDocument(id uint64) {
 				status,
 				s,
 			),
-			Route:      fmt.Sprintf("/project/detail/%d/requirement?id=%d", d.ProjectID, d.ID),
-			CreateTime: d.CreateTime,
 			UpdateTime: d.UpdateTime,
-		}, d.OwnerID)
+		})
 	}(id))
 }
 

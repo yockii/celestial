@@ -149,7 +149,7 @@ func (c *projectRiskController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		c.addSearchDocument(instance.ID)
+		c.updateSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -297,7 +297,7 @@ func (c *projectRiskController) CalculateRiskByProject(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectRiskController) addSearchDocument(id uint64) {
+func (c *projectRiskController) updateSearchDocument(id uint64) {
 	_ = ants.Submit(func(id uint64) func() {
 		d, er := service.ProjectRiskService.Instance(id)
 		if er != nil {
@@ -349,9 +349,7 @@ func (c *projectRiskController) addSearchDocument(id uint64) {
 			Content: fmt.Sprintf("%s\n概率：%s, 影响：%s, 等级：%s, 状态：%s\n应对措施：%s\n总结：%s",
 				d.RiskDesc, p, e, l, status, d.Response, d.Result,
 			),
-			Route:      fmt.Sprintf("/project/detail/%d/risk?id=%d", d.ProjectID, d.ID),
-			CreateTime: d.CreateTime,
 			UpdateTime: d.UpdateTime,
-		}, d.CreatorID)
+		})
 	}(id))
 }

@@ -278,6 +278,9 @@ func (s *projectTaskMemberService) UpdateStatus(taskID, userID uint64, status in
 				logger.Errorln(err)
 				return err
 			}
+
+			//TODO 实际工时还需要填入工时表
+
 			// 再查看当前任务是否有其他成员状态不是已完成的，如果没有，则更新任务状态为已完成并加上新的实际工时，如果有，则只加上新的实际工时
 			var count int64
 			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{

@@ -116,7 +116,7 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 				logger.Errorln(e)
 				return func() {}
 			}
-			return data.AddDocumentAntsWrapper(&search.Document{
+			return data.UpdateDocumentAntsWrapper(&search.Document{
 				ID:    instance.ID,
 				Title: instance.Title,
 				Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
@@ -124,8 +124,6 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 					instance.IssueCause,
 					instance.SolveMethod,
 				),
-				Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", instance.ProjectID, instance.ID),
-				CreateTime: instance.CreateTime,
 				UpdateTime: instance.UpdateTime,
 			}, d.CreatorID, d.AssigneeID)
 		}(instance.ID))

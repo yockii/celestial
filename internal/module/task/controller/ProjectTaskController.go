@@ -138,7 +138,7 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		c.addSearchDocument(instance.ID)
+		c.updateSearchDocument(instance.ID)
 	}
 
 	return ctx.JSON(&server.CommonResponse{
@@ -320,7 +320,7 @@ func (c *projectTaskController) TaskDurationByProject(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *projectTaskController) addSearchDocument(id uint64) {
+func (c *projectTaskController) updateSearchDocument(id uint64) {
 	_ = ants.Submit(func(id uint64) func() {
 		d, e := service.ProjectTaskService.Instance(id)
 		if e != nil {
@@ -367,7 +367,7 @@ func (c *projectTaskController) addSearchDocument(id uint64) {
 		case 9:
 			status = "已完成"
 		}
-		return data.AddDocumentAntsWrapper(&search.Document{
+		return data.UpdateDocumentAntsWrapper(&search.Document{
 			ID:    d.ID,
 			Title: d.Name,
 			Content: fmt.Sprintf("[%s]: %s, 状态：%s",
@@ -375,8 +375,6 @@ func (c *projectTaskController) addSearchDocument(id uint64) {
 				d.TaskDesc,
 				status,
 			),
-			Route:      fmt.Sprintf("/project/detail/%d/task?id=%d", d.ProjectID, d.ID),
-			CreateTime: d.CreateTime,
 			UpdateTime: d.UpdateTime,
 		}, relatedUids...)
 	}(id))
@@ -415,7 +413,7 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 			})
 		}
 		if success {
-			c.addSearchDocument(condition.ID)
+			c.updateSearchDocument(condition.ID)
 		}
 		return ctx.JSON(&server.CommonResponse{Data: success})
 	}
@@ -445,7 +443,7 @@ func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 			})
 		} else {
 			if success {
-				c.addSearchDocument(condition.ID)
+				c.updateSearchDocument(condition.ID)
 			}
 			return ctx.JSON(&server.CommonResponse{Data: success})
 		}

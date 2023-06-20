@@ -130,7 +130,7 @@ func (c *projectChangeController) Update(ctx *fiber.Ctx) error {
 					relatedIdList = append(relatedIdList, reviewerID)
 				}
 			}
-			return data.AddDocumentAntsWrapper(&search.Document{
+			return data.UpdateDocumentAntsWrapper(&search.Document{
 				ID:    d.ID,
 				Title: d.Title,
 				Content: fmt.Sprintf("原因:%s\n计划:%s\n评审:%s\n风险:%s\n状态:%s",
@@ -140,8 +140,6 @@ func (c *projectChangeController) Update(ctx *fiber.Ctx) error {
 					d.Risk,
 					status,
 				),
-				Route:      fmt.Sprintf("/project/detail/%d/change?id=%d", d.ProjectID, d.ID),
-				CreateTime: d.CreateTime,
 				UpdateTime: d.UpdateTime,
 			}, relatedIdList...)
 		}(instance.ID))

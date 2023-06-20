@@ -35,7 +35,16 @@ const resetCurrentData = () => {
 }
 const handleCommitData = () => {
   formRef.value?.validate().then(() => {
-    currentData.value.members = memberList.value.filter((item) => memberIdList.value.includes(item.userId))
+    currentData.value.members = memberList.value
+      .filter((item) => memberIdList.value.includes(item.userId))
+      .map((item) => {
+        return {
+          id: "",
+          projectId: project.value.id,
+          userId: item.userId,
+          taskId: currentData.value.id
+        }
+      })
 
     if (isUpdate.value) {
       updateProjectTask(currentData.value).then((res) => {
