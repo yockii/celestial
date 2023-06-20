@@ -408,7 +408,7 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 		}
 
 		var success bool
-		if success, err = service.ProjectTaskMemberService.UpdateStatus(condition.ID, userID, status); err != nil {
+		if success, err = service.ProjectTaskMemberService.UpdateStatus(condition.ID, userID, status, condition.EstimateDuration, condition.ActualDuration); err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
 				Msg:  server.ResponseMsgDatabase + err.Error(),

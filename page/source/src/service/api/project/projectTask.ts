@@ -73,10 +73,12 @@ export function cancelProjectTask(id: string) {
 /**
  * 确认任务
  * @param id - 项目任务id
+ * @param estimateDuration - 预计工时
  */
-export function confirmProjectTask(id: string) {
+export function confirmProjectTask(id: string, estimateDuration: number) {
   return request.put<boolean>("/projectTask/confirm", {
-    id
+    id,
+    estimateDuration
   })
 }
 
@@ -93,10 +95,12 @@ export function startProjectTask(id: string) {
 /**
  * 完成任务
  * @param id - 项目任务id
+ * @param actualDuration - 实际工时
  */
-export function finishProjectTask(id: string) {
-  return request.put<boolean>("/projectTask/finish", {
-    id
+export function finishProjectTask(id: string, actualDuration: number) {
+  return request.put<boolean>("/projectTask/done", {
+    id,
+    actualDuration
   })
 }
 

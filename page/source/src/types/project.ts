@@ -165,7 +165,7 @@ export type ProjectTask = {
   createTime?: number
   updateTime?: number
   creatorId?: string
-  members?: ProjectMember[]
+  members?: ProjectTaskMember[]
   children?: ProjectTask[]
   isLeaf?: boolean
   childrenCount?: number
@@ -184,6 +184,18 @@ export type ProjectTaskCondition = Condition & {
   stageId?: string
   parentId?: string
   fullPath?: string
+}
+
+export type ProjectTaskMember = {
+  id: string
+  projectId: string
+  userId: string
+  taskId: string
+  realName?: string
+  roleId?: string
+  estimateDuration?: number
+  actualDuration?: number
+  status?: number
 }
 
 export type ProjectAsset = {

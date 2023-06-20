@@ -107,13 +107,25 @@ onMounted(() => {
 // 处理任务参与人
 const memberIdList = ref<string[]>([])
 
-const taskTime = computed<number[]>({
+const taskTime = computed<number[] | null>({
   get: () => {
-    return [currentData.value.startTime || Date.now(), currentData.value.endTime || Date.now() + 3600 * 1000 * 24]
+    const startTime = currentData.value.startTime
+    const endTime = currentData.value.endTime
+    if (startTime && endTime) {
+      return [startTime, endTime]
+    }
+    return null
+    // return [currentData.value.startTime, currentData.value.endTime + 3600 * 1000 * 24]
   },
-  set: (val: number[]) => {
-    currentData.value.startTime = val[0]
-    currentData.value.endTime = val[1]
+  set: (val: number[] | null) => {
+    if (val) {
+      if (val.length === 1) {
+        currentData.value.startTime = val[0]
+      } else if (val.length === 2) {
+        currentData.value.startTime = val[0]
+        currentData.value.endTime = val[1]
+      }
+    }
   }
 })
 

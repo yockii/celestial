@@ -185,7 +185,7 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 		for _, oldMember := range oldMembers {
 			var found bool
 			for _, member := range members {
-				if oldMember.ID == member.ID {
+				if oldMember.UserID == member.UserID {
 					found = true
 					break
 				}
@@ -199,7 +199,7 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 		for _, member := range members {
 			var found bool
 			for _, oldMember := range oldMembers {
-				if oldMember.ID == member.ID {
+				if oldMember.UserID == member.UserID {
 					found = true
 					break
 				}
@@ -208,21 +208,91 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 				addMembers = append(addMembers, &member.ProjectTaskMember)
 			}
 		}
+
+		hasRemovedMember := false
 		// 删除members
 		for _, member := range deleteMembers {
 			if err = tx.Delete(member).Error; err != nil {
 				logger.Errorln(err)
 				return err
 			}
+			hasRemovedMember = true
 		}
+		hasNewMember := false
 		// 新增members
 		for _, member := range addMembers {
 			member.ID = util.SnowflakeId()
 			member.TaskID = instance.ID
 			member.ProjectID = instance.ProjectID
+			member.Status = model.ProjectTaskStatusNotStart
 			if err = tx.Create(member).Error; err != nil {
 				logger.Errorln(err)
 				return err
+			}
+			hasNewMember = true
+		}
+
+		// 检查taskMember状态，并将task状态进行相应更改
+		if hasNewMember {
+			// 有新成员，则直接置为未开始
+			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusNotStart).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		} else if hasRemovedMember {
+			// 如果有删除成员，则取出并检查所有成员的状态
+			var taskMembers []*model.ProjectTaskMember
+			if err = tx.Model(&model.ProjectTaskMember{}).Select("status").Where(&model.ProjectTaskMember{TaskID: instance.ID}).Find(&taskMembers).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			// 得到最小的状态
+			minStatus := model.ProjectTaskStatusDone
+			maxStatus := model.ProjectTaskStatusNotStart
+			for _, taskMember := range taskMembers {
+				// 忽略已取消状态
+				if taskMember.Status == model.ProjectTaskStatusCancel {
+					continue
+				}
+				if taskMember.Status < minStatus {
+					minStatus = taskMember.Status
+				}
+				if taskMember.Status > maxStatus {
+					maxStatus = taskMember.Status
+				}
+			}
+			// 如果最小状态为已完成，则置为已完成
+			if minStatus == model.ProjectTaskStatusDone {
+				if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusDone).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else if minStatus == model.ProjectTaskStatusDoing {
+				// 如果最大状态为进行中，则置为进行中
+				if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusDoing).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else if minStatus == model.ProjectTaskStatusConfirmed {
+				if maxStatus == model.ProjectTaskStatusConfirmed {
+					// 如果最小状态为已确认，且最大状态为已确认，则置为已确认
+					if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusConfirmed).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				} else if maxStatus > model.ProjectTaskStatusConfirmed {
+					// 如果最小状态为已确认，且最大状态大于已确认，则置为进行中
+					if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusDoing).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				}
+			} else if minStatus == model.ProjectTaskStatusNotStart && maxStatus >= model.ProjectTaskStatusNotStart {
+				// 如果最小状态为未开始，且最大状态大于未开始，则置为未开始
+				if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).Update("status", model.ProjectTaskStatusNotStart).Error; err != nil {
+					logger.Errorln(err)
+					return err
+				}
 			}
 		}
 

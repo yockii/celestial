@@ -9,6 +9,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/util"
 	"gorm.io/gorm"
+	"time"
 )
 
 var ProjectTaskMemberService = new(projectTaskMemberService)
@@ -155,7 +156,7 @@ func (s *projectTaskMemberService) Instance(id uint64) (instance *model.ProjectT
 }
 
 // UpdateStatus 更新状态
-func (s *projectTaskMemberService) UpdateStatus(taskID, userID uint64, status int) (success bool, err error) {
+func (s *projectTaskMemberService) UpdateStatus(taskID, userID uint64, status int, estimateDuration, actualDuration int64) (success bool, err error) {
 	if taskID == 0 || userID == 0 {
 		err = errors.New("id is required")
 		return
@@ -217,46 +218,125 @@ func (s *projectTaskMemberService) UpdateStatus(taskID, userID uint64, status in
 
 	// 开启事务
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
-		err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
-			ID: oldTM.ID,
-		}).Update("status", status).Error
-		if err != nil {
-			logger.Errorln(err)
-			return err
-		}
-
-		// 任务成员状态变更后，检查是否需要更新任务状态
-		// 情况1：任务成员全部确认，任务状态更新为已确认；情况2：任务成员开始工作，任务状态更新为进行中；情况3：任务成员全部完成，任务状态更新为已完成；
-		if status == model.ProjectTaskStatusConfirmed || status == model.ProjectTaskStatusDone {
-			var count int64
+		if status == model.ProjectTaskStatusConfirmed {
+			// 先更新当前任务成员状态为已确认，且预计工时为estimateDuration
 			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
-				TaskID: taskID,
-			}).Where("status <> ?", status).Count(&count).Error
+				ID: oldTM.ID,
+			}).Updates(&model.ProjectTaskMember{
+				Status:           status,
+				EstimateDuration: estimateDuration,
+			}).Error
 			if err != nil {
 				logger.Errorln(err)
 				return err
 			}
-			if count == 0 && task.Status != status {
-				// 都已确认，任务更新为已确认
-				err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+			// 再查看当前任务是否有其他成员状态为未确认的，如果没有，则更新任务状态为已确认
+			var count int64
+			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+				TaskID: taskID,
+			}).Where("status in (?)", []int{
+				0,
+				model.ProjectTaskStatusNotStart,
+			}).Count(&count).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if count == 0 {
+				// 所有成员都没有初始或未开始状态，则更新任务状态为已确认，并将预计工时加上estimateDuration（使用表达式
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
 					ID: taskID,
-				}).Update("status", status).Error
+				}).Updates(map[string]interface{}{
+					"status":            status,
+					"estimate_duration": gorm.Expr("estimate_duration + ?", estimateDuration),
+				}).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else {
+				// 有成员初始或未开始状态，则只将预计工时加上estimateDuration（使用表达式
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+					ID: taskID,
+				}).Updates(map[string]interface{}{
+					"estimate_duration": gorm.Expr("estimate_duration + ?", estimateDuration),
+				}).Error
 				if err != nil {
 					logger.Errorln(err)
 					return err
 				}
 			}
-		} else if status == model.ProjectTaskStatusDoing && task.Status != status {
-			// 任务成员开始工作，任务更新为进行中
-			err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
-				ID: taskID,
+		} else if status == model.ProjectTaskStatusDone {
+			// 已完成，更新任务成员状态为已完成，且实际工时为actualDuration
+			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+				ID: oldTM.ID,
+			}).Updates(&model.ProjectTaskMember{
+				Status:         status,
+				ActualDuration: actualDuration,
+			}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			// 再查看当前任务是否有其他成员状态不是已完成的，如果没有，则更新任务状态为已完成并加上新的实际工时，如果有，则只加上新的实际工时
+			var count int64
+			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+				TaskID: taskID,
+			}).Where("status not in (?)", []int{
+				model.ProjectTaskStatusDone,
+				model.ProjectTaskStatusCancel,
+			}).Count(&count).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if count > 0 {
+				// 有成员处于未完成状态，只更新任务实际工时
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+					ID: taskID,
+				}).Updates(map[string]interface{}{
+					"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
+				}).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else {
+				// 所有人都完成了，更新任务状态为已完成，并将实际工时加上actualDuration（使用表达式
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+					ID: taskID,
+				}).Updates(map[string]interface{}{
+					"status":          status,
+					"actual_End_time": time.Now().UnixMilli(),
+					"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
+				}).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			}
+		} else {
+			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+				ID: oldTM.ID,
 			}).Update("status", status).Error
 			if err != nil {
 				logger.Errorln(err)
 				return err
 			}
+			if status == model.ProjectTaskStatusDoing && task.Status != status {
+				// 任务成员开始工作，任务更新为进行中
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+					ID: taskID,
+				}).Updates(&model.ProjectTask{
+					Status:          status,
+					ActualStartTime: time.Now().UnixMilli(),
+				}).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			}
 		}
-
 		return nil
 	})
 	if err != nil {

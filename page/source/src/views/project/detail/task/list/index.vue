@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { confirmProjectTask, finishProjectTask, getProjectTask, getProjectTaskList, startProjectTask } from "@/service/api"
-import { ProjectTask, ProjectTaskCondition } from "@/types/project"
+import { getProjectTask, getProjectTaskList, startProjectTask } from "@/service/api"
+import { ProjectTask, ProjectTaskCondition, ProjectTaskMember } from "@/types/project"
 import {
   NAvatarGroup,
   NBadge,
@@ -23,6 +23,7 @@ import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import { BoxCheckmark20Regular, Checkmark20Regular, Play20Regular } from "@vicons/fluent"
 import dayjs from "dayjs"
+import WorkTimeDrawer from "../workTimeDrawer/index.vue"
 const userStore = useUserStore()
 
 const props = defineProps<{
@@ -176,9 +177,12 @@ const statusColumn = reactive({
                     size: "small",
                     type: "success",
                     onClick: () => {
-                      confirmProjectTask(row.id).then(() => {
-                        refresh()
-                      })
+                      currentTask.value = row
+                      const member = row.members?.find((m) => m.userId === userStore.user.id)
+                      if (member) {
+                        currentTaskMember.value = member
+                        showWorkTimeDrawer.value = true
+                      }
                     }
                   },
                   {
@@ -229,9 +233,12 @@ const statusColumn = reactive({
                     size: "small",
                     type: "success",
                     onClick: () => {
-                      finishProjectTask(row.id).then(() => {
-                        refresh()
-                      })
+                      currentTask.value = row
+                      const member = row.members?.find((m) => m.userId === userStore.user.id)
+                      if (member) {
+                        currentTaskMember.value = member
+                        showWorkTimeDrawer.value = true
+                      }
                     }
                   },
                   {
@@ -242,6 +249,36 @@ const statusColumn = reactive({
             )
           )
         }
+      } else if (row.status === 3) {
+        // 进行中， 可以完成任务，需要填报工时
+        group.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "完成任务",
+              trigger: h(
+                NButton,
+                {
+                  size: "small",
+                  type: "success",
+                  onClick: () => {
+                    // 需要填报工时
+                    currentTask.value = row
+                    const member = row.members?.find((m) => m.userId === userStore.user.id)
+                    if (member) {
+                      currentTaskMember.value = member
+                      showWorkTimeDrawer.value = true
+                    }
+                  }
+                },
+                {
+                  default: () => h(NIcon, { component: Checkmark20Regular })
+                }
+              )
+            }
+          )
+        )
       }
     }
 
@@ -323,8 +360,8 @@ const membersColumn = reactive({
         max: 5,
         options: row.members?.map((item) => {
           return {
-            name: item.realName,
-            src: item.realName
+            name: item.realName || "",
+            src: item.realName || ""
           }
         })
       },
@@ -475,18 +512,55 @@ const actionColumn = reactive({
     return h(NButtonGroup, {}, () => bg)
   }
 })
-const startTimeColumn = reactive({
-  title: "预计开始时间",
-  key: "startTime",
+const estimateTimeColumn = reactive({
+  title: "预计时间",
+  key: "estimateTime",
   render: (row: ProjectTask) => {
-    return row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD HH:mm:ss") : ""
+    let content = "暂无预计时间"
+    let tip = "暂无预计时间"
+
+    if (row.startTime) {
+      content = dayjs(row.startTime).format("YYYY-MM-DD") + " ~ " + (row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD") : "?")
+      tip = dayjs(row.startTime).format("YYYY-MM-DD HH:mm:ss") + " ~ " + (row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss") : "未指定")
+    } else if (row.endTime) {
+      content = "? ~ " + dayjs(row.endTime).format("YYYY-MM-DD")
+      tip = "截止时间: " + dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss")
+    }
+    return h(
+      NTooltip,
+      {},
+      {
+        default: () => tip,
+        trigger: () => content
+      }
+    )
   }
 })
-const endTimeColumn = reactive({
-  title: "预计结束时间",
-  key: "endTime",
+const actualTimeColumn = reactive({
+  title: "实际时间",
+  key: "actualTime",
   render: (row: ProjectTask) => {
-    return row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss") : ""
+    let content = "暂无实际时间"
+    let tip = "暂无实际时间"
+
+    if (row.actualStartTime) {
+      content = dayjs(row.actualStartTime).format("YYYY-MM-DD") + " ~ " + (row.actualEndTime ? dayjs(row.actualEndTime).format("YYYY-MM-DD") : "?")
+      tip =
+        dayjs(row.actualStartTime).format("YYYY-MM-DD HH:mm:ss") +
+        " ~ " +
+        (row.actualEndTime ? dayjs(row.actualEndTime).format("YYYY-MM-DD HH:mm:ss") : "进行中")
+    } else if (row.actualEndTime) {
+      content = "? ~ " + dayjs(row.actualEndTime).format("YYYY-MM-DD")
+      tip = "截止时间: " + dayjs(row.actualEndTime).format("YYYY-MM-DD HH:mm:ss")
+    }
+    return h(
+      NTooltip,
+      {},
+      {
+        default: () => tip,
+        trigger: () => content
+      }
+    )
   }
 })
 const columns = computed(() => {
@@ -494,7 +568,7 @@ const columns = computed(() => {
   if (!props.useTree) {
     result.push(expandColumn)
   }
-  result.push(nameColumn, priorityColumn, startTimeColumn, endTimeColumn, membersColumn, statusColumn, actionColumn)
+  result.push(nameColumn, priorityColumn, estimateTimeColumn, actualTimeColumn, membersColumn, statusColumn, actionColumn)
   return result
 })
 
@@ -545,6 +619,11 @@ const onLoad = (row: ProjectTask) => {
   }
 }
 
+// 工时抽屉
+const showWorkTimeDrawer = ref(false)
+const currentTask = ref<ProjectTask>({ id: "", projectId: "", name: "" })
+const currentTaskMember = ref<ProjectTaskMember>({ id: "", projectId: "", taskId: "", userId: "" })
+
 defineExpose({
   refresh
 })
@@ -568,4 +647,6 @@ defineExpose({
     :on-update:filters="handleFiltersChange"
     :on-load="onLoad"
   />
+
+  <work-time-drawer v-model:drawer-active="showWorkTimeDrawer" :task="currentTask" :data="currentTaskMember" @refresh="refresh" />
 </template>
