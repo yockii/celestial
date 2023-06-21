@@ -34,7 +34,7 @@ type ProjectTask struct {
 	ChildrenCount    int            `json:"childrenCount,omitempty" gorm:"comment:子任务数量"`
 	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成"`
 	CreatorID        uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
-	FullPath         string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径, 需求全路径 + / + 需求名 + / + 任务名"`
+	FullPath         string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径, 需求全路径 + / + 任务名"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime       int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime       gorm.DeletedAt `json:"deleteTime" gorm:"index"`

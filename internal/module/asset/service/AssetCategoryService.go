@@ -46,7 +46,7 @@ func (s *assetCategoryService) Add(instance *model.AssetCategory) (duplicated bo
 		}
 		instance.FullPath = parent.FullPath + "/" + instance.Name
 	} else {
-		instance.FullPath = instance.Name
+		instance.FullPath = "/" + instance.Name
 	}
 
 	// 事务处理，创建资源的同时，更新父级的子级数量
@@ -92,7 +92,7 @@ func (s *assetCategoryService) Update(instance *model.AssetCategory) (success bo
 			}
 			instance.FullPath = parent.FullPath + "/" + instance.Name
 		} else {
-			instance.FullPath = instance.Name
+			instance.FullPath = "/" + instance.Name
 		}
 	}
 

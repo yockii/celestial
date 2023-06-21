@@ -120,7 +120,7 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 			parentChanged = true
 		}
 	} else {
-		if oldInstance.RequirementID != instance.RequirementID {
+		if oldInstance.RequirementID != instance.RequirementID || (instance.Name != "" && oldInstance.Name != instance.Name) {
 			requirement := &projectModel.ProjectRequirement{ID: instance.RequirementID}
 			if err = database.DB.Model(requirement).First(&requirement).Error; err != nil {
 				logger.Errorln(err)
@@ -132,6 +132,9 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 	}
 
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if !fullPathChanged {
+			instance.FullPath = ""
+		}
 		// 更新
 		err = tx.Where(&model.ProjectTask{ID: instance.ID}).Updates(&model.ProjectTask{
 			ProjectID:        instance.ProjectID,

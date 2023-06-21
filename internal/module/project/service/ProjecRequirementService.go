@@ -4,6 +4,7 @@ import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/project/model"
+	taskModel "github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -42,7 +43,7 @@ func (s *projectRequirementService) Add(instance *model.ProjectRequirement) (dup
 			logger.Errorln(err)
 			return
 		}
-		instance.FullPath = module.FullPath
+		instance.FullPath = module.FullPath + "/" + instance.Name
 	}
 
 	instance.ID = util.SnowflakeId()
@@ -72,31 +73,61 @@ func (s *projectRequirementService) Update(instance *model.ProjectRequirement) (
 			return
 		}
 	}
-	if oldModuleID != instance.ModuleID {
+	// 如果名称变更了，则需要更新fullPath
+	oldInstance := new(model.ProjectRequirement)
+	if err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: instance.ID}).First(&oldInstance).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+
+	if oldModuleID != instance.ModuleID || (instance.Name != "" && instance.Name != oldInstance.Name) {
 		module := &model.ProjectModule{ID: instance.ModuleID}
 		if err = database.DB.Model(module).First(&module).Error; err != nil {
 			logger.Errorln(err)
 			return
 		}
-		instance.FullPath = module.FullPath
+		instance.FullPath = module.FullPath + "/" + instance.Name
+	} else {
+		instance.FullPath = ""
 	}
 
-	err = database.DB.Where(&model.ProjectRequirement{ID: instance.ID}).Updates(&model.ProjectRequirement{
-		ProjectID:   instance.ProjectID,
-		ModuleID:    instance.ModuleID,
-		StageID:     instance.StageID,
-		Type:        instance.Type,
-		Name:        instance.Name,
-		Detail:      instance.Detail,
-		Priority:    instance.Priority,
-		Source:      instance.Source,
-		OwnerID:     instance.OwnerID,
-		Feasibility: instance.Feasibility,
-	}).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Where(&model.ProjectRequirement{ID: instance.ID}).Updates(&model.ProjectRequirement{
+			ProjectID:   instance.ProjectID,
+			ModuleID:    instance.ModuleID,
+			StageID:     instance.StageID,
+			Type:        instance.Type,
+			Name:        instance.Name,
+			Detail:      instance.Detail,
+			Priority:    instance.Priority,
+			Source:      instance.Source,
+			OwnerID:     instance.OwnerID,
+			Feasibility: instance.Feasibility,
+			FullPath:    instance.FullPath,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		if instance.FullPath != "" {
+			// 更新所有子需求的fullPath
+			if err = tx.Model(&model.ProjectRequirement{}).Where("full_path like ?", oldInstance.FullPath+"%").
+				Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+
+			// 更新所有该需求下的任务的fullPath
+			if err = tx.Model(&taskModel.ProjectTask{}).Where("full_path like ?", oldInstance.FullPath+"%").
+				Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		return nil
+	})
 
 	success = true
 	return

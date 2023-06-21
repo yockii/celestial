@@ -4,6 +4,7 @@ import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/project/model"
+	taskModel "github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -79,12 +80,12 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 	}
 
 	// 检查parentId与原来的是否一致
-	var oldParentID uint64
-	if err = database.DB.Model(&model.ProjectModule{ID: instance.ID}).Select("parent_id").First(&oldParentID).Error; err != nil {
+	oldInstance := new(model.ProjectModule)
+	if err = database.DB.Model(&model.ProjectModule{ID: instance.ID}).First(&oldInstance).Error; err != nil {
 		logger.Errorln(err)
 		return
 	}
-	if oldParentID != instance.ParentID {
+	if oldInstance.ParentID != instance.ParentID || (instance.Name != "" && oldInstance.Name != instance.Name) {
 		// 不一致则需要更新父级的子数量以及更新自己的路径
 		var parent *model.ProjectModule
 		if instance.ParentID != 0 {
@@ -97,17 +98,20 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 		} else {
 			instance.FullPath = "/" + instance.Name
 		}
+
 		if err = database.DB.Transaction(func(tx *gorm.DB) error {
-			if parent != nil {
-				if err = tx.Model(parent).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
-					logger.Errorln(err)
-					return err
-				}
-				// 旧的父级的子数量减1
-				if oldParentID != 0 {
-					if err = tx.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+			if oldInstance.ParentID != instance.ParentID {
+				if parent != nil {
+					if err = tx.Model(parent).Update("children_count", gorm.Expr("children_count + ?", 1)).Error; err != nil {
 						logger.Errorln(err)
 						return err
+					}
+					// 旧的父级的子数量减1
+					if oldInstance.ParentID != 0 {
+						if err = tx.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: oldInstance.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+							logger.Errorln(err)
+							return err
+						}
 					}
 				}
 			}
@@ -122,6 +126,28 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 				logger.Errorln(err)
 				return err
 			}
+
+			// 更新所有子模块的路径
+			if err = tx.Model(&model.ProjectModule{}).Where("full_path like ?", oldInstance.FullPath+"%").
+				Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+
+			// 更新所有需求的路径
+			if err = tx.Model(&model.ProjectRequirement{}).Where("full_path like ?", oldInstance.FullPath+"%").
+				Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+
+			// 更新所有任务的需求路径
+			if err = tx.Model(&taskModel.ProjectTask{}).Where("full_path like ?", oldInstance.FullPath+"%").
+				Update("full_path", gorm.Expr("concat(?, substring(full_path, ?))", instance.FullPath, len(oldInstance.FullPath)+1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+
 			return nil
 		}); err != nil {
 			return
