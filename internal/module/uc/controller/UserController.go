@@ -354,6 +354,25 @@ func (c *userController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	// 数据脱敏
+	for _, user := range list {
+		// 确保用户密码不被传递
+		user.Password = ""
+		// 确保用户手机隐藏中间4位
+		if user.Mobile != "" {
+			if ml := len(user.Mobile); ml <= 10 {
+				if ml <= 3 {
+					user.Mobile = "****"
+				} else {
+					user.Mobile = user.Mobile[:3] + "****"
+				}
+			} else {
+				user.Mobile = user.Mobile[:3] + "****" + user.Mobile[ml-4:]
+			}
+		}
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Items:  list,
