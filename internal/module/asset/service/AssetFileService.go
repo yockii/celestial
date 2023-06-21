@@ -189,3 +189,17 @@ func (s *assetFileService) initOsManager() (err error) {
 	}
 	return nil
 }
+
+func (s *assetFileService) Download(id uint64) (reader io.ReadCloser, err error) {
+	instance, err := s.Instance(id)
+	if err != nil {
+		return nil, err
+	}
+	if s.osManager == nil {
+		// 初始化新的osManager
+		if err = s.initOsManager(); err != nil {
+			return
+		}
+	}
+	return s.osManager.GetObject(instance.ObjName)
+}

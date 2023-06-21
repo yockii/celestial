@@ -655,6 +655,11 @@ func InitData() {
 				ResourceCode: constant.ResourceFileList,
 				Type:         3,
 			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "文件下载",
+				ResourceCode: constant.ResourceFileDownload,
+				Type:         3,
+			})
 		}
 		// 通用测试用例
 		{

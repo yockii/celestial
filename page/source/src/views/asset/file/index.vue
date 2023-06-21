@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { AssetCategory, File, FileCondition } from "@/types/asset"
-import { getAssetCategoryList, getAssetFileList } from "@/service/api"
+import { downloadAssetFile, getAssetCategoryList, getAssetFileList } from "@/service/api"
 import dayjs from "dayjs"
-import { NTooltip, PaginationProps } from "naive-ui"
+import { NButton, NButtonGroup, NTooltip, PaginationProps } from "naive-ui"
 import NameAvatar from "@/components/NameAvatar.vue"
+import { useUserStore } from "@/store/user"
+import Drawer from "./drawer/index.vue"
 
+const userStore = useUserStore()
 const assetCategoryList = ref<AssetCategory[]>([])
 const treeSelected = (keys: string[]) => {
   if (keys.length > 0) {
@@ -93,7 +96,54 @@ const columns = [
   },
   {
     title: "操作",
-    key: "action"
+    key: "action",
+    render: (row: File) => {
+      const btnGroup: VNode[] = []
+      if (userStore.hasResourceCode("asset:file:download")) {
+        btnGroup.push(
+          h(
+            NButton,
+            {
+              size: "small",
+              onClick: () => {
+                downloadAssetFile(row.id).then((res: Blob) => {
+                  const reader = new FileReader()
+                  reader.readAsDataURL(res)
+                  reader.onload = (e) => {
+                    const a = document.createElement("a")
+                    a.download = row.name + "." + row.suffix
+                    a.href = e.target?.result as string
+                    document.body.appendChild(a)
+                    a.click()
+                    document.body.removeChild(a)
+                  }
+                })
+              }
+            },
+            {
+              default: () => "下载"
+            }
+          )
+        )
+      }
+      if (userStore.hasResourceCode("asset:file:update")) {
+        btnGroup.push(
+          h(
+            NButton,
+            {
+              size: "small",
+              onClick: () => {
+                handleEditFile(row)
+              }
+            },
+            {
+              default: () => "编辑"
+            }
+          )
+        )
+      }
+      return h(NButtonGroup, {}, () => btnGroup)
+    }
   }
 ]
 
@@ -203,4 +253,6 @@ onBeforeUpdate(() => {
       </n-grid>
     </n-gi>
   </n-grid>
+
+  <drawer v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
 </template>

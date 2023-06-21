@@ -66,7 +66,12 @@ export class Request {
 
     this.instance.interceptors.response.use(
       (response) => {
-        const res = response.data as Result<any>
+        const data = response.data
+        // eslint-disable-next-line no-prototype-builtins
+        if (!data.hasOwnProperty("code")) {
+          return data
+        }
+        const res = data as Result<any>
         if (res.code !== 0) {
           // 全局弹出框展示
           message.error(res.msg)

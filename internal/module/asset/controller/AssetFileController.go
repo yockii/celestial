@@ -329,3 +329,29 @@ func (c *assetFileController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+func (c *assetFileController) Download(ctx *fiber.Ctx) error {
+	instance := new(model.File)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+	fileReader, err := service.AssetFileService.Download(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.SendStream(fileReader)
+}

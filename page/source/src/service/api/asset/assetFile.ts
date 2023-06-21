@@ -21,3 +21,30 @@ export const getAssetFileList = (condition: FileCondition) => {
     params: condition
   })
 }
+
+/**
+ * 新增资产文件
+ * @param file 资产文件
+ */
+export const addAssetFile = (file: File) => {
+  return request.post<File>("/assetFile/add", file)
+}
+
+/**
+ * 修改资产文件
+ * @param file 资产文件
+ */
+export const updateAssetFile = (file: File) => {
+  return request.put<File>("/assetFile/update", file)
+}
+
+/**
+ * 下载资产文件
+ * @param id 资产文件id
+ */
+export const downloadAssetFile = (id: string) => {
+  return request.get<Blob>("/assetFile/download", {
+    params: { id },
+    responseType: "blob"
+  })
+}

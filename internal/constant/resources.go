@@ -163,6 +163,7 @@ const (
 	ResourceFileUpdate   = ResourceFile + ":update"
 	ResourceFileList     = ResourceFile + ":list"
 	ResourceFileInstance = ResourceFile + ":instance"
+	ResourceFileDownload = ResourceFile + ":download"
 
 	// 测试用例库
 	ResourceCommonTestCase           = ResourceAsset + ":commonTestCase"
