@@ -157,6 +157,7 @@ const handleFiltersChange = (filters: DataTableFilterState, sourceColumn: DataTa
 const handleEditData = (row: AssetCategory) => {
   checkedData.value = Object.assign({}, row)
   drawerActive.value = true
+  typeChanged(checkedData.value.type)
 }
 const handleDeleteData = (id: string) => {
   deleteAssetCategory(id).then((res) => {

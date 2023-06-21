@@ -7,8 +7,8 @@ import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon
 import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
-import { getProjectAssetList } from "@/service/api"
-import { Delete, Edit } from "@vicons/carbon"
+import { downloadAssetFile, getAssetFile, getProjectAssetList } from "@/service/api"
+import { Delete, Download, Edit } from "@vicons/carbon"
 const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -162,58 +162,106 @@ const columns = [
     title: "操作",
     key: "action",
     render: (row: ProjectAsset) => {
-      return h(NButtonGroup, {}, () => [
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "编辑",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  secondary: true,
-                  type: "primary",
-                  disabled: !userStore.hasResourceCode("project:detail:asset:edit"),
-                  onClick: () => handleEditData(row)
-                },
-                {
-                  default: () => h(NIcon, { component: Edit })
-                }
-              )
-          }
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteData(row.id)
-          },
-          {
-            default: () => "确认删除",
-            trigger: () =>
-              h(
-                NTooltip,
-                {},
-                {
-                  default: () => "删除",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        disabled: !userStore.hasResourceCode("project:detail:asset:delete"),
-                        type: "error"
-                      },
-                      {
-                        default: () => h(NIcon, { component: Delete })
-                      }
-                    )
-                }
-              )
-          }
+      const btnGroup: VNode[] = []
+      if (userStore.hasResourceCode("asset:file:download")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "下载",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    onClick: () => {
+                      getAssetFile(row.fileId).then((file) => {
+                        if (file) {
+                          downloadAssetFile(file.id).then((res: Blob) => {
+                            const reader = new FileReader()
+                            reader.readAsDataURL(res)
+                            reader.onload = (e) => {
+                              const a = document.createElement("a")
+                              a.download = row.name + "." + file.suffix
+                              a.href = e.target?.result as string
+                              document.body.appendChild(a)
+                              a.click()
+                              document.body.removeChild(a)
+                            }
+                          })
+                        }
+                      })
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Download })
+                  }
+                )
+            }
+          )
         )
-      ])
+      }
+      if (userStore.hasResourceCode("project:detail:asset:edit")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    secondary: true,
+                    type: "primary",
+                    disabled: !userStore.hasResourceCode("project:detail:asset:edit"),
+                    onClick: () => handleEditData(row)
+                  },
+                  {
+                    default: () => h(NIcon, { component: Edit })
+                  }
+                )
+            }
+          )
+        )
+      }
+      if (userStore.hasResourceCode("project:detail:asset:delete")) {
+        btnGroup.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDeleteData(row.id)
+            },
+            {
+              default: () => "确认删除",
+              trigger: () =>
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "删除",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          disabled: !userStore.hasResourceCode("project:detail:asset:delete"),
+                          type: "error"
+                        },
+                        {
+                          default: () => h(NIcon, { component: Delete })
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]
@@ -295,6 +343,10 @@ const handleEditData = (row: ProjectAsset) => {
 const handleDeleteData = (id: string) => {
   console.log("handleDeleteData", id)
 }
+
+onMounted(() => {
+  refresh()
+})
 </script>
 
 <template>

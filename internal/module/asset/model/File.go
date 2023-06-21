@@ -7,18 +7,19 @@ import (
 )
 
 type File struct {
-	ID          uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	CategoryID  uint64         `json:"categoryId,omitempty,string" gorm:"index;comment:分类ID"`
-	OssConfigID uint64         `json:"ossConfigId,omitempty,string" gorm:"comment:OSS配置ID"`
-	OriginName  string         `json:"originName,omitempty" gorm:"size:100;comment:原始文件名"`
-	Name        string         `json:"name,omitempty" gorm:"size:100;comment:文件名"`
-	Suffix      string         `json:"suffix,omitempty" gorm:"size:20;comment:文件后缀"`
-	Size        int64          `json:"size,omitempty" gorm:"comment:文件大小"`
-	ObjName     string         `json:"objName,omitempty" gorm:"size:200;comment:存储的对象名称"`
-	CreatorID   uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建者ID"`
-	CreateTime  int64          `json:"createTime" gorm:"autoCreateTime:milli"`
-	UpdateTime  int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
-	DeleteTime  gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
+	ID           uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	CategoryID   uint64         `json:"categoryId,omitempty,string" gorm:"index;comment:分类ID"`
+	OssConfigID  uint64         `json:"ossConfigId,omitempty,string" gorm:"comment:OSS配置ID"`
+	OriginName   string         `json:"originName,omitempty" gorm:"size:100;comment:原始文件名"`
+	Name         string         `json:"name,omitempty" gorm:"size:100;comment:文件名"`
+	Suffix       string         `json:"suffix,omitempty" gorm:"size:20;comment:文件后缀"`
+	Size         int64          `json:"size,omitempty" gorm:"comment:文件大小"`
+	ObjName      string         `json:"objName,omitempty" gorm:"size:200;comment:存储的对象名称"`
+	CategoryPath string         `json:"categoryPath,omitempty" gorm:"size:200;comment:分类路径"`
+	CreatorID    uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建者ID"`
+	CreateTime   int64          `json:"createTime" gorm:"autoCreateTime:milli"`
+	UpdateTime   int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
+	DeleteTime   gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
 }
 
 func (*File) TableComment() string {
@@ -35,6 +36,7 @@ func (af *File) UnmarshalJSON(b []byte) error {
 	af.Suffix = j.Get("suffix").String()
 	af.Size = j.Get("size").Int()
 	af.ObjName = j.Get("objName").String()
+	af.CategoryPath = j.Get("categoryPath").String()
 	af.CreatorID = j.Get("creatorId").Uint()
 	af.CreateTime = j.Get("createTime").Int()
 	af.UpdateTime = j.Get("updateTime").Int()

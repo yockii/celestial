@@ -38,31 +38,43 @@ func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicat
 	}
 
 	// 检查是否有重复的资源文件
-	var c int64
-	err = database.DB.Model(&model.File{}).Where(&model.File{
-		CategoryID: instance.CategoryID,
-		Name:       instance.Name,
-		Suffix:     instance.Suffix,
-	}).Count(&c).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
-	if c > 0 {
-		duplicated = true
-		return
-	}
+	//var c int64
+	//err = database.DB.Model(&model.File{}).Where(&model.File{
+	//	CategoryID: instance.CategoryID,
+	//	Name:       instance.Name,
+	//	Suffix:     instance.Suffix,
+	//}).Count(&c).Error
+	//if err != nil {
+	//	logger.Errorln(err)
+	//	return
+	//}
+	//if c > 0 {
+	//	duplicated = true
+	//	return
+	//}
 
 	instance.ID = util.SnowflakeId()
 	// 上传文件
-	now := time.Now()
-	objName := fmt.Sprintf("%d%d%d/%d.%s", now.Year(), now.Month(), now.Day(), instance.ID, instance.Suffix)
+	now := time.Now().Format("20060102")
+	objName := fmt.Sprintf("%s/%d.%s", now, instance.ID, instance.Suffix)
 	if err = s.osManager.PutObject(objName, reader); err != nil {
 		return false, false, err
 	}
 
 	instance.OssConfigID = s.osManager.GetOssConfigID()
 	instance.ObjName = objName
+
+	// 设置CategoryPath
+	category := new(model.AssetCategory)
+	if err = database.DB.Model(&model.AssetCategory{}).Where(&model.AssetCategory{ID: instance.CategoryID}).First(&category).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			err = errors.New("category not found")
+		}
+		logger.Errorln(err)
+		return
+	}
+	instance.CategoryPath = category.FullPath
+
 	if err = database.DB.Create(instance).Error; err != nil {
 		logger.Errorln(err)
 		return
@@ -78,11 +90,31 @@ func (s *assetFileService) Update(instance *model.File) (success bool, err error
 		return
 	}
 
+	// 检查是否变动了categoryID
+	var old model.File
+	if err = database.DB.Model(&model.File{}).Where(&model.File{ID: instance.ID}).First(&old).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	if old.CategoryID != instance.CategoryID {
+		// 变动了categoryID，需要更新CategoryPath
+		category := new(model.AssetCategory)
+		if err = database.DB.Model(&model.AssetCategory{}).Where(&model.AssetCategory{ID: instance.CategoryID}).First(&category).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				err = errors.New("category not found")
+			}
+			logger.Errorln(err)
+			return
+		}
+		instance.CategoryPath = category.FullPath
+	}
+
 	err = database.DB.Where(&model.File{ID: instance.ID}).Updates(&model.File{
-		CategoryID: instance.CategoryID,
-		Name:       instance.Name,
-		Suffix:     instance.Suffix,
-		CreatorID:  instance.CreatorID,
+		CategoryID:   instance.CategoryID,
+		Name:         instance.Name,
+		Suffix:       instance.Suffix,
+		CreatorID:    instance.CreatorID,
+		CategoryPath: instance.CategoryPath,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -140,12 +172,23 @@ func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int
 		if condition.Suffix != "" {
 			tx = tx.Where("suffix like ?", "%"+condition.Suffix+"%")
 		}
+		if condition.CategoryID != 0 {
+			// 使用CategoryPath来查询
+			category := new(model.AssetCategory)
+			if err = database.DB.Model(&model.AssetCategory{}).Where(&model.AssetCategory{ID: condition.CategoryID}).First(&category).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					err = errors.New("category not found")
+				}
+				logger.Errorln(err)
+				return
+			}
+			tx = tx.Where("category_path like ?", category.FullPath+"%")
+		}
 	}
 
 	err = tx.Find(&list, &model.File{
-		ID:         condition.ID,
-		CategoryID: condition.CategoryID,
-		CreatorID:  condition.CreatorID,
+		ID:        condition.ID,
+		CreatorID: condition.CreatorID,
 	}).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)

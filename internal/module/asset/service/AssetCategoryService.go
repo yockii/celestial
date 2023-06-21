@@ -37,6 +37,17 @@ func (s *assetCategoryService) Add(instance *model.AssetCategory) (duplicated bo
 	}
 
 	instance.ID = util.SnowflakeId()
+	// 全路径设置
+	if instance.ParentID != 0 {
+		var parent model.AssetCategory
+		if err = database.DB.Select("full_path").Model(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.FullPath = parent.FullPath + "/" + instance.Name
+	} else {
+		instance.FullPath = instance.Name
+	}
 
 	// 事务处理，创建资源的同时，更新父级的子级数量
 	if err = database.DB.Transaction(func(tx *gorm.DB) error {
@@ -70,6 +81,21 @@ func (s *assetCategoryService) Update(instance *model.AssetCategory) (success bo
 		logger.Errorln(err)
 		return
 	}
+
+	if oldParentID != instance.ParentID {
+		// 更新fullPath
+		if instance.ParentID != 0 {
+			var parent model.AssetCategory
+			if err = database.DB.Select("full_path").Model(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
+				logger.Errorln(err)
+				return
+			}
+			instance.FullPath = parent.FullPath + "/" + instance.Name
+		} else {
+			instance.FullPath = instance.Name
+		}
+	}
+
 	if err = database.DB.Transaction(func(tx *gorm.DB) error {
 		if oldParentID != instance.ParentID {
 			if err = tx.Model(&model.AssetCategory{ID: oldParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
@@ -81,10 +107,19 @@ func (s *assetCategoryService) Update(instance *model.AssetCategory) (success bo
 				return err
 			}
 		}
-		if err = tx.Where(&model.AssetCategory{ID: instance.ID}).Select("parent_id", "name", "type").Updates(&model.AssetCategory{
+
+		updateColumns := []string{
+			"parent_id", "name", "type",
+		}
+		if instance.FullPath != "" {
+			updateColumns = append(updateColumns, "full_path")
+		}
+
+		if err = tx.Where(&model.AssetCategory{ID: instance.ID}).Select(updateColumns).Updates(&model.AssetCategory{
 			ParentID: instance.ParentID,
 			Name:     instance.Name,
 			Type:     instance.Type,
+			FullPath: instance.FullPath,
 		}).Error; err != nil {
 			logger.Errorln(err)
 			return err

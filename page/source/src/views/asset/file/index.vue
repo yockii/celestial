@@ -2,10 +2,11 @@
 import { AssetCategory, File, FileCondition } from "@/types/asset"
 import { downloadAssetFile, getAssetCategoryList, getAssetFileList } from "@/service/api"
 import dayjs from "dayjs"
-import { NButton, NButtonGroup, NTooltip, PaginationProps } from "naive-ui"
+import { NButton, NButtonGroup, NIcon, NTooltip, PaginationProps } from "naive-ui"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import Drawer from "./drawer/index.vue"
+import { Download, Edit } from "@vicons/carbon"
 
 const userStore = useUserStore()
 const assetCategoryList = ref<AssetCategory[]>([])
@@ -102,26 +103,34 @@ const columns = [
       if (userStore.hasResourceCode("asset:file:download")) {
         btnGroup.push(
           h(
-            NButton,
+            NTooltip,
+            {},
             {
-              size: "small",
-              onClick: () => {
-                downloadAssetFile(row.id).then((res: Blob) => {
-                  const reader = new FileReader()
-                  reader.readAsDataURL(res)
-                  reader.onload = (e) => {
-                    const a = document.createElement("a")
-                    a.download = row.name + "." + row.suffix
-                    a.href = e.target?.result as string
-                    document.body.appendChild(a)
-                    a.click()
-                    document.body.removeChild(a)
+              default: () => "下载",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    onClick: () => {
+                      downloadAssetFile(row.id).then((res: Blob) => {
+                        const reader = new FileReader()
+                        reader.readAsDataURL(res)
+                        reader.onload = (e) => {
+                          const a = document.createElement("a")
+                          a.download = row.name + "." + row.suffix
+                          a.href = e.target?.result as string
+                          document.body.appendChild(a)
+                          a.click()
+                          document.body.removeChild(a)
+                        }
+                      })
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Download })
                   }
-                })
-              }
-            },
-            {
-              default: () => "下载"
+                )
             }
           )
         )
@@ -129,15 +138,24 @@ const columns = [
       if (userStore.hasResourceCode("asset:file:update")) {
         btnGroup.push(
           h(
-            NButton,
+            NTooltip,
+            {},
             {
-              size: "small",
-              onClick: () => {
-                handleEditFile(row)
-              }
-            },
-            {
-              default: () => "编辑"
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    onClick: () => {
+                      handleEditFile(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Edit })
+                  }
+                )
             }
           )
         )
