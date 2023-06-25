@@ -146,9 +146,9 @@ const dataPermColumn = reactive({
     switch (row.dataPermission) {
       case 1:
         return "所有数据"
-      case 2:
-        return "本级及子级数据"
-      case 3:
+      // case 2:
+      //   return "本级及子级数据"
+      case 4:
         return "仅自己的数据"
       default:
         return "未知"
@@ -162,13 +162,13 @@ const dataPermColumn = reactive({
       label: "所有数据",
       value: 1
     },
-    {
-      label: "本级及子级数据",
-      value: 2
-    },
+    // {
+    //   label: "本级及子级数据",
+    //   value: 2
+    // },
     {
       label: "仅自己的数据",
-      value: 3
+      value: 4
     }
   ]
 })
@@ -694,8 +694,8 @@ const handleAssignResource = (row: Role) => {
         <n-form-item label="数据权限" required>
           <n-radio-group v-model:value="checkedData.dataPermission">
             <n-radio :value="1">所有数据</n-radio>
-            <n-radio :value="2">本部门及以下</n-radio>
-            <n-radio :value="3">仅本人</n-radio>
+            <!-- <n-radio :value="2">本部门及以下</n-radio> -->
+            <n-radio :value="4">仅本人</n-radio>
           </n-radio-group>
         </n-form-item>
         <n-form-item v-if="isUpdate" label="状态" required>
