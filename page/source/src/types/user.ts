@@ -47,6 +47,7 @@ export type Resource = {
   id: string
   resourceName: string
   resourceCode: string
+  type: number
   children?: Resource[]
 }
 

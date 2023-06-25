@@ -7,6 +7,7 @@ const message = useMessage()
 const props = defineProps<{
   drawerActive: boolean
   roleId: string
+  isProject?: boolean
   roleResourceCodeList: string[]
 }>()
 watch(
@@ -17,21 +18,29 @@ watch(
 )
 const resources = ref<Resource[]>([])
 const resourceCodeList = ref<string[]>([])
-const resourceTree = computed(() => {
+const getChildren = (node: Resource, type = 1) => {
+  const children = resources.value.filter(
+    (item) =>
+      item.type === type &&
+      item.resourceCode.includes(node.resourceCode + ":") &&
+      item.resourceCode.replace(node.resourceCode + ":", "").split(":").length === 1
+  )
+  if (children.length > 0) {
+    node.children = children
+    children.forEach((item) => {
+      getChildren(item, type)
+    })
+  }
+}
+const projectResourceTree = computed(() => {
+  const topNode = resources.value.find((item) => item.resourceCode === "project")
+  topNode && getChildren(topNode, 2)
+  return [topNode]
+})
+const commonResourceTree = computed(() => {
   // 先获取顶层节点
   const topNodes = resources.value.filter((item) => !item.resourceCode.includes(":"))
   // 递归获取子节点
-  const getChildren = (node: Resource) => {
-    const children = resources.value.filter(
-      (item) => item.resourceCode.includes(node.resourceCode + ":") && item.resourceCode.replace(node.resourceCode + ":", "").split(":").length === 1
-    )
-    if (children.length > 0) {
-      node.children = children
-      children.forEach((item) => {
-        getChildren(item)
-      })
-    }
-  }
   topNodes.forEach((item) => {
     getChildren(item)
   })
@@ -70,7 +79,7 @@ const updateCheckedKeys = (keys: string[]) => {
         block-line
         checkable
         check-on-click
-        :data="resourceTree"
+        :data="isProject ? projectResourceTree : commonResourceTree"
         :checked-keys="resourceCodeList"
         key-field="resourceCode"
         label-field="resourceName"

@@ -193,126 +193,143 @@ const columns = [
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
     render: (row: Role) => {
-      return h(NButtonGroup, {}, () => [
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "设为默认角色",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  type: "primary",
-                  disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:update"),
-                  onClick: () => handleSetDefault(row.id)
-                },
-                {
-                  icon: () =>
-                    h(
-                      NIcon,
-                      {},
-                      {
-                        default: () => h(DataSet)
-                      }
-                    )
-                }
-              )
-          }
-        ),
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => (row.type === -1 ? "超级管理员无需分配资源" : "分配资源"),
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  type: "warning",
-                  disabled: !userStore.hasResourceCode("system:role:dispatchResources") || row.type === -1,
-                  onClick: () => handleAssignResource(row)
-                },
-                {
-                  default: () =>
-                    h(
-                      NIcon,
-                      {},
-                      {
-                        default: () => h(GroupResource)
-                      }
-                    )
-                }
-              )
-          }
-        ),
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "编辑",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  secondary: true,
-                  type: "primary",
-                  disabled: !userStore.hasResourceCode("system:role:update"),
-                  onClick: () => handleEditData(row)
-                },
-                {
-                  default: () =>
-                    h(
-                      NIcon,
-                      {},
-                      {
-                        default: () => h(Edit)
-                      }
-                    )
-                }
-              )
-          }
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteData(row.id)
-          },
-          {
-            default: () => "确认删除",
-            trigger: () =>
-              h(
-                NTooltip,
-                {},
-                {
-                  default: () => "删除",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:delete"),
-                        type: "error"
-                      },
-                      {
-                        default: () =>
-                          h(
-                            NIcon,
-                            {},
-                            {
-                              default: () => h(Delete)
-                            }
-                          )
-                      }
-                    )
-                }
-              )
-          }
+      const btnGroup: VNode[] = []
+      if (row.defaultRole !== 1 && row.type !== 2 && userStore.hasResourceCode("system:role:update")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "设为默认角色",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:update"),
+                    onClick: () => handleSetDefault(row.id)
+                  },
+                  {
+                    icon: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(DataSet)
+                        }
+                      )
+                  }
+                )
+            }
+          )
         )
-      ])
+      }
+      if (userStore.hasResourceCode("system:role:dispatchResources") && row.type !== -1) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => (row.type === -1 ? "超级管理员无需分配资源" : "分配资源"),
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "warning",
+                    disabled: !userStore.hasResourceCode("system:role:dispatchResources") || row.type === -1,
+                    onClick: () => handleAssignResource(row)
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(GroupResource)
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+      if (userStore.hasResourceCode("system:role:update")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    secondary: true,
+                    type: "primary",
+                    disabled: !userStore.hasResourceCode("system:role:update"),
+                    onClick: () => handleEditData(row)
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(Edit)
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+      if (row.defaultRole !== 1 && userStore.hasResourceCode("system:role:delete")) {
+        btnGroup.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDeleteData(row.id)
+            },
+            {
+              default: () => "确认删除",
+              trigger: () =>
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "删除",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          disabled: row.defaultRole === 1 || !userStore.hasResourceCode("system:role:delete"),
+                          type: "error"
+                        },
+                        {
+                          default: () =>
+                            h(
+                              NIcon,
+                              {},
+                              {
+                                default: () => h(Delete)
+                              }
+                            )
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]
@@ -558,8 +575,10 @@ onMounted(() => {
 const resourceDrawerActive = ref(false)
 const resourceRoleId = ref("")
 const roleResourceCodeList = ref<string[]>([])
+const isProject = ref(false)
 const handleAssignResource = (row: Role) => {
   resourceRoleId.value = row.id
+  isProject.value = row.type === 2
   getRoleResourceCodeList(row.id).then((res) => {
     roleResourceCodeList.value = res
     resourceDrawerActive.value = true
@@ -724,7 +743,12 @@ const handleAssignResource = (row: Role) => {
     </n-drawer-content>
   </n-drawer>
 
-  <resource-drawer v-model:drawer-active="resourceDrawerActive" :role-id="resourceRoleId" :role-resource-code-list="roleResourceCodeList" />
+  <resource-drawer
+    v-model:drawer-active="resourceDrawerActive"
+    :role-id="resourceRoleId"
+    :is-project="isProject"
+    :role-resource-code-list="roleResourceCodeList"
+  />
 </template>
 
 <style scoped></style>

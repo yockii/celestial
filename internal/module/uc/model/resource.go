@@ -9,7 +9,7 @@ type Resource struct {
 	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ResourceName string `json:"resourceName,omitempty" gorm:"size:50;comment:资源名称"`             // 资源名称
 	ResourceCode string `json:"resourceCode,omitempty" gorm:"size:50;uniqueIndex;comment:资源代码"` // 资源认证代码
-	Type         int    `json:"type,omitempty" gorm:"comment:类型 1-模块 2-页面 3-功能"`                // http方法
+	Type         int    `json:"type,omitempty" gorm:"comment:类型 1-通用权限 2-项目专属权限"`               // 类型
 	CreateTime   int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime   int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }

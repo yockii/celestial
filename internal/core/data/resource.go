@@ -73,7 +73,7 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "仪表盘",
 				ResourceCode: constant.ResourceDashboard,
-				Type:         2,
+				Type:         1,
 			})
 		}
 	}
@@ -88,12 +88,12 @@ func InitData() {
 		resources = append(resources, &model.Resource{
 			ResourceName: "项目列表",
 			ResourceCode: constant.ResourceProjectList,
-			Type:         2,
+			Type:         1,
 		})
 		resources = append(resources, &model.Resource{
 			ResourceName: "添加项目",
 			ResourceCode: constant.ResourceProjectAdd,
-			Type:         3,
+			Type:         1,
 		})
 		// 项目详情
 		{
@@ -105,32 +105,32 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新项目",
 				ResourceCode: constant.ResourceProjectUpdate,
-				Type:         3,
+				Type:         2,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除项目",
 				ResourceCode: constant.ResourceProjectDelete,
-				Type:         3,
+				Type:         2,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "项目成员",
 				ResourceCode: constant.ResourceProjectMember,
-				Type:         3,
+				Type:         2,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加项目成员",
 				ResourceCode: constant.ResourceProjectMemberAdd,
-				Type:         3,
+				Type:         2,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除项目成员",
 				ResourceCode: constant.ResourceProjectMemberDelete,
-				Type:         3,
+				Type:         2,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新项目成员",
 				ResourceCode: constant.ResourceProjectMemberUpdate,
-				Type:         3,
+				Type:         2,
 			})
 			// 项目计划
 			{
@@ -142,22 +142,22 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目计划",
 					ResourceCode: constant.ResourceProjectPlanAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目计划",
 					ResourceCode: constant.ResourceProjectPlanUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目计划",
 					ResourceCode: constant.ResourceProjectPlanDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目计划详情",
 					ResourceCode: constant.ResourceProjectPlanInstance,
-					Type:         3,
+					Type:         2,
 				})
 			}
 			// 功能模块
@@ -170,22 +170,22 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目模块",
 					ResourceCode: constant.ResourceProjectModuleAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目模块",
 					ResourceCode: constant.ResourceProjectModuleUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目模块",
 					ResourceCode: constant.ResourceProjectModuleDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目模块评审",
 					ResourceCode: constant.ResourceProjectModuleReview,
-					Type:         3,
+					Type:         2,
 				})
 			}
 			// 项目需求
@@ -198,37 +198,37 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目需求",
 					ResourceCode: constant.ResourceProjectRequirementAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目需求",
 					ResourceCode: constant.ResourceProjectRequirementUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目需求",
 					ResourceCode: constant.ResourceProjectRequirementDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求详情",
 					ResourceCode: constant.ResourceProjectRequirementInstance,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求设计",
 					ResourceCode: constant.ResourceProjectRequirementStatusDesign,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求评审",
 					ResourceCode: constant.ResourceProjectRequirementStatusReview,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目需求状态置为已完成",
 					ResourceCode: constant.ResourceProjectRequirementStatusCompleted,
-					Type:         3,
+					Type:         2,
 				})
 			}
 			// 项目任务
@@ -241,53 +241,53 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目任务",
 					ResourceCode: constant.ResourceProjectTaskAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目任务",
 					ResourceCode: constant.ResourceProjectTaskUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目任务",
 					ResourceCode: constant.ResourceProjectTaskDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目任务列表",
 					ResourceCode: constant.ResourceProjectTaskList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目任务详情",
 					ResourceCode: constant.ResourceProjectTaskInstance,
-					Type:         3,
+					Type:         2,
 				})
 				// 5个更新状态
 				resources = append(resources, &model.Resource{
 					ResourceName: "取消项目任务",
 					ResourceCode: constant.ResourceProjectTaskCancel,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "任务成员确认项目任务",
 					ResourceCode: constant.ResourceProjectTaskConfirm,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "任务成员开始项目任务",
 					ResourceCode: constant.ResourceProjectTaskStart,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "任务成员完成项目任务",
 					ResourceCode: constant.ResourceProjectTaskDone,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "重启项目任务",
 					ResourceCode: constant.ResourceProjectTaskRestart,
-					Type:         3,
+					Type:         2,
 				})
 			}
 			// 项目测试
@@ -300,32 +300,32 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "增加项目测试轮",
 					ResourceCode: constant.ResourceProjectTestAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目测试轮",
 					ResourceCode: constant.ResourceProjectTestUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目测试轮",
 					ResourceCode: constant.ResourceProjectTestDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目测试轮封版",
 					ResourceCode: constant.ResourceProjectTestClose,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目测试列表",
 					ResourceCode: constant.ResourceProjectTestList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目测试详情",
 					ResourceCode: constant.ResourceProjectTestInstance,
-					Type:         3,
+					Type:         2,
 				})
 
 				// 测试用例
@@ -338,27 +338,27 @@ func InitData() {
 					resources = append(resources, &model.Resource{
 						ResourceName: "添加项目测试用例",
 						ResourceCode: constant.ResourceProjectTestCaseAdd,
-						Type:         3,
+						Type:         2,
 					})
 					resources = append(resources, &model.Resource{
 						ResourceName: "更新项目测试用例",
 						ResourceCode: constant.ResourceProjectTestCaseUpdate,
-						Type:         3,
+						Type:         2,
 					})
 					resources = append(resources, &model.Resource{
 						ResourceName: "删除项目测试用例",
 						ResourceCode: constant.ResourceProjectTestCaseDelete,
-						Type:         3,
+						Type:         2,
 					})
 					resources = append(resources, &model.Resource{
 						ResourceName: "项目测试用例列表",
 						ResourceCode: constant.ResourceProjectTestCaseList,
-						Type:         3,
+						Type:         2,
 					})
 					resources = append(resources, &model.Resource{
 						ResourceName: "项目测试用例详情",
 						ResourceCode: constant.ResourceProjectTestCaseInstance,
-						Type:         3,
+						Type:         2,
 					})
 					// 测试用例项
 					{
@@ -370,32 +370,32 @@ func InitData() {
 						resources = append(resources, &model.Resource{
 							ResourceName: "添加项目测试用例项",
 							ResourceCode: constant.ResourceProjectTestCaseItemAdd,
-							Type:         3,
+							Type:         2,
 						})
 						resources = append(resources, &model.Resource{
 							ResourceName: "更新项目测试用例项",
 							ResourceCode: constant.ResourceProjectTestCaseItemUpdate,
-							Type:         3,
+							Type:         2,
 						})
 						resources = append(resources, &model.Resource{
 							ResourceName: "更新项目测试用例项状态",
 							ResourceCode: constant.ResourceProjectTestCaseItemUpdateStatus,
-							Type:         3,
+							Type:         2,
 						})
 						resources = append(resources, &model.Resource{
 							ResourceName: "删除项目测试用例项",
 							ResourceCode: constant.ResourceProjectTestCaseItemDelete,
-							Type:         3,
+							Type:         2,
 						})
 						resources = append(resources, &model.Resource{
 							ResourceName: "项目测试用例项列表",
 							ResourceCode: constant.ResourceProjectTestCaseItemList,
-							Type:         3,
+							Type:         2,
 						})
 						resources = append(resources, &model.Resource{
 							ResourceName: "项目测试用例项详情",
 							ResourceCode: constant.ResourceProjectTestCaseItemInstance,
-							Type:         3,
+							Type:         2,
 						})
 
 						// 测试用例项步骤
@@ -408,27 +408,27 @@ func InitData() {
 							resources = append(resources, &model.Resource{
 								ResourceName: "添加项目测试用例项步骤",
 								ResourceCode: constant.ResourceProjectTestCaseItemStepAdd,
-								Type:         3,
+								Type:         2,
 							})
 							resources = append(resources, &model.Resource{
 								ResourceName: "更新项目测试用例项步骤",
 								ResourceCode: constant.ResourceProjectTestCaseItemStepUpdate,
-								Type:         3,
+								Type:         2,
 							})
 							resources = append(resources, &model.Resource{
 								ResourceName: "删除项目测试用例项步骤",
 								ResourceCode: constant.ResourceProjectTestCaseItemStepDelete,
-								Type:         3,
+								Type:         2,
 							})
 							resources = append(resources, &model.Resource{
 								ResourceName: "项目测试用例项步骤列表",
 								ResourceCode: constant.ResourceProjectTestCaseItemStepList,
-								Type:         3,
+								Type:         2,
 							})
 							resources = append(resources, &model.Resource{
 								ResourceName: "项目测试用例项步骤详情",
 								ResourceCode: constant.ResourceProjectTestCaseItemStepInstance,
-								Type:         3,
+								Type:         2,
 							})
 						}
 					}
@@ -445,52 +445,52 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目缺陷列表",
 					ResourceCode: constant.ResourceProjectIssueList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目缺陷详情",
 					ResourceCode: constant.ResourceProjectIssueInstance,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目缺陷指派处理人",
 					ResourceCode: constant.ResourceProjectIssueAssign,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "开始处理项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueStart,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "完成项目缺陷待验证",
 					ResourceCode: constant.ResourceProjectIssueDone,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "验证项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueVerify,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "关闭项目缺陷",
 					ResourceCode: constant.ResourceProjectIssueClose,
-					Type:         3,
+					Type:         2,
 				})
 			}
 
@@ -504,27 +504,27 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目变更",
 					ResourceCode: constant.ResourceProjectChangeAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目变更",
 					ResourceCode: constant.ResourceProjectChangeUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目变更",
 					ResourceCode: constant.ResourceProjectChangeDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目变更列表",
 					ResourceCode: constant.ResourceProjectChangeList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目变更详情",
 					ResourceCode: constant.ResourceProjectChangeInstance,
-					Type:         3,
+					Type:         2,
 				})
 			}
 
@@ -538,27 +538,27 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目风险",
 					ResourceCode: constant.ResourceProjectRiskAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目风险",
 					ResourceCode: constant.ResourceProjectRiskUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目风险",
 					ResourceCode: constant.ResourceProjectRiskDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目风险列表",
 					ResourceCode: constant.ResourceProjectRiskList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目风险详情",
 					ResourceCode: constant.ResourceProjectRiskInstance,
-					Type:         3,
+					Type:         2,
 				})
 			}
 
@@ -572,27 +572,27 @@ func InitData() {
 				resources = append(resources, &model.Resource{
 					ResourceName: "添加项目资产",
 					ResourceCode: constant.ResourceProjectAssetAdd,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "更新项目资产",
 					ResourceCode: constant.ResourceProjectAssetUpdate,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "删除项目资产",
 					ResourceCode: constant.ResourceProjectAssetDelete,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目资产列表",
 					ResourceCode: constant.ResourceProjectAssetList,
-					Type:         3,
+					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
 					ResourceName: "项目资产详情",
 					ResourceCode: constant.ResourceProjectAssetInstance,
-					Type:         3,
+					Type:         2,
 				})
 			}
 		}
@@ -628,37 +628,37 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "文件",
 				ResourceCode: constant.ResourceFile,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加文件",
 				ResourceCode: constant.ResourceFileAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除文件",
 				ResourceCode: constant.ResourceFileDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新文件",
 				ResourceCode: constant.ResourceFileUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "文件详情",
 				ResourceCode: constant.ResourceFileInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "文件列表",
 				ResourceCode: constant.ResourceFileList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "文件下载",
 				ResourceCode: constant.ResourceFileDownload,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 通用测试用例
@@ -666,47 +666,47 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "通用测试用例",
 				ResourceCode: constant.ResourceCommonTestCase,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加通用测试用例",
 				ResourceCode: constant.ResourceCommonTestCaseAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除通用测试用例",
 				ResourceCode: constant.ResourceCommonTestCaseDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新通用测试用例",
 				ResourceCode: constant.ResourceCommonTestCaseUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "通用测试用例列表",
 				ResourceCode: constant.ResourceCommonTestCaseList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "通用测试用例详情",
 				ResourceCode: constant.ResourceCommonTestCaseInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加通用测试用例项",
 				ResourceCode: constant.ResourceCommonTestCaseAddItem,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除通用测试用例项",
 				ResourceCode: constant.ResourceCommonTestCaseDeleteItem,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新通用测试用例项",
 				ResourceCode: constant.ResourceCommonTestCaseUpdateItem,
-				Type:         3,
+				Type:         1,
 			})
 		}
 	}
@@ -723,7 +723,7 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "资源列表",
 				ResourceCode: constant.ResourceResourceList,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 用户
@@ -731,52 +731,52 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "用户",
 				ResourceCode: constant.ResourceUser,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加用户",
 				ResourceCode: constant.ResourceUserAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除用户",
 				ResourceCode: constant.ResourceUserDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新用户",
 				ResourceCode: constant.ResourceUserUpdateUser,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新自己",
 				ResourceCode: constant.ResourceUserUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "用户列表",
 				ResourceCode: constant.ResourceUserList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "用户详情",
 				ResourceCode: constant.ResourceUserInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "用户分配角色",
 				ResourceCode: constant.ResourceUserDispatchRoles,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "获取用户角色",
 				ResourceCode: constant.ResourceUserRoles,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "重置用户密码",
 				ResourceCode: constant.ResourceUserResetUserPassword,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 角色
@@ -784,22 +784,22 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "角色",
 				ResourceCode: constant.ResourceRole,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加角色",
 				ResourceCode: constant.ResourceRoleAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除角色",
 				ResourceCode: constant.ResourceRoleDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新角色",
 				ResourceCode: constant.ResourceRoleUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			//resources = append(resources, &model.Resource{
 			//	ResourceName: "角色列表",
@@ -809,17 +809,17 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "角色详情",
 				ResourceCode: constant.ResourceRoleInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "角色分配资源",
 				ResourceCode: constant.ResourceRoleDispatchResources,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "获取角色资源",
 				ResourceCode: constant.ResourceRoleResources,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 阶段
@@ -827,32 +827,32 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "阶段",
 				ResourceCode: constant.ResourceStage,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加阶段",
 				ResourceCode: constant.ResourceStageAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除阶段",
 				ResourceCode: constant.ResourceStageDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新阶段",
 				ResourceCode: constant.ResourceStageUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "阶段列表",
 				ResourceCode: constant.ResourceStageList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "阶段详情",
 				ResourceCode: constant.ResourceStageInstance,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 部门
@@ -860,52 +860,52 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "部门",
 				ResourceCode: constant.ResourceDepartment,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加部门",
 				ResourceCode: constant.ResourceDepartmentAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除部门",
 				ResourceCode: constant.ResourceDepartmentDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新部门",
 				ResourceCode: constant.ResourceDepartmentUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "部门列表",
 				ResourceCode: constant.ResourceDepartmentList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "部门详情",
 				ResourceCode: constant.ResourceDepartmentInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "部门添加用户",
 				ResourceCode: constant.ResourceDepartmentAddUser,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "部门删除用户",
 				ResourceCode: constant.ResourceDepartmentRemoveUser,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新部门名称",
 				ResourceCode: constant.ResourceDepartmentUpdateName,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "变更父级部门",
 				ResourceCode: constant.ResourceDepartmentChangeParent,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 三方登录源
@@ -913,37 +913,37 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "三方登录源",
 				ResourceCode: constant.ResourceThirdSource,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加三方登录源",
 				ResourceCode: constant.ResourceThirdSourceAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除三方登录源",
 				ResourceCode: constant.ResourceThirdSourceDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新三方登录源",
 				ResourceCode: constant.ResourceThirdSourceUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "三方登录源列表",
 				ResourceCode: constant.ResourceThirdSourceList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "三方登录源详情",
 				ResourceCode: constant.ResourceThirdSourceInstance,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "同步三方登录源数据",
 				ResourceCode: constant.ResourceThirdSourceSync,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// 资产目录
@@ -951,32 +951,32 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "资产目录",
 				ResourceCode: constant.ResourceAssetCategory,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加资产目录",
 				ResourceCode: constant.ResourceAssetCategoryAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除资产目录",
 				ResourceCode: constant.ResourceAssetCategoryDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新资产目录",
 				ResourceCode: constant.ResourceAssetCategoryUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "资产目录列表",
 				ResourceCode: constant.ResourceAssetCategoryList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "资产目录详情",
 				ResourceCode: constant.ResourceAssetCategoryInstance,
-				Type:         3,
+				Type:         1,
 			})
 		}
 		// oss配置
@@ -984,32 +984,32 @@ func InitData() {
 			resources = append(resources, &model.Resource{
 				ResourceName: "oss配置",
 				ResourceCode: constant.ResourceOssConfig,
-				Type:         2,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "添加oss配置",
 				ResourceCode: constant.ResourceOssConfigAdd,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "删除oss配置",
 				ResourceCode: constant.ResourceOssConfigDelete,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "更新oss配置",
 				ResourceCode: constant.ResourceOssConfigUpdate,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "oss配置列表",
 				ResourceCode: constant.ResourceOssConfigList,
-				Type:         3,
+				Type:         1,
 			})
 			resources = append(resources, &model.Resource{
 				ResourceName: "oss配置详情",
 				ResourceCode: constant.ResourceOssConfigInstance,
-				Type:         3,
+				Type:         1,
 			})
 		}
 	}
