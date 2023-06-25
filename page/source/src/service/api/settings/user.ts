@@ -1,5 +1,6 @@
 import { request } from "../../request"
 import { Paginate } from "@/types/common"
+import { sm2 } from "sm-crypto"
 import { User, UserCondition, UserPermission } from "@/types/user"
 
 /**
@@ -56,4 +57,14 @@ export const getUserRoleIdList = (id: string) => {
  */
 export const getUserPermissions = () => {
   return request.get<UserPermission>("/user/permissions")
+}
+
+/**
+ * 重置用户密码
+ * @param id - 用户ID
+ * @param password - 密码
+ */
+export const resetPassword = (id: string, password: string) => {
+  const encryptedPassword = "04" + sm2.doEncrypt(password, import.meta.env.VITE_SM2_PK)
+  return request.put("/user/resetPassword", { id, password: encryptedPassword })
 }

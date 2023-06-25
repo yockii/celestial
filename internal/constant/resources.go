@@ -182,15 +182,16 @@ const (
 	ResourceSystem = "system"
 
 	// 用户
-	ResourceUser              = ResourceSystem + ":user"
-	ResourceUserList          = ResourceUser + ":list"
-	ResourceUserAdd           = ResourceUser + ":add"
-	ResourceUserDelete        = ResourceUser + ":delete"
-	ResourceUserUpdateUser    = ResourceUser + ":updateUser"
-	ResourceUserUpdate        = ResourceUser + ":update"
-	ResourceUserInstance      = ResourceUser + ":instance"
-	ResourceUserDispatchRoles = ResourceUser + ":dispatchRoles"
-	ResourceUserRoles         = ResourceUser + ":roles"
+	ResourceUser                  = ResourceSystem + ":user"
+	ResourceUserList              = ResourceUser + ":list"
+	ResourceUserAdd               = ResourceUser + ":add"
+	ResourceUserDelete            = ResourceUser + ":delete"
+	ResourceUserUpdateUser        = ResourceUser + ":updateUser"
+	ResourceUserUpdate            = ResourceUser + ":update"
+	ResourceUserInstance          = ResourceUser + ":instance"
+	ResourceUserDispatchRoles     = ResourceUser + ":dispatchRoles"
+	ResourceUserRoles             = ResourceUser + ":roles"
+	ResourceUserResetUserPassword = ResourceUser + ":resetUserPassword"
 
 	// 角色
 	ResourceRole       = ResourceSystem + ":role"

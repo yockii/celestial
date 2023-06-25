@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from "vue"
-import { getUserList, updateUser, addUser, deleteUser, getUserRoleIdList } from "@/service/api"
+import { getUserList, updateUser, addUser, deleteUser, getUserRoleIdList, resetPassword } from "@/service/api"
 import { User, UserCondition } from "@/types/user"
 import { Delete, Edit, Search, UserRole } from "@vicons/carbon"
 import dayjs from "dayjs"
-import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, DataTableFilterState, DataTableSortState, NIcon, NTooltip } from "naive-ui"
+import {
+  NButtonGroup,
+  NButton,
+  NPopconfirm,
+  FormInst,
+  useMessage,
+  PaginationProps,
+  DataTableFilterState,
+  DataTableSortState,
+  NIcon,
+  NTooltip,
+  NInput
+} from "naive-ui"
 import RoleDrawer from "./roleDrawer/index.vue"
 import { useUserStore } from "@/store/user"
+import { KeyReset24Filled } from "@vicons/fluent"
 const message = useMessage()
 const userStore = useUserStore()
 const condition = ref<UserCondition>({
@@ -114,99 +127,166 @@ const columns = [
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
     render: (row: User) => {
-      return h(NButtonGroup, {}, () => [
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "分配角色",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  disabled: !userStore.hasResourceCode("system:user:dispatchRoles"),
-                  type: "warning",
-                  onClick: () => handleAssignRole(row)
-                },
-                {
-                  default: () =>
-                    h(
-                      NIcon,
-                      {},
-                      {
-                        default: () => h(UserRole)
-                      }
-                    )
-                }
-              )
-          }
-        ),
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "编辑",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  secondary: true,
-                  disabled: !userStore.hasResourceCode("system:user:edit"),
-                  type: "primary",
-                  onClick: () => handleEditData(row)
-                },
-                {
-                  default: () =>
-                    h(
-                      NIcon,
-                      {},
-                      {
-                        default: () => h(Edit)
-                      }
-                    )
-                }
-              )
-          }
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteData(row.id)
-          },
-          {
-            default: () => "确认删除",
-            trigger: () =>
-              h(
-                NTooltip,
-                {},
-                {
-                  default: () => "删除",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        disabled: row.username === "admin" || !userStore.hasResourceCode("system:user:delete"),
-                        type: "error"
-                      },
-                      {
-                        default: () =>
-                          h(
-                            NIcon,
-                            {},
-                            {
-                              default: () => h(Delete)
-                            }
-                          )
-                      }
-                    )
-                }
-              )
-          }
+      const btnGroup: VNode[] = []
+      if (userStore.hasResourceCode("system:user:dispatchRoles")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "分配角色",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    disabled: !userStore.hasResourceCode("system:user:dispatchRoles"),
+                    type: "warning",
+                    onClick: () => handleAssignRole(row)
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(UserRole)
+                        }
+                      )
+                  }
+                )
+            }
+          )
         )
-      ])
+      }
+      if (userStore.hasResourceCode("system:user:edit")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    secondary: true,
+                    disabled: !userStore.hasResourceCode("system:user:edit"),
+                    type: "primary",
+                    onClick: () => handleEditData(row)
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NIcon,
+                        {},
+                        {
+                          default: () => h(Edit)
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+      if (userStore.hasResourceCode("system:user:resetUserPassword")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "重置密码",
+              trigger: () =>
+                h(
+                  NPopconfirm,
+                  {
+                    onPositiveClick: () => handleResetPassword(row.id)
+                  },
+                  {
+                    default: () =>
+                      h(
+                        NInput,
+                        {
+                          type: "password",
+                          placeholder: "请输入新密码",
+                          minlength: 5,
+                          showPasswordOn: "mousedown",
+                          value: resetPasswordInput.value,
+                          onUpdateValue: (v) => {
+                            resetPasswordInput.value = v
+                          }
+                        },
+                        {}
+                      ),
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          disabled: !userStore.hasResourceCode("system:user:resetUserPassword"),
+                          type: "warning"
+                        },
+                        {
+                          default: () =>
+                            h(
+                              NIcon,
+                              {},
+                              {
+                                default: () => h(KeyReset24Filled)
+                              }
+                            )
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+      if (row.username !== "admin" && !userStore.hasResourceCode("system:user:delete")) {
+        btnGroup.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDeleteData(row.id)
+            },
+            {
+              default: () => "确认删除",
+              trigger: () =>
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "删除",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          disabled: row.username === "admin" || !userStore.hasResourceCode("system:user:delete"),
+                          type: "error"
+                        },
+                        {
+                          default: () =>
+                            h(
+                              NIcon,
+                              {},
+                              {
+                                default: () => h(Delete)
+                              }
+                            )
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]
@@ -238,6 +318,14 @@ const handleDeleteData = (id: string) => {
     if (res) {
       message.success("删除成功")
       refresh()
+    }
+  })
+}
+const resetPasswordInput = ref("")
+const handleResetPassword = (id: string) => {
+  resetPassword(id, resetPasswordInput.value).then((res) => {
+    if (res) {
+      message.success("重置成功")
     }
   })
 }

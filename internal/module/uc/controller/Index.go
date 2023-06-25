@@ -30,12 +30,15 @@ func InitRouter() {
 		user.Put("/assignRole", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.AssignRole)
 		user.Get("/roleIdList", middleware.NeedAuthorization(constant.ResourceUserRoles), UserController.UserRoleIdList)
 		user.Get("/permissions", middleware.NeedAuthorization(constant.NeedLogin), UserController.UserPermissions)
+		// 重置密码
+		user.Put("/resetPassword", middleware.NeedAuthorization(constant.ResourceUserResetUserPassword), UserController.ResetUserPassword)
 
 		// 对于禁用put和delete方法时的处理
 		user.Post("/delete", middleware.NeedAuthorization(constant.ResourceUserDelete), UserController.Delete)
 		user.Post("/updateUser", middleware.NeedAuthorization(constant.ResourceUserUpdateUser), UserController.UpdateUser)
 		user.Post("/update", middleware.NeedAuthorization(constant.ResourceUserUpdate), UserController.UpdateSelf)
 		user.Post("/assignRole", middleware.NeedAuthorization(constant.ResourceUserDispatchRoles), UserController.AssignRole)
+		user.Post("/resetPassword", middleware.NeedAuthorization(constant.ResourceUserResetUserPassword), UserController.ResetUserPassword)
 	}
 
 	// 部门

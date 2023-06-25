@@ -704,3 +704,45 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 		Data: result,
 	})
 }
+
+// ResetUserPassword 重置用户密码
+func (c *userController) ResetUserPassword(ctx *fiber.Ctx) error {
+	instance := new(model.User)
+	if err := ctx.BodyParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	if instance.ID == 0 || instance.Password == "" {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+
+	// 解析密码
+	if pwd, err := crypto.Sm2Decrypt(instance.Password); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + "密码不准确",
+		})
+	} else {
+		instance.Password = pwd
+	}
+
+	// 重置密码
+	success, err := service.UserService.UpdatePassword(instance)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}

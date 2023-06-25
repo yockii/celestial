@@ -773,6 +773,11 @@ func InitData() {
 				ResourceCode: constant.ResourceUserRoles,
 				Type:         3,
 			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "重置用户密码",
+				ResourceCode: constant.ResourceUserResetUserPassword,
+				Type:         3,
+			})
 		}
 		// 角色
 		{
