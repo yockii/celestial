@@ -211,7 +211,32 @@ func (_ *projectController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectService.PaginateBetweenTimes(&instance.Project, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	currentUserID, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists + err.Error(),
+		})
+	}
+	dataPermit, err := helper.GetCurrentUserDataPermit(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists + err.Error(),
+		})
+	}
+	if dataPermit == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Data: &server.Paginate{
+				Total:  0,
+				Items:  []struct{}{},
+				Limit:  paginate.Limit,
+				Offset: paginate.Offset,
+			},
+		})
+	}
+
+	total, list, err := service.ProjectService.PaginateBetweenTimes(&instance.Project, paginate.Limit, paginate.Offset, instance.OrderBy, tcList, currentUserID, dataPermit)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

@@ -5,6 +5,7 @@ import (
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -94,7 +95,7 @@ func (s *projectService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *projectService) PaginateBetweenTimes(condition *model.Project, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Project, err error) {
+func (s *projectService) PaginateBetweenTimes(condition *model.Project, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition, currentUserID uint64, dataPermit int) (total int64, list []*model.Project, err error) {
 	tx := database.DB.Model(&model.Project{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
@@ -131,6 +132,10 @@ func (s *projectService) PaginateBetweenTimes(condition *model.Project, limit in
 		if condition.ParentID == 0 {
 			tx = tx.Where("parent_id = ?", condition.ParentID)
 		}
+	}
+
+	if dataPermit == ucModel.RoleDataPermissionSelf {
+		tx = tx.Where("id in (?)", database.DB.Model(&model.ProjectMember{}).Select("project_id").Where("user_id = ?", currentUserID))
 	}
 
 	err = tx.Find(&list, &model.Project{
