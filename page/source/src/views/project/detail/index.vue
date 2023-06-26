@@ -132,9 +132,11 @@ onMounted(() => {
     <n-layout-header bordered class="h-48px py-4px px-20px">
       <n-grid :cols="24">
         <n-gi :span="2" class="flex flex-items-center">
-          <n-icon class="text-1.5em cursor-pointer" @click="router.back()">
-            <KeyboardBackspaceOutlined />
-          </n-icon>
+          <router-link class="text-1.5em line-height-0.5em" :to="{ name: 'ProjectList' }">
+            <n-icon>
+              <KeyboardBackspaceOutlined />
+            </n-icon>
+          </router-link>
           <n-button text icon-placement="right" class="text-1.2em ml-16px">
             {{ project?.name }}
           </n-button>
