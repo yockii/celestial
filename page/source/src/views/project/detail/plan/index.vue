@@ -310,8 +310,12 @@ const planRules = {
   ]
 }
 const handleEditData = (row: ProjectPlan) => {
-  instance.value = row
-  drawerActive.value = true
+  getProjectPlan(row.id).then((res) => {
+    if (res) {
+      resetInstance(res)
+      drawerActive.value = true
+    }
+  })
 }
 const handleDeleteData = (id: string) => {
   deleteProjectPlan(id).then((res) => {
