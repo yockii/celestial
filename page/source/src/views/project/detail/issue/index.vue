@@ -69,7 +69,19 @@ const startTimeColumn = reactive({
   title: "开始解决时间",
   key: "startTime",
   // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-  render: (row: ProjectIssue) => (row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD") : "未开始"),
+  render: (row: ProjectIssue) => {
+    return h(
+      NTooltip,
+      {
+        placement: "top",
+        trigger: "hover"
+      },
+      {
+        default: () => (row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD HH:mm:ss") : "未开始"),
+        trigger: () => (row.startTime ? dayjs(row.startTime).format("YYYY-MM-DD") : "未开始")
+      }
+    )
+  },
   // 排序
   sorter: true,
   sortOrder: false
@@ -78,7 +90,19 @@ const endTimeColumn = reactive({
   title: "解决完成时间",
   key: "endTime",
   // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-  render: (row: ProjectIssue) => (row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD") : "未解决"),
+  render: (row: ProjectIssue) => {
+    return h(
+      NTooltip,
+      {
+        placement: "top",
+        trigger: "hover"
+      },
+      {
+        default: () => (row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD HH:mm:ss") : "未解决"),
+        trigger: () => (row.endTime ? dayjs(row.endTime).format("YYYY-MM-DD") : "未解决")
+      }
+    )
+  },
   // 排序
   sorter: true,
   sortOrder: false
