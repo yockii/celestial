@@ -34,8 +34,10 @@ func (c *projectTestCaseItemController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreatorID = uid
 	}
@@ -81,8 +83,10 @@ func (c *projectTestCaseItemController) BatchAdd(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		for _, item := range list {
 			item.CreatorID = uid
@@ -134,11 +138,14 @@ func (c *projectTestCaseItemController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseItemService.Update(instance)
+	success, err = service.ProjectTestCaseItemService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -184,11 +191,14 @@ func (c *projectTestCaseItemController) UpdateStatus(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdateStatus); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdateStatus); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseItemService.UpdateStatus(instance.ID, instance.Status)
+	success, err = service.ProjectTestCaseItemService.UpdateStatus(instance.ID, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -234,11 +244,14 @@ func (c *projectTestCaseItemController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseItemService.Delete(instance.ID)
+	success, err = service.ProjectTestCaseItemService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

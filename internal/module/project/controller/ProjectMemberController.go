@@ -34,8 +34,10 @@ func (c *projectMemberController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
 	duplicated, success, err := service.ProjectMemberService.Add(instance)
@@ -79,8 +81,10 @@ func (c *projectMemberController) BatchAdd(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
 	// service处理
@@ -128,11 +132,14 @@ func (c *projectMemberController) Update(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDataNotExists,
 		})
 	}
-	if _, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectMemberService.Update(instance)
+	success, err = service.ProjectMemberService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -178,11 +185,14 @@ func (c *projectMemberController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectMemberService.Delete(projectMember.ID)
+	success, err = service.ProjectMemberService.Delete(projectMember.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

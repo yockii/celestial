@@ -108,8 +108,10 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectUpdate); err != nil {
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
 	instance.Name = strings.TrimSpace(instance.Name)
@@ -172,8 +174,10 @@ func (_ *projectController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectDelete); err != nil {
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
 	success, err := service.ProjectService.Delete(instance.ID)

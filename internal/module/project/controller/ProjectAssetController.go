@@ -34,8 +34,10 @@ func (c *projectAssetController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectAssetAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectAssetAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreatorID = uid
 	}
@@ -97,11 +99,14 @@ func (c *projectAssetController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectAssetService.Update(instance)
+	success, err = service.ProjectAssetService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -147,11 +152,14 @@ func (c *projectAssetController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectAssetService.Delete(instance.ID)
+	success, err = service.ProjectAssetService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

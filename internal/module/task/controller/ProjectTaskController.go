@@ -39,8 +39,10 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTaskAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTaskAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.OwnerID = uid
 		instance.CreatorID = uid
@@ -141,11 +143,14 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTaskService.Update(&instance.ProjectTask, oldInstance, instance.Members)
+	success, err = service.ProjectTaskService.Update(&instance.ProjectTask, oldInstance, instance.Members)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -195,11 +200,14 @@ func (c *projectTaskController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTaskService.Delete(oldInstance)
+	success, err = service.ProjectTaskService.Delete(oldInstance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -482,11 +490,13 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 		case model.ProjectTaskStatusDone:
 			code = constant.ResourceProjectTaskDone
 		}
-		if _, err = helper.CheckResourceCodeInProject(ctx, condition.ProjectID, code); err != nil {
+		var success bool
+		if _, success, err = helper.CheckResourceCodeInProject(ctx, condition.ProjectID, code); err != nil {
 			return err
+		} else if !success {
+			return nil
 		}
 
-		var success bool
 		if success, err = service.ProjectTaskMemberService.UpdateStatus(oldTask, oldTaskMember, status, condition.EstimateDuration, condition.ActualDuration); err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
@@ -539,11 +549,14 @@ func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 		case model.ProjectTaskStatusNotStart:
 			code = constant.ResourceProjectTaskRestart
 		}
-		if _, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {
+		var success bool
+		if _, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {
 			return err
+		} else if !success {
+			return nil
 		}
 
-		if success, err := service.ProjectTaskService.UpdateStatus(oldTask, status); err != nil {
+		if success, err = service.ProjectTaskService.UpdateStatus(oldTask, status); err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
 				Msg:  server.ResponseMsgDatabase + err.Error(),

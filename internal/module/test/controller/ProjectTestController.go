@@ -33,8 +33,10 @@ func (c *projectTestController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreatorID = uid
 	}
@@ -90,11 +92,12 @@ func (c *projectTestController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestDelete); err != nil {
 		return err
 	}
 
-	success, err := service.ProjectTestService.Delete(instance.ID)
+	success, err = service.ProjectTestService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -139,11 +142,12 @@ func (c *projectTestController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestUpdate); err != nil {
 		return err
 	}
 
-	success, err := service.ProjectTestService.Update(instance)
+	success, err = service.ProjectTestService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -195,13 +199,16 @@ func (c *projectTestController) Close(ctx *fiber.Ctx) error {
 	}
 	// 判断权限
 	var uid uint64
-	if uid, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestClose); err != nil {
+	var success bool
+	if uid, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestClose); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CloserID = uid
 	}
 
-	success, err := service.ProjectTestService.Close(instance.ID, instance.CloserID)
+	success, err = service.ProjectTestService.Close(instance.ID, instance.CloserID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

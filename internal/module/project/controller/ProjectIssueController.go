@@ -38,10 +38,12 @@ func (c *projectIssueController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectIssueAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectIssueAdd); err != nil {
 		return err
-	} else {
+	} else if success {
 		instance.CreatorID = uid
+	} else {
+		return nil
 	}
 
 	duplicated, success, err := service.ProjectIssueService.Add(instance)
@@ -115,11 +117,14 @@ func (c *projectIssueController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectIssueService.Update(instance)
+	success, err = service.ProjectIssueService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -187,11 +192,14 @@ func (c *projectIssueController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectIssueService.Delete(instance.ID)
+	success, err = service.ProjectIssueService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -315,11 +323,14 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueAssign); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueAssign); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectIssueService.Assign(old, instance.AssigneeID)
+	success, err = service.ProjectIssueService.Assign(old, instance.AssigneeID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -417,11 +428,14 @@ func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler
 		case model.ProjectIssueStatusResolved:
 			code = constant.ResourceProjectIssueVerify
 		}
-		if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, code); err != nil {
+		var success bool
+		if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, code); err != nil {
 			return err
+		} else if !success {
+			return nil
 		}
 
-		success, err := service.ProjectIssueService.UpdateStatus(old, statusList[0])
+		success, err = service.ProjectIssueService.UpdateStatus(old, statusList[0])
 		if err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,

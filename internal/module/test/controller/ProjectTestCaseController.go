@@ -35,8 +35,10 @@ func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreatorID = uid
 	}
@@ -86,11 +88,14 @@ func (c *projectTestCaseController) BatchAdd(ctx *fiber.Ctx) error {
 	// 判断权限
 	var uid uint64
 	var err error
-	if uid, err = helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
+	var success bool
+	if uid, success, err = helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseService.BatchAdd(list, uid)
+	success, err = service.ProjectTestCaseService.BatchAdd(list, uid)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -141,11 +146,14 @@ func (c *projectTestCaseController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseService.Update(instance)
+	success, err = service.ProjectTestCaseService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -191,11 +199,14 @@ func (c *projectTestCaseController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectTestCaseService.Delete(instance.ID)
+	success, err = service.ProjectTestCaseService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

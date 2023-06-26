@@ -38,8 +38,10 @@ func (c *projectModuleController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectModuleAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectModuleAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreatorID = uid
 	}
@@ -111,11 +113,14 @@ func (c *projectModuleController) Update(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectModuleService.Update(instance, old)
+	success, err = service.ProjectModuleService.Update(instance, old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -196,11 +201,14 @@ func (c *projectModuleController) Delete(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectModuleService.Delete(old)
+	success, err = service.ProjectModuleService.Delete(old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -321,11 +329,14 @@ func (c *projectModuleController) Review(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleReview); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleReview); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectModuleService.UpdateStatus(old, instance.Status)
+	success, err = service.ProjectModuleService.UpdateStatus(old, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

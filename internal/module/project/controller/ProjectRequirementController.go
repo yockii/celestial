@@ -38,8 +38,10 @@ func (c *projectRequirementController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 判断权限
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectRequirementAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectRequirementAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.OwnerID = uid
 	}
@@ -170,11 +172,14 @@ func (c *projectRequirementController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectRequirementService.Update(instance, old)
+	success, err = service.ProjectRequirementService.Update(instance, old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -300,11 +305,14 @@ func (c *projectRequirementController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectRequirementService.Delete(instance.ID)
+	success, err = service.ProjectRequirementService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -421,11 +429,14 @@ func (c *projectRequirementController) StatusDesigned(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusDesign); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusDesign); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusPendingReview)
+	success, err = service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusPendingReview)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -467,11 +478,14 @@ func (c *projectRequirementController) StatusReview(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusReview); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusReview); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectRequirementService.UpdateStatus(old, instance.Status)
+	success, err = service.ProjectRequirementService.UpdateStatus(old, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -512,11 +526,14 @@ func (c *projectRequirementController) StatusCompleted(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusCompleted); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusCompleted); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusCompleted)
+	success, err = service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusCompleted)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

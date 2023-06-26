@@ -37,8 +37,10 @@ func (c *projectPlanController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectPlanAdd); err != nil {
+	if uid, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectPlanAdd); err != nil {
 		return err
+	} else if !success {
+		return nil
 	} else {
 		instance.CreateUserID = uid
 	}
@@ -110,11 +112,14 @@ func (c *projectPlanController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectPlanUpdate); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectPlanUpdate); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectPlanService.Update(instance)
+	success, err = service.ProjectPlanService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -177,11 +182,14 @@ func (c *projectPlanController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 	// 判断权限
-	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectPlanDelete); err != nil {
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectPlanDelete); err != nil {
 		return err
+	} else if !success {
+		return nil
 	}
 
-	success, err := service.ProjectPlanService.Delete(instance.ID)
+	success, err = service.ProjectPlanService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

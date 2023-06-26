@@ -212,7 +212,7 @@ func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, err
 	return hasAuth, nil
 }
 
-func CheckResourceCodeInProject(ctx *fiber.Ctx, projectID uint64, codes ...string) (uid uint64, err error) {
+func CheckResourceCodeInProject(ctx *fiber.Ctx, projectID uint64, codes ...string) (uid uint64, success bool, err error) {
 	uid, err = GetCurrentUserID(ctx)
 	if err != nil {
 		logger.Errorln(err)
@@ -240,5 +240,6 @@ func CheckResourceCodeInProject(ctx *fiber.Ctx, projectID uint64, codes ...strin
 		})
 		return
 	}
+	success = true
 	return
 }
