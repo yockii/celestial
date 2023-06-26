@@ -93,7 +93,9 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 					// 缓存角色的数据权限
 					_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, role.ID, role.DataPermission)
 
-					if userDataPerm == 0 || role.DataPermission < userDataPerm {
+					if role.Type == model.RoleTypeSuperAdmin {
+						userDataPerm = 1
+					} else if userDataPerm == 0 || role.DataPermission < userDataPerm {
 						userDataPerm = role.DataPermission
 					}
 				}
@@ -108,6 +110,7 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 			for _, roleId := range roleIds {
 				if roleId == constant.SuperAdminRoleId {
 					hasAuth = true
+					userDataPerm = 1
 					break
 				} else {
 					roleResourceKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)

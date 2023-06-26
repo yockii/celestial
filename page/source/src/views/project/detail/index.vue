@@ -23,7 +23,7 @@ const route = useRoute()
 const id = route.params.id as string
 const tab = computed(() => route.meta.title as string)
 const projectStore = useProjectStore()
-const { project, resourceCodes, isOwner } = storeToRefs(projectStore)
+const { project, resourceCodes } = storeToRefs(projectStore)
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
