@@ -288,7 +288,8 @@ const resetInstance = (origin: ProjectPlan | undefined = undefined) => {
   if (origin) {
     instance.value = JSON.parse(JSON.stringify(origin))
   } else {
-    instance.value = { endTime: 0, id: "", planName: "", projectId: project.value.id, startTime: 0, status: 0 }
+    const nowa = new Date().getTime()
+    instance.value = { id: "", planName: "", projectId: project.value.id, startTime: nowa, endTime: nowa, status: 0 }
   }
 }
 const newInstance = () => {
