@@ -1,12 +1,12 @@
 import { Project, ProjectMember, ProjectModule } from "@/types/project"
 import { defineStore } from "pinia"
+import { useUserStore } from "./user"
 
 export const useProjectStore = defineStore("project", {
   state: (): {
     project: Project
     modules: ProjectModule[]
     resourceCodes: string[]
-    isOwner: boolean
   } => ({
     project: {
       id: "",
@@ -16,8 +16,7 @@ export const useProjectStore = defineStore("project", {
       stageId: ""
     },
     modules: [],
-    resourceCodes: [],
-    isOwner: false
+    resourceCodes: []
   }),
   getters: {
     moduleTree(state) {
@@ -43,11 +42,14 @@ export const useProjectStore = defineStore("project", {
         }
       })
       return Array.from(set)
+    },
+    isOwner(state) {
+      return state.project.ownerId === useUserStore().user.id
     }
   },
   actions: {
     hasResourceCode(resourceCode: string) {
-      return this.isOwner || this.resourceCodes.includes(resourceCode)
+      return useUserStore().user.id === this.project.ownerId || (this.resourceCodes && this.resourceCodes.includes(resourceCode))
     }
   },
   persist: {

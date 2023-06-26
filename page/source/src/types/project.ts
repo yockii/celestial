@@ -14,6 +14,7 @@ export type Project = {
   code: string
   description: string
   stageId: string
+  ownerId?: string
   createTime?: number
   members?: ProjectMember[]
 }
