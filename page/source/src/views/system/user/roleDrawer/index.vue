@@ -35,6 +35,7 @@ const handleCommitData = () => {
 }
 onMounted(() => {
   getRoleList({
+    type: 1,
     status: 1,
     offset: -1,
     limit: -1
