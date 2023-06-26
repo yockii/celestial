@@ -92,7 +92,7 @@ onMounted(() => {
       <n-h6 prefix="bar">
         <n-space justify="space-between">
           测试轮次
-          <n-popconfirm @positive-click="handleNextRound" v-resource-code="'project:detail:test:add'">
+          <n-popconfirm @positive-click="handleNextRound" v-project-resource-code="'project:detail:test:add'">
             <template #trigger>
               <n-tooltip>
                 <template #trigger>
@@ -111,7 +111,7 @@ onMounted(() => {
           </n-popconfirm>
         </n-space>
       </n-h6>
-      <n-list hoverable clickable show-divider v-resource-code="'project:detail:test:list'">
+      <n-list hoverable clickable show-divider v-project-resource-code="'project:detail:test:list'">
         <n-tooltip v-for="test in testList" :key="test.id">
           <template #trigger>
             <n-list-item @click="handleSelectTest(test.id)">

@@ -30,7 +30,7 @@ const userStore = useUserStore()
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: () => userStore.hasResourceCode("project:detail:plan:instance"),
+  expandable: () => projectStore.hasResourceCode("project:detail:plan:instance"),
   renderExpand: (row: ProjectIssue) => {
     if (!row.content || !row.issueCause || !row.solveMethod) {
       getProjectIssue(row.id).then((res) => {
@@ -149,7 +149,7 @@ const operationColumn = reactive({
   render: (row: ProjectIssue) => {
     const btnGroup: VNode[] = []
     if (
-      userStore.hasResourceCode("project:detail:issue:assign") &&
+      projectStore.hasResourceCode("project:detail:issue:assign") &&
       ((row.status === 1 && row.creatorId === userStore.user.id) || row.assigneeId === userStore.user.id)
     ) {
       btnGroup.push(
@@ -185,7 +185,7 @@ const operationColumn = reactive({
                       secondary: true,
                       type: "primary",
                       disabled:
-                        !userStore.hasResourceCode("project:detail:issue:assign") ||
+                        !projectStore.hasResourceCode("project:detail:issue:assign") ||
                         (row.creatorId !== userStore.user.id && row.assigneeId !== userStore.user.id)
                     },
                     {
@@ -197,7 +197,7 @@ const operationColumn = reactive({
         )
       )
     }
-    if (userStore.hasResourceCode("project:detail:issue:update")) {
+    if (projectStore.hasResourceCode("project:detail:issue:update")) {
       btnGroup.push(
         h(
           NTooltip,
@@ -211,7 +211,7 @@ const operationColumn = reactive({
                   size: "small",
                   secondary: true,
                   type: "primary",
-                  disabled: !userStore.hasResourceCode("project:detail:issue:update"),
+                  disabled: !projectStore.hasResourceCode("project:detail:issue:update"),
                   onClick: () => handleEditData(row)
                 },
                 {
@@ -222,7 +222,7 @@ const operationColumn = reactive({
         )
       )
     }
-    if (userStore.hasResourceCode("project:detail:issue:delete")) {
+    if (projectStore.hasResourceCode("project:detail:issue:delete")) {
       btnGroup.push(
         h(
           NPopconfirm,
@@ -243,7 +243,7 @@ const operationColumn = reactive({
                       {
                         size: "small",
                         type: "error",
-                        disabled: !userStore.hasResourceCode("project:detail:issue:delete")
+                        disabled: !projectStore.hasResourceCode("project:detail:issue:delete")
                       },
                       {
                         default: () => h(NIcon, { component: Delete })
@@ -414,7 +414,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-resource-code="'project:detail:issue:add'">新建缺陷</n-button>
+        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:issue:add'">新建缺陷</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -443,7 +443,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-resource-code="['project:detail:issue:add', 'project:detail:issue:update']"
+          v-project-resource-code="['project:detail:issue:add', 'project:detail:issue:update']"
           >提交</n-button
         >
       </template>

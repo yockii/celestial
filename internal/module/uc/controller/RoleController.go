@@ -1,13 +1,14 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gomodule/redigo/redis"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/uc/domain"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/cache"
-	"github.com/yockii/ruomu-core/shared"
 	"strconv"
 
 	logger "github.com/sirupsen/logrus"
@@ -262,7 +263,7 @@ func (*roleController) AssignResource(ctx *fiber.Ctx) error {
 		defer func(conn redis.Conn) {
 			_ = conn.Close()
 		}(conn)
-		key := shared.RedisKeyRoleResourceCode + strconv.FormatUint(instance.RoleID, 10)
+		key := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, instance.RoleID)
 		_, err = conn.Do("DEL", key)
 		if err != nil {
 			logger.Errorln(err)

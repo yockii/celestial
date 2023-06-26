@@ -15,6 +15,7 @@ type ProjectTestCaseItemStep struct {
 	Content    string         `json:"content,omitempty" gorm:"size:500;comment:测试步骤内容"`
 	Expect     string         `json:"expect,omitempty" gorm:"size:500;comment:预期结果"`
 	Status     int            `json:"status,omitempty" gorm:"comment:测试步骤状态 1-未测试 2-已通过 -1-未通过"`
+	CreatorID  uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	CreateTime int64          `json:"createTime,omitempty" gorm:"autoCreateTime:milli"`
 	UpdateTime int64          `json:"updateTime,omitempty" gorm:"autoUpdateTime:milli"`
 	DeleteTime gorm.DeletedAt `json:"deleteTime,omitempty" gorm:"index"`
@@ -34,6 +35,7 @@ func (ptcs *ProjectTestCaseItemStep) UnmarshalJSON(b []byte) error {
 	ptcs.Content = j.Get("content").String()
 	ptcs.Expect = j.Get("expect").String()
 	ptcs.Status = int(j.Get("status").Int())
+	ptcs.CreatorID = j.Get("creatorId").Uint()
 	ptcs.CreateTime = j.Get("createTime").Int()
 	ptcs.UpdateTime = j.Get("updateTime").Int()
 	return nil

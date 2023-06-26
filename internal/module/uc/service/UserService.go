@@ -227,12 +227,17 @@ func (s *userService) Delete(id uint64) (success bool, err error) {
 }
 
 // Roles 获取用户的角色列表
-func (s *userService) Roles(userId uint64) (roles []*model.Role, err error) {
+func (s *userService) Roles(userId uint64, types ...int) (roles []*model.Role, err error) {
 	// 获取用户ID对应的所有角色信息
 	sm := gorm.Statement{DB: database.DB}
 	_ = sm.Parse(&model.Role{})
 	ruleTableName := sm.Schema.Table
-	err = database.DB.Model(&model.UserRole{}).
+
+	tx := database.DB.Model(&model.UserRole{})
+	if len(types) > 0 {
+		tx = tx.Where("type in (?)", types)
+	}
+	err = tx.
 		Select(ruleTableName + ".*").
 		Joins("left join " + ruleTableName + " on " + ruleTableName + ".id = role_id").
 		Where(&model.UserRole{UserID: userId}).Scan(&roles).Error

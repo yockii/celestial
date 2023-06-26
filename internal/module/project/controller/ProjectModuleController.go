@@ -5,7 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -28,11 +30,18 @@ func (c *projectModuleController) Add(ctx *fiber.Ctx) error {
 	}
 
 	// 处理必填
-	if instance.Name == "" {
+	if instance.Name == "" || instance.ProjectID == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " name",
+			Msg:  server.ResponseMsgParamNotEnough + " projectID/name",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectModuleAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectModuleService.Add(instance)
@@ -86,7 +95,27 @@ func (c *projectModuleController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectModuleService.Update(instance)
+	// 先取出
+	old, err := service.ProjectModuleService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if old == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleUpdate); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectModuleService.Update(instance, old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -151,7 +180,27 @@ func (c *projectModuleController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectModuleService.Delete(instance.ID)
+	// 先取出
+	old, err := service.ProjectModuleService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if old == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleDelete); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectModuleService.Delete(old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -257,7 +306,26 @@ func (c *projectModuleController) Review(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectModuleService.UpdateStatus(instance.ID, instance.Status)
+	// 先取出
+	old, err := service.ProjectModuleService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if old == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectModuleReview); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectModuleService.UpdateStatus(old, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

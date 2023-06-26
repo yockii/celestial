@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
@@ -36,14 +37,11 @@ func (c *projectRequirementController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if currentUserId, err := helper.GetCurrentUserID(ctx); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " user info",
-		})
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectRequirementAdd); err != nil {
+		return err
 	} else {
-		instance.OwnerID = currentUserId
+		instance.OwnerID = uid
 	}
 
 	duplicated, success, err := service.ProjectRequirementService.Add(instance)
@@ -163,7 +161,20 @@ func (c *projectRequirementController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectRequirementService.Update(instance)
+	// 先获取旧数据
+	old, err := service.ProjectRequirementService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementUpdate); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectRequirementService.Update(instance, old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -280,6 +291,19 @@ func (c *projectRequirementController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先获取旧数据
+	old, err := service.ProjectRequirementService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementDelete); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectRequirementService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -387,7 +411,21 @@ func (c *projectRequirementController) StatusDesigned(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, model.ProjectRequirementStatusPendingReview)
+
+	// 先获取旧数据
+	old, err := service.ProjectRequirementService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusDesign); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusPendingReview)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -419,7 +457,21 @@ func (c *projectRequirementController) StatusReview(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id & status",
 		})
 	}
-	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, instance.Status)
+
+	// 先获取旧数据
+	old, err := service.ProjectRequirementService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusReview); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectRequirementService.UpdateStatus(old, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -450,7 +502,21 @@ func (c *projectRequirementController) StatusCompleted(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	success, err := service.ProjectRequirementService.UpdateStatus(instance.ID, model.ProjectRequirementStatusCompleted)
+
+	// 先获取旧数据
+	old, err := service.ProjectRequirementService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectRequirementStatusCompleted); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectRequirementService.UpdateStatus(old, model.ProjectRequirementStatusCompleted)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

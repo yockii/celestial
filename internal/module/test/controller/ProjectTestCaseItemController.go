@@ -3,6 +3,8 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/test/domain"
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/celestial/internal/module/test/service"
@@ -29,6 +31,13 @@ func (c *projectTestCaseItemController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectTestCaseItemService.Add(instance)
@@ -64,6 +73,21 @@ func (c *projectTestCaseItemController) BatchAdd(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
+	if len(list) == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " list",
+		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseItemAdd); err != nil {
+		return err
+	} else {
+		for _, item := range list {
+			item.CreatorID = uid
+		}
+	}
 
 	success, err := service.ProjectTestCaseItemService.BatchAdd(list)
 	if err != nil {
@@ -93,6 +117,25 @@ func (c *projectTestCaseItemController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseItemService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdate); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestCaseItemService.Update(instance)
@@ -126,6 +169,25 @@ func (c *projectTestCaseItemController) UpdateStatus(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseItemService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemUpdateStatus); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectTestCaseItemService.UpdateStatus(instance.ID, instance.Status)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -155,6 +217,25 @@ func (c *projectTestCaseItemController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseItemService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestCaseItemService.Delete(instance.ID)

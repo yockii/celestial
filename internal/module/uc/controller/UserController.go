@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -18,7 +19,6 @@ import (
 	"github.com/yockii/ruomu-core/cache"
 	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
-	"github.com/yockii/ruomu-core/shared"
 	"github.com/yockii/ruomu-core/util"
 )
 
@@ -289,7 +289,7 @@ func (c *userController) Instance(ctx *fiber.Ctx) error {
 	}
 	if instance.ID == 0 {
 		// 获取当前登录的用户
-		uidStr, _ := ctx.Locals(shared.JwtClaimUserId).(string)
+		uidStr, _ := ctx.Locals(constant.JwtClaimUserId).(string)
 		if uidStr == "" {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeParamNotEnough,
@@ -391,17 +391,19 @@ func generateJwtToken(userId, tenantId string) (string, error) {
 	defer func(conn redis.Conn) {
 		_ = conn.Close()
 	}(conn)
-	_, err := conn.Do("SETEX", shared.RedisSessionIdKey+sid, config.GetInt("userTokenExpire"), userId)
+	sessionKey := fmt.Sprintf("%s:%s", constant.RedisSessionIdKey, sid)
+
+	_, err := conn.Do("SETEX", sessionKey, config.GetInt("userTokenExpire"), userId)
 	if err != nil {
 		logger.Errorln(err)
 		return "", err
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	claims[shared.JwtClaimUserId] = userId
-	claims[shared.JwtClaimTenantId] = tenantId
-	claims[shared.JwtClaimSessionId] = sid
+	claims[constant.JwtClaimUserId] = userId
+	claims[constant.JwtClaimTenantId] = tenantId
+	claims[constant.JwtClaimSessionId] = sid
 
-	t, err := token.SignedString([]byte(shared.JwtSecret))
+	t, err := token.SignedString([]byte(constant.JwtSecret))
 	if err != nil {
 		logger.Errorln(err)
 		return "", err
@@ -441,13 +443,8 @@ func (c *userController) AssignRole(ctx *fiber.Ctx) error {
 		defer func(conn redis.Conn) {
 			_ = conn.Close()
 		}(conn)
-		key := shared.RedisKeyUserRoles + strconv.FormatUint(instance.UserID, 10)
+		key := fmt.Sprintf("%s:%d", constant.RedisKeyUserRoles, instance.UserID)
 		_, err = conn.Do("DEL", key)
-		if err != nil {
-			logger.Errorln(err)
-		}
-		dataPermissionKey := constant.RedisKeyUserDataPerm + strconv.FormatUint(instance.UserID, 10)
-		_, err = conn.Do("DEL", dataPermissionKey)
 		if err != nil {
 			logger.Errorln(err)
 		}
@@ -635,17 +632,16 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgUnknownError + err.Error(),
 		})
 	}
-	uidStr := strconv.FormatUint(uid, 10)
 	conn := cache.Get()
 	defer func(conn redis.Conn) {
 		_ = conn.Close()
 	}(conn)
 	// 获取用户数据权限
-	userDataPerm, _ := redis.Int(conn.Do("GET", constant.RedisKeyUserDataPerm+uidStr))
+	userDataPerm := 0
 	// 获取用户角色
-	roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", shared.RedisKeyUserRoles+uidStr))
+	userRolesKey := fmt.Sprintf("%s:%d", constant.RedisKeyUserRoles, uid)
+	roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", userRolesKey))
 	if len(roleIds) == 0 {
-		userDataPerm = 0
 		// 获取该用户的角色id存入缓存
 		var roles []*model.Role
 		roles, err = service.UserService.Roles(uid)
@@ -656,16 +652,13 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 			})
 		}
 		for _, role := range roles {
-			_, _ = conn.Do("SADD", shared.RedisKeyUserRoles+uidStr, role.ID)
+			_, _ = conn.Do("SADD", userRolesKey, role.ID)
 			if userDataPerm == 0 || role.DataPermission < userDataPerm {
 				userDataPerm = role.DataPermission
 			}
 		}
-		// 存储用户数据权限
-		_, _ = conn.Do("SET", constant.RedisKeyUserDataPerm+uidStr, userDataPerm)
 	}
-	_, _ = conn.Do("EXPIRE", shared.RedisKeyUserRoles+uidStr, 3*24*60*60)
-	_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uidStr, 3*24*60*60)
+	_, _ = conn.Do("EXPIRE", userRolesKey, 3*24*60*60)
 
 	// 获取用户资源编码列表
 	resourceCodes := make(map[string]struct{})
@@ -675,20 +668,27 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 			isSuperAdmin = true
 			break
 		}
-		roleIdStr := strconv.FormatUint(roleId, 10)
-		codes, _ := redis.Strings(conn.Do("GET", shared.RedisKeyRoleResourceCode+roleIdStr))
+
+		roleResourcesKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)
+		codes, _ := redis.Strings(conn.Do("SMEMBERS", roleResourcesKey))
 		if len(codes) == 0 {
 			// 缓存没有，那么就去数据库取出来放进去
 			codes, err = service.RoleService.ResourceCodes(roleId)
+			if err != nil {
+				return ctx.JSON(&server.CommonResponse{
+					Code: server.ResponseCodeDatabase,
+					Msg:  server.ResponseMsgDatabase + err.Error(),
+				})
+			}
 			for _, resourceCode := range codes {
 				rc := resourceCode
-				_, _ = conn.Do("SADD", shared.RedisKeyRoleResourceCode+roleIdStr, rc)
+				_, _ = conn.Do("SADD", roleResourcesKey, rc)
 				if _, ok := resourceCodes[rc]; !ok {
 					resourceCodes[rc] = struct{}{}
 				}
 			}
 		}
-		_, _ = conn.Do("EXPIRE", shared.RedisKeyRoleResourceCode+roleIdStr, 3*24*60*60)
+		_, _ = conn.Do("EXPIRE", roleResourcesKey, 3*24*60*60)
 	}
 	result := new(domain.UserResourceCodesResponse)
 	if isSuperAdmin {

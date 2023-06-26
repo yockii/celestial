@@ -3,14 +3,18 @@ package controller
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gomodule/redigo/redis"
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	ucService "github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/celestial/pkg/search"
+	"github.com/yockii/ruomu-core/cache"
 	"github.com/yockii/ruomu-core/server"
 	"strings"
 	"sync"
@@ -103,6 +107,11 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
+
+	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectUpdate); err != nil {
+		return err
+	}
+
 	instance.Name = strings.TrimSpace(instance.Name)
 	success, err := service.ProjectService.Update(instance)
 	if err != nil {
@@ -161,6 +170,10 @@ func (_ *projectController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectService.Delete(instance.ID)
@@ -322,6 +335,91 @@ func (_ *projectController) StatisticsByStage(ctx *fiber.Ctx) error {
 		})
 	}
 
+	return ctx.JSON(&server.CommonResponse{
+		Data: result,
+	})
+}
+
+func (_ *projectController) MemberResourceCode(ctx *fiber.Ctx) error {
+	instance := new(model.Project)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists + err.Error(),
+		})
+	}
+
+	// 获取用户项目角色
+	roleIDs, err := helper.GetUserRoleIdsInProject(uid, instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists + err.Error(),
+		})
+	}
+	if len(roleIDs) == 0 {
+		// 无权限
+		return ctx.JSON(&server.CommonResponse{
+			Data: []struct{}{},
+		})
+	}
+
+	// 先从缓存中获取
+	conn := cache.Get()
+	defer func(conn redis.Conn) {
+		_ = conn.Close()
+	}(conn)
+	resourceCodes := make(map[string]struct{})
+	for _, roleID := range roleIDs {
+		if roleID == 0 {
+			break
+		}
+		k := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleID)
+		codes, _ := redis.Strings(conn.Do("SMEMBERS", k))
+		if len(codes) == 0 {
+			// 没有缓存，从数据库中获取
+			codes, err = ucService.RoleService.ResourceCodes(roleID)
+			if err != nil {
+				return ctx.JSON(&server.CommonResponse{
+					Code: server.ResponseCodeDatabase,
+					Msg:  server.ResponseMsgDatabase + err.Error(),
+				})
+			}
+			// 缓存
+			if len(codes) > 0 {
+				args := []interface{}{k}
+				for _, code := range codes {
+					resourceCodes[code] = struct{}{}
+					args = append(args, code)
+				}
+				_, _ = conn.Do("SADD", args...)
+			}
+		} else {
+			for _, code := range codes {
+				resourceCodes[code] = struct{}{}
+			}
+		}
+		_, _ = conn.Do("EXPIRE", k, 3*24*60*60)
+	}
+	var result []string
+	for k := range resourceCodes {
+		result = append(result, k)
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: result,
 	})

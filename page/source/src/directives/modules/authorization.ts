@@ -4,14 +4,15 @@ import { Directive } from "vue"
 const resourceCode: Directive = {
   mounted(el, binding) {
     const { value } = binding
+    const userStore = useUserStore()
     // 判断value是否数组
     if (Array.isArray(value)) {
-      if (!value.some((item) => useUserStore().hasResourceCode(item))) {
+      if (!value.some((item) => userStore.hasResourceCode(item))) {
         el.parentNode?.removeChild(el)
       }
       return
     }
-    if (!useUserStore().hasResourceCode(value)) {
+    if (!userStore.hasResourceCode(value)) {
       el.parentNode?.removeChild(el)
     }
   },

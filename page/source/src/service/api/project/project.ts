@@ -1,15 +1,15 @@
-import {request} from "../../request";
-import type {Paginate} from "@/types/common"
-import {Project, ProjectCondition, ProjectStageStatistics, ProjectMember} from "@/types/project"
+import { request } from "../../request"
+import type { Paginate } from "@/types/common"
+import { Project, ProjectCondition, ProjectStageStatistics, ProjectMember } from "@/types/project"
 
 /**
  * 获取项目列表
  * @param condition - 查询条件
  */
 export function getProjectList(condition: ProjectCondition) {
-    return request.get<Paginate<Project>>("/project/list", {
-        params: condition,
-    })
+  return request.get<Paginate<Project>>("/project/list", {
+    params: condition
+  })
 }
 
 /**
@@ -17,7 +17,7 @@ export function getProjectList(condition: ProjectCondition) {
  * @param project - 项目信息
  */
 export function addProject(project: Project) {
-    return request.post<boolean>("/project/add", project)
+  return request.post<boolean>("/project/add", project)
 }
 
 /**
@@ -25,11 +25,11 @@ export function addProject(project: Project) {
  * @param id - 项目id
  */
 export function deleteProject(id: string) {
-    return request.delete<boolean>("/project/delete", {
-        params: {
-            id
-        }
-    })
+  return request.delete<boolean>("/project/delete", {
+    params: {
+      id
+    }
+  })
 }
 
 /**
@@ -37,7 +37,7 @@ export function deleteProject(id: string) {
  * @param project - 项目信息
  */
 export function updateProject(project: Project) {
-    return request.put<boolean>("/project/update", project)
+  return request.put<boolean>("/project/update", project)
 }
 
 /**
@@ -45,14 +45,14 @@ export function updateProject(project: Project) {
  * @param id - 项目id
  */
 export function getProjectDetail(id: string) {
-    return request.get<Project>(`/project/instance?id=${id}`)
+  return request.get<Project>(`/project/instance?id=${id}`)
 }
 
 /**
  * 获取项目根据阶段统计信息
  */
 export function getProjectStageStatistics() {
-    return request.get<ProjectStageStatistics[]>("/project/statisticsByStage")
+  return request.get<ProjectStageStatistics[]>("/project/statisticsByStage")
 }
 
 /**
@@ -62,11 +62,11 @@ export function getProjectStageStatistics() {
  * @param userIdList - 角色id列表
  */
 export function addProjectMembers(projectId: string, roleIdList: string[], userIdList: string[]) {
-    return request.post<boolean>("/projectMember/batchAdd", {
-        projectId,
-        roleIdList,
-        userIdList
-    })
+  return request.post<boolean>("/projectMember/batchAdd", {
+    projectId,
+    roleIdList,
+    userIdList
+  })
 }
 
 /**
@@ -74,9 +74,17 @@ export function addProjectMembers(projectId: string, roleIdList: string[], userI
  * @param projectId - 项目id
  */
 export function getProjectMembers(projectId: string) {
-    return request.get<ProjectMember[]>("/projectMember/listByProject", {
-        params: {
-            projectId
-        }
-    })
+  return request.get<ProjectMember[]>("/projectMember/listByProject", {
+    params: {
+      projectId
+    }
+  })
+}
+
+/**
+ * 获取在项目中的权限资源代码
+ * @param id - 项目id
+ */
+export function getProjectResourceCode(id: string) {
+  return request.get<string[]>(`/project/resourceCode?id=${id}`)
 }

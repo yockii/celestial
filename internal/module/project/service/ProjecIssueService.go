@@ -153,28 +153,20 @@ func (s *projectIssueService) Instance(id uint64) (instance *model.ProjectIssue,
 	return
 }
 
-func (s *projectIssueService) Assign(id uint64, assigneeID uint64) (success bool, err error) {
-	if id == 0 || assigneeID == 0 {
+func (s *projectIssueService) Assign(instance *model.ProjectIssue, assigneeID uint64) (success bool, err error) {
+	if instance == nil || instance.ID == 0 || assigneeID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 	// 原有数据的状态
-	var status int
-	err = database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: id}).Select("status").First(&status).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
-		logger.Errorln(err)
-		return
-	}
+	status := instance.Status
 
 	var changedStatus uint8 = 0
 	if status == 0 || status == 1 {
 		changedStatus = 2
 	}
 
-	err = database.DB.Where(&model.ProjectIssue{ID: id}).Updates(&model.ProjectIssue{
+	err = database.DB.Where(&model.ProjectIssue{ID: instance.ID}).Updates(&model.ProjectIssue{
 		AssigneeID: assigneeID,
 		Status:     changedStatus,
 	}).Error
@@ -187,21 +179,13 @@ func (s *projectIssueService) Assign(id uint64, assigneeID uint64) (success bool
 }
 
 // UpdateStatus 更新状态
-func (s *projectIssueService) UpdateStatus(id uint64, status uint8) (success bool, err error) {
-	if id == 0 {
+func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status uint8) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 	// 原有数据的状态
-	var oldStatus int
-	err = database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: id}).Select("status").First(&oldStatus).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
-		logger.Errorln(err)
-		return
-	}
+	oldStatus := instance.Status
 	// 验证状态是否允许更改
 	var canChange bool
 	switch oldStatus {
@@ -220,7 +204,7 @@ func (s *projectIssueService) UpdateStatus(id uint64, status uint8) (success boo
 	}
 
 	if canChange {
-		err = database.DB.Where(&model.ProjectIssue{ID: id}).Updates(&model.ProjectIssue{
+		err = database.DB.Where(&model.ProjectIssue{ID: instance.ID}).Updates(&model.ProjectIssue{
 			Status: status,
 		}).Error
 		if err != nil {

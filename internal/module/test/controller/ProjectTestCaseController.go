@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/test/domain"
 	"github.com/yockii/celestial/internal/module/test/model"
@@ -31,6 +32,13 @@ func (c *projectTestCaseController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " name & projectId",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectTestCaseService.Add(instance)
@@ -75,12 +83,11 @@ func (c *projectTestCaseController) BatchAdd(ctx *fiber.Ctx) error {
 		})
 	}
 
-	uid, err := helper.GetCurrentUserID(ctx)
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeUnknownError,
-			Msg:  server.ResponseMsgUnknownError + err.Error(),
-		})
+	// 判断权限
+	var uid uint64
+	var err error
+	if uid, err = helper.CheckResourceCodeInProject(ctx, list[0].ProjectID, constant.ResourceProjectTestCaseAdd); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestCaseService.BatchAdd(list, uid)
@@ -119,6 +126,25 @@ func (c *projectTestCaseController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseUpdate); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectTestCaseService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -148,6 +174,25 @@ func (c *projectTestCaseController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestCaseService.Delete(instance.ID)

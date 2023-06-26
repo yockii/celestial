@@ -3,6 +3,8 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -29,6 +31,13 @@ func (c *projectAssetController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " name",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectAssetAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectAssetService.Add(instance)
@@ -73,6 +82,25 @@ func (c *projectAssetController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectAssetService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetUpdate); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectAssetService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -102,6 +130,25 @@ func (c *projectAssetController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectAssetService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectAssetDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectAssetService.Delete(instance.ID)

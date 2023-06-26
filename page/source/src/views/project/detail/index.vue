@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router"
 import { ref, onMounted } from "vue"
 import { Project } from "@/types/project"
-import { deleteProject, getProjectDetail, updateProject } from "@/service/api"
+import { deleteProject, getProjectDetail, getProjectResourceCode, updateProject } from "@/service/api"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
 // import Dashboard from "./dashboard/index.vue"
@@ -22,7 +22,8 @@ const router = useRouter()
 const route = useRoute()
 const id = route.params.id as string
 const tab = computed(() => route.meta.title as string)
-const { project } = storeToRefs(useProjectStore())
+const projectStore = useProjectStore()
+const { project, resourceCodes, isOwner } = storeToRefs(projectStore)
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
@@ -120,6 +121,9 @@ onMounted(() => {
   getProjectDetail(id).then((res) => {
     project.value = res
   })
+  getProjectResourceCode(id).then((res) => {
+    resourceCodes.value = res
+  })
 })
 </script>
 
@@ -138,22 +142,22 @@ onMounted(() => {
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" :value="tab" type="line" justify-content="space-between" @update:value="handleChangeTab">
-              <n-tab name="项目总览" v-resource-code="'project:detail'"></n-tab>
-              <n-tab name="项目计划" v-resource-code="'project:detail:plan'"></n-tab>
-              <n-tab name="功能模块" v-resource-code="'project:detail:module'"></n-tab>
-              <n-tab name="项目需求" v-resource-code="'project:detail:requirement'"></n-tab>
-              <n-tab name="工作任务" v-resource-code="'project:detail:task'"></n-tab>
-              <n-tab name="项目测试" v-resource-code="'project:detail:test'"></n-tab>
-              <n-tab name="项目缺陷" v-resource-code="'project:detail:issue'"></n-tab>
-              <n-tab name="项目变更" v-resource-code="'project:detail:change'"></n-tab>
-              <n-tab name="项目风险" v-resource-code="'project:detail:risk'"></n-tab>
-              <n-tab name="项目资产" v-resource-code="'project:detail:asset'"></n-tab>
+              <n-tab name="项目总览" v-project-resource-code="'project:detail'"></n-tab>
+              <n-tab name="项目计划" v-project-resource-code="'project:detail:plan'"></n-tab>
+              <n-tab name="功能模块" v-project-resource-code="'project:detail:module'"></n-tab>
+              <n-tab name="项目需求" v-project-resource-code="'project:detail:requirement'"></n-tab>
+              <n-tab name="工作任务" v-project-resource-code="'project:detail:task'"></n-tab>
+              <n-tab name="项目测试" v-project-resource-code="'project:detail:test'"></n-tab>
+              <n-tab name="项目缺陷" v-project-resource-code="'project:detail:issue'"></n-tab>
+              <n-tab name="项目变更" v-project-resource-code="'project:detail:change'"></n-tab>
+              <n-tab name="项目风险" v-project-resource-code="'project:detail:risk'"></n-tab>
+              <n-tab name="项目资产" v-project-resource-code="'project:detail:asset'"></n-tab>
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
             <n-tooltip v-if="tab == '项目总览'">
               <template #trigger>
-                <n-button size="small" type="primary" v-resource-code="'project:add'" @click="showProjectSettings">
+                <n-button size="small" type="primary" v-project-resource-code="'project:add'" @click="showProjectSettings">
                   <n-icon :component="SettingsServices" />
                 </n-button>
               </template>
@@ -192,7 +196,7 @@ onMounted(() => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" @click="resetUpdateProject">重置</n-button>
-        <n-button type="primary" @click="handleCommitProject" v-resource-code="'project:update'">提交</n-button>
+        <n-button type="primary" @click="handleCommitProject" v-project-resource-code="'project:update'">提交</n-button>
       </template>
       <template #header>
         <div class="w-350px flex flex-justify-between">
@@ -201,7 +205,7 @@ onMounted(() => {
             <template #trigger>
               <n-tooltip>
                 <template #trigger>
-                  <n-button type="error" size="tiny" v-resource-code="'project:delete'">
+                  <n-button type="error" size="tiny" v-project-resource-code="'project:delete'">
                     <n-icon :component="Delete" />
                   </n-button>
                 </template>

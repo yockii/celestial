@@ -6,12 +6,10 @@ import { addProjectModule, deleteProjectModule, getProjectModuleList, moduleRevi
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import Drawer from "../requirement/drawer/index.vue"
-import { useUserStore } from "@/store/user"
 import { AiStatusComplete, AiStatusFailed, Delete, Edit } from "@vicons/carbon"
 import { PlaylistAdd } from "@vicons/tabler"
 
 const message = useMessage()
-const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(useProjectStore())
 
@@ -195,7 +193,7 @@ const columns = [
                       size: "small",
                       type: "primary",
                       secondary: true,
-                      disabled: !userStore.hasResourceCode("project:detail:module:update") || row.lv1Module.status > 1,
+                      disabled: !projectStore.hasResourceCode("project:detail:module:update") || row.lv1Module.status > 1,
                       onClick: () => handleEditData(row.lv1Module)
                     },
                     {
@@ -244,7 +242,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv2Module && row.lv2Module.status > 1),
+                          disabled: !projectStore.hasResourceCode("project:detail:module:update") || (row.lv2Module && row.lv2Module.status > 1),
                           onClick: () => (row.lv2Module ? handleEditData(row.lv2Module) : "")
                         },
                         {
@@ -294,7 +292,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv3Module && row.lv3Module.status > 1),
+                          disabled: !projectStore.hasResourceCode("project:detail:module:update") || (row.lv3Module && row.lv3Module.status > 1),
                           onClick: () => (row.lv3Module ? handleEditData(row.lv3Module) : "")
                         },
                         {
@@ -344,7 +342,7 @@ const columns = [
                           size: "small",
                           type: "primary",
                           secondary: true,
-                          disabled: !userStore.hasResourceCode("project:detail:module:update") || (row.lv4Module && row.lv4Module.status > 1),
+                          disabled: !projectStore.hasResourceCode("project:detail:module:update") || (row.lv4Module && row.lv4Module.status > 1),
                           onClick: () => (row.lv4Module ? handleEditData(row.lv4Module) : "")
                         },
                         {
@@ -393,7 +391,7 @@ const columns = [
                               {
                                 size: "small",
                                 type: "primary",
-                                disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                                disabled: !projectStore.hasResourceCode("project:detail:module:review"),
                                 onClick: () => handleReviewData(module, 2)
                               },
                               {
@@ -413,7 +411,7 @@ const columns = [
                               {
                                 size: "small",
                                 type: "error",
-                                disabled: !userStore.hasResourceCode("project:detail:module:review"),
+                                disabled: !projectStore.hasResourceCode("project:detail:module:review"),
                                 onClick: () => handleReviewData(module, -1)
                               },
                               {
@@ -456,7 +454,7 @@ const columns = [
                   NButton,
                   {
                     size: "small",
-                    disabled: !userStore.hasResourceCode("project:detail:requirement:add"),
+                    disabled: !projectStore.hasResourceCode("project:detail:requirement:add"),
                     onClick: () => handleNewRequirement(module)
                   },
                   {
@@ -486,7 +484,7 @@ const columns = [
                       NButton,
                       {
                         size: "small",
-                        disabled: !userStore.hasResourceCode("project:detail:module:delete"),
+                        disabled: !projectStore.hasResourceCode("project:detail:module:delete"),
                         type: "error"
                       },
                       {
@@ -626,7 +624,7 @@ onBeforeUpdate(() => {
 <template>
   <n-grid :cols="1" y-gap="12">
     <n-gi class="flex flex-justify-end">
-      <n-button type="primary" @click="handleNewModule" v-resource-code="'project:detail:module:add'">新增模块</n-button>
+      <n-button type="primary" @click="handleNewModule" v-project-resource-code="'project:detail:module:add'">新增模块</n-button>
     </n-gi>
     <n-gi>
       <n-data-table :columns="columns" :data="data" :single-line="false" />

@@ -1,14 +1,20 @@
 package constant
 
 const (
-	RedisKeyUserRoles        = "userRole:"
-	RedisKeyRoleResourceCode = "roleResourceCode:"
+	RedisKeyUserRoles        = "userRole"
+	RedisKeyRoleResourceCode = "roleResourceCode"
 	RedisKeyRoleDataPerm     = "roleDataPerm"
-	RedisKeyUserDataPerm     = "userDataPerm:"
 
-	RedisKeyUserDataPermitInProject = "userDataPermitInProject:"
+	RedisKeyUserRolesInProject = "userRolesInProject"
 )
 
 const (
+	JwtSecret            = "yyyooccckkiiiiiiii"
+	JwtClaimUserId       = "uid"
+	JwtClaimTenantId     = "tid"
+	JwtClaimSessionId    = "sid"
+	RedisSessionIdKey    = "sessionId"
 	JwtClaimUserDataPerm = "dataPerm"
+
+	SuperAdmin = "superAdmin"
 )

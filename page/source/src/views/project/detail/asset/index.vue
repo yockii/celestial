@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CheckmarkCircle } from "@vicons/ionicons5"
-import { useUserStore } from "@/store/user"
 import { ProjectAsset, ProjectAssetCondition } from "@/types/project"
 import dayjs from "dayjs"
 import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon, NPopconfirm, NTooltip, PaginationProps } from "naive-ui"
@@ -9,7 +8,6 @@ import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import { downloadAssetFile, getAssetFile, getProjectAssetList } from "@/service/api"
 import { Delete, Download, Edit } from "@vicons/carbon"
-const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
 
@@ -163,7 +161,7 @@ const columns = [
     key: "action",
     render: (row: ProjectAsset) => {
       const btnGroup: VNode[] = []
-      if (userStore.hasResourceCode("asset:file:download")) {
+      if (projectStore.hasResourceCode("asset:file:download")) {
         btnGroup.push(
           h(
             NTooltip,
@@ -202,7 +200,7 @@ const columns = [
           )
         )
       }
-      if (userStore.hasResourceCode("project:detail:asset:edit")) {
+      if (projectStore.hasResourceCode("project:detail:asset:edit")) {
         btnGroup.push(
           h(
             NTooltip,
@@ -216,7 +214,7 @@ const columns = [
                     size: "small",
                     secondary: true,
                     type: "primary",
-                    disabled: !userStore.hasResourceCode("project:detail:asset:edit"),
+                    disabled: !projectStore.hasResourceCode("project:detail:asset:edit"),
                     onClick: () => handleEditData(row)
                   },
                   {
@@ -227,7 +225,7 @@ const columns = [
           )
         )
       }
-      if (userStore.hasResourceCode("project:detail:asset:delete")) {
+      if (projectStore.hasResourceCode("project:detail:asset:delete")) {
         btnGroup.push(
           h(
             NPopconfirm,
@@ -247,7 +245,7 @@ const columns = [
                         NButton,
                         {
                           size: "small",
-                          disabled: !userStore.hasResourceCode("project:detail:asset:delete"),
+                          disabled: !projectStore.hasResourceCode("project:detail:asset:delete"),
                           type: "error"
                         },
                         {

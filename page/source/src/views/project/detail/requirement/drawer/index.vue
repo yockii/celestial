@@ -148,7 +148,7 @@ const rules = {
           size="small"
           type="primary"
           @click="handleCommitData"
-          v-resource-code="['project:detail:requirement:add', 'project:detail:requirement:update']"
+          v-project-resource-code="['project:detail:requirement:add', 'project:detail:requirement:update']"
           >提交</n-button
         >
       </template>

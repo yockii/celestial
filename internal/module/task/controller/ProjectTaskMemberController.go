@@ -154,7 +154,7 @@ func (c *projectTaskMemberController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	dept, err := service.ProjectTaskMemberService.Instance(condition.ID)
+	dept, err := service.ProjectTaskMemberService.Instance(condition)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

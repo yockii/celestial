@@ -21,6 +21,7 @@ type ProjectChange struct {
 	ReviewerIDList string         `json:"reviewerIdList,omitempty" gorm:"comment:评审人ID列表 以,分割"`
 	Result         string         `json:"result,omitempty" gorm:"comment:结果说明"`
 	ReviewTime     int64          `json:"reviewTime" gorm:"comment:评审时间"`
+	CreatorID      uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	CreateTime     int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime     int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime     gorm.DeletedAt `json:"deleteTime" gorm:"index"`
@@ -55,6 +56,7 @@ func (p *ProjectChange) UnmarshalJSON(b []byte) error {
 	}
 	p.Result = j.Get("result").String()
 	p.ReviewTime = j.Get("reviewTime").Int()
+	p.CreatorID = j.Get("creatorId").Uint()
 
 	return nil
 }

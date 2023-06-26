@@ -5,6 +5,8 @@ export const useProjectStore = defineStore("project", {
   state: (): {
     project: Project
     modules: ProjectModule[]
+    resourceCodes: string[]
+    isOwner: boolean
   } => ({
     project: {
       id: "",
@@ -13,7 +15,9 @@ export const useProjectStore = defineStore("project", {
       description: "",
       stageId: ""
     },
-    modules: []
+    modules: [],
+    resourceCodes: [],
+    isOwner: false
   }),
   getters: {
     moduleTree(state) {
@@ -41,7 +45,11 @@ export const useProjectStore = defineStore("project", {
       return Array.from(set)
     }
   },
-  actions: {},
+  actions: {
+    hasResourceCode(resourceCode: string) {
+      return this.isOwner || this.resourceCodes.includes(resourceCode)
+    }
+  },
   persist: {
     key: "project",
     storage: sessionStorage

@@ -20,18 +20,17 @@ import { addProjectPlan, deleteProjectPlan, getProjectPlan, getProjectPlanList, 
 import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
-import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
 
-const { project } = storeToRefs(useProjectStore())
-const userStore = useUserStore()
+const projectStore = useProjectStore()
+const { project } = storeToRefs(projectStore)
 const stageStore = useStageStore()
 const { stageListWithNone } = storeToRefs(stageStore)
 
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: () => userStore.hasResourceCode("project:detail:plan:instance"),
+  expandable: () => projectStore.hasResourceCode("project:detail:plan:instance"),
   renderExpand: (row: ProjectPlan) => {
     if (!row.planDesc || !row.target || !row.scope || !row.resource || !row.schedule) {
       getProjectPlan(row.id).then((res) => {
@@ -159,7 +158,7 @@ const operationColumn = reactive({
                 size: "small",
                 secondary: true,
                 type: "primary",
-                disabled: !userStore.hasResourceCode("project:detail:plan:update"),
+                disabled: !projectStore.hasResourceCode("project:detail:plan:update"),
                 onClick: () => handleEditData(row)
               },
               {
@@ -187,7 +186,7 @@ const operationColumn = reactive({
                     {
                       size: "small",
                       type: "error",
-                      disabled: !userStore.hasResourceCode("project:detail:plan:delete")
+                      disabled: !projectStore.hasResourceCode("project:detail:plan:delete")
                     },
                     {
                       default: () => h(NIcon, { component: Delete })
@@ -372,7 +371,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-resource-code="'project:detail:plan:add'">新建计划</n-button>
+        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:plan:add'">新建计划</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -401,7 +400,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-resource-code="['project:detail:plan:add', 'project:detail:plan:update']"
+          v-project-resource-code="['project:detail:plan:add', 'project:detail:plan:update']"
           >提交</n-button
         >
       </template>

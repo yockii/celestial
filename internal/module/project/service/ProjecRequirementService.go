@@ -58,29 +58,13 @@ func (s *projectRequirementService) Add(instance *model.ProjectRequirement) (dup
 }
 
 // Update 更新资源基本信息
-func (s *projectRequirementService) Update(instance *model.ProjectRequirement) (success bool, err error) {
+func (s *projectRequirementService) Update(instance, oldInstance *model.ProjectRequirement) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	// 对比原来的模块ID和新的模块ID是否一致，不一致则需要更新fullPath
-	var oldModuleID uint64
-	err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: instance.ID}).Select("module_id").First(&oldModuleID).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Errorln(err)
-			return
-		}
-	}
-	// 如果名称变更了，则需要更新fullPath
-	oldInstance := new(model.ProjectRequirement)
-	if err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: instance.ID}).First(&oldInstance).Error; err != nil {
-		logger.Errorln(err)
-		return
-	}
-
-	if oldModuleID != instance.ModuleID || (instance.Name != "" && instance.Name != oldInstance.Name) {
+	if oldInstance.ModuleID != instance.ModuleID || (instance.Name != "" && instance.Name != oldInstance.Name) {
 		module := &model.ProjectModule{ID: instance.ModuleID}
 		if err = database.DB.Model(module).First(&module).Error; err != nil {
 			logger.Errorln(err)
@@ -221,22 +205,14 @@ func (s *projectRequirementService) Instance(id uint64) (instance *model.Project
 	return
 }
 
-func (s *projectRequirementService) UpdateStatus(id uint64, status int) (success bool, err error) {
-	if id == 0 {
+func (s *projectRequirementService) UpdateStatus(instance *model.ProjectRequirement, status int) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
 	// 获取原始状态
-	var oldStatus int
-	err = database.DB.Model(&model.ProjectRequirement{}).Where(&model.ProjectRequirement{ID: id}).Select("status").First(&oldStatus).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Errorln(err)
-			return
-		}
-		return false, nil
-	}
+	oldStatus := instance.Status
 
 	// 如果状态相同，则不更新
 	if oldStatus == status {
@@ -268,7 +244,7 @@ func (s *projectRequirementService) UpdateStatus(id uint64, status int) (success
 
 	}
 	if canChangeStatus {
-		err = database.DB.Model(&model.ProjectRequirement{ID: id}).Update("status", status).Error
+		err = database.DB.Model(&model.ProjectRequirement{ID: instance.ID}).Update("status", status).Error
 		if err != nil {
 			logger.Errorln(err)
 			return

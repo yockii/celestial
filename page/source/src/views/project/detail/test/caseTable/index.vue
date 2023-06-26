@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useProjectStore } from "@/store/project"
-import { useUserStore } from "@/store/user"
 import { ProjectTest, ProjectTestCase, ProjectTestCaseCondition, ProjectTestCaseItem } from "@/types/project"
 import { NGrid, NButtonGroup, NPopconfirm, NButton, NIcon, NTooltip, NSpace, NText } from "naive-ui"
 import { storeToRefs } from "pinia"
@@ -11,8 +10,8 @@ import ItemDrawer from "../itemDrawer/index.vue"
 import { AiStatusComplete, AiStatusFailed } from "@vicons/carbon"
 
 const message = useMessage()
-const userStore = useUserStore()
-const { project } = storeToRefs(useProjectStore())
+const projectStore = useProjectStore()
+const { project } = storeToRefs(projectStore)
 type CombinedTestData = {
   testCase: ProjectTestCase
   item: ProjectTestCaseItem
@@ -83,7 +82,7 @@ const caseColumn = {
                       {
                         type: "primary",
                         size: "small",
-                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:add"),
+                        disabled: !projectStore.hasResourceCode("project:detail:test:testCase:item:add"),
                         onClick: () => {
                           handleNewItem(row.testCase.id)
                         }
@@ -113,7 +112,7 @@ const caseColumn = {
                         type: "primary",
                         size: "small",
                         secondary: true,
-                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:update"),
+                        disabled: !projectStore.hasResourceCode("project:detail:test:testCase:update"),
                         onClick: () => {
                           currentTestCase.value = row.testCase
                           caseDrawerActive.value = true
@@ -143,7 +142,7 @@ const caseColumn = {
                             NButton,
                             {
                               type: "error",
-                              disabled: !userStore.hasResourceCode("project:detail:test:testCase:delete"),
+                              disabled: !projectStore.hasResourceCode("project:detail:test:testCase:delete"),
                               size: "small"
                             },
                             { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }
@@ -247,7 +246,7 @@ const caseItemColumn = {
                         {
                           size: "small",
                           type: "primary",
-                          disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
+                          disabled: !projectStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
                           onClick: () => handleTestItemPass(row.item.id, true)
                         },
                         {
@@ -267,7 +266,7 @@ const caseItemColumn = {
                         {
                           size: "small",
                           type: "error",
-                          disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
+                          disabled: !projectStore.hasResourceCode("project:detail:test:testCase:item:updateStatus"),
                           onClick: () => handleTestItemPass(row.item.id, false)
                         },
                         {
@@ -299,7 +298,7 @@ const caseItemColumn = {
                         size: "small",
                         type: "primary",
                         secondary: true,
-                        disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:update"),
+                        disabled: !projectStore.hasResourceCode("project:detail:test:testCase:item:update"),
                         onClick: () => {
                           currentItem.value = row.item
                           itemDrawerActive.value = true
@@ -329,7 +328,7 @@ const caseItemColumn = {
                             NButton,
                             {
                               type: "error",
-                              disabled: !userStore.hasResourceCode("project:detail:test:testCase:item:delete"),
+                              disabled: !projectStore.hasResourceCode("project:detail:test:testCase:item:delete"),
                               size: "small"
                             },
                             { icon: () => h(NIcon, {}, { default: () => h(Trash) }) }

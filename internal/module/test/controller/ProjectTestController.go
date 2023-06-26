@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/celestial/internal/module/test/service"
@@ -31,11 +32,9 @@ func (c *projectTestController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if uid, err := helper.GetCurrentUserID(ctx); err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError + " " + err.Error(),
-		})
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestAdd); err != nil {
+		return err
 	} else {
 		instance.CreatorID = uid
 	}
@@ -76,6 +75,25 @@ func (c *projectTestController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先取出原始数据
+	oldInstance, err := service.ProjectTestService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestDelete); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectTestService.Delete(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -104,6 +122,25 @@ func (c *projectTestController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原始数据
+	oldInstance, err := service.ProjectTestService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestUpdate); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestService.Update(instance)
@@ -142,11 +179,24 @@ func (c *projectTestController) Close(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if uid, err := helper.GetCurrentUserID(ctx); err != nil {
+	// 先取出原始数据
+	oldInstance, err := service.ProjectTestService.Instance(instance.ID)
+	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError + " " + err.Error(),
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	var uid uint64
+	if uid, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestClose); err != nil {
+		return err
 	} else {
 		instance.CloserID = uid
 	}

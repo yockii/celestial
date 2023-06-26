@@ -5,7 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -35,6 +37,13 @@ func (c *projectChangeController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " projectId & title & type",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectChangeAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectChangeService.Add(instance)
@@ -94,6 +103,19 @@ func (c *projectChangeController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出旧数据
+	oldInstance, err := service.ProjectChangeService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectChangeUpdate); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectChangeService.Update(instance)
@@ -168,6 +190,19 @@ func (c *projectChangeController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出旧数据
+	oldInstance, err := service.ProjectChangeService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectChangeDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectChangeService.Delete(instance.ID)

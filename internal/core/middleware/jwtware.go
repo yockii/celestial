@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/jwt/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -11,7 +12,6 @@ import (
 	"github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/cache"
 	"github.com/yockii/ruomu-core/config"
-	"github.com/yockii/ruomu-core/shared"
 	"strconv"
 	"strings"
 )
@@ -36,7 +36,7 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 	}
 
 	return jwtware.New(jwtware.Config{
-		SigningKey:    []byte(shared.JwtSecret),
+		SigningKey:    []byte(constant.JwtSecret),
 		ContextKey:    "jwt-subject",
 		SigningMethod: "HS256",
 		TokenLookup:   "header:Authorization,cookie:token",
@@ -51,15 +51,16 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 
 			jwtToken := c.Locals("jwt-subject").(*jwt.Token)
 			claims := jwtToken.Claims.(jwt.MapClaims)
-			uid := claims[shared.JwtClaimUserId].(string)
-			sid := claims[shared.JwtClaimSessionId].(string)
-			tenantId, hasTenantId := claims[shared.JwtClaimTenantId].(string)
+			uid := claims[constant.JwtClaimUserId].(string)
+			sid := claims[constant.JwtClaimSessionId].(string)
+			tenantId, hasTenantId := claims[constant.JwtClaimTenantId].(string)
 
 			conn := cache.Get()
 			defer func(conn redis.Conn) {
 				_ = conn.Close()
 			}(conn)
-			cachedUid, err := redis.String(conn.Do("GET", shared.RedisSessionIdKey+sid))
+			sessionKey := fmt.Sprintf("%s:%s", constant.RedisSessionIdKey, sid)
+			cachedUid, err := redis.String(conn.Do("GET", sessionKey))
 			if err != nil {
 				if err != redis.ErrNil {
 					logrus.Errorln(err)
@@ -71,24 +72,24 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 			}
 
 			// 判断是否有权限 1、读取用户的权限信息 2、判断是否有权限
-			userDataPerm, _ := redis.Int(conn.Do("GET", constant.RedisKeyUserDataPerm+uid))
+			userDataPerm := 0
 			// 获取用户角色
-			roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", shared.RedisKeyUserRoles+uid))
+			userRolesKey := fmt.Sprintf("%s:%s", constant.RedisKeyUserRoles, uid)
+			roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", userRolesKey))
 			if len(roleIds) == 0 {
-				userDataPerm = 0
 				// 获取该用户的角色id存入缓存
 				userId, _ := strconv.ParseUint(uid, 10, 64)
 				if userId == 0 {
 					return c.Status(fiber.StatusUnauthorized).SendString("token信息已失效")
 				}
 				var roles []*model.Role
-				roles, err = service.UserService.Roles(userId)
+				roles, err = service.UserService.Roles(userId, model.RoleTypeNormal) // 只加载普通角色
 				if err != nil {
 					return c.Status(fiber.StatusInternalServerError).SendString("系统错误")
 				}
 				for _, role := range roles {
 					// 缓存用户的角色
-					_, _ = conn.Do("SADD", shared.RedisKeyUserRoles+uid, role.ID)
+					_, _ = conn.Do("SADD", userRolesKey, role.ID)
 					// 缓存角色的数据权限
 					_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, role.ID, role.DataPermission)
 
@@ -96,11 +97,8 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 						userDataPerm = role.DataPermission
 					}
 				}
-				// 存储用户数据权限
-				_, _ = conn.Do("SET", constant.RedisKeyUserDataPerm+uid, userDataPerm)
 			}
-			_, _ = conn.Do("EXPIRE", shared.RedisKeyUserRoles+uid, 3*24*60*60)
-			_, _ = conn.Do("EXPIRE", constant.RedisKeyUserDataPerm+uid, 3*24*60*60)
+			_, _ = conn.Do("EXPIRE", userRolesKey, 3*24*60*60)
 			_, _ = conn.Do("EXPIRE", constant.RedisKeyRoleDataPerm, 3*24*60*60)
 
 			hasAuth := false
@@ -112,14 +110,17 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 					hasAuth = true
 					break
 				} else {
-					roleIdStr := strconv.FormatUint(roleId, 10)
-					cachedCodes, _ := redis.Strings(conn.Do("GET", shared.RedisKeyRoleResourceCode+roleIdStr))
+					roleResourceKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)
+					cachedCodes, _ := redis.Strings(conn.Do("SMEMBERS", roleResourceKey))
 					if len(cachedCodes) == 0 {
 						// 缓存没有，那么就去数据库取出来放进去
 						cachedCodes, err = service.RoleService.ResourceCodes(roleId)
+						if err != nil {
+							return c.Status(fiber.StatusInternalServerError).SendString("系统错误")
+						}
 						for _, resourceCode := range cachedCodes {
 							rc := resourceCode
-							_, _ = conn.Do("SADD", shared.RedisKeyRoleResourceCode+roleIdStr, rc)
+							_, _ = conn.Do("SADD", roleResourceKey, rc)
 							if _, ok := codeMap[rc]; ok {
 								hasAuth = true
 							} else {
@@ -132,7 +133,7 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 							}
 						}
 					}
-					_, _ = conn.Do("EXPIRE", shared.RedisKeyRoleResourceCode+roleIdStr, 3*24*60*60)
+					_, _ = conn.Do("EXPIRE", roleResourceKey, 3*24*60*60)
 					if hasAuth {
 						break
 					}
@@ -161,14 +162,14 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 			}
 
 			// 有权限，那么就把用户信息放到上下文中
-			c.Locals(shared.JwtClaimUserId, uid)
+			c.Locals(constant.JwtClaimUserId, uid)
 			c.Locals(constant.JwtClaimUserDataPerm, userDataPerm)
 			// 如果有租户，则租户信息也放入
 			if hasTenantId {
-				c.Locals(shared.JwtClaimTenantId, tenantId)
+				c.Locals(constant.JwtClaimTenantId, tenantId)
 			}
 			// token续期
-			_, _ = conn.Do("EXPIRE", shared.RedisSessionIdKey+sid, config.GetInt("userTokenExpire"))
+			_, _ = conn.Do("EXPIRE", sessionKey, config.GetInt("userTokenExpire"))
 			return c.Next()
 		},
 	})

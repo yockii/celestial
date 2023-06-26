@@ -1,8 +1,10 @@
 import { App, Directive } from "vue"
 import resourceCode from "./modules/authorization"
+import projectResourceCode from "./modules/projectAuthorization"
 
 const directivesList: { [name: string]: Directive } = {
-  resourceCode
+  resourceCode,
+  projectResourceCode
 }
 
 const directives = {

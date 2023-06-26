@@ -21,10 +21,12 @@ import { ArrowsSplit } from "@vicons/tabler"
 import { Delete, Edit, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
+import { useProjectStore } from "@/store/project"
 import { BoxCheckmark20Regular, Checkmark20Regular, Play20Regular } from "@vicons/fluent"
 import dayjs from "dayjs"
 import WorkTimeDrawer from "../workTimeDrawer/index.vue"
 const userStore = useUserStore()
+const projectStore = useProjectStore()
 
 const props = defineProps<{
   condition: ProjectTaskCondition
@@ -79,7 +81,7 @@ const refresh = () => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: () => userStore.hasResourceCode("project:detail:task:instance"),
+  expandable: () => projectStore.hasResourceCode("project:detail:task:instance"),
   renderExpand: (row: ProjectTask) => {
     if (!row.taskDesc) {
       getProjectTask(row.id).then((res) => {
@@ -430,7 +432,7 @@ const actionColumn = reactive({
         )
       )
     }
-    if (userStore.hasResourceCode("project:detail:task:add")) {
+    if (projectStore.hasResourceCode("project:detail:task:add")) {
       bg.push(
         h(
           NTooltip,
@@ -452,7 +454,7 @@ const actionColumn = reactive({
         )
       )
     }
-    if (userStore.hasResourceCode("project:detail:task:edit")) {
+    if (projectStore.hasResourceCode("project:detail:task:edit")) {
       bg.push(
         h(
           NTooltip,
@@ -476,7 +478,7 @@ const actionColumn = reactive({
         )
       )
     }
-    if (userStore.hasResourceCode("project:detail:task:delete")) {
+    if (projectStore.hasResourceCode("project:detail:task:delete")) {
       bg.push(
         h(
           NPopconfirm,

@@ -73,18 +73,13 @@ func (s *projectModuleService) Add(instance *model.ProjectModule) (duplicated bo
 }
 
 // Update 更新资源基本信息
-func (s *projectModuleService) Update(instance *model.ProjectModule) (success bool, err error) {
+func (s *projectModuleService) Update(instance, oldInstance *model.ProjectModule) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
 	// 检查parentId与原来的是否一致
-	oldInstance := new(model.ProjectModule)
-	if err = database.DB.Model(&model.ProjectModule{ID: instance.ID}).First(&oldInstance).Error; err != nil {
-		logger.Errorln(err)
-		return
-	}
 	if oldInstance.ParentID != instance.ParentID || (instance.Name != "" && oldInstance.Name != instance.Name) {
 		// 不一致则需要更新父级的子数量以及更新自己的路径
 		var parent *model.ProjectModule
@@ -169,26 +164,21 @@ func (s *projectModuleService) Update(instance *model.ProjectModule) (success bo
 }
 
 // Delete 删除资源
-func (s *projectModuleService) Delete(id uint64) (success bool, err error) {
-	if id == 0 {
+func (s *projectModuleService) Delete(instance *model.ProjectModule) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
 	// 事务处理，如果有更新父级的子数量
 	if err = database.DB.Transaction(func(tx *gorm.DB) error {
-		var parentID uint64
-		if err = tx.Model(&model.ProjectModule{ID: id}).Select("parent_id").First(&parentID).Error; err != nil {
-			logger.Errorln(err)
-			return err
-		}
 		// 删除
-		if err = tx.Delete(&model.ProjectModule{ID: id}).Error; err != nil {
+		if err = tx.Delete(&model.ProjectModule{ID: instance.ID}).Error; err != nil {
 			logger.Errorln(err)
 			return err
 		}
-		if parentID != 0 {
-			if err = tx.Model(&model.ProjectModule{ID: parentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+		if instance.ParentID != 0 {
+			if err = tx.Model(&model.ProjectModule{ID: instance.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
 				logger.Errorln(err)
 				return err
 			}
@@ -264,20 +254,13 @@ func (s *projectModuleService) Instance(id uint64) (instance *model.ProjectModul
 	return
 }
 
-func (s *projectModuleService) UpdateStatus(id uint64, status int) (success bool, err error) {
-	if id == 0 {
+func (s *projectModuleService) UpdateStatus(instance *model.ProjectModule, status int) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 	// 获取原始状态
-	var oldStatus int
-	if err = database.DB.Model(&model.ProjectModule{ID: id}).Select("status").First(&oldStatus).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Errorln(err)
-			return
-		}
-		return false, nil
-	}
+	oldStatus := instance.Status
 	if oldStatus == status {
 		return true, nil
 	}
@@ -298,7 +281,7 @@ func (s *projectModuleService) UpdateStatus(id uint64, status int) (success bool
 	}
 
 	if canChangeStatus {
-		err = database.DB.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: id}).Update("status", status).Error
+		err = database.DB.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: instance.ID}).Update("status", status).Error
 		if err != nil {
 			logger.Errorln(err)
 			return

@@ -3,6 +3,8 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -30,6 +32,10 @@ func (c *projectMemberController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " projectId/userId/roleId",
 		})
+	}
+
+	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
+		return err
 	}
 
 	duplicated, success, err := service.ProjectMemberService.Add(instance)
@@ -66,12 +72,17 @@ func (c *projectMemberController) BatchAdd(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
-	if len(instance.RoleIdList) == 0 || len(instance.UserIdList) == 0 {
+	if instance.ProjectID == 0 || len(instance.RoleIdList) == 0 || len(instance.UserIdList) == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " roleIdList/userIdList",
+			Msg:  server.ResponseMsgParamNotEnough + " project id/roleIdList/userIdList",
 		})
 	}
+
+	if _, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectMemberAdd); err != nil {
+		return err
+	}
+
 	// service处理
 	err := service.ProjectMemberService.BatchAdd(instance.ProjectID, instance.RoleIdList, instance.UserIdList)
 	if err != nil {
@@ -101,6 +112,24 @@ func (c *projectMemberController) Update(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出来，判断是否有权限
+	projectMember, err := service.ProjectMemberService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if projectMember == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	if _, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberUpdate); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectMemberService.Update(instance)
@@ -134,7 +163,26 @@ func (c *projectMemberController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectMemberService.Delete(instance.ID)
+	// 先取出来，判断是否有权限
+	projectMember, err := service.ProjectMemberService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if projectMember == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	if _, err = helper.CheckResourceCodeInProject(ctx, projectMember.ProjectID, constant.ResourceProjectMemberDelete); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectMemberService.Delete(projectMember.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

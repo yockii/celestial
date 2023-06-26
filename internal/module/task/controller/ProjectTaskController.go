@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/task/domain"
@@ -37,16 +38,12 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// 获取当前用户id作为ownerId和creatorId
-	if currentUserId, err := helper.GetCurrentUserID(ctx); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " user info",
-		})
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTaskAdd); err != nil {
+		return err
 	} else {
-		instance.OwnerID = currentUserId
-		instance.CreatorID = currentUserId
+		instance.OwnerID = uid
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectTaskService.Add(&instance.ProjectTask, instance.Members)
@@ -129,7 +126,26 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTaskService.Update(&instance.ProjectTask, instance.Members)
+	// 先取出原始数据
+	oldInstance, err := service.ProjectTaskService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskUpdate); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectTaskService.Update(&instance.ProjectTask, oldInstance, instance.Members)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -164,7 +180,26 @@ func (c *projectTaskController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.ProjectTaskService.Delete(instance.ID)
+	// 先取出原始数据
+	oldInstance, err := service.ProjectTaskService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTaskDelete); err != nil {
+		return err
+	}
+
+	success, err := service.ProjectTaskService.Delete(oldInstance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -399,16 +434,60 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 			})
 		}
 
-		userID, err := helper.GetCurrentUserID(ctx)
+		// 先取出原始数据
+		oldTask, err := service.ProjectTaskService.Instance(condition.ID)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		if oldTask == nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeModuleNotExists,
+				Msg:  server.ResponseMsgDataNotExists + " task",
+			})
+		}
+		var userID uint64
+		userID, err = helper.GetCurrentUserID(ctx)
 		if err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeParamNotEnough,
 				Msg:  server.ResponseMsgParamNotEnough + " userID In Session",
 			})
 		}
+		oldTaskMember, err := service.ProjectTaskMemberService.Instance(&model.ProjectTaskMember{
+			TaskID: condition.ID,
+			UserID: userID,
+		})
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		if oldTaskMember == nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeModuleNotExists,
+				Msg:  server.ResponseMsgDataNotExists + " task member",
+			})
+		}
+		// 判断权限
+		code := constant.ResourceProjectTaskConfirm
+		switch status {
+		case model.ProjectTaskStatusConfirmed:
+			code = constant.ResourceProjectTaskConfirm
+		case model.ProjectTaskStatusDoing:
+			code = constant.ResourceProjectTaskStart
+		case model.ProjectTaskStatusDone:
+			code = constant.ResourceProjectTaskDone
+		}
+		if _, err = helper.CheckResourceCodeInProject(ctx, condition.ProjectID, code); err != nil {
+			return err
+		}
 
 		var success bool
-		if success, err = service.ProjectTaskMemberService.UpdateStatus(condition.ID, userID, status, condition.EstimateDuration, condition.ActualDuration); err != nil {
+		if success, err = service.ProjectTaskMemberService.UpdateStatus(oldTask, oldTaskMember, status, condition.EstimateDuration, condition.ActualDuration); err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
 				Msg:  server.ResponseMsgDatabase + err.Error(),
@@ -438,7 +517,33 @@ func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 			})
 		}
 
-		if success, err := service.ProjectTaskService.UpdateStatus(condition.ID, status); err != nil {
+		// 先取出原始数据
+		oldTask, err := service.ProjectTaskService.Instance(condition.ID)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		if oldTask == nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeModuleNotExists,
+				Msg:  server.ResponseMsgDataNotExists + " task",
+			})
+		}
+		// 判断权限
+		code := constant.ResourceProjectTaskCancel
+		switch status {
+		case model.ProjectTaskStatusCancel:
+			code = constant.ResourceProjectTaskCancel
+		case model.ProjectTaskStatusNotStart:
+			code = constant.ResourceProjectTaskRestart
+		}
+		if _, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {
+			return err
+		}
+
+		if success, err := service.ProjectTaskService.UpdateStatus(oldTask, status); err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
 				Msg:  server.ResponseMsgDatabase + err.Error(),

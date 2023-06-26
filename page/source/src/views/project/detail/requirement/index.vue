@@ -15,12 +15,10 @@ import { storeToRefs } from "pinia"
 import { ArrowsSplit, Refresh } from "@vicons/tabler"
 import Drawer from "./drawer/index.vue"
 import TaskDrawer from "../task/drawer/index.vue"
-import { useUserStore } from "@/store/user"
 import { AiStatusComplete, AiStatusFailed, BrushFreehand, Delete, Edit } from "@vicons/carbon"
 import { CodeOutlined } from "@vicons/antd"
 
 const message = useMessage()
-const userStore = useUserStore()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(useProjectStore())
 
@@ -108,7 +106,7 @@ const handleCompleted = (row: ProjectRequirement) => {
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: () => userStore.hasResourceCode("project:detail:requirement:instance"),
+  expandable: () => projectStore.hasResourceCode("project:detail:requirement:instance"),
   renderExpand: (row: ProjectRequirement) => {
     if (!row.detail) {
       getProjectRequirement(row.id).then((res) => {
@@ -191,7 +189,7 @@ const statusColumn = reactive({
           {
             default: () => [
               h("span", {}, { default: () => "待设计" }),
-              userStore.hasResourceCode("project:detail:requirement:statusDesign")
+              projectStore.hasResourceCode("project:detail:requirement:statusDesign")
                 ? h(
                     NTooltip,
                     {},
@@ -221,7 +219,7 @@ const statusColumn = reactive({
           {
             default: () => [
               h("span", {}, { default: () => "待评审" }),
-              userStore.hasResourceCode("project:detail:requirement:statusReview")
+              projectStore.hasResourceCode("project:detail:requirement:statusReview")
                 ? h(
                     NButtonGroup,
                     {},
@@ -276,7 +274,7 @@ const statusColumn = reactive({
           {
             default: () => [
               h("span", {}, { default: () => "评审通过" }),
-              userStore.hasResourceCode("project:detail:requirement:statusComplete")
+              projectStore.hasResourceCode("project:detail:requirement:statusComplete")
                 ? h(
                     NTooltip,
                     {},
@@ -309,7 +307,7 @@ const statusColumn = reactive({
           {
             default: () => [
               h("span", {}, { default: () => "评审未通过" }),
-              userStore.hasResourceCode("project:detail:requirement:statusDesign")
+              projectStore.hasResourceCode("project:detail:requirement:statusDesign")
                 ? h(
                     NTooltip,
                     {},
@@ -425,7 +423,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
-                  disabled: !userStore.hasResourceCode("project:detail:task:add"),
+                  disabled: !projectStore.hasResourceCode("project:detail:task:add"),
                   onClick: () => {
                     handleAddProjectTask(row)
                   }
@@ -448,7 +446,7 @@ const columns = [
                   size: "small",
                   secondary: true,
                   type: "primary",
-                  disabled: !(userStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)),
+                  disabled: !(projectStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)),
                   onClick: () => handleEditData(row)
                 },
                 {
@@ -475,7 +473,7 @@ const columns = [
                       NButton,
                       {
                         size: "small",
-                        disabled: !userStore.hasResourceCode("project:detail:requirement:delete"),
+                        disabled: !projectStore.hasResourceCode("project:detail:requirement:delete"),
                         type: "error"
                       },
                       {
@@ -621,7 +619,7 @@ onBeforeUpdate(() => {
             </template>
           </n-button>
         </n-gi>
-        <n-gi v-resource-code="'project:detail:module'">
+        <n-gi v-project-resource-code="'project:detail:module'">
           <n-tree :data="moduleTree" key-field="id" label-field="name" children-field="children" :on-update:selected-keys="treeSelected" selectable />
         </n-gi>
       </n-grid>
@@ -631,7 +629,7 @@ onBeforeUpdate(() => {
         <n-gi>
           <n-space justify="space-between">
             <span></span>
-            <n-button type="primary" @click="handleAddProjectRequirement" v-resource-code="'project:detail:requirement:add'">新增需求</n-button>
+            <n-button type="primary" @click="handleAddProjectRequirement" v-project-resource-code="'project:detail:requirement:add'">新增需求</n-button>
           </n-space>
         </n-gi>
         <n-gi>

@@ -3,6 +3,8 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
+	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/module/test/domain"
 	"github.com/yockii/celestial/internal/module/test/model"
 	"github.com/yockii/celestial/internal/module/test/service"
@@ -29,6 +31,13 @@ func (c *projectTestCaseItemStepController) Add(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " caseId & orderNum",
 		})
+	}
+
+	// 判断权限
+	if uid, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseItemStepAdd); err != nil {
+		return err
+	} else {
+		instance.CreatorID = uid
 	}
 
 	duplicated, success, err := service.ProjectTestCaseItemStepService.Add(instance)
@@ -73,6 +82,25 @@ func (c *projectTestCaseItemStepController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseItemStepService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemStepUpdate); err != nil {
+		return err
+	}
+
 	success, err := service.ProjectTestCaseItemStepService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -102,6 +130,25 @@ func (c *projectTestCaseItemStepController) Delete(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
+	}
+
+	// 先取出原来的数据
+	oldInstance, err := service.ProjectTestCaseItemStepService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 判断权限
+	if _, err = helper.CheckResourceCodeInProject(ctx, oldInstance.ProjectID, constant.ResourceProjectTestCaseItemStepDelete); err != nil {
+		return err
 	}
 
 	success, err := service.ProjectTestCaseItemStepService.Delete(instance.ID)

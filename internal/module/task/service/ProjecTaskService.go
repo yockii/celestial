@@ -94,18 +94,13 @@ func (s *projectTaskService) Add(instance *model.ProjectTask, members []*domain.
 }
 
 // Update 更新资源基本信息
-func (s *projectTaskService) Update(instance *model.ProjectTask, members []*domain.ProjectTaskMemberWithRealName) (success bool, err error) {
+func (s *projectTaskService) Update(instance, oldInstance *model.ProjectTask, members []*domain.ProjectTaskMemberWithRealName) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
 	// 判断父级任务是否发生变更，如果变更，更新full path，后面事务中还要更新各自父级数量
-	var oldInstance model.ProjectTask
-	if err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ID}).First(&oldInstance).Error; err != nil {
-		logger.Errorln(err)
-		return
-	}
 	fullPathChanged := false
 	parentChanged := false
 	if instance.ParentID != 0 {
@@ -309,27 +304,22 @@ func (s *projectTaskService) Update(instance *model.ProjectTask, members []*doma
 }
 
 // Delete 删除资源
-func (s *projectTaskService) Delete(id uint64) (success bool, err error) {
-	if id == 0 {
+func (s *projectTaskService) Delete(instance *model.ProjectTask) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
 		// 删除，如果有父级，需要更新父级的子任务数量
-		task := new(model.ProjectTask)
-		if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).First(&task).Error; err != nil {
-			logger.Errorln(err)
-			return err
-		}
-		if task.ParentID != 0 {
-			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: task.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
+		if instance.ParentID != 0 {
+			if err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: instance.ParentID}).Update("children_count", gorm.Expr("children_count - ?", 1)).Error; err != nil {
 				logger.Errorln(err)
 				return err
 			}
 		}
 
-		err = database.DB.Where(&model.ProjectTask{ID: id}).Delete(&model.ProjectTask{}).Error
+		err = database.DB.Where(&model.ProjectTask{ID: instance.ID}).Delete(&model.ProjectTask{}).Error
 		if err != nil {
 			logger.Errorln(err)
 			return err
@@ -445,21 +435,13 @@ func (s *projectTaskService) TaskDurationByProject(projectID uint64, tcList map[
 }
 
 // UpdateStatus 更新状态
-func (s *projectTaskService) UpdateStatus(id uint64, status int) (success bool, err error) {
-	if id == 0 {
+func (s *projectTaskService) UpdateStatus(task *model.ProjectTask, status int) (success bool, err error) {
+	if task == nil || task.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 	// 检查旧状态
-	var oldStatus int
-	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).Select("status").First(&oldStatus).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logger.Errorln(err)
-			return
-		}
-		return false, nil
-	}
+	oldStatus := task.Status
 	if oldStatus == status {
 		return true, nil
 	}
@@ -483,7 +465,7 @@ func (s *projectTaskService) UpdateStatus(id uint64, status int) (success bool, 
 		return false, nil
 	}
 
-	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: id}).Update("status", status).Error
+	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: task.ID}).Update("status", status).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

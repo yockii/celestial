@@ -17,17 +17,16 @@ import {
 import { addProjectChange, deleteProjectChange, getProjectChange, getProjectChangeList, updateProjectChange } from "@/service/api"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
-import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
 
 const message = useMessage()
-const { project } = storeToRefs(useProjectStore())
-const userStore = useUserStore()
+const projectStore = useProjectStore()
+const { project } = storeToRefs(projectStore)
 
 const expandColumn = reactive({
   key: "expand",
   type: "expand",
-  expandable: () => userStore.hasResourceCode("project:detail:plan:instance"),
+  expandable: () => projectStore.hasResourceCode("project:detail:plan:instance"),
   renderExpand: (row: ProjectChange) => {
     if (!row.reason || !row.plan || !row.review || !row.risk || !row.result) {
       getProjectChange(row.id).then((res) => {
@@ -129,7 +128,7 @@ const operationColumn = reactive({
                 size: "small",
                 secondary: true,
                 type: "primary",
-                disabled: !userStore.hasResourceCode("project:detail:change:update"),
+                disabled: !projectStore.hasResourceCode("project:detail:change:update"),
                 onClick: () => handleEditData(row)
               },
               {
@@ -157,7 +156,7 @@ const operationColumn = reactive({
                     {
                       size: "small",
                       type: "error",
-                      disabled: !userStore.hasResourceCode("project:detail:change:delete")
+                      disabled: !projectStore.hasResourceCode("project:detail:change:delete")
                     },
                     {
                       default: () => h(NIcon, { component: Delete })
@@ -368,7 +367,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-resource-code="'project:detail:change:add'">新建变更</n-button>
+        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:change:add'">新建变更</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -397,7 +396,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-resource-code="['project:detail:change:add', 'project:detail:change:update']"
+          v-project-resource-code="['project:detail:change:add', 'project:detail:change:update']"
           >提交</n-button
         >
       </template>
