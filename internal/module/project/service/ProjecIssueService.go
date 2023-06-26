@@ -204,9 +204,24 @@ func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status 
 	}
 
 	if canChange {
-		err = database.DB.Where(&model.ProjectIssue{ID: instance.ID}).Updates(&model.ProjectIssue{
-			Status: status,
-		}).Error
+		tx := database.DB.Where(&model.ProjectIssue{ID: instance.ID})
+		if status == model.ProjectIssueStatusResolved {
+			err = tx.Updates(&model.ProjectIssue{
+				Status: status,
+				// 解决完成时间
+				EndTime: time.Now().UnixMilli(),
+			}).Error
+		} else if status == model.ProjectIssueStatusProcessing {
+			err = tx.Updates(&model.ProjectIssue{
+				Status: status,
+				// 开始解决时间
+				StartTime: time.Now().UnixMilli(),
+			}).Error
+		} else {
+			err = tx.Updates(&model.ProjectIssue{
+				Status: status,
+			}).Error
+		}
 		if err != nil {
 			logger.Errorln(err)
 			return
