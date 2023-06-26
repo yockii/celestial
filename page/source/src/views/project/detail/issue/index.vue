@@ -16,12 +16,24 @@ import {
   NTooltip,
   PaginationProps
 } from "naive-ui"
-import { addProjectIssue, assignProjectIssue, deleteProjectIssue, getProjectIssue, getProjectIssueList, updateProjectIssue } from "@/service/api"
+import {
+  addProjectIssue,
+  assignProjectIssue,
+  closeProjectIssue,
+  deleteProjectIssue,
+  finishProjectIssue,
+  getProjectIssue,
+  getProjectIssueList,
+  startProjectIssue,
+  updateProjectIssue,
+  verifyProjectIssue
+} from "@/service/api"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
-import { AssignmentIndOutlined } from "@vicons/material"
+import { AssignmentIndOutlined, CheckCircleFilled, PlayCircleFilled } from "@vicons/material"
+import { CloseCircleFilled } from "@vicons/antd"
 
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -149,6 +161,8 @@ const operationColumn = reactive({
   render: (row: ProjectIssue) => {
     const btnGroup: VNode[] = []
     if (
+      row.status !== 9 &&
+      row.status !== 5 &&
       projectStore.hasResourceCode("project:detail:issue:assign") &&
       ((row.status === 1 && row.creatorId === userStore.user.id) || row.assigneeId === userStore.user.id)
     ) {
@@ -197,7 +211,128 @@ const operationColumn = reactive({
         )
       )
     }
-    if (projectStore.hasResourceCode("project:detail:issue:update")) {
+
+    // 如果是已指派 状态，且当前用户是处理人, 则可以点击开始解决
+    if (projectStore.hasResourceCode("project:detail:issue:start") && row.status === 2 && row.assigneeId === userStore.user.id) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "开始解决",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !projectStore.hasResourceCode("project:detail:issue:start"),
+                  onClick: () => handleStartData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: PlayCircleFilled })
+                }
+              )
+          }
+        )
+      )
+    }
+
+    // 若是解决中的状态，且当前用户是处理人，则可以点击完成，并更新原因和解决方案
+    if (projectStore.hasResourceCode("project:detail:issue:done") && row.status === 3 && row.assigneeId === userStore.user.id) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "处理完成",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !projectStore.hasResourceCode("project:detail:issue:finish"),
+                  onClick: () => handleFinishData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: CheckCircleFilled })
+                }
+              )
+          }
+        )
+      )
+    }
+
+    // 待验证状态，且当前用户是处理人，则可以点击验证
+    if (projectStore.hasResourceCode("project:detail:issue:verify") && row.status === 4 && row.assigneeId === userStore.user.id) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "缺陷验证",
+            trigger: () =>
+              h(
+                NPopconfirm,
+                {
+                  positiveText: "验证通过",
+                  negativeText: "验证不通过",
+                  onPositiveClick: () => handleVerifyData(row, 5),
+                  onNegativeClick: () => handleVerifyData(row, 2)
+                },
+                {
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        secondary: true,
+                        type: "primary",
+                        disabled: !projectStore.hasResourceCode("project:detail:issue:verify")
+                      },
+                      {
+                        default: () => h(NIcon, { component: CheckCircleFilled })
+                      }
+                    ),
+                  default: () => "缺陷验证结果"
+                }
+              )
+          }
+        )
+      )
+    }
+
+    // 如果是已解决状态，且当前用户是处理人，则可以点击关闭
+    if (projectStore.hasResourceCode("project:detail:issue:close") && row.status === 5 && row.assigneeId === userStore.user.id) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "关闭缺陷",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !projectStore.hasResourceCode("project:detail:issue:close"),
+                  onClick: () => handleCloseData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: CloseCircleFilled })
+                }
+              )
+          }
+        )
+      )
+    }
+
+    if (projectStore.hasResourceCode("project:detail:issue:update") && row.status !== 9) {
       btnGroup.push(
         h(
           NTooltip,
@@ -361,7 +496,39 @@ const handleEditData = (row: ProjectIssue) => {
 const handleDeleteData = (id: string) => {
   deleteProjectIssue(id).then((res) => {
     if (res) {
-      useMessage().success("删除成功")
+      message.success("删除成功")
+      refresh()
+    }
+  })
+}
+const handleStartData = (row: ProjectIssue) => {
+  startProjectIssue(row.id).then((res) => {
+    if (res) {
+      message.success("启动成功")
+      refresh()
+    }
+  })
+}
+const handleFinishData = (row: ProjectIssue) => {
+  finishProjectIssue(row.id).then((res) => {
+    if (res) {
+      message.success("处理成功")
+      refresh()
+    }
+  })
+}
+const handleVerifyData = (row: ProjectIssue, status: number) => {
+  verifyProjectIssue(row.id, status).then((res) => {
+    if (res) {
+      message.success("验证成功")
+      refresh()
+    }
+  })
+}
+const handleCloseData = (row: ProjectIssue) => {
+  closeProjectIssue(row.id).then((res) => {
+    if (res) {
+      message.success("关闭成功")
       refresh()
     }
   })

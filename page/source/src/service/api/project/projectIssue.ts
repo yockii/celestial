@@ -59,3 +59,45 @@ export function assignProjectIssue(id: string, userId: string) {
     assigneeId: userId
   })
 }
+
+/**
+ * 开始处理项目缺陷
+ * @param id - 项目缺陷id
+ */
+export function startProjectIssue(id: string) {
+  return request.put<boolean>("/projectIssue/start", {
+    id
+  })
+}
+
+/**
+ * 完成项目缺陷
+ * @param id - 项目缺陷id
+ */
+export function finishProjectIssue(id: string) {
+  return request.put<boolean>("/projectIssue/done", {
+    id
+  })
+}
+
+/**
+ * 验证项目缺陷
+ * @param id - 项目缺陷id
+ * @param status - 验证结果
+ */
+export function verifyProjectIssue(id: string, status: number) {
+  return request.put<boolean>("/projectIssue/verify", {
+    id,
+    status
+  })
+}
+
+/**
+ * 关闭缺陷
+ * @param id - 项目缺陷id
+ */
+export function closeProjectIssue(id: string) {
+  return request.put<boolean>("/projectIssue/close", {
+    id
+  })
+}
