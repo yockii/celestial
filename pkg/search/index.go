@@ -98,7 +98,7 @@ func Search(keyword string, limit, offset int64) (total int64, result []*Documen
 		logger.Errorln(err)
 		return
 	}
-	total = searchResp.TotalHits
+	total = searchResp.EstimatedTotalHits
 	for _, hit := range searchResp.Hits {
 		var bs []byte
 		bs, err = json.Marshal(hit)
