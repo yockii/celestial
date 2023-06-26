@@ -122,7 +122,7 @@ onMounted(() => {
     project.value = res
   })
   getProjectResourceCode(id).then((res) => {
-    resourceCodes.value = res
+    resourceCodes.value = res || []
   })
 })
 </script>
