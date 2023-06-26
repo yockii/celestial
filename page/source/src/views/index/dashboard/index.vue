@@ -15,6 +15,11 @@
         </template>
       </n-input>
     </n-gi>
+    <n-gi v-show="total > 0">
+      <n-text type="secondary">
+        全站纳入结果共计约有 <strong>{{ total }}</strong> 条
+      </n-text>
+    </n-gi>
     <n-gi v-if="luceneDocumentList.length > 0">
       <n-list clickable hoverable>
         <template v-if="total > luceneDocumentList.length" #footer>
@@ -26,7 +31,7 @@
           <n-thing :title="ld.title">
             <p class="ws-pre-line">{{ ld.content }}</p>
             <template #footer>
-              <n-space>
+              <n-space justify="end">
                 <span>创建时间：{{ dayjs(ld.createTime).fromNow() }}</span>
                 <span>更新时间：{{ dayjs(ld.updateTime).fromNow() }}</span>
               </n-space>

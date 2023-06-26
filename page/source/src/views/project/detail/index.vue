@@ -23,7 +23,7 @@ const route = useRoute()
 const id = route.params.id as string
 const tab = computed(() => route.meta.title as string)
 const projectStore = useProjectStore()
-const { project, resourceCodes } = storeToRefs(projectStore)
+const { project, modules, resourceCodes } = storeToRefs(projectStore)
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
@@ -118,6 +118,9 @@ const handleChangeTab = (value: string | number) => {
 }
 
 onMounted(() => {
+  project.value = { id: "", name: "", code: "", description: "", stageId: "" }
+  modules.value = []
+
   getProjectDetail(id).then((res) => {
     project.value = res
   })
