@@ -22,6 +22,7 @@ import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { Delete, Edit } from "@vicons/carbon"
 
+const message = useMessage()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
 const stageStore = useStageStore()
@@ -320,13 +321,12 @@ const handleEditData = (row: ProjectPlan) => {
 const handleDeleteData = (id: string) => {
   deleteProjectPlan(id).then((res) => {
     if (res) {
-      useMessage().success("删除成功")
+      message.success("删除成功")
       refresh()
     }
   })
 }
 const formRef = ref<FormInst>()
-const message = useMessage()
 const submit = (e: MouseEvent) => {
   e.preventDefault()
   formRef.value?.validate((errors) => {
