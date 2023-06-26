@@ -9,7 +9,6 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    copy: typeof import('./src/components/DatePickerInTable copy.vue')['default']
     DatePickerInTable: typeof import('./src/components/DatePickerInTable.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
@@ -69,7 +68,6 @@ declare module '@vue/runtime-core' {
     NWatermark: typeof import('naive-ui')['NWatermark']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ShowOrEditInTable: typeof import('./src/components/ShowOrEditInTable.vue')['default']
     StatusInTable: typeof import('./src/components/StatusInTable.vue')['default']
     SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     UserDropdown: typeof import('./src/components/user/UserDropdown.vue')['default']

@@ -371,7 +371,7 @@ const planRules = {
   ],
   endTime: [
     {
-      validator: (rule: FormItemRule, value: number): boolean => !(value && value < instance.value.startTime),
+      validator: (rule: FormItemRule, value: number): boolean => !(value && instance.value.startTime && value < instance.value.startTime),
       message: "结束时间不能小于开始时间",
       trigger: "blur"
     }
