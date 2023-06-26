@@ -9,11 +9,14 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    copy: typeof import('./src/components/DatePickerInTable copy.vue')['default']
+    DatePickerInTable: typeof import('./src/components/DatePickerInTable.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NAvatarGroup: typeof import('naive-ui')['NAvatarGroup']
     NButton: typeof import('naive-ui')['NButton']
+    NButtonGroup: typeof import('naive-ui')['NButtonGroup']
     NCard: typeof import('naive-ui')['NCard']
     NCascader: typeof import('naive-ui')['NCascader']
     NColorPicker: typeof import('naive-ui')['NColorPicker']
@@ -66,6 +69,8 @@ declare module '@vue/runtime-core' {
     NWatermark: typeof import('naive-ui')['NWatermark']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ShowOrEditInTable: typeof import('./src/components/ShowOrEditInTable.vue')['default']
+    StatusInTable: typeof import('./src/components/StatusInTable.vue')['default']
     SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     UserDropdown: typeof import('./src/components/user/UserDropdown.vue')['default']
     UserSelectDrawerContent: typeof import('./src/components/user/UserSelectDrawerContent.vue')['default']

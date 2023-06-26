@@ -30,18 +30,18 @@ export type ProjectStageStatistics = {
 
 export type ProjectPlan = {
   id: string
-  projectId: string
+  projectId?: string
   stageId?: string
-  planName: string
+  planName?: string
   planDesc?: string
-  startTime: number
-  endTime: number
+  startTime?: number
+  endTime?: number
   target?: string
   scope?: string
   schedule?: string
   resource?: string
   budget?: number
-  status: number
+  status?: number
   actualStartTime?: number
   actualEndTime?: number
   createTime?: number

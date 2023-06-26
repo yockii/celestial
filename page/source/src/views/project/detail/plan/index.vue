@@ -21,6 +21,8 @@ import { useStageStore } from "@/store/stage"
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { Delete, Edit } from "@vicons/carbon"
+import DatePickerInTable from "@/components/DatePickerInTable.vue"
+import StatusInTable from "@/components/StatusInTable.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
@@ -80,7 +82,24 @@ const actualStartTimeColumn = reactive({
   title: "实际开始时间",
   key: "actualStartTime",
   // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-  render: (row: ProjectPlan) => (row.actualStartTime === 0 ? "无" : dayjs(row.actualStartTime).format("YYYY-MM-DD")),
+  render: (row: ProjectPlan) => {
+    return h(DatePickerInTable, {
+      data: row.actualStartTime,
+      "onUpdate:data": (val: number) => {
+        updateProjectPlan({
+          id: row.id,
+          actualStartTime: val
+        }).then((res) => {
+          if (res) {
+            message.success("更新成功")
+            row.actualStartTime = val
+          }
+        })
+      }
+    })
+
+    // (row.actualStartTime === 0 ? "无" : dayjs(row.actualStartTime).format("YYYY-MM-DD"))
+  },
   // 排序
   sorter: true,
   sortOrder: false
@@ -89,7 +108,22 @@ const actualEndTimeColumn = reactive({
   title: "实际结束时间",
   key: "actualEndTime",
   // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-  render: (row: ProjectPlan) => (row.actualEndTime === 0 ? "无" : dayjs(row.actualEndTime).format("YYYY-MM-DD")),
+  render: (row: ProjectPlan) => {
+    return h(DatePickerInTable, {
+      data: row.actualEndTime,
+      "onUpdate:data": (val: number) => {
+        updateProjectPlan({
+          id: row.id,
+          actualEndTime: val
+        }).then((res) => {
+          if (res) {
+            message.success("更新成功")
+            row.actualEndTime = val
+          }
+        })
+      }
+    })
+  },
   // 排序
   sorter: true,
   sortOrder: false
@@ -98,17 +132,50 @@ const statusColumn = reactive({
   title: "状态",
   key: "status",
   render: (row: ProjectPlan) => {
-    switch (row.status) {
-      case -1:
-        return "废弃"
-      case 1:
-        return "未开始"
-      case 2:
-        return "进行中"
-      case 3:
-        return "完成"
-    }
-    return "未知"
+    return h(StatusInTable, {
+      data: row.status,
+      options: [
+        {
+          label: "废弃",
+          value: -1
+        },
+        {
+          label: "未开始",
+          value: 1
+        },
+        {
+          label: "执行中",
+          value: 2
+        },
+        {
+          label: "完成",
+          value: 3
+        }
+      ],
+      "onUpdate:data": (val: number) => {
+        updateProjectPlan({
+          id: row.id,
+          status: val
+        }).then((res) => {
+          if (res) {
+            message.success("更新成功")
+            row.status = val
+          }
+        })
+      }
+    })
+
+    // switch (row.status) {
+    //   case -1:
+    //     return "废弃"
+    //   case 1:
+    //     return "未开始"
+    //   case 2:
+    //     return "进行中"
+    //   case 3:
+    //     return "完成"
+    // }
+    // return "未知"
   },
   filter: true,
   filterMultiple: false,
