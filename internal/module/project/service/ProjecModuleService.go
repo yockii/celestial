@@ -9,6 +9,7 @@ import (
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -281,9 +282,35 @@ func (s *projectModuleService) UpdateStatus(instance *model.ProjectModule, statu
 	}
 
 	if canChangeStatus {
-		err = database.DB.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: instance.ID}).Update("status", status).Error
+		err = database.DB.Transaction(func(tx *gorm.DB) error {
+			err = tx.Model(&model.ProjectModule{}).Where(&model.ProjectModule{ID: instance.ID}).Update("status", status).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if status == model.ProjectModuleStatusPendingDev {
+				// 模块评审通过后，所有上级模块都通过评审
+				parentPathArray := strings.Split(instance.FullPath, "/")
+				var parentFullPathList []string
+				path := ""
+				for _, parentPath := range parentPathArray {
+					if parentPath == "" {
+						continue
+					}
+					path += "/" + parentPath
+					parentFullPathList = append(parentFullPathList, path)
+				}
+				err = tx.Model(&model.ProjectModule{}).Where(&model.ProjectModule{
+					ProjectID: instance.ProjectID,
+				}).Where("full_path in (?)", parentFullPathList).Update("status", model.ProjectModuleStatusPendingDev).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			}
+			return nil
+		})
 		if err != nil {
-			logger.Errorln(err)
 			return
 		}
 		success = true
