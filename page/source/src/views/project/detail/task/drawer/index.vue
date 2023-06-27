@@ -77,6 +77,7 @@ const loadRequirementList = (moduleId: string) => {
       getProjectRequirementList({
         projectId: project.value.id,
         fullPath: module.fullPath,
+        status: 3,
         offset: -1,
         limit: -1
       }).then((res) => {
