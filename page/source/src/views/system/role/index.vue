@@ -194,7 +194,7 @@ const columns = [
     // 返回VNode, 用于渲染操作按钮
     render: (row: Role) => {
       const btnGroup: VNode[] = []
-      if (row.defaultRole !== 1 && row.type !== 2 && userStore.hasResourceCode("system:role:update")) {
+      if (row.defaultRole !== 1 && row.type !== 2 && row.type !== -1 && userStore.hasResourceCode("system:role:update")) {
         btnGroup.push(
           h(
             NTooltip,
