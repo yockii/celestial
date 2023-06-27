@@ -11,6 +11,7 @@ import {
   NGrid,
   NGridItem,
   NIcon,
+  NInputNumber,
   NPopconfirm,
   NPopselect,
   NTooltip,
@@ -179,6 +180,7 @@ const createTimeColumn = reactive({
   sorter: true,
   sortOrder: false
 })
+const doneSolveDuration = ref<number>(0)
 const operationColumn = reactive({
   title: "操作",
   key: "operation",
@@ -273,16 +275,40 @@ const operationColumn = reactive({
             default: () => "处理完成",
             trigger: () =>
               h(
-                NButton,
+                NPopconfirm,
                 {
-                  size: "small",
-                  secondary: true,
-                  type: "primary",
-                  disabled: !projectStore.hasResourceCode("project:detail:issue:finish"),
-                  onClick: () => handleFinishData(row)
+                  onPositiveClick: () => handleFinishData(row)
                 },
                 {
-                  default: () => h(NIcon, { component: CheckCircleFilled })
+                  default: () =>
+                    h(
+                      NInputNumber,
+                      {
+                        value: doneSolveDuration.value,
+                        clearable: true,
+                        precision: 2,
+                        onUpdateValue: (v: number | null) => {
+                          doneSolveDuration.value = v || 0
+                        }
+                      },
+                      {
+                        suffix: () => "小时"
+                      }
+                    ),
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        secondary: true,
+                        type: "primary",
+                        disabled: !projectStore.hasResourceCode("project:detail:issue:finish")
+                        // onClick: () => handleFinishData(row)
+                      },
+                      {
+                        default: () => h(NIcon, { component: CheckCircleFilled })
+                      }
+                    )
                 }
               )
           }
@@ -534,9 +560,14 @@ const handleStartData = (row: ProjectIssue) => {
   })
 }
 const handleFinishData = (row: ProjectIssue) => {
-  finishProjectIssue(row.id).then((res) => {
+  if (doneSolveDuration.value <= 0) {
+    message.error("请输入处理时长")
+    return
+  }
+  finishProjectIssue(row.id, doneSolveDuration.value).then((res) => {
     if (res) {
       message.success("处理成功")
+      doneSolveDuration.value = 0
       refresh()
     }
   })

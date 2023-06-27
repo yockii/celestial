@@ -55,17 +55,18 @@ func (s *projectIssueService) Update(instance *model.ProjectIssue) (success bool
 	}
 
 	err = database.DB.Where(&model.ProjectIssue{ID: instance.ID}).Updates(&model.ProjectIssue{
-		ProjectID:   instance.ProjectID,
-		Title:       instance.Title,
-		Content:     instance.Content,
-		Type:        instance.Type,
-		Status:      instance.Status,
-		AssigneeID:  instance.AssigneeID,
-		StartTime:   instance.StartTime,
-		EndTime:     instance.EndTime,
-		SolveTime:   instance.SolveTime,
-		IssueCause:  instance.IssueCause,
-		SolveMethod: instance.SolveMethod,
+		ProjectID:     instance.ProjectID,
+		Title:         instance.Title,
+		Content:       instance.Content,
+		Type:          instance.Type,
+		Status:        instance.Status,
+		AssigneeID:    instance.AssigneeID,
+		StartTime:     instance.StartTime,
+		EndTime:       instance.EndTime,
+		ResolvedTime:  instance.ResolvedTime,
+		SolveDuration: instance.SolveDuration,
+		IssueCause:    instance.IssueCause,
+		SolveMethod:   instance.SolveMethod,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -204,18 +205,24 @@ func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status 
 	}
 
 	if canChange {
-		tx := database.DB.Where(&model.ProjectIssue{ID: instance.ID})
-		if status == model.ProjectIssueStatusResolved {
-			err = tx.Updates(&model.ProjectIssue{
-				Status: status,
-				// 解决完成时间
-				EndTime: time.Now().UnixMilli(),
+		tx := database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: instance.ID})
+		if status == model.ProjectIssueStatusVerifying {
+			err = tx.Updates(map[string]interface{}{
+				"status":         status,
+				"end_time":       time.Now().UnixMilli(),
+				"solve_duration": gorm.Expr("solve_duration + ?", instance.SolveDuration),
 			}).Error
 		} else if status == model.ProjectIssueStatusProcessing {
 			err = tx.Updates(&model.ProjectIssue{
 				Status: status,
 				// 开始解决时间
 				StartTime: time.Now().UnixMilli(),
+			}).Error
+		} else if status == model.ProjectIssueStatusResolved {
+			err = tx.Updates(&model.ProjectIssue{
+				Status: status,
+				// 解决确认时间
+				ResolvedTime: time.Now().UnixMilli(),
 			}).Error
 		} else {
 			err = tx.Updates(&model.ProjectIssue{

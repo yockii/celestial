@@ -302,7 +302,8 @@ export type ProjectIssue = {
   updateTime?: number
   startTime?: number
   endTime?: number
-  solveTime?: number
+  resolvedTime?: number
+  solveDuration?: number
   issueCause?: string
   solveMethod?: string
 }

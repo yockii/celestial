@@ -73,10 +73,12 @@ export function startProjectIssue(id: string) {
 /**
  * 完成项目缺陷
  * @param id - 项目缺陷id
+ * @param solveDuration - 解决时长
  */
-export function finishProjectIssue(id: string) {
+export function finishProjectIssue(id: string, solveDuration: number) {
   return request.put<boolean>("/projectIssue/done", {
-    id
+    id,
+    solveDuration
   })
 }
 
