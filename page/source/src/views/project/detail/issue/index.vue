@@ -124,8 +124,8 @@ const statusColumn = reactive({
             trigger: "hover"
           },
           {
-            default: () => "已驳回",
-            trigger: () => "已驳回原因：" + (row.rejectReason || "")
+            trigger: () => "已驳回",
+            default: () => "已驳回原因：" + (row.rejectedReason || "")
           }
         )
       case 1:
