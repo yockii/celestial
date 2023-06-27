@@ -412,79 +412,92 @@ const columns = [
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
     render: (row: ProjectRequirement) => {
-      return h(NButtonGroup, {}, () => [
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "任务分解",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  disabled: !projectStore.hasResourceCode("project:detail:task:add"),
-                  onClick: () => {
-                    handleAddProjectTask(row)
+      const btnGroup: VNode[] = []
+      if (row.status && row.status > 2 && projectStore.hasResourceCode("project:detail:task:add")) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "任务分解",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    disabled: !projectStore.hasResourceCode("project:detail:task:add"),
+                    onClick: () => {
+                      handleAddProjectTask(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: ArrowsSplit })
                   }
-                },
-                {
-                  default: () => h(NIcon, { component: ArrowsSplit })
-                }
-              )
-          }
-        ),
-        h(
-          NTooltip,
-          {},
-          {
-            default: () => "编辑",
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  size: "small",
-                  secondary: true,
-                  type: "primary",
-                  disabled: !(projectStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)),
-                  onClick: () => handleEditData(row)
-                },
-                {
-                  default: () => h(NIcon, { component: Edit })
-                }
-              )
-          }
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDeleteData(row.id)
-          },
-          {
-            default: () => "确认删除",
-            trigger: () =>
-              h(
-                NTooltip,
-                {},
-                {
-                  default: () => "删除",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        disabled: !projectStore.hasResourceCode("project:detail:requirement:delete"),
-                        type: "error"
-                      },
-                      {
-                        default: () => h(NIcon, { component: Delete })
-                      }
-                    )
-                }
-              )
-          }
+                )
+            }
+          )
         )
-      ])
+      }
+      if (projectStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    secondary: true,
+                    type: "primary",
+                    disabled: !(projectStore.hasResourceCode("project:detail:requirement:edit") && (!row.status || row.status < 3)),
+                    onClick: () => handleEditData(row)
+                  },
+                  {
+                    default: () => h(NIcon, { component: Edit })
+                  }
+                )
+            }
+          )
+        )
+      }
+      if ((!row.status || row.status < 3) && projectStore.hasResourceCode("project:detail:requirement:delete")) {
+        btnGroup.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDeleteData(row.id)
+            },
+            {
+              default: () => "确认删除",
+              trigger: () =>
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "删除",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          disabled: !projectStore.hasResourceCode("project:detail:requirement:delete"),
+                          type: "error"
+                        },
+                        {
+                          default: () => h(NIcon, { component: Delete })
+                        }
+                      )
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]
