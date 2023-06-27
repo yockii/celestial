@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
+	"github.com/yockii/celestial/internal/core/mq"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
@@ -324,7 +325,8 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 	}
 	// 判断权限
 	var success bool
-	if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueAssign); err != nil {
+	var operatorID uint64
+	if operatorID, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, constant.ResourceProjectIssueAssign); err != nil {
 		return err
 	} else if !success {
 		return nil
@@ -340,6 +342,15 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 
 	if success {
 		c.addSearchDocument(instance.ID)
+		// 通知队列做后续处理
+		mq.Publish(mq.TopicIssueAssigned, &mq.Message{
+			Topic: mq.TopicIssueAssigned,
+			Data: &mq.IssueAssignedMessage{
+				IssueId:    instance.ID,
+				AssigneeId: instance.AssigneeID,
+				OperatorId: operatorID,
+			},
+		})
 	}
 
 	return ctx.JSON(&server.CommonResponse{
