@@ -59,6 +59,11 @@ const handleLoginButtonClick = (): void => {
         userStore.setToken(data.token)
         userStore.setUserInfo(data.user)
         message.success("登录成功")
+        if (localStorage.getItem("redirect")) {
+          router.push(localStorage.getItem("redirect") as string)
+          localStorage.removeItem("redirect")
+          return
+        }
         const to = {
           name: "Home"
         }
@@ -128,6 +133,11 @@ const loginInDingtalk = () => {
                 userStore.setToken(data.token)
                 userStore.setUserInfo(data.user)
                 message.success("登录成功")
+                if (localStorage.getItem("redirect")) {
+                  router.push(localStorage.getItem("redirect") as string)
+                  localStorage.removeItem("redirect")
+                  return
+                }
                 const to = {
                   name: "Home"
                 }

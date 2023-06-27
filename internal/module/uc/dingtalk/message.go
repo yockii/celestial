@@ -6,8 +6,20 @@ import (
 	"fmt"
 	logger "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
+	"github.com/yockii/celestial/internal/module/uc/model"
 	"io"
+	"net/url"
 	"strings"
+)
+
+const (
+	MessageTypeText       = "text"
+	MessageTypeImage      = "image"
+	MessageTypeVoice      = "voice"
+	MessageTypeFile       = "file"
+	MessageTypeLink       = "link"
+	MessageTypeMarkdown   = "markdown"
+	MessageTypeActionCard = "action_card"
 )
 
 type Message struct {
@@ -50,10 +62,22 @@ func (c *client) SendMessage(dingStaffIdList []string, msg *Message) (taskId str
 	if msg == nil || msg.MsgType == "" {
 		return "", errors.New("msg is nil or msgtype is empty")
 	}
+
+	if msg.MsgType == MessageTypeActionCard {
+		if strings.HasPrefix(msg.ActionCard.SingleUrl, "http") {
+			msg.ActionCard.SingleUrl = fmt.Sprintf(
+				"dingtalk://dingtalkclient/action/openapp?corpid=%s&container_type=work_platform&app_id=0_%s&redirect_type=jump&redirect_url=%s",
+				c.corpId,
+				c.agentId,
+				url.QueryEscape(msg.ActionCard.SingleUrl),
+			)
+		}
+	}
+
 	msgJson, err := json.Marshal(msg)
 	uidList := strings.Join(dingStaffIdList, ",")
 	body := fmt.Sprintf(
-		"{\"agent_id\":%d,\"userid_list\":\"%s\",\"msg\":%s}",
+		"{\"agent_id\":%s,\"userid_list\":\"%s\",\"msg\":%s}",
 		c.agentId, uidList, string(msgJson),
 	)
 
@@ -118,4 +142,12 @@ func (c *client) GetMessageSendProgress(taskId string) (success bool, err error)
 		return false, err
 	}
 	return resJson.Get("progress.status").Int() == 2, nil
+}
+
+func SendMessage(source *model.ThirdSource, dingStaffIdList []string, msg *Message) (taskId string, err error) {
+	c := checkClient(source)
+	if c == nil {
+		return "", nil
+	}
+	return c.SendMessage(dingStaffIdList, msg)
 }

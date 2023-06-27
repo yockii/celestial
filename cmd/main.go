@@ -7,6 +7,7 @@ import (
 	assetController "github.com/yockii/celestial/internal/module/asset/controller"
 	logController "github.com/yockii/celestial/internal/module/log/controller"
 	luceneController "github.com/yockii/celestial/internal/module/lucene/controller"
+	"github.com/yockii/celestial/internal/module/message"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
 	taskController "github.com/yockii/celestial/internal/module/task/controller"
 	testController "github.com/yockii/celestial/internal/module/test/controller"
@@ -40,6 +41,9 @@ func main() {
 
 	// 初始化数据
 	data.InitData()
+
+	// 订阅消息
+	message.InitDingtalkMessageAdapter()
 
 	// 开启全文检索
 	luceneController.InitRouter()

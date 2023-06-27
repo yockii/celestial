@@ -338,6 +338,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
+  if (!userStore.token && to.name !== "Login" && to.name !== "Auth") {
+    localStorage.setItem("redirect", to.fullPath)
+  }
   userStore.addRoute({
     url: from.fullPath as string,
     label: (from.meta?.label ? from.meta?.label() : from.name || from.fullPath) as string,

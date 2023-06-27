@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
+	"github.com/yockii/celestial/internal/core/mq"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
@@ -105,6 +106,21 @@ func (c *projectTaskController) Add(ctx *fiber.Ctx) error {
 		}, relatedUids...)
 	}(instance))
 
+	// 通知队列做后续处理
+	if len(instance.Members) > 0 {
+		var idList []uint64
+		for _, member := range instance.Members {
+			idList = append(idList, member.UserID)
+		}
+		mq.Publish(mq.TopicTaskMemberAdded, &mq.Message{
+			Topic: mq.TopicTaskMemberAdded,
+			Data: &mq.TaskMemberAddedMessage{
+				TaskId:       instance.ID,
+				MemberIdList: idList,
+			},
+		})
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: instance,
 	})
@@ -160,6 +176,7 @@ func (c *projectTaskController) Update(ctx *fiber.Ctx) error {
 
 	if success {
 		c.addSearchDocument(instance.ID)
+
 	}
 
 	return ctx.JSON(&server.CommonResponse{

@@ -48,6 +48,7 @@ export const useUserStore = defineStore("user", {
       return this.isSuperAdmin || this.resourceCodes.includes(resourceCode)
     },
     addRoute(route: RouteHistory) {
+      if (!route.url || route.url === "/" || route.url === "/login") return
       // 如果当前路由已经存在，删除之前的记录
       const index = this.history.findIndex((item) => item.url === route.url)
       if (index > -1) {

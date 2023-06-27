@@ -1,6 +1,7 @@
 userTokenExpire=86400
 
 [server]
+baseUrl="http://127.0.0.1:3000"
 port=8080
 
 [database]

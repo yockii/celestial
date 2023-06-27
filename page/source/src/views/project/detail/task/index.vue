@@ -111,7 +111,11 @@ const reload = () => {
       projectId: project.value.id
     }
   }
-  listComp.value?.refresh()
+  nextTick(() => {
+    listComp.value?.refresh()
+    condition.value.id = ""
+  })
+  // listComp.value?.refresh()
 }
 
 onMounted(() => {

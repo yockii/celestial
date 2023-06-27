@@ -26,6 +26,7 @@ type client struct {
 	appKey    string
 	appSecret string
 
+	corpId  string
 	agentId string
 
 	accessToken string
@@ -52,6 +53,7 @@ func (c *client) init(source *model.ThirdSource) {
 	c.newBaseUrl = "https://api.dingtalk.com"
 
 	c.agentId = conf.Get("agentId").String()
+	c.corpId = source.CorpId
 }
 
 func (c *client) doGetAccessToken() (string, int64, error) {

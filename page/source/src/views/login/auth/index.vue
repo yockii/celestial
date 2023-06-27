@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { loginByDingTalk } from "@/service/api"
 import { useUserStore } from "@/store/user"
+import { useAppStore } from "@/store/app"
 
 const message = useMessage()
+const appStore = useAppStore()
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
@@ -19,7 +21,20 @@ onMounted(() => {
         userStore.setToken(data.token)
         userStore.setUserInfo(data.user)
         message.success("登录成功")
-        router.push("/")
+        if (localStorage.getItem("redirect")) {
+          router.push(localStorage.getItem("redirect") as string)
+          localStorage.removeItem("redirect")
+          return
+        }
+        const to = {
+          name: "Home"
+        }
+        if (appStore.activeSubMenuKey && appStore.activeSubMenuKey !== "") {
+          to.name = appStore.activeSubMenuKey
+        } else if (appStore.activeMenuKey && appStore.activeMenuKey !== "") {
+          to.name = appStore.activeMenuKey
+        }
+        router.push(to)
       })
       .catch((err) => {
         message.error(err)
