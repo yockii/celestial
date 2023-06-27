@@ -428,3 +428,34 @@ func (_ *projectController) MemberResourceCode(ctx *fiber.Ctx) error {
 		Data: result,
 	})
 }
+
+func (_ *projectController) MyProjectList(ctx *fiber.Ctx) error {
+	// 我参与的项目列表
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists + err.Error(),
+		})
+	}
+
+	condition := new(model.Project)
+	if err = ctx.QueryParser(condition); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	list, err := service.ProjectService.MyProjects(uid, condition)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}

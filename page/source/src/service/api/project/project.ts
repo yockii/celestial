@@ -88,3 +88,13 @@ export function getProjectMembers(projectId: string) {
 export function getProjectResourceCode(id: string) {
   return request.get<string[]>(`/project/resourceCode?id=${id}`)
 }
+
+/**
+ * 获取我的项目列表
+ * @param condition - 查询条件
+ */
+export function getMyProjectList(condition: ProjectCondition) {
+  return request.get<Paginate<Project>>("/project/myProjectList", {
+    params: condition
+  })
+}

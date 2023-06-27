@@ -176,3 +176,30 @@ func (s *projectService) StatisticsByStage() (list []*domain.ProjectCountByStage
 	}
 	return
 }
+
+func (s *projectService) MyProjects(uid uint64, condition *model.Project) (list []*model.Project, err error) {
+	tx := database.DB.Model(&model.Project{})
+	if condition != nil {
+		if condition.Name != "" {
+			tx = tx.Where("name like ?", "%"+condition.Name+"%")
+		}
+		if condition.Code != "" {
+			tx = tx.Where("code like ?", "%"+condition.Code+"%")
+		}
+		if condition.ParentID == 0 {
+			tx = tx.Where("parent_id = ?", condition.ParentID)
+		}
+		tx = tx.Where(&model.Project{
+			ParentID: condition.ParentID,
+			OwnerID:  condition.OwnerID,
+			StageID:  condition.StageID,
+		})
+	}
+
+	err = tx.Where("id in (?)", database.DB.Model(&model.ProjectMember{}).Distinct("project_id").Where("user_id = ?", uid)).Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
