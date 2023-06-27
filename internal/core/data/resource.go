@@ -492,6 +492,16 @@ func InitData() {
 					ResourceCode: constant.ResourceProjectIssueClose,
 					Type:         2,
 				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "拒绝项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueReject,
+					Type:         2,
+				})
+				resources = append(resources, &model.Resource{
+					ResourceName: "重新打开项目缺陷",
+					ResourceCode: constant.ResourceProjectIssueReopen,
+					Type:         2,
+				})
 			}
 
 			// 项目变更

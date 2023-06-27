@@ -162,7 +162,7 @@ func (s *projectIssueService) Assign(instance *model.ProjectIssue, assigneeID ui
 	// 原有数据的状态
 	status := instance.Status
 
-	var changedStatus uint8 = 0
+	var changedStatus int8 = 0
 	if status == 0 || status == 1 {
 		changedStatus = 2
 	}
@@ -180,7 +180,7 @@ func (s *projectIssueService) Assign(instance *model.ProjectIssue, assigneeID ui
 }
 
 // UpdateStatus 更新状态
-func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status uint8) (success bool, err error) {
+func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status int8) (success bool, err error) {
 	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
@@ -194,19 +194,26 @@ func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status 
 		fallthrough
 	case model.ProjectIssueStatusNew: // 新建的只能关闭或者指派
 		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusAssigned
-	case model.ProjectIssueStatusAssigned: // 已指派的只能关闭或者处理中
-		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusProcessing
+	case model.ProjectIssueStatusAssigned: // 已指派的只能关闭或者处理中或者拒绝
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusProcessing || status == model.ProjectIssueStatusReject
 	case model.ProjectIssueStatusProcessing: // 处理中的只能关闭或者验证中
 		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusVerifying
 	case model.ProjectIssueStatusVerifying: // 验证中的只能关闭或者已解决或已指派
 		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusResolved || status == model.ProjectIssueStatusAssigned
 	case model.ProjectIssueStatusResolved: // 已解决的只能关闭
 		canChange = status == model.ProjectIssueStatusClosed
+	case model.ProjectIssueStatusReject: // 被拒绝的状态只能关闭或者重新打开
+		canChange = status == model.ProjectIssueStatusClosed || status == model.ProjectIssueStatusNew
 	}
 
 	if canChange {
 		tx := database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: instance.ID})
-		if status == model.ProjectIssueStatusVerifying {
+		if status == model.ProjectIssueStatusReject {
+			err = tx.Updates(&model.ProjectIssue{
+				Status:         status,
+				RejectedReason: instance.RejectedReason,
+			}).Error
+		} else if status == model.ProjectIssueStatusVerifying {
 			err = tx.Updates(map[string]interface{}{
 				"status":         status,
 				"end_time":       time.Now().UnixMilli(),

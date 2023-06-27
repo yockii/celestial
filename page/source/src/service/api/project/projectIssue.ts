@@ -103,3 +103,25 @@ export function closeProjectIssue(id: string) {
     id
   })
 }
+
+/**
+ * 拒绝缺陷
+ * @param id - 项目缺陷id
+ * @param rejectedReason - 拒绝原因
+ */
+export function rejectProjectIssue(id: string, rejectedReason: string) {
+  return request.put<boolean>("/projectIssue/reject", {
+    id,
+    rejectedReason
+  })
+}
+
+/**
+ * 重新打开缺陷
+ * @param id - 项目缺陷id
+ */
+export function reopenProjectIssue(id: string) {
+  return request.put<boolean>("/projectIssue/reopen", {
+    id
+  })
+}

@@ -124,6 +124,8 @@ const (
 	ResourceProjectIssueDone     = ResourceProjectIssue + ":done"
 	ResourceProjectIssueVerify   = ResourceProjectIssue + ":verify"
 	ResourceProjectIssueClose    = ResourceProjectIssue + ":close"
+	ResourceProjectIssueReject   = ResourceProjectIssue + ":reject"
+	ResourceProjectIssueReopen   = ResourceProjectIssue + ":reopen"
 
 	// 项目风险
 	ResourceProjectRisk         = ResourceProjectInstance + ":risk"

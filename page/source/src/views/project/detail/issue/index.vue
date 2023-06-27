@@ -11,6 +11,7 @@ import {
   NGrid,
   NGridItem,
   NIcon,
+  NInput,
   NInputNumber,
   NPopconfirm,
   NPopselect,
@@ -25,6 +26,8 @@ import {
   finishProjectIssue,
   getProjectIssue,
   getProjectIssueList,
+  rejectProjectIssue,
+  reopenProjectIssue,
   startProjectIssue,
   updateProjectIssue,
   verifyProjectIssue
@@ -33,8 +36,8 @@ import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
-import { AssignmentIndOutlined, CheckCircleFilled, PlayCircleFilled } from "@vicons/material"
-import { CloseCircleFilled } from "@vicons/antd"
+import { AssignmentIndOutlined, CancelOutlined, CheckCircleFilled, PlayCircleFilled } from "@vicons/material"
+import { CloseCircleFilled, ReloadOutlined } from "@vicons/antd"
 
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -113,6 +116,18 @@ const statusColumn = reactive({
   key: "status",
   render: (row: ProjectIssue) => {
     switch (row.status) {
+      case -1:
+        return h(
+          NTooltip,
+          {
+            placement: "top",
+            trigger: "hover"
+          },
+          {
+            default: () => "已驳回",
+            trigger: () => "已驳回原因：" + (row.rejectReason || "")
+          }
+        )
       case 1:
         return "新建"
       case 2:
@@ -132,6 +147,10 @@ const statusColumn = reactive({
   filterMultiple: false,
   filterOptionValues: [0],
   filterOptions: [
+    {
+      label: "已驳回",
+      value: -1
+    },
     {
       label: "新建",
       value: 1
@@ -181,6 +200,7 @@ const createTimeColumn = reactive({
   sortOrder: false
 })
 const doneSolveDuration = ref<number>(0)
+const rejectReason = ref<string>("")
 const operationColumn = reactive({
   title: "操作",
   key: "operation",
@@ -238,7 +258,7 @@ const operationColumn = reactive({
       )
     }
 
-    // 如果是已指派 状态，且当前用户是处理人, 则可以点击开始解决
+    // 如果是已指派 状态，且当前用户是处理人, 则可以点击开始解决，或者拒绝缺陷
     if (projectStore.hasResourceCode("project:detail:issue:start") && row.status === 2 && row.assigneeId === userStore.user.id) {
       btnGroup.push(
         h(
@@ -258,6 +278,52 @@ const operationColumn = reactive({
                 },
                 {
                   default: () => h(NIcon, { component: PlayCircleFilled })
+                }
+              )
+          }
+        )
+      )
+
+      // 拒绝缺陷
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "拒绝该缺陷",
+            trigger: () =>
+              h(
+                NPopconfirm,
+                {
+                  onPositiveClick: () => handleRejectData(row)
+                },
+                {
+                  default: () =>
+                    h(NInput, {
+                      value: rejectReason.value,
+                      clearable: true,
+                      onUpdateValue: (v: string | [string, string]) => {
+                        if (Array.isArray(v)) {
+                          rejectReason.value = v[0]
+                        } else {
+                          rejectReason.value = v
+                        }
+                      }
+                    }),
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        secondary: true,
+                        type: "primary",
+                        disabled: !projectStore.hasResourceCode("project:detail:issue:reject")
+                        // onClick: () => handleFinishData(row)
+                      },
+                      {
+                        default: () => h(NIcon, { component: CancelOutlined })
+                      }
+                    )
                 }
               )
           }
@@ -375,6 +441,33 @@ const operationColumn = reactive({
                 },
                 {
                   default: () => h(NIcon, { component: CloseCircleFilled })
+                }
+              )
+          }
+        )
+      )
+    }
+
+    // 如果是已关闭或已驳回状态，且当前用户是处理人，则可以点击重新打开
+    if (projectStore.hasResourceCode("project:detail:issue:reopen") && (row.status === 9 || row.status === -1) && row.assigneeId === userStore.user.id) {
+      btnGroup.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "重新打开",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  secondary: true,
+                  type: "primary",
+                  disabled: !projectStore.hasResourceCode("project:detail:issue:reopen"),
+                  onClick: () => handleReopenData(row)
+                },
+                {
+                  default: () => h(NIcon, { component: ReloadOutlined })
                 }
               )
           }
@@ -543,6 +636,14 @@ const handleEditData = (row: ProjectIssue) => {
   instance.value = row
   drawerActive.value = true
 }
+const handleReopenData = (row: ProjectIssue) => {
+  reopenProjectIssue(row.id).then((res) => {
+    if (res) {
+      message.success("重新打开成功")
+      refresh()
+    }
+  })
+}
 const handleDeleteData = (id: string) => {
   deleteProjectIssue(id).then((res) => {
     if (res) {
@@ -568,6 +669,15 @@ const handleFinishData = (row: ProjectIssue) => {
     if (res) {
       message.success("处理成功")
       doneSolveDuration.value = 0
+      refresh()
+    }
+  })
+}
+const handleRejectData = (row: ProjectIssue) => {
+  rejectProjectIssue(row.id, rejectReason.value).then((res) => {
+    if (res) {
+      message.success("驳回成功")
+      rejectReason.value = ""
       refresh()
     }
   })

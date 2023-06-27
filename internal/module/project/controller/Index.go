@@ -136,6 +136,8 @@ func InitRouter() {
 		projectIssue.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusVerifying))
 		projectIssue.Put("/verify", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus())
 		projectIssue.Put("/close", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusClosed))
+		projectIssue.Put("/reject", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusReject))
+		projectIssue.Put("/reopen", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusNew))
 
 		// 对于禁用put和delete方法时的处理
 		projectIssue.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.Delete)
@@ -145,6 +147,8 @@ func InitRouter() {
 		projectIssue.Post("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusVerifying))
 		projectIssue.Post("/verify", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus())
 		projectIssue.Post("/close", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusClosed))
+		projectIssue.Post("/reject", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusReject))
+		projectIssue.Post("/reopen", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusNew))
 	}
 
 	// 项目风险

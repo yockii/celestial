@@ -380,7 +380,7 @@ func (c *projectIssueController) addSearchDocument(id uint64) {
 	}(id))
 }
 
-func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler {
+func (c *projectIssueController) UpdateStatus(statusList ...int8) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		instance := new(model.ProjectIssue)
 		if err := ctx.BodyParser(instance); err != nil {
@@ -400,9 +400,9 @@ func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler
 		}
 		if len(statusList) == 0 {
 			if instance.Status == model.ProjectIssueStatusAssigned {
-				statusList = []uint8{model.ProjectIssueStatusAssigned}
+				statusList = []int8{model.ProjectIssueStatusAssigned}
 			} else if instance.Status == model.ProjectIssueStatusResolved {
-				statusList = []uint8{model.ProjectIssueStatusResolved}
+				statusList = []int8{model.ProjectIssueStatusResolved}
 			} else {
 				return ctx.JSON(&server.CommonResponse{
 					Code: server.ResponseCodeParamNotEnough,
@@ -432,12 +432,18 @@ func (c *projectIssueController) UpdateStatus(statusList ...uint8) fiber.Handler
 			code = constant.ResourceProjectIssueStart
 		case model.ProjectIssueStatusVerifying:
 			code = constant.ResourceProjectIssueDone
+			old.SolveDuration = instance.SolveDuration
 		case model.ProjectIssueStatusClosed:
 			code = constant.ResourceProjectIssueClose
 		case model.ProjectIssueStatusAssigned:
 			fallthrough
 		case model.ProjectIssueStatusResolved:
 			code = constant.ResourceProjectIssueVerify
+		case model.ProjectIssueStatusReject:
+			code = constant.ResourceProjectIssueReject
+			old.RejectedReason = instance.RejectedReason
+		case model.ProjectIssueStatusNew:
+			code = constant.ResourceProjectIssueReopen
 		}
 		var success bool
 		if _, success, err = helper.CheckResourceCodeInProject(ctx, old.ProjectID, code); err != nil {
