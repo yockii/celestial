@@ -120,6 +120,7 @@ const statusColumn = reactive({
     let hasMe = false
     let imConfirmed = false
     let imStarted = false
+    let imFinished = false
     let hasConfirmedMember = false
     if (row.members) {
       for (let i = 0; i < row.members.length; i++) {
@@ -131,6 +132,7 @@ const statusColumn = reactive({
           hasMe = true
           imConfirmed = !!member.status && member.status === 2
           imStarted = !!member.status && member.status === 3
+          imFinished = !!member.status && member.status === 9
         }
         if (hasMe && hasConfirmedMember) {
           break
@@ -197,7 +199,33 @@ const statusColumn = reactive({
         }
       } else if (row.status === 2) {
         // 都确认后，可以开始执行任务
-        if (!imStarted) {
+        group.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "开始执行",
+              trigger: h(
+                NButton,
+                {
+                  size: "small",
+                  type: "success",
+                  onClick: () => {
+                    startProjectTask(row.id).then(() => {
+                      refresh()
+                    })
+                  }
+                },
+                {
+                  default: () => h(NIcon, { component: Play20Regular })
+                }
+              )
+            }
+          )
+        )
+      } else if (row.status === 3) {
+        // 进行中， 可能我已经开始任务或者还未开始任务
+        if (imConfirmed) {
           group.push(
             h(
               NTooltip,
@@ -222,7 +250,8 @@ const statusColumn = reactive({
               }
             )
           )
-        } else {
+        } else if (imStarted) {
+          // 可以完成任务，需要填报工时
           group.push(
             h(
               NTooltip,
@@ -235,6 +264,7 @@ const statusColumn = reactive({
                     size: "small",
                     type: "success",
                     onClick: () => {
+                      // 需要填报工时
                       currentTask.value = row
                       const member = row.members?.find((m) => m.userId === userStore.user.id)
                       if (member) {
@@ -251,36 +281,6 @@ const statusColumn = reactive({
             )
           )
         }
-      } else if (row.status === 3) {
-        // 进行中， 可以完成任务，需要填报工时
-        group.push(
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => "完成任务",
-              trigger: h(
-                NButton,
-                {
-                  size: "small",
-                  type: "success",
-                  onClick: () => {
-                    // 需要填报工时
-                    currentTask.value = row
-                    const member = row.members?.find((m) => m.userId === userStore.user.id)
-                    if (member) {
-                      currentTaskMember.value = member
-                      showWorkTimeDrawer.value = true
-                    }
-                  }
-                },
-                {
-                  default: () => h(NIcon, { component: Checkmark20Regular })
-                }
-              )
-            }
-          )
-        )
       }
     }
 
@@ -432,7 +432,7 @@ const actionColumn = reactive({
         )
       )
     }
-    if (projectStore.hasResourceCode("project:detail:task:add")) {
+    if (row.status !== 9 && projectStore.hasResourceCode("project:detail:task:add")) {
       bg.push(
         h(
           NTooltip,
