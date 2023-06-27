@@ -20,9 +20,9 @@ export const useProjectStore = defineStore("project", {
   }),
   getters: {
     moduleTree(state) {
-      const tree = state.modules.filter((module) => !module.parentId)
+      const tree = state.modules.filter((module) => !module.parentId && module.status !== 1 && module.status !== -1)
       const findChildren = (parent: ProjectModule) => {
-        const children = state.modules.filter((module) => module.parentId === parent.id)
+        const children = state.modules.filter((module) => module.parentId === parent.id && module.status !== 1 && module.status !== -1)
         if (children.length) {
           parent.children = children
           children.forEach((child) => findChildren(child))
