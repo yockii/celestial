@@ -66,7 +66,16 @@ const rules = {
     { required: true, message: "请输入需求名称", trigger: "blur" },
     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
   ],
+  moduleId: {
+    required: true,
+    validator(rule: FormItemRule, value: number) {
+      return value > 0
+    },
+    message: "请选择功能模块",
+    trigger: "blur"
+  },
   type: {
+    required: true,
     validator(rule: FormItemRule, value: number) {
       return value > 0 && value <= 7
     },
@@ -74,6 +83,7 @@ const rules = {
     trigger: "blur"
   },
   priority: {
+    required: true,
     validator(rule: FormItemRule, value: number) {
       return value > 0 && value <= 3
     },
@@ -90,7 +100,7 @@ const rules = {
         <n-form-item label="需求名称" path="name">
           <n-input v-model:value="currentData.name" placeholder="请输入需求名称" />
         </n-form-item>
-        <n-form-item label="功能模块">
+        <n-form-item label="功能模块" path="moduleId">
           <n-cascader
             v-model:value="currentData.moduleId"
             :options="moduleTree"
