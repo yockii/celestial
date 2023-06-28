@@ -5,6 +5,9 @@ import { Project } from "@/types/project"
 import { onMounted } from "vue"
 import { getMyProjectList } from "@/service/api"
 
+defineProps<{
+  selectedProjectId: string
+}>()
 const emit = defineEmits(["update:selectedProjectId"])
 
 const { myProjectList } = storeToRefs(useUserStore())

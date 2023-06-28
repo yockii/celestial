@@ -393,6 +393,64 @@ func (s *projectTaskService) PaginateBetweenTimes(condition *model.ProjectTask, 
 	return
 }
 
+// PaginateMine 分页查询用户自己的任务
+func (s *projectTaskService) PaginateMine(uid uint64, condition *model.ProjectTask, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectTask, err error) {
+	tx := database.DB.Model(&model.ProjectTask{})
+	if limit > -1 {
+		tx = tx.Limit(limit)
+	}
+	if offset > -1 {
+		tx = tx.Offset(offset)
+	}
+	if orderBy != "" {
+		tx = tx.Order(orderBy)
+	}
+
+	// 处理时间字段，在某段时间之间
+	for tc, tr := range tcList {
+		if tc != "" {
+			if !tr.Start.IsZero() && !tr.End.IsZero() {
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+			} else if tr.Start.IsZero() && !tr.End.IsZero() {
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+			} else if !tr.Start.IsZero() && tr.End.IsZero() {
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+			}
+		}
+	}
+
+	if condition != nil {
+		if condition.Name != "" {
+			tx = tx.Where("name like ?", "%"+condition.Name+"%")
+		}
+		if condition.FullPath != "" {
+			tx = tx.Where("full_path like ?", condition.FullPath+"%")
+		}
+	}
+
+	// 大字段不查询
+	tx = tx.Omit("task_desc", "full_path")
+
+	// 查询我的任务
+	tx = tx.Where("owner_id = ? or id in (?)", uid, database.DB.Model(&model.ProjectTaskMember{}).Distinct("task_id").Where(&model.ProjectTaskMember{UserID: uid}))
+
+	err = tx.Find(&list, &model.ProjectTask{
+		ID:        condition.ID,
+		ProjectID: condition.ProjectID,
+		ParentID:  condition.ParentID,
+		ModuleID:  condition.ModuleID,
+		StageID:   condition.StageID,
+		Status:    condition.Status,
+		Priority:  condition.Priority,
+		OwnerID:   condition.OwnerID,
+	}).Offset(-1).Limit(-1).Count(&total).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
 // Instance 获取资源实例
 func (s *projectTaskService) Instance(id uint64) (instance *model.ProjectTask, err error) {
 	if id == 0 {

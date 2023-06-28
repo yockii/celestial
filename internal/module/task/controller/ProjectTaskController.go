@@ -586,3 +586,85 @@ func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 		}
 	}
 }
+
+func (c *projectTaskController) ListMine(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectTaskListTask)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	paginate := new(server.Paginate)
+	if err := ctx.QueryParser(paginate); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if paginate.Limit == 0 {
+		paginate.Limit = 10
+	}
+
+	tcList := make(map[string]*server.TimeCondition)
+	if instance.CreateTimeCondition != nil {
+		tcList["create_time"] = instance.CreateTimeCondition
+	}
+	if instance.UpdateTimeCondition != nil {
+		tcList["update_time"] = instance.UpdateTimeCondition
+	}
+
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return err
+	}
+	if uid == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough,
+		})
+	}
+
+	total, list, err := service.ProjectTaskService.PaginateMine(uid, &instance.ProjectTask, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	var resultList []*domain.ProjectTaskWithMembers
+	if len(list) > 0 {
+		var wg sync.WaitGroup
+
+		for _, item := range list {
+			wg.Add(1)
+			ptwm := new(domain.ProjectTaskWithMembers)
+			ptwm.ProjectTask = *item
+			resultList = append(resultList, ptwm)
+			go func(task *domain.ProjectTaskWithMembers) {
+				defer wg.Done()
+				members, err := service.ProjectTaskMemberService.ListWithRealName(&model.ProjectTaskMember{TaskID: task.ID})
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				task.Members = members
+			}(ptwm)
+		}
+
+		wg.Wait()
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: &server.Paginate{
+			Total:  total,
+			Items:  resultList,
+			Limit:  paginate.Limit,
+			Offset: paginate.Offset,
+		},
+	})
+}

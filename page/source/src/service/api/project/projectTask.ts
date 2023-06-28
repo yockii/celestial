@@ -113,3 +113,13 @@ export function restartProjectTask(id: string) {
     id
   })
 }
+
+/**
+ * 获取我的任务列表
+ * @param condition - 查询条件
+ */
+export function getMyProjectTaskList(condition: ProjectTaskCondition) {
+  return request.get<Paginate<ProjectTask>>("/projectTask/listMine", {
+    params: condition
+  })
+}

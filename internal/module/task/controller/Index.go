@@ -23,6 +23,7 @@ func InitRouter() {
 		projectTask.Put("/start", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDoing))
 		projectTask.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDone))
 		projectTask.Put("/restart", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusNotStart))
+		projectTask.Get("/listMine", middleware.NeedAuthorization(constant.ResourceProjectTaskList), ProjectTaskController.ListMine)
 
 		// 对于禁用put和delete方法时的处理
 		projectTask.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.Delete)

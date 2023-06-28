@@ -173,24 +173,25 @@ const statusColumn = reactive({
               {},
               {
                 default: () => "确认签收",
-                trigger: h(
-                  NButton,
-                  {
-                    size: "small",
-                    type: "success",
-                    onClick: () => {
-                      currentTask.value = row
-                      const member = row.members?.find((m) => m.userId === userStore.user.id)
-                      if (member) {
-                        currentTaskMember.value = member
-                        showWorkTimeDrawer.value = true
+                trigger: () =>
+                  h(
+                    NButton,
+                    {
+                      size: "small",
+                      type: "success",
+                      onClick: () => {
+                        currentTask.value = row
+                        const member = row.members?.find((m) => m.userId === userStore.user.id)
+                        if (member) {
+                          currentTaskMember.value = member
+                          showWorkTimeDrawer.value = true
+                        }
                       }
+                    },
+                    {
+                      default: () => h(NIcon, { component: BoxCheckmark20Regular })
                     }
-                  },
-                  {
-                    default: () => h(NIcon, { component: BoxCheckmark20Regular })
-                  }
-                )
+                  )
               }
             )
           )
@@ -203,34 +204,8 @@ const statusColumn = reactive({
             {},
             {
               default: () => "开始执行",
-              trigger: h(
-                NButton,
-                {
-                  size: "small",
-                  type: "success",
-                  onClick: () => {
-                    startProjectTask(row.id).then(() => {
-                      refresh()
-                    })
-                  }
-                },
-                {
-                  default: () => h(NIcon, { component: Play20Regular })
-                }
-              )
-            }
-          )
-        )
-      } else if (row.status === 3) {
-        // 进行中， 可能我已经开始任务或者还未开始任务
-        if (imConfirmed) {
-          group.push(
-            h(
-              NTooltip,
-              {},
-              {
-                default: () => "开始执行",
-                trigger: h(
+              trigger: () =>
+                h(
                   NButton,
                   {
                     size: "small",
@@ -245,6 +220,34 @@ const statusColumn = reactive({
                     default: () => h(NIcon, { component: Play20Regular })
                   }
                 )
+            }
+          )
+        )
+      } else if (row.status === 3) {
+        // 进行中， 可能我已经开始任务或者还未开始任务
+        if (imConfirmed) {
+          group.push(
+            h(
+              NTooltip,
+              {},
+              {
+                default: () => "开始执行",
+                trigger: () =>
+                  h(
+                    NButton,
+                    {
+                      size: "small",
+                      type: "success",
+                      onClick: () => {
+                        startProjectTask(row.id).then(() => {
+                          refresh()
+                        })
+                      }
+                    },
+                    {
+                      default: () => h(NIcon, { component: Play20Regular })
+                    }
+                  )
               }
             )
           )
@@ -256,25 +259,26 @@ const statusColumn = reactive({
               {},
               {
                 default: () => "完成任务",
-                trigger: h(
-                  NButton,
-                  {
-                    size: "small",
-                    type: "success",
-                    onClick: () => {
-                      // 需要填报工时
-                      currentTask.value = row
-                      const member = row.members?.find((m) => m.userId === userStore.user.id)
-                      if (member) {
-                        currentTaskMember.value = member
-                        showWorkTimeDrawer.value = true
+                trigger: () =>
+                  h(
+                    NButton,
+                    {
+                      size: "small",
+                      type: "success",
+                      onClick: () => {
+                        // 需要填报工时
+                        currentTask.value = row
+                        const member = row.members?.find((m) => m.userId === userStore.user.id)
+                        if (member) {
+                          currentTaskMember.value = member
+                          showWorkTimeDrawer.value = true
+                        }
                       }
+                    },
+                    {
+                      default: () => h(NIcon, { component: Checkmark20Regular })
                     }
-                  },
-                  {
-                    default: () => h(NIcon, { component: Checkmark20Regular })
-                  }
-                )
+                  )
               }
             )
           )
