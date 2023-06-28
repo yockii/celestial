@@ -113,6 +113,22 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 					userDataPerm = 1
 					break
 				} else {
+					// 获取角色缓存的数据权限
+					roleDataPerm, _ := redis.Int(conn.Do("HGET", constant.RedisKeyRoleDataPerm, roleId))
+					if roleDataPerm == 0 {
+						// 如果没有，重新获取角色信息并缓存数据权限
+						var role *model.Role
+						role, err = service.RoleService.Instance(&model.Role{ID: roleId})
+						if err != nil {
+							return c.Status(fiber.StatusInternalServerError).SendString("系统错误")
+						}
+						roleDataPerm = role.DataPermission
+						_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, roleId, roleDataPerm)
+					}
+					if userDataPerm == 0 || roleDataPerm < userDataPerm {
+						userDataPerm = roleDataPerm
+					}
+
 					roleResourceKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)
 					cachedCodes, _ := redis.Strings(conn.Do("SMEMBERS", roleResourceKey))
 					if len(cachedCodes) == 0 {
