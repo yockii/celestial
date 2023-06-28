@@ -13,9 +13,15 @@ const emit = defineEmits(["update:selectedProjectId"])
 const { myProjectList } = storeToRefs(useUserStore())
 const projectTree = computed(() => {
   // 将 myProjectList 转换为树形结构, 使用 label/key/children
-  const topProject = myProjectList.value
+  type ProjectTree = {
+    label: string
+    key: string
+    children: ProjectTree[]
+    isLeaf?: boolean
+  }
+  const topProject: ProjectTree[] = myProjectList.value
     .filter((p: Project) => !p.parentId)
-    .map((p) => {
+    .map((p: Project) => {
       return {
         label: p.name,
         key: p.id,
@@ -23,10 +29,10 @@ const projectTree = computed(() => {
       }
     })
   // 递归赋值子项目
-  const setChildren = (project) => {
+  const setChildren = (project: ProjectTree) => {
     const children = myProjectList.value
-      .filter((p) => p.parentId === project.key)
-      .map((p) => {
+      .filter((p: Project) => p.parentId === project.key)
+      .map((p: Project) => {
         return {
           label: p.name,
           key: p.id,
@@ -42,13 +48,13 @@ const projectTree = computed(() => {
   return topProject
 })
 
-const handleSelect = (key) => {
+const handleSelect = (key: string[]) => {
   emit("update:selectedProjectId", key[0])
 }
 
 onMounted(() => {
   if (myProjectList.value.length === 0) {
-    getMyProjectList().then((res) => {
+    getMyProjectList({}).then((res) => {
       myProjectList.value = res
     })
   }

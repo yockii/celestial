@@ -10,6 +10,7 @@ export type ProjectMember = {
 
 export type Project = {
   id: string
+  parentId?: string
   name: string
   code: string
   description: string
@@ -19,8 +20,8 @@ export type Project = {
   members?: ProjectMember[]
 }
 export type ProjectCondition = Condition & {
-  name: string
-  stageId: string
+  name?: string
+  stageId?: string
 }
 
 export type ProjectStageStatistics = {
