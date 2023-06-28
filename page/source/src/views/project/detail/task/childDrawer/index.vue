@@ -3,6 +3,7 @@ import { deleteProjectTask, getProjectTask } from "@/service/api"
 import { ProjectTask, ProjectTaskCondition } from "@/types/project"
 import List from "../list/index.vue"
 import Drawer from "../drawer/index.vue"
+import DetailDrawer from "../detailDrawer/index.vue"
 
 const message = useMessage()
 const listComp = ref<typeof List>()
@@ -80,6 +81,18 @@ const handleShowChild = (row: ProjectTask) => {
   childDrawerActive.value = true
 }
 
+// 查看详情抽屉
+const detailDrawerActive = ref(false)
+const detailInstance = ref<ProjectTask>()
+const showDetailDrawer = (instance: ProjectTask) => {
+  getProjectTask(instance.id).then((res) => {
+    if (res) {
+      detailInstance.value = Object.assign(instance, res)
+      detailDrawerActive.value = true
+    }
+  })
+}
+
 onBeforeUpdate(() => {
   if (props.drawerActive) {
     if (condition.value.parentId !== props.data.id) {
@@ -122,6 +135,7 @@ onBeforeUpdate(() => {
             @delete="handleDeleteData"
             @new-child="handleAddProjectTask"
             @showChild="handleShowChild"
+            @showDetail="showDetailDrawer"
           />
         </n-gi>
       </n-grid>
@@ -129,4 +143,6 @@ onBeforeUpdate(() => {
   </n-drawer>
 
   <drawer v-model:drawer-active="editDrawerActive" v-model:data="currentData" @refresh="listComp?.refresh" />
+
+  <detail-drawer v-model:drawer-active="detailDrawerActive" v-model:data="detailInstance" />
 </template>

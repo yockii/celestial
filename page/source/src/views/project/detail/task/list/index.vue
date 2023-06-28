@@ -22,7 +22,7 @@ import { Delete, Edit, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import { useProjectStore } from "@/store/project"
-import { BoxCheckmark20Regular, Checkmark20Regular, Play20Regular } from "@vicons/fluent"
+import { BoxCheckmark20Regular, Checkmark20Regular, Info20Regular, Play20Regular } from "@vicons/fluent"
 import dayjs from "dayjs"
 import WorkTimeDrawer from "../workTimeDrawer/index.vue"
 const userStore = useUserStore()
@@ -32,7 +32,7 @@ const props = defineProps<{
   condition: ProjectTaskCondition
   useTree?: boolean
 }>()
-const emit = defineEmits(["showChild", "newChild", "edit", "delete"])
+const emit = defineEmits(["showChild", "newChild", "edit", "delete", "showDetail"])
 
 const condition = toRef(props, "condition")
 const list = ref<ProjectTask[]>([])
@@ -120,7 +120,6 @@ const statusColumn = reactive({
     let hasMe = false
     let imConfirmed = false
     let imStarted = false
-    let imFinished = false
     let hasConfirmedMember = false
     if (row.members) {
       for (let i = 0; i < row.members.length; i++) {
@@ -132,7 +131,6 @@ const statusColumn = reactive({
           hasMe = true
           imConfirmed = !!member.status && member.status === 2
           imStarted = !!member.status && member.status === 3
-          imFinished = !!member.status && member.status === 9
         }
         if (hasMe && hasConfirmedMember) {
           break
@@ -410,6 +408,29 @@ const actionColumn = reactive({
   // 返回VNode, 用于渲染操作按钮
   render: (row: ProjectTask) => {
     const bg: VNode[] = []
+    if (props.useTree && projectStore.hasResourceCode("project:detail:task:instance")) {
+      // 任务树，可以查看详情抽屉
+      bg.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "查看详情",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  onClick: () => emit("showDetail", row)
+                },
+                {
+                  default: () => h(NIcon, { component: Info20Regular })
+                }
+              )
+          }
+        )
+      )
+    }
     if (condition.value.onlyParent && row.childrenCount && row.childrenCount > 0) {
       bg.push(
         h(
