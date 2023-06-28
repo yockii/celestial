@@ -108,14 +108,30 @@ func (_ *projectController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectUpdate); err != nil {
+	// 取出旧数据
+	oldInstance, err := service.ProjectService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectUpdate); err != nil {
 		return err
 	} else if !success {
 		return nil
 	}
 
 	instance.Name = strings.TrimSpace(instance.Name)
-	success, err := service.ProjectService.Update(instance)
+	success, err = service.ProjectService.Update(instance, oldInstance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -174,13 +190,29 @@ func (_ *projectController) Delete(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectDelete); err != nil {
+	// 取出旧数据
+	oldInstance, err := service.ProjectService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if oldInstance == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	var success bool
+	if _, success, err = helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectDelete); err != nil {
 		return err
 	} else if !success {
 		return nil
 	}
 
-	success, err := service.ProjectService.Delete(instance.ID)
+	success, err = service.ProjectService.Delete(oldInstance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

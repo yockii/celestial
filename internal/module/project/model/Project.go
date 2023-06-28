@@ -14,6 +14,7 @@ type Project struct {
 	Description string         `json:"description,omitempty" gorm:"size:500;comment:项目描述"`
 	OwnerID     uint64         `json:"ownerId,omitempty,string" gorm:"index;comment:项目负责人ID"`
 	StageID     uint64         `json:"stageId,omitempty,string" gorm:"index;comment:项目阶段ID"`
+	ChildCount  uint64         `json:"childCount,omitempty,string" gorm:"comment:子项目数量"`
 	CreateTime  int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime  int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime  gorm.DeletedAt `json:"deleteTime" gorm:"index"`
@@ -31,6 +32,8 @@ func (p *Project) UnmarshalJSON(b []byte) error {
 	p.Description = j.Get("description").String()
 	p.OwnerID = j.Get("ownerId").Uint()
 	p.StageID = j.Get("stageId").Uint()
+	p.ParentID = j.Get("parentId").Uint()
+	p.ChildCount = j.Get("childCount").Uint()
 
 	return nil
 }

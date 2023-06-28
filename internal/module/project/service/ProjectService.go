@@ -5,6 +5,8 @@ import (
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
+	taskModel "github.com/yockii/celestial/internal/module/task/model"
+	testModel "github.com/yockii/celestial/internal/module/test/model"
 	ucModel "github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
@@ -51,6 +53,15 @@ func (s *projectService) Add(instance *model.Project) (duplicated bool, success 
 			logger.Errorln(err)
 			return err
 		}
+
+		// 如果有父级项目，则父级项目的子项目数+1
+		if instance.ParentID != 0 {
+			if err = tx.Model(&model.Project{}).Where(&model.Project{ID: instance.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
 		return nil
 	})
 	success = true
@@ -58,38 +69,157 @@ func (s *projectService) Add(instance *model.Project) (duplicated bool, success 
 }
 
 // Update 更新资源基本信息
-func (s *projectService) Update(instance *model.Project) (success bool, err error) {
+func (s *projectService) Update(instance, oldInstance *model.Project) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	err = database.DB.Where(&model.Project{ID: instance.ID}).Updates(&model.Project{
-		Name:        instance.Name,
-		Code:        instance.Code,
-		Description: instance.Description,
-		OwnerID:     instance.OwnerID,
-		StageID:     instance.StageID,
-	}).Error
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Where(&model.Project{ID: instance.ID}).Updates(&model.Project{
+			Name:        instance.Name,
+			Code:        instance.Code,
+			Description: instance.Description,
+			OwnerID:     instance.OwnerID,
+			StageID:     instance.StageID,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		// 如果父级发生变化，则更新父级项目的子项目数
+		if instance.ParentID != 0 && instance.ParentID != oldInstance.ParentID {
+			if err = tx.Model(&model.Project{}).Where(&model.Project{ID: instance.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			if err = tx.Model(&model.Project{}).Where(&model.Project{ID: oldInstance.ParentID}).Update("child_count", gorm.Expr("child_count - ?", 1)).Error; err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
+
 	success = true
 	return
 }
 
 // Delete 删除资源
-func (s *projectService) Delete(id uint64) (success bool, err error) {
-	if id == 0 {
+func (s *projectService) Delete(instance *model.Project) (success bool, err error) {
+	if instance == nil || instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
-	err = database.DB.Where(&model.Project{ID: id}).Delete(&model.Project{}).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
+
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Where(&model.Project{ID: instance.ID}).Delete(&model.Project{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目成员
+		err = tx.Where(&model.ProjectMember{ProjectID: instance.ID}).Delete(&model.ProjectMember{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的任务
+		err = tx.Where(&taskModel.ProjectTask{ProjectID: instance.ID}).Delete(&taskModel.ProjectTask{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的任务成员
+		err = tx.Where(&taskModel.ProjectTaskMember{ProjectID: instance.ID}).Delete(&taskModel.ProjectTaskMember{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的计划
+		err = tx.Where(&model.ProjectPlan{ProjectID: instance.ID}).Delete(&model.ProjectPlan{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的功能模块
+		err = tx.Where(&model.ProjectModule{ProjectID: instance.ID}).Delete(&model.ProjectModule{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的需求
+		err = tx.Where(&model.ProjectRequirement{ProjectID: instance.ID}).Delete(&model.ProjectRequirement{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的测试
+		err = tx.Where(&testModel.ProjectTest{ProjectID: instance.ID}).Delete(&testModel.ProjectTest{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的测试用例
+		err = tx.Where(&testModel.ProjectTestCase{ProjectID: instance.ID}).Delete(&testModel.ProjectTestCase{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的测试用例项
+		err = tx.Where(&testModel.ProjectTestCaseItem{ProjectID: instance.ID}).Delete(&testModel.ProjectTestCaseItem{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的测试用例项步骤
+		err = tx.Where(&testModel.ProjectTestCaseItemStep{ProjectID: instance.ID}).Delete(&testModel.ProjectTestCaseItemStep{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的缺陷
+		err = tx.Where(&model.ProjectIssue{ProjectID: instance.ID}).Delete(&model.ProjectIssue{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的变更
+		err = tx.Where(&model.ProjectChange{ProjectID: instance.ID}).Delete(&model.ProjectChange{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的风险
+		err = tx.Where(&model.ProjectRisk{ProjectID: instance.ID}).Delete(&model.ProjectRisk{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 删除项目关联的资产
+		err = tx.Where(&model.ProjectAsset{ProjectID: instance.ID}).Delete(&model.ProjectAsset{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		// 如果有父级项目，更新父级项目的子项目数量
+		if instance.ParentID != 0 {
+			err = tx.Model(&model.Project{}).Where(&model.Project{ID: instance.ParentID}).Update("child_count", gorm.Expr("child_count - ?", 1)).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		return nil
+	})
+
 	success = true
 	return
 }
