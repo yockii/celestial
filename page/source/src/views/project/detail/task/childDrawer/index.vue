@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteProjectTask } from "@/service/api"
+import { deleteProjectTask, getProjectTask } from "@/service/api"
 import { ProjectTask, ProjectTaskCondition } from "@/types/project"
 import List from "../list/index.vue"
 import Drawer from "../drawer/index.vue"
@@ -29,8 +29,12 @@ const currentData = ref<ProjectTask>({
 })
 
 const handleEditData = (row: ProjectTask) => {
-  currentData.value = Object.assign({}, row)
-  editDrawerActive.value = true
+  getProjectTask(row.id).then((res) => {
+    if (res) {
+      currentData.value = Object.assign(row, res)
+      editDrawerActive.value = true
+    }
+  })
 }
 const handleAddProjectTask = (
   row: ProjectTask = {
@@ -77,9 +81,20 @@ const handleShowChild = (row: ProjectTask) => {
 }
 
 onBeforeUpdate(() => {
-  condition.value.parentId = props.data.id
-  listComp.value?.refresh()
+  if (props.drawerActive) {
+    if (condition.value.parentId !== props.data.id) {
+      condition.value.parentId = props.data.id
+      listComp.value?.refresh()
+    } else {
+      listComp.value?.refreshIfNoData()
+    }
+  }
 })
+
+// onMounted(() => {
+//   condition.value.parentId = props.data.id
+//   listComp.value?.refresh()
+// })
 </script>
 
 <template>

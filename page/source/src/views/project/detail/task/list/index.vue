@@ -626,8 +626,14 @@ const showWorkTimeDrawer = ref(false)
 const currentTask = ref<ProjectTask>({ id: "", projectId: "", name: "" })
 const currentTaskMember = ref<ProjectTaskMember>({ id: "", projectId: "", taskId: "", userId: "" })
 
+const refreshIfNoData = () => {
+  if (list.value.length === 0) {
+    refresh()
+  }
+}
 defineExpose({
-  refresh
+  refresh,
+  refreshIfNoData
 })
 
 // onMounted(() => {
