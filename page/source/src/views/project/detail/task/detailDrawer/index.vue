@@ -2,7 +2,7 @@
 import { ProjectTask } from "@/types/project"
 defineProps<{
   drawerActive: boolean
-  data: ProjectTask
+  data?: ProjectTask
   height?: number
 }>()
 const emit = defineEmits(["update:drawerActive"])
@@ -16,8 +16,8 @@ const emit = defineEmits(["update:drawerActive"])
     resizable
     :on-update:show="(show: boolean) => emit('update:drawerActive', show)"
   >
-    <n-drawer-content :title="data.name + '详情'" closable>
-      <n-text>{{ data.taskDesc }}</n-text>
+    <n-drawer-content :title="data?.name + '详情'" closable>
+      <n-text>{{ data?.taskDesc }}</n-text>
     </n-drawer-content>
   </n-drawer>
 </template>

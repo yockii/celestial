@@ -144,5 +144,5 @@ onBeforeUpdate(() => {
 
   <drawer v-model:drawer-active="editDrawerActive" v-model:data="currentData" @refresh="listComp?.refresh" />
 
-  <detail-drawer v-model:drawer-active="detailDrawerActive" v-model:data="detailInstance" />
+  <detail-drawer v-model:drawer-active="detailDrawerActive" :data="detailInstance" />
 </template>
