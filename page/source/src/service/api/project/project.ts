@@ -94,7 +94,7 @@ export function getProjectResourceCode(id: string) {
  * @param condition - 查询条件
  */
 export function getMyProjectList(condition: ProjectCondition) {
-  return request.get<Paginate<Project>>("/project/myProjectList", {
+  return request.get<Project>("/project/myProjectList", {
     params: condition
   })
 }

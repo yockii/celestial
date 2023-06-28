@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     DatePickerInTable: typeof import('./src/components/DatePickerInTable.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    MyProjectList: typeof import('./src/components/project/MyProjectList.vue')['default']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NAvatarGroup: typeof import('naive-ui')['NAvatarGroup']

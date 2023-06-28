@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import { User } from "@/types/user"
 import { RouteHistory } from "@/types/app"
+import { Project } from "@/types/project"
 
 export const useUserStore = defineStore("user", {
   state: (): {
@@ -10,6 +11,7 @@ export const useUserStore = defineStore("user", {
     resourceCodes: string[]
     dataPermission: number
     history: RouteHistory[]
+    myProjectList: Project[]
   } => ({
     user: {
       id: "",
@@ -20,7 +22,8 @@ export const useUserStore = defineStore("user", {
     isSuperAdmin: false,
     resourceCodes: [],
     dataPermission: 0,
-    history: []
+    history: [],
+    myProjectList: []
   }),
   getters: {
     username: (state) => state.user.username,

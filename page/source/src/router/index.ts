@@ -191,14 +191,14 @@ const routes: Array<RouteRecordRaw> = [
     path: "/task",
     name: "Task",
     redirect: {
-      name: "TaskList"
+      name: "TaskIndex"
     },
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
-        path: "list",
-        name: "TaskList",
-        component: () => import("@/views/task/list/index.vue"),
+        path: "index",
+        name: "TaskIndex",
+        component: () => import("@/views/task/index.vue"),
         meta: {
           label: () => "我的任务",
           activeMenuKey: "Task",
@@ -211,14 +211,14 @@ const routes: Array<RouteRecordRaw> = [
     path: "/test",
     name: "Test",
     redirect: {
-      name: "TestList"
+      name: "TestIndex"
     },
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
-        path: "list",
-        name: "TestList",
-        component: () => import("@/views/test/list/index.vue"),
+        path: "index",
+        name: "TestIndex",
+        component: () => import("@/views/test/index.vue"),
         meta: {
           label: () => "我的测试",
           activeMenuKey: "Test",
