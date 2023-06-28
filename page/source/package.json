@@ -17,6 +17,7 @@
     "pinia": "^2.0.35",
     "pinia-plugin-persistedstate": "^3.1.0",
     "sm-crypto": "^0.3.12",
+    "vditor": "^3.9.4",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },

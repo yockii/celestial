@@ -232,11 +232,11 @@ const timeBefore = computed(() => (t: number) => dayjs(t).fromNow())
         <n-form-item label="项目代码" path="code">
           <n-input v-model:value="newProject.code" placeholder="请输入项目代码" />
         </n-form-item>
-        <n-form-item label="项目描述" path="description">
-          <n-input type="textarea" v-model:value="newProject.description" placeholder="请输入项目描述" />
-        </n-form-item>
         <n-form-item label="项目阶段" path="stageId">
           <n-select v-model:value="newProject.stageId" placeholder="请选择项目阶段" :options="stageListWithNone" label-field="name" value-field="id" />
+        </n-form-item>
+        <n-form-item label="项目描述" path="description">
+          <n-input type="textarea" v-model:value="newProject.description" placeholder="请输入项目描述" />
         </n-form-item>
       </n-form>
       <template #footer>
