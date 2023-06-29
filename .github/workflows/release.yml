@@ -39,7 +39,7 @@ jobs:
         uses: thedoctor0/zip-release@0.7.1
         with:
           type: 'tar'
-          filename: 'page.zip'
+          filename: 'page.tar.gz'
           directory: 'page'
           path: 'build'
       # 编译后端，根据goreleaser.yaml将后端打包到dist目录
