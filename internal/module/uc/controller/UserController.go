@@ -652,6 +652,7 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 			})
 		}
 		for _, role := range roles {
+			roleIds = append(roleIds, role.ID)
 			_, _ = conn.Do("SADD", userRolesKey, role.ID)
 			if userDataPerm == 0 || role.DataPermission < userDataPerm {
 				userDataPerm = role.DataPermission

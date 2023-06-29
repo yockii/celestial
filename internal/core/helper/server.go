@@ -91,6 +91,10 @@ func GetCurrentUserDataPermitInProject(ctx *fiber.Ctx, projectID uint64) (int, e
 }
 
 func GetUserRoleIdsInProject(uid, projectID uint64) (roleIDs []uint64, err error) {
+	if projectID == 0 {
+		return
+	}
+
 	conn := cache.Get()
 	defer func(conn redis.Conn) {
 		_ = conn.Close()
