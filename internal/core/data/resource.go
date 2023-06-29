@@ -617,11 +617,11 @@ func InitData() {
 		})
 	}
 
-	// 测试
+	// 缺陷
 	{
 		resources = append(resources, &model.Resource{
-			ResourceName: "测试",
-			ResourceCode: constant.ResourceTest,
+			ResourceName: "缺陷",
+			ResourceCode: constant.ResourceIssue,
 			Type:         1,
 		})
 	}

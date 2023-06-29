@@ -151,7 +151,7 @@ const (
 
 // 测试
 const (
-	ResourceTest = "test"
+	ResourceIssue = "issue"
 )
 
 // 资产

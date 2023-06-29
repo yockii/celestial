@@ -16,6 +16,7 @@ const renderUnAuthMsg = (msg: string) => {
           {
             href: "/login",
             onClick: () => {
+              useUserStore().logout()
               if (messageReactive) {
                 messageReactive.destroy()
                 messageReactive = null

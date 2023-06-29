@@ -549,7 +549,8 @@ const columns = [
   operationColumn
 ]
 const condition = ref<ProjectIssueCondition>({
-  projectId: project.value.id
+  projectId: project.value.id,
+  assigneeId: userStore.user.id
 })
 const list = ref<ProjectIssue[]>([])
 const loading = ref(false)

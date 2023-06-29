@@ -688,6 +688,12 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 					resourceCodes[rc] = struct{}{}
 				}
 			}
+		} else {
+			for _, resourceCode := range codes {
+				if _, ok := resourceCodes[resourceCode]; !ok {
+					resourceCodes[resourceCode] = struct{}{}
+				}
+			}
 		}
 		_, _ = conn.Do("EXPIRE", roleResourcesKey, 3*24*60*60)
 	}
