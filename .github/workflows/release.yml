@@ -36,12 +36,8 @@ jobs:
         working-directory: ./page/source
       # 打包前端构建品, 打包到page/page.zip
       - name: Zip Page
-        uses: thedoctor0/zip-release@0.7.1
-        with:
-          type: 'tar'
-          filename: 'page.tar.gz'
-          directory: 'page'
-          path: 'build'
+        run: tar -zcvf page.tar.gz ./build/
+        working-directory: ./page
       # 编译后端，根据goreleaser.yaml将后端打包到dist目录
       - name: Setup Go
         uses: actions/setup-go@v4
