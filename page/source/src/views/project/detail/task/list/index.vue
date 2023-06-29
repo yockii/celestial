@@ -406,6 +406,26 @@ const membersColumn = reactive({
     )
   }
 })
+const ownerColumn = reactive({
+  title: "负责人",
+  key: "owner",
+  render: (row: ProjectTask) => {
+    if (row.owner && row.owner.realName) {
+      return h(
+        NTooltip,
+        {},
+        {
+          trigger: () =>
+            h(NameAvatar, {
+              size: 20,
+              name: row.owner?.realName || ""
+            }),
+          default: () => row.owner?.realName || ""
+        }
+      )
+    }
+  }
+})
 const actionColumn = reactive({
   title: "操作",
   key: "operation",
@@ -595,7 +615,7 @@ const columns = computed(() => {
   if (!props.useTree) {
     result.push(expandColumn)
   }
-  result.push(nameColumn, priorityColumn, estimateTimeColumn, actualTimeColumn, membersColumn, statusColumn, actionColumn)
+  result.push(nameColumn, priorityColumn, estimateTimeColumn, actualTimeColumn, ownerColumn, membersColumn, statusColumn, actionColumn)
   return result
 })
 

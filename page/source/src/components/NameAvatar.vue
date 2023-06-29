@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   name: string
+  size?: "small" | "medium" | "large" | number
 }>()
 const color = computed(() => {
   if (props.name) {
@@ -22,7 +23,7 @@ const frontColor = computed(() => {
 </script>
 
 <template>
-  <n-avatar round :color="color" :style="{ color: frontColor }">
+  <n-avatar round :size="size" :color="color" :style="{ color: frontColor }">
     {{ name[0] }}
   </n-avatar>
 </template>

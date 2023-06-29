@@ -30,6 +30,7 @@ type ProjectTaskWorkTimeStatistics struct {
 
 type ProjectTaskWithMembers struct {
 	model.ProjectTask
+	Owner   *ProjectTaskMemberWithRealName   `json:"owner"`
 	Members []*ProjectTaskMemberWithRealName `json:"members"`
 }
 

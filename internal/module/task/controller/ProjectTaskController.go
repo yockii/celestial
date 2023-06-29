@@ -12,6 +12,8 @@ import (
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
+	ucService "github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/server"
 	"sync"
@@ -290,6 +292,11 @@ func (c *projectTaskController) List(ctx *fiber.Ctx) error {
 			resultList = append(resultList, ptwm)
 			go func(task *domain.ProjectTaskWithMembers) {
 				defer wg.Done()
+				owner, err := ucService.UserService.Instance(&ucModel.User{ID: task.OwnerID})
+				task.Owner = &domain.ProjectTaskMemberWithRealName{
+					RealName: owner.RealName,
+				}
+
 				members, err := service.ProjectTaskMemberService.ListWithRealName(&model.ProjectTaskMember{TaskID: task.ID})
 				if err != nil {
 					logger.Errorln(err)
@@ -647,6 +654,11 @@ func (c *projectTaskController) ListMine(ctx *fiber.Ctx) error {
 			resultList = append(resultList, ptwm)
 			go func(task *domain.ProjectTaskWithMembers) {
 				defer wg.Done()
+				owner, err := ucService.UserService.Instance(&ucModel.User{ID: task.OwnerID})
+				task.Owner = &domain.ProjectTaskMemberWithRealName{
+					RealName: owner.RealName,
+				}
+
 				members, err := service.ProjectTaskMemberService.ListWithRealName(&model.ProjectTaskMember{TaskID: task.ID})
 				if err != nil {
 					logger.Errorln(err)

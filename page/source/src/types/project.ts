@@ -167,6 +167,7 @@ export type ProjectTask = {
   createTime?: number
   updateTime?: number
   creatorId?: string
+  owner?: ProjectMember
   members?: ProjectTaskMember[]
   children?: ProjectTask[]
   isLeaf?: boolean
