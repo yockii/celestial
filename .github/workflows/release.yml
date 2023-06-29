@@ -63,4 +63,4 @@ jobs:
             dist/*.zip
             dist/checksums.txt
             dist/metadata.json
-            page/page.zip
+            page/page.tar.gz
