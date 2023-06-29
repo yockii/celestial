@@ -208,21 +208,21 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/test",
-    name: "Test",
+    path: "/issue",
+    name: "Issue",
     redirect: {
-      name: "TestIndex"
+      name: "IssueIndex"
     },
     component: () => import("@/layout/Primary.vue"),
     children: [
       {
         path: "index",
-        name: "TestIndex",
-        component: () => import("@/views/test/index.vue"),
+        name: "IssueIndex",
+        component: () => import("@/views/issue/index.vue"),
         meta: {
-          label: () => "我的测试",
-          activeMenuKey: "Test",
-          activeSubMenuKey: "Test"
+          label: () => "我的缺陷",
+          activeMenuKey: "Issue",
+          activeSubMenuKey: "Issue"
         }
       }
     ]

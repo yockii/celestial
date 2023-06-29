@@ -5,7 +5,7 @@ import {
   SkillLevelIntermediate,
   Folders,
   Home,
-  ToolKit,
+  Debug,
   SettingsServices,
   TaskView,
   Dashboard,
@@ -55,10 +55,10 @@ export const useMemStore = defineStore("mem", {
         icon: renderIcon(TaskView)
       },
       {
-        label: renderLinkedLabel("测试", "Test", true),
-        key: "Test",
-        code: "test",
-        icon: renderIcon(ToolKit)
+        label: renderLinkedLabel("缺陷", "Issue", true),
+        key: "Issue",
+        code: "issue",
+        icon: renderIcon(Debug)
       },
       {
         label: renderLinkedLabel("资产", "File", true),

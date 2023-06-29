@@ -2,11 +2,11 @@
 import MyProjectList from "@/components/project/MyProjectList.vue"
 import TaskList from "./list/index.vue"
 
-const TaskListInst = ref<typeof TaskList>()
+const taskListInst = ref<typeof TaskList>()
 const selectedProjectId = ref("")
 const handleSelectedProjectIdUpdate = (id: string | undefined) => {
   selectedProjectId.value = id || ""
-  TaskListInst.value?.projectSelected(id)
+  taskListInst.value?.projectSelected(id)
 }
 </script>
 
@@ -16,7 +16,7 @@ const handleSelectedProjectIdUpdate = (id: string | undefined) => {
       <MyProjectList :selected-project-id="selectedProjectId" @update:selected-project-id="handleSelectedProjectIdUpdate" />
     </n-gi>
     <n-gi :span="7">
-      <TaskList ref="TaskListInst" :selected-project-id="selectedProjectId" />
+      <TaskList ref="taskListInst" :selected-project-id="selectedProjectId" />
     </n-gi>
   </n-grid>
 </template>
