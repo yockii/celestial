@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
-	"github.com/yockii/ruomu-core/config"
+	"github.com/yockii/celestial/pkg/crypto"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -121,7 +121,7 @@ func InitRouter() {
 
 func publicKey(ctx *fiber.Ctx) error {
 	return ctx.JSON(&server.CommonResponse{
-		Data: config.GetString("sm2.publicKey"),
+		Data: crypto.PublicKeyString(), // config.GetString("sm2.publicKey"),
 	})
 }
 
