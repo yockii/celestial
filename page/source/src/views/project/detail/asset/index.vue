@@ -6,8 +6,10 @@ import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon
 import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
-import { downloadAssetFile, getAssetFile, getProjectAssetList } from "@/service/api"
+import { downloadAssetFile, getAssetFile, getProjectAssetList, deleteProjectAsset } from "@/service/api"
 import { Delete, Download, Edit } from "@vicons/carbon"
+
+const message = useMessage()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
 
@@ -340,6 +342,12 @@ const handleEditData = (row: ProjectAsset) => {
 // 删除资产
 const handleDeleteData = (id: string) => {
   console.log("handleDeleteData", id)
+  deleteProjectAsset(id).then((res) => {
+    if (res) {
+      message.success("删除成功")
+      refresh()
+    }
+  })
 }
 
 onMounted(() => {

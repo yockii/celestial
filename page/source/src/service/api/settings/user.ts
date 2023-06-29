@@ -2,6 +2,7 @@ import { request } from "../../request"
 import { Paginate } from "@/types/common"
 import { sm2 } from "sm-crypto"
 import { User, UserCondition, UserPermission } from "@/types/user"
+import { getPublicKey } from "../auth"
 
 /**
  * 用户列表
@@ -65,6 +66,10 @@ export const getUserPermissions = () => {
  * @param password - 密码
  */
 export const resetPassword = (id: string, password: string) => {
-  const encryptedPassword = "04" + sm2.doEncrypt(password, import.meta.env.VITE_SM2_PK)
-  return request.put("/user/resetPassword", { id, password: encryptedPassword })
+  return new Promise<boolean>((resolve) => {
+    getPublicKey().then((res) => {
+      const encryptedPassword = "04" + sm2.doEncrypt(password, res)
+      resolve(request.put<boolean>("/user/resetPassword", { id, password: encryptedPassword }))
+    })
+  })
 }

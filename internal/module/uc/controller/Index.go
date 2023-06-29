@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
+	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
 )
 
@@ -12,6 +14,8 @@ func InitRouter() {
 
 	// 注册
 	server.Post("/api/v1/register", UserController.Register)
+	// 公钥
+	server.Get("/api/v1/pk", publicKey)
 	// 登录
 	{
 		server.Post("/api/v1/login", UserController.Login)
@@ -113,6 +117,12 @@ func InitRouter() {
 		server.Post("/api/v1/dingtalk/:id", ThirdLoginController.DingtalkCallback)
 	}
 
+}
+
+func publicKey(ctx *fiber.Ctx) error {
+	return ctx.JSON(&server.CommonResponse{
+		Data: config.GetString("sm2.publicKey"),
+	})
 }
 
 // module方式用以下代码注入

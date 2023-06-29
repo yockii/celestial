@@ -8,10 +8,16 @@ import { LoginResponse } from "@/types/user"
  * @param password - 密码(需要加密)
  */
 export function login(username: string, password: string) {
-  const encryptedPassword = "04" + sm2.doEncrypt(password, import.meta.env.VITE_SM2_PK)
-  return request.post<LoginResponse>("/login", {
-    username,
-    password: encryptedPassword
+  return new Promise<LoginResponse>((resolve, reject) => {
+    getPublicKey().then((res) => {
+      const encryptedPassword = "04" + sm2.doEncrypt(password, res)
+      resolve(
+        request.post<LoginResponse>("/login", {
+          username,
+          password: encryptedPassword
+        })
+      )
+    })
   })
 }
 
@@ -25,4 +31,11 @@ export function loginInDingTalk(thirdSourceId: string, code: string) {
     code,
     thirdSourceId
   })
+}
+
+/**
+ * 获取公钥
+ */
+export function getPublicKey() {
+  return request.get<string>("/pk")
 }
