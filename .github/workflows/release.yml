@@ -23,14 +23,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '>=18.15.0'
-      - name: Build Page
-        run: |
-          cd page/source
-          npm install
-          npm run build
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+          run_install: false
+      - name: Install Dependency  # 安装依赖
+        run: pnpm install
+        working-directory: ./page/source
+      - name: Build Page  # 编译前端页面
+        run: pnpm build
+        working-directory: ./page/source
       # 打包前端构建品, 打包到page/page.zip
       - name: Zip Page
-        uses: thedoctor0/zip-release@latest
+        uses: thedoctor0/zip-release@0.7.1
         with:
           type: 'tar'
           filename: 'page.zip'
