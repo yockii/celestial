@@ -2,3 +2,5 @@
 /logs/
 /page/build/
 /tmpCmd/
+
+dist/
