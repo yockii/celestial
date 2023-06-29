@@ -25,6 +25,21 @@ const workTimeStatistics = ref<ProjectTaskWorkTimeStatistics>({
   taskCount: 0
 })
 
+const estimateDuration = computed(() => {
+  if (workTimeStatistics.value.estimateDuration) {
+    return (workTimeStatistics.value.estimateDuration / 3600).toFixed(2)
+  } else {
+    return 0
+  }
+})
+const actualDuration = computed(() => {
+  if (workTimeStatistics.value.actualDuration) {
+    return (workTimeStatistics.value.actualDuration / 3600).toFixed(2)
+  } else {
+    return 0
+  }
+})
+
 onMounted(() => {
   // 获取统计信息
   getProjectWorkTimeStatistics(props.project.id).then((res) => {
@@ -38,15 +53,15 @@ onMounted(() => {
   <n-grid :cols="3">
     <n-gi>
       <n-text tag="div" class="mb-4px">参与总人数</n-text>
-      <n-text class="text-2em">{{ memberList.length }}</n-text>
+      <n-text class="text-2em">{{ memberList.length }} 人</n-text>
     </n-gi>
     <n-gi>
       <n-text tag="div" class="mb-4px">预计总工时</n-text>
-      <n-text class="text-2em">{{ workTimeStatistics.estimateDuration || 0 }}</n-text>
+      <n-text class="text-2em">{{ estimateDuration }} 小时</n-text>
     </n-gi>
     <n-gi>
       <n-text tag="div" class="mb-4px">实际消耗工时</n-text>
-      <n-text class="text-2em">{{ workTimeStatistics.actualDuration || 0 }}</n-text>
+      <n-text class="text-2em">{{ actualDuration }} 小时</n-text>
     </n-gi>
   </n-grid>
 </template>
