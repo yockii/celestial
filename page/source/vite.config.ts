@@ -13,7 +13,8 @@ import { createSvgIconsPlugin } from "vite-plugin-svg-icons"
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    outDir: "../build"
+    outDir: "../build",
+    emptyOutDir: true
   },
   plugins: [
     vue(),

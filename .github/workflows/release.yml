@@ -36,7 +36,7 @@ jobs:
         working-directory: ./page/source
       # 打包前端构建品, 打包到page/page.zip
       - name: Zip Page
-        run: tar -zcvf page.tar.gz ./build/ && ls -l
+        run: tar -zcvf page.tar.gz ./build/
         working-directory: ./page
       # 编译后端，根据goreleaser.yaml将后端打包到dist目录
       - name: Setup Go
@@ -58,10 +58,6 @@ jobs:
             dist/checksums.txt
             dist/metadata.json
             page/page.tar.gz
-          tag_name: ${{ github.ref }}
-          body: |
-            ## 更新日志
-            ${{ github.event.release.body }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
