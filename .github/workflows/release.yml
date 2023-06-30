@@ -36,7 +36,7 @@ jobs:
         working-directory: ./page/source
       # 打包前端构建品, 打包到page/page.zip
       - name: Zip Page
-        run: tar -zcvf page.tar.gz ./build/
+        run: tar -zcvf page.tar.gz ./build/ && ls -l
         working-directory: ./page
       # 编译后端，根据goreleaser.yaml将后端打包到dist目录
       - name: Setup Go
@@ -50,13 +50,28 @@ jobs:
           args: release --rm-dist --skip-validate --skip-publish --skip-sign
       # 发布到releases
       - name: Create Release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: 'latest'
           files: |
             dist/*.tar.gz
             dist/*.zip
             dist/checksums.txt
             dist/metadata.json
             page/page.tar.gz
+          tag_name: ${{ github.ref }}
+          body: |
+            ## 更新日志
+            ${{ github.event.release.body }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+#        uses: marvinpinto/action-automatic-releases@latest
+#        with:
+#          repo_token: ${{ secrets.GITHUB_TOKEN }}
+#          automatic_release_tag: 'latest'
+#          files: |
+#            dist/*.tar.gz
+#            dist/*.zip
+#            dist/checksums.txt
+#            dist/metadata.json
+#            page/page.tar.gz
