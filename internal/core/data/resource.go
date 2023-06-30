@@ -907,16 +907,6 @@ func InitData() {
 				ResourceCode: constant.ResourceDepartmentRemoveUser,
 				Type:         1,
 			})
-			resources = append(resources, &model.Resource{
-				ResourceName: "更新部门名称",
-				ResourceCode: constant.ResourceDepartmentUpdateName,
-				Type:         1,
-			})
-			resources = append(resources, &model.Resource{
-				ResourceName: "变更父级部门",
-				ResourceCode: constant.ResourceDepartmentChangeParent,
-				Type:         1,
-			})
 		}
 		// 三方登录源
 		{

@@ -20,6 +20,8 @@ import {
 import RoleDrawer from "./roleDrawer/index.vue"
 import { useUserStore } from "@/store/user"
 import { KeyReset24Filled } from "@vicons/fluent"
+import DepartmentTree from "./departmentTree/index.vue"
+
 const message = useMessage()
 const userStore = useUserStore()
 const condition = ref<UserCondition>({
@@ -46,6 +48,10 @@ const refresh = () => {
     .finally(() => {
       loading.value = false
     })
+}
+const handleDepartmentSelected = (departmentId: string) => {
+  condition.value.departmentId = departmentId
+  refresh()
 }
 
 const paginationReactive = reactive({
@@ -438,73 +444,80 @@ const handleAssignRole = (row: User) => {
 </script>
 
 <template>
-  <n-grid :cols="1" y-gap="8">
+  <n-grid :cols="6" x-gap="16">
     <n-gi>
-      <n-grid :cols="2">
-        <n-gi>
-          <n-h3>用户管理</n-h3>
-        </n-gi>
-        <n-gi class="flex flex-justify-end">
-          <n-button size="small" type="primary" @click="handleAddUser" v-resource-code="'system:user:add'">新增用户</n-button>
-        </n-gi>
-      </n-grid>
+      <DepartmentTree @update:department-selected="handleDepartmentSelected" />
     </n-gi>
-    <n-gi>
-      <n-grid :cols="8" x-gap="8">
-        <n-gi :span="2">
-          <n-input size="small" placeholder="用户名" v-model:value="condition.username" @keydown.enter.prevent="refresh" />
-        </n-gi>
-        <n-gi :span="2">
-          <n-input size="small" placeholder="姓名" v-model:value="condition.realName" @keydown.enter.prevent="refresh" />
+    <n-gi :span="5">
+      <n-grid :cols="1" y-gap="8">
+        <n-gi>
+          <n-grid :cols="2">
+            <n-gi>
+              <n-h3>用户管理</n-h3>
+            </n-gi>
+            <n-gi class="flex flex-justify-end">
+              <n-button size="small" type="primary" @click="handleAddUser" v-resource-code="'system:user:add'">新增用户</n-button>
+            </n-gi>
+          </n-grid>
         </n-gi>
         <n-gi>
-          <!-- 状态条件 -->
-          <n-select
-            size="small"
-            placeholder="状态"
-            v-model:value="condition.status"
-            @update:value="refresh"
-            :options="[
-              {
-                label: '全部',
-                value: 0
-              },
-              {
-                label: '正常',
-                value: 1
-              },
-              {
-                label: '禁用',
-                value: 2
-              }
-            ]"
-          >
-          </n-select>
-        </n-gi>
+          <n-grid :cols="8" x-gap="8">
+            <n-gi :span="2">
+              <n-input size="small" placeholder="用户名" v-model:value="condition.username" @keydown.enter.prevent="refresh" />
+            </n-gi>
+            <n-gi :span="2">
+              <n-input size="small" placeholder="姓名" v-model:value="condition.realName" @keydown.enter.prevent="refresh" />
+            </n-gi>
+            <n-gi>
+              <!-- 状态条件 -->
+              <n-select
+                size="small"
+                placeholder="状态"
+                v-model:value="condition.status"
+                @update:value="refresh"
+                :options="[
+                  {
+                    label: '全部',
+                    value: 0
+                  },
+                  {
+                    label: '正常',
+                    value: 1
+                  },
+                  {
+                    label: '禁用',
+                    value: 2
+                  }
+                ]"
+              >
+              </n-select>
+            </n-gi>
 
-        <n-gi :offset="2" class="flex flex-justify-end">
-          <n-button size="small" @click="refresh">
-            <template #icon>
-              <n-icon><search /></n-icon>
-            </template>
-          </n-button>
+            <n-gi :offset="2" class="flex flex-justify-end">
+              <n-button size="small" @click="refresh">
+                <template #icon>
+                  <n-icon><search /></n-icon>
+                </template>
+              </n-button>
+            </n-gi>
+          </n-grid>
+        </n-gi>
+        <n-gi>
+          <n-data-table
+            size="small"
+            remote
+            :data="list"
+            :loading="loading"
+            :row-key="(row: User) => row.id"
+            :pagination="paginationReactive"
+            :on-update:page="handlePageChange"
+            :on-update:page-size="handlePageSizeChange"
+            :on-update:filters="handleFiltersChange"
+            :on-update:sorter="handleSorterChange"
+            :columns="columns"
+          />
         </n-gi>
       </n-grid>
-    </n-gi>
-    <n-gi>
-      <n-data-table
-        size="small"
-        remote
-        :data="list"
-        :loading="loading"
-        :row-key="(row: User) => row.id"
-        :pagination="paginationReactive"
-        :on-update:page="handlePageChange"
-        :on-update:page-size="handlePageSizeChange"
-        :on-update:filters="handleFiltersChange"
-        :on-update:sorter="handleSorterChange"
-        :columns="columns"
-      />
     </n-gi>
   </n-grid>
 

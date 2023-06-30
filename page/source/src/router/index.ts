@@ -278,6 +278,16 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
+        path: "department",
+        name: "Department",
+        component: () => import("@/views/system/department/index.vue"),
+        meta: {
+          label: () => "部门管理",
+          activeMenuKey: "System",
+          activeSubMenuKey: "Department"
+        }
+      },
+      {
         path: "role",
         name: "Role",
         component: () => import("@/views/system/role/index.vue"),

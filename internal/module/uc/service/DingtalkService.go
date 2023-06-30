@@ -15,16 +15,16 @@ var DingtalkService = new(dingtalkService)
 
 type dingtalkService struct{}
 
-func (s *dingtalkService) SyncDingUserByThirdSourceOutsideDingtalk(source *model.ThirdSource, code string, withDept bool) (user *model.User, err error) {
+func (s *dingtalkService) SyncDingUserByThirdSourceOutsideDingtalk(source *model.ThirdSource, code string) (user *model.User, err error) {
 	staffId, _, err := dingtalk.GetUserOutsideDingtalk(source, code)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.SyncDingUserByThirdSource(source, staffId, withDept)
+	return s.SyncDingUserByThirdSource(source, staffId)
 }
 
-func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, staffId string, withDept bool) (matchingUser *model.User, err error) {
+func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, staffId string) (matchingUser *model.User, err error) {
 	user := &model.ThirdUser{
 		SourceID: source.ID,
 		OpenID:   staffId,
@@ -149,118 +149,150 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 		}
 	}
 
-	if withDept {
-		// 同步部门信息
-		deptIdListJson := dingUserRespJson.Get("result.dept_id_list").Array()
-		var deptIdList []uint64
-		for _, deptIdJson := range deptIdListJson {
-			dept := model.Department{
-				ExternalID: deptIdJson.String(),
-			}
-			if err = database.DB.Where(&dept).First(&dept).Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					var dingDept *dingtalk.GetDepartmentResponse
-					dingDept, err = dingtalk.GetDepartment(source, deptIdJson.String())
-					if err != nil {
-						return nil, err
+	// 同步部门信息
+	deptIdListJson := dingUserRespJson.Get("result.dept_id_list").Array()
+	var deptIdList []uint64
+	for _, deptIdJson := range deptIdListJson {
+		dept := model.Department{
+			ExternalID: deptIdJson.String(),
+		}
+		if err = database.DB.Where(&dept).First(&dept).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				var dingDept *dingtalk.GetDepartmentResponse
+				dingDept, err = dingtalk.GetDepartment(source, deptIdJson.String())
+				if err != nil {
+					return nil, err
+				}
+				dept.OrderNum = dingDept.OrderNum
+				dept.Name = dingDept.Name
+				// 获取父级部门
+				if dingDept.ParentId != "" {
+					parentDept := &model.Department{
+						ExternalID: dingDept.ParentId,
 					}
-					dept.OrderNum = dingDept.OrderNum
-					dept.Name = dingDept.Name
-					// 获取父级部门
-					if dingDept.ParentId != "" {
-						parentDept := &model.Department{
-							ExternalID: dingDept.ParentId,
-						}
-						if err = database.DB.Where(&parentDept).First(&parentDept).Error; err != nil {
-							if errors.Is(err, gorm.ErrRecordNotFound) {
-								parentDept, err = s.SyncDingDept(source.CorpId, dingDept.ParentId, false)
-								if err != nil {
-									return nil, err
-								}
-							} else {
-								logger.Error(err)
+					if err = database.DB.Where(&parentDept).First(&parentDept).Error; err != nil {
+						if errors.Is(err, gorm.ErrRecordNotFound) {
+							parentDept, err = s.SyncDingDept(source.CorpId, dingDept.ParentId, false)
+							if err != nil {
 								return nil, err
 							}
+						} else {
+							logger.Error(err)
+							return nil, err
 						}
-						dept.ParentID = parentDept.ID
-						dept.FullPath = parentDept.FullPath + "/" + dept.Name
-					} else {
-						dept.FullPath = dept.Name
 					}
-					dept.ID = util.SnowflakeId()
-
-					if err = database.DB.Create(&dept).Error; err != nil {
-						logger.Error(err)
-						return nil, err
-					}
+					dept.ParentID = parentDept.ID
+					dept.FullPath = parentDept.FullPath + "/" + dept.Name
 				} else {
+					dept.FullPath = dept.Name
+				}
+				dept.ID = util.SnowflakeId()
+
+				if err = database.DB.Create(&dept).Error; err != nil {
 					logger.Error(err)
 					return nil, err
 				}
+			} else {
+				logger.Error(err)
+				return nil, err
 			}
-			deptIdList = append(deptIdList, dept.ID)
 		}
-		// 更新用户部门关系
-		err = database.DB.Transaction(func(tx *gorm.DB) error {
-			// 查询原有部门信息，并更新用户部门关系
-			var userDeptList []*model.UserDepartment
-			if err = tx.Where(&model.UserDepartment{
-				UserID: matchingUser.ID,
-			}).Find(&userDeptList).Error; err != nil {
+		deptIdList = append(deptIdList, dept.ID)
+	}
+	// 更新用户部门关系
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询原有部门信息，并更新用户部门关系
+		var userDeptList []*model.UserDepartment
+		if err = tx.Where(&model.UserDepartment{
+			UserID: matchingUser.ID,
+		}).Find(&userDeptList).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				logger.Error(err)
 				return err
 			}
-			// 获取原有部门ID
-			var oldDeptIdList []uint64
-			for _, userDept := range userDeptList {
-				oldDeptIdList = append(oldDeptIdList, userDept.DepartmentID)
-			}
-			// 获取需要删除的部门ID
-			var deleteDeptIdList []uint64
-			for _, oldDeptId := range oldDeptIdList {
-				for _, deptId := range deptIdList {
-					if oldDeptId == deptId {
-						break
+		}
+		// 获取原有部门ID
+		var oldDeptIdList []uint64
+		for _, userDept := range userDeptList {
+			oldDeptIdList = append(oldDeptIdList, userDept.DepartmentID)
+		}
+		// 获取需要添加的部门ID
+		var addDeptIdList []uint64
+		// 获取需要删除的部门ID
+		var deleteDeptIdList []uint64
+
+		for i := len(deptIdList) - 1; i >= 0; i-- {
+			var exists bool
+			for k := len(oldDeptIdList) - 1; k >= 0; k-- {
+				if deptIdList[i] == oldDeptIdList[k] {
+					exists = true
+					if k == len(oldDeptIdList)-1 {
+						oldDeptIdList = oldDeptIdList[:k]
+					} else {
+						oldDeptIdList = append(oldDeptIdList[:k], oldDeptIdList[k+1:]...)
 					}
-					deleteDeptIdList = append(deleteDeptIdList, oldDeptId)
+					break
 				}
 			}
-			// 删除需要删除的部门ID
-			if len(deleteDeptIdList) > 0 {
-				if err = tx.Where(&model.UserDepartment{UserID: matchingUser.ID}).Where("department_id in ?", deleteDeptIdList).Delete(&model.UserDepartment{}).Error; err != nil {
-					logger.Error(err)
-					return err
+			if !exists {
+				addDeptIdList = append(addDeptIdList, deptIdList[i])
+				if i == len(deptIdList)-1 {
+					deptIdList = deptIdList[:i]
+				} else {
+					deptIdList = append(deptIdList[:i], deptIdList[i+1:]...)
 				}
 			}
-			// 获取需要添加的部门ID
-			var addDeptIdList []uint64
-			for _, deptId := range deptIdList {
-				for _, oldDeptId := range oldDeptIdList {
-					if deptId == oldDeptId {
-						break
-					}
-					addDeptIdList = append(addDeptIdList, deptId)
+		}
+
+		for i := len(oldDeptIdList) - 1; i >= 0; i-- {
+			var exists bool
+			for k := len(deptIdList) - 1; k >= 0; k-- {
+				if oldDeptIdList[i] == deptIdList[k] {
+					exists = true
+					break
 				}
 			}
-			// 添加新的部门关系
-			for _, deptId := range addDeptIdList {
-				if err = tx.Create(&model.UserDepartment{
-					ID:           util.SnowflakeId(),
-					UserID:       matchingUser.ID,
-					DepartmentID: deptId,
-				}).Error; err != nil {
-					logger.Error(err)
-					return err
-				}
+			if !exists {
+				deleteDeptIdList = append(deleteDeptIdList, oldDeptIdList[i])
 			}
-			return nil
-		})
-	}
+		}
+
+		// 删除需要删除的部门ID
+		if len(deleteDeptIdList) > 0 {
+			if err = tx.Where(&model.UserDepartment{UserID: matchingUser.ID}).Where("department_id in ?", deleteDeptIdList).Delete(&model.UserDepartment{}).Error; err != nil {
+				logger.Error(err)
+				return err
+			}
+		}
+		// 添加新的部门关系
+		var ud []*model.UserDepartment
+		for _, deptId := range addDeptIdList {
+			// 获取dept信息
+			var dept *model.Department
+			dept, err = DepartmentService.Instance(deptId)
+			if err != nil {
+				return err
+			}
+			ud = append(ud, &model.UserDepartment{
+				ID:             util.SnowflakeId(),
+				UserID:         matchingUser.ID,
+				DepartmentID:   deptId,
+				DepartmentPath: dept.FullPath,
+			})
+		}
+		if len(ud) > 0 {
+			if err = tx.Create(ud).Error; err != nil {
+				logger.Error(err)
+				return err
+			}
+		}
+		return nil
+	})
 
 	return matchingUser, nil
 }
 
-func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept bool) (*model.User, error) {
+func (s *dingtalkService) SyncDingUser(corpId string, staffId string) (*model.User, error) {
 	source, err := ThirdSourceService.Instance(&model.ThirdSource{
 		CorpId: corpId,
 	})
@@ -271,7 +303,7 @@ func (s *dingtalkService) SyncDingUser(corpId string, staffId string, withDept b
 		logger.Warn("未找到对应的第三方源配置")
 		return nil, nil
 	}
-	return s.SyncDingUserByThirdSource(source, staffId, withDept)
+	return s.SyncDingUserByThirdSource(source, staffId)
 }
 
 func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildren bool) (*model.Department, error) {
@@ -371,8 +403,17 @@ func (s *dingtalkService) SyncChildrenDepartmentsWithStaff(source *model.ThirdSo
 						ExternalID: dingDept.ParentId,
 					}
 					if err = database.DB.Where(parentDept).First(parentDept).Error; err != nil {
-						logger.Errorln(err)
-						return err
+						if errors.Is(err, gorm.ErrRecordNotFound) {
+							// 没有找到父级部门，同步父级部门
+							parentDept, err = s.SyncDingDept(source.CorpId, dingDept.ParentId, false)
+							if err != nil {
+								logger.Errorln(err)
+								return err
+							}
+						} else {
+							logger.Errorln(err)
+							return err
+						}
 					}
 					d.ParentID = parentDept.ID
 					d.FullPath = parentDept.FullPath + "/" + d.Name
@@ -423,7 +464,7 @@ func (s *dingtalkService) syncStaffInDepartment(source *model.ThirdSource, dept 
 		return
 	}
 	for _, staffId := range staffIdList {
-		_, err = s.SyncDingUserByThirdSource(source, staffId, false)
+		_, err = s.SyncDingUserByThirdSource(source, staffId)
 		if err != nil {
 			return
 		}

@@ -242,14 +242,12 @@ const (
 	ResourceResourceList = ResourceSystem + ":resourceList"
 
 	// 部门资源
-	ResourceDepartment             = ResourceSystem + ":department"
-	ResourceDepartmentAdd          = ResourceDepartment + ":add"
-	ResourceDepartmentDelete       = ResourceDepartment + ":delete"
-	ResourceDepartmentUpdate       = ResourceDepartment + ":update"
-	ResourceDepartmentUpdateName   = ResourceDepartment + ":updateName"
-	ResourceDepartmentChangeParent = ResourceDepartment + ":changeParent"
-	ResourceDepartmentList         = ResourceDepartment + ":list"
-	ResourceDepartmentInstance     = ResourceDepartment + ":instance"
-	ResourceDepartmentAddUser      = ResourceDepartment + ":addUser"
-	ResourceDepartmentRemoveUser   = ResourceDepartment + ":removeUser"
+	ResourceDepartment           = ResourceSystem + ":department"
+	ResourceDepartmentAdd        = ResourceDepartment + ":add"
+	ResourceDepartmentDelete     = ResourceDepartment + ":delete"
+	ResourceDepartmentUpdate     = ResourceDepartment + ":update"
+	ResourceDepartmentList       = ResourceDepartment + ":list"
+	ResourceDepartmentInstance   = ResourceDepartment + ":instance"
+	ResourceDepartmentAddUser    = ResourceDepartment + ":addUser"
+	ResourceDepartmentRemoveUser = ResourceDepartment + ":removeUser"
 )

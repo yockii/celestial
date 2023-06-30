@@ -19,7 +19,7 @@ const treeSelected = (keys: string[]) => {
   refresh()
 }
 const handleLoad = (node: AssetCategory) => {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     getAssetCategoryList({
       parentId: node.id,
       offset: -1,
@@ -29,7 +29,7 @@ const handleLoad = (node: AssetCategory) => {
         item.isLeaf = !item.childrenCount || item.childrenCount === 0
         return item
       })
-      resolve(true)
+      resolve()
     })
   })
 }

@@ -14,6 +14,7 @@ import {
   LicenseGlobal,
   ObjectStorage
 } from "@vicons/carbon"
+import { Organization28Regular } from "@vicons/fluent"
 import { ProjectOutlined } from "@vicons/antd"
 import { Files, TestPipe } from "@vicons/tabler"
 import { MenuOption } from "naive-ui"
@@ -91,6 +92,12 @@ export const useMemStore = defineStore("mem", {
             key: "User",
             code: "system:user",
             icon: renderIcon(UserMultiple)
+          },
+          {
+            label: renderLinkedLabel("部门管理", "Department"),
+            key: "Department",
+            code: "system:department",
+            icon: renderIcon(Organization28Regular)
           },
           {
             label: renderLinkedLabel("角色管理", "Role"),

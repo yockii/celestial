@@ -13,6 +13,7 @@ type Department struct {
 	FullPath     string `json:"fullPath,omitempty" gorm:"size:255;comment:部门路径,/分割"`
 	ExternalJson string `json:"externalJson,omitempty" gorm:"size:2000;comment:扩展json信息"`
 	OrderNum     int    `json:"orderNum,omitempty" gorm:"comment:排序号"`
+	ChildCount   int    `json:"childCount,omitempty" gorm:"comment:子部门数量"`
 	CreateTime   int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime   int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }
@@ -29,16 +30,18 @@ func (d *Department) UnmarshalJSON(b []byte) error {
 	d.ParentID = j.Get("parentId").Uint()
 	d.FullPath = j.Get("fullPath").String()
 	d.OrderNum = int(j.Get("orderNum").Int())
+	d.ChildCount = int(j.Get("childCount").Int())
 	return nil
 }
 
 type UserDepartment struct {
-	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	UserID       uint64 `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
-	DepartmentID uint64 `json:"departmentId,omitempty,string" gorm:"index;comment:部门ID"`
-	ExternalJson string `json:"externalJson,omitempty" gorm:"size:2000;comment:扩展json信息"`
-	CreateTime   int64  `json:"createTime" gorm:"autoCreateTime:milli"`
-	UpdateTime   int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
+	ID             uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	UserID         uint64 `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
+	DepartmentID   uint64 `json:"departmentId,omitempty,string" gorm:"index;comment:部门ID"`
+	ExternalJson   string `json:"externalJson,omitempty" gorm:"size:2000;comment:扩展json信息"`
+	DepartmentPath string `json:"departmentPath,omitempty" gorm:"size:255;comment:部门路径,/分割"`
+	CreateTime     int64  `json:"createTime" gorm:"autoCreateTime:milli"`
+	UpdateTime     int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }
 
 func (_ *UserDepartment) TableComment() string {
@@ -50,6 +53,7 @@ func (ud *UserDepartment) UnmarshalJSON(b []byte) error {
 	ud.ID = j.Get("id").Uint()
 	ud.UserID = j.Get("userId").Uint()
 	ud.DepartmentID = j.Get("departmentId").Uint()
+	ud.DepartmentPath = j.Get("departmentPath").String()
 	return nil
 }
 

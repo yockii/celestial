@@ -148,7 +148,7 @@ func (s *userService) UpdatePassword(instance *model.User) (success bool, err er
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.User, err error) {
+func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition, departmentPath string) (total int64, list []*model.User, err error) {
 	// 处理不允许查询的字段
 	if condition.Password != "" {
 		condition.Password = ""
@@ -178,6 +178,9 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
 			}
 		}
+	}
+	if departmentPath != "" {
+		tx = tx.Where("id in (?)", database.DB.Model(&model.UserDepartment{}).Where("department_path like ?", departmentPath+"%").Select("user_id"))
 	}
 
 	// 模糊查找

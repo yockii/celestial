@@ -17,6 +17,7 @@ export type UserCondition = Condition & {
   email?: string
   mobile?: string
   status?: number
+  departmentId?: string
 }
 
 export type LoginResponse = {
@@ -60,4 +61,24 @@ export type UserPermission = {
   isSuperAdmin: boolean
   resourceCodeList: string[]
   dataPermission: number
+}
+
+export type Department = {
+  id: string
+  externalId?: string
+  name: string
+  parentId?: string
+  fullPath?: string
+  orderNum?: number
+  childCount?: number
+  createTime?: number
+  isLeaf?: boolean
+  children?: Department[]
+}
+
+export type DepartmentCondition = Condition & {
+  name?: string
+  parentId?: string
+  fullPath?: string
+  onlyParent?: boolean
 }

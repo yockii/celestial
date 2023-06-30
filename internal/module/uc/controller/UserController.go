@@ -347,7 +347,20 @@ func (c *userController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.UserService.PaginateBetweenTimes(&instance.User, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	departmentPath := ""
+	if instance.DepartmentID != 0 {
+		// 获取部门信息
+		department, err := service.DepartmentService.Instance(instance.DepartmentID)
+		if err != nil {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDatabase,
+				Msg:  server.ResponseMsgDatabase + err.Error(),
+			})
+		}
+		departmentPath = department.FullPath
+	}
+
+	total, list, err := service.UserService.PaginateBetweenTimes(&instance.User, paginate.Limit, paginate.Offset, instance.OrderBy, tcList, departmentPath)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -515,7 +528,7 @@ func (c *userController) LoginByDingtalkCode(ctx *fiber.Ctx) error {
 		})
 	} else {
 		var user *model.User
-		user, err = service.DingtalkService.SyncDingUserByThirdSourceOutsideDingtalk(thirdSource, req.Code, true)
+		user, err = service.DingtalkService.SyncDingUserByThirdSourceOutsideDingtalk(thirdSource, req.Code)
 		if err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
@@ -562,7 +575,7 @@ func (c *userController) LoginInDingtalk(ctx *fiber.Ctx) error {
 			})
 		}
 		var user *model.User
-		user, err = service.DingtalkService.SyncDingUserByThirdSource(thirdSource, staffId, true)
+		user, err = service.DingtalkService.SyncDingUserByThirdSource(thirdSource, staffId)
 		if err != nil {
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,

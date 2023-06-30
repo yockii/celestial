@@ -51,8 +51,6 @@ func InitRouter() {
 		department.Post("/add", middleware.NeedAuthorization(constant.ResourceDepartmentAdd), DepartmentController.Add)
 		department.Delete("/delete", middleware.NeedAuthorization(constant.ResourceDepartmentDelete), DepartmentController.Delete)
 		department.Put("/update", middleware.NeedAuthorization(constant.ResourceDepartmentUpdate), DepartmentController.Update)
-		department.Put("/updateName", middleware.NeedAuthorization(constant.ResourceDepartmentUpdateName), DepartmentController.UpdateName)
-		department.Put("/changeParent", middleware.NeedAuthorization(constant.ResourceDepartmentChangeParent), DepartmentController.ChangeParent)
 		department.Get("/list", middleware.NeedAuthorization(constant.ResourceDepartmentList), DepartmentController.List)
 		department.Get("/instance", middleware.NeedAuthorization(constant.ResourceDepartmentInstance), DepartmentController.Instance)
 
@@ -62,8 +60,6 @@ func InitRouter() {
 		// 对于禁用put和delete方法时的处理
 		department.Post("/delete", middleware.NeedAuthorization(constant.ResourceDepartmentDelete), DepartmentController.Delete)
 		department.Post("/update", middleware.NeedAuthorization(constant.ResourceDepartmentUpdate), DepartmentController.Update)
-		department.Post("/updateName", middleware.NeedAuthorization(constant.ResourceDepartmentUpdateName), DepartmentController.UpdateName)
-		department.Post("/changeParent", middleware.NeedAuthorization(constant.ResourceDepartmentChangeParent), DepartmentController.ChangeParent)
 	}
 
 	// 角色

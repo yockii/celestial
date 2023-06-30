@@ -47,133 +47,95 @@ func (s *departmentService) Add(instance *model.Department) (duplicated bool, su
 
 	instance.ID = util.SnowflakeId()
 
-	err = database.DB.Create(instance).Error
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Create(instance).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 更新父部门的子部门数量
+		if instance.ParentID != 0 {
+			err = tx.Model(&model.Department{ID: instance.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
+
 	success = true
 	return
 }
 
 // Update 更新部门基本信息
-func (s *departmentService) Update(instance *model.Department) (success bool, err error) {
+func (s *departmentService) Update(instance, oldInstance *model.Department) (success bool, err error) {
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
 	}
 
-	err = database.DB.Where(&model.Department{ID: instance.ID}).Updates(&model.Department{
-		ExternalID:   instance.ExternalID,
-		ExternalJson: instance.ExternalJson,
-		OrderNum:     instance.OrderNum,
-	}).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
-	success = true
-	return
-}
-
-// UpdateName 更新部门名称
-func (s *departmentService) UpdateName(instance *model.Department) (duplicated bool, success bool, err error) {
-	if instance.ID == 0 {
-		err = errors.New("id is required")
-		return
-	}
-	if instance.Name == "" {
-		err = errors.New("name is required")
-		return
-	}
-
-	// 获取原有数据
-	old := &model.Department{ID: instance.ID}
-	err = database.DB.First(old).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
-	if old.Name == instance.Name {
-		// 名称未变更
-		success = true
-		return
-	}
-
-	var c int64
-	err = database.DB.Model(&model.Department{}).Where(&model.Department{Name: instance.Name, ParentID: old.ParentID}).Count(&c).Error
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
-	if c > 0 {
-		duplicated = true
-		return
-	}
-
-	// 事务
-	err = database.DB.Transaction(func(tx *gorm.DB) error {
-		// 更新当前部门名称
-		err = tx.Model(&model.Department{ID: instance.ID}).Updates(map[string]interface{}{
-			"name":      instance.Name,
-			"full_path": old.FullPath[:len(old.FullPath)-len(old.Name)] + instance.Name,
-		}).Error
-		if err != nil {
-			logger.Errorln(err)
-			return err
-		}
-
-		// 更新子部门全路径
-		err = tx.Model(&model.Department{}).Where("full_path LIKE ?", old.FullPath+"/%").Updates(map[string]interface{}{
-			"full_path": gorm.Expr("REPLACE(full_path, ?, ?)", old.FullPath+"/", old.FullPath[:len(old.FullPath)-len(old.Name)]+instance.Name+"/"),
-		}).Error
-		if err != nil {
-			logger.Errorln(err)
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return
-	}
-	success = true
-	return
-}
-
-// ChangeParent 修改父级部门
-func (s *departmentService) ChangeParent(instance *model.Department) (success bool, err error) {
-	if instance.ID == 0 {
-		err = errors.New("id is required")
-		return
-	}
-
-	if instance.ParentID == 0 {
-		// 变为根部门
-		instance.FullPath = instance.Name
-	} else {
-		// 获取parent
-		parent := &model.Department{ID: instance.ParentID}
+	// 旧数据的parentID与新数据不同，需要更新fullPath及childCount
+	var parent *model.Department
+	if (instance.ParentID != 0 && instance.ParentID != oldInstance.ParentID) || instance.Name != oldInstance.Name {
+		parent = &model.Department{ID: instance.ParentID}
 		err = database.DB.First(parent).Error
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				err = errors.New("父级部门不存在")
-			}
 			logger.Errorln(err)
 			return
 		}
 		instance.FullPath = parent.FullPath + "/" + instance.Name
+	} else {
+		instance.FullPath = ""
 	}
 
-	err = database.DB.Where(&model.Department{ID: instance.ID}).Updates(map[string]interface{}{
-		"parent_id": instance.ParentID,
-		"Full_Path": instance.FullPath,
-	}).Error
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		err = tx.Model(&model.Department{ID: instance.ID}).Updates(&model.Department{
+			Name:         instance.Name,
+			ExternalID:   instance.ExternalID,
+			ExternalJson: instance.ExternalJson,
+			OrderNum:     instance.OrderNum,
+			FullPath:     instance.FullPath,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 如果fullPath变更，则所有用户部门的DepartmentPath也要变更
+		if instance.FullPath != "" && instance.FullPath != oldInstance.FullPath {
+			err = tx.Model(&model.UserDepartment{}).Where(&model.UserDepartment{DepartmentID: instance.ID}).Updates(&model.UserDepartment{
+				DepartmentPath: instance.FullPath,
+			}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		// 更新父部门的子部门数量
+		if instance.ParentID != 0 && instance.ParentID != oldInstance.ParentID {
+			// 原有的父级要-1
+			err = tx.Model(&model.Department{ID: oldInstance.ParentID}).Update("child_count", gorm.Expr("child_count - ?", 1)).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			// 新的父级要+1
+			err = tx.Model(&model.Department{ID: instance.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
-		logger.Errorln(err)
 		return
 	}
+
 	success = true
 	return
 }
@@ -207,7 +169,7 @@ func (s *departmentService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *departmentService) PaginateBetweenTimes(condition *model.Department, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Department, err error) {
+func (s *departmentService) PaginateBetweenTimes(condition *model.Department, onlyParent bool, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.Department, err error) {
 	tx := database.DB.Model(&model.Department{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
@@ -218,6 +180,7 @@ func (s *departmentService) PaginateBetweenTimes(condition *model.Department, li
 	if orderBy != "" {
 		tx = tx.Order(orderBy)
 	}
+	tx = tx.Order("order_num")
 
 	// 处理时间字段，在某段时间之间
 	for tc, tr := range tcList {
@@ -239,6 +202,10 @@ func (s *departmentService) PaginateBetweenTimes(condition *model.Department, li
 		if condition.FullPath != "" {
 			tx = tx.Where("full_path like ?", condition.FullPath+"%")
 		}
+	}
+
+	if onlyParent {
+		tx = tx.Where("parent_id = 0")
 	}
 
 	err = tx.Omit("external_json").Find(&list, &model.Department{
@@ -278,11 +245,22 @@ func (s *departmentService) AddUser(instance *model.UserDepartment) (success boo
 		return
 	}
 
+	//获取部门信息
+	department, err := s.Instance(instance.DepartmentID)
+	if err != nil {
+		return
+	}
+	if department == nil {
+		err = errors.New("department not found")
+		return
+	}
+
 	// 检查是否已经存在
 	var c int64
 	err = database.DB.Model(&model.UserDepartment{}).Where(&model.UserDepartment{
-		DepartmentID: instance.DepartmentID,
-		UserID:       instance.UserID,
+		DepartmentID:   instance.DepartmentID,
+		UserID:         instance.UserID,
+		DepartmentPath: department.FullPath,
 	}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
@@ -301,6 +279,109 @@ func (s *departmentService) AddUser(instance *model.UserDepartment) (success boo
 	}).Error
 	if err != nil {
 		logger.Errorln(err)
+		return
+	}
+	success = true
+	return
+}
+
+// AddUsers 部门添加用户
+func (s *departmentService) AddUsers(departmentID uint64, userIDList []uint64) (success bool, err error) {
+	if departmentID == 0 {
+		err = errors.New("department id is required")
+		return
+	}
+	if len(userIDList) == 0 {
+		err = errors.New("user id is required")
+		return
+	}
+
+	// 取出已有的部门用户ID
+	var oldUserIDList []uint64
+	err = database.DB.Model(&model.UserDepartment{}).Where(&model.UserDepartment{DepartmentID: departmentID}).Pluck("user_id", &oldUserIDList).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	// 选出要添加的用户ID
+	var newUserIDList []uint64
+	for n := len(userIDList) - 1; n >= 0; n-- {
+		var exist bool
+		for i := len(oldUserIDList) - 1; i >= 0; i-- {
+			if userIDList[n] == oldUserIDList[i] {
+				exist = true
+				// 移除, 注意最后一个
+				if i == len(oldUserIDList)-1 {
+					oldUserIDList = oldUserIDList[:i]
+				} else {
+					oldUserIDList = append(oldUserIDList[:i], oldUserIDList[i+1:]...)
+				}
+				break
+			}
+		}
+		if !exist {
+			newUserIDList = append(newUserIDList, userIDList[n])
+			// 移除
+			if n == len(userIDList)-1 {
+				userIDList = userIDList[:n]
+			} else {
+				userIDList = append(userIDList[:n], userIDList[n+1:]...)
+			}
+		}
+	}
+	// 选出要删除的用户ID
+	var delUserIDList []uint64
+	for _, oldUserID := range oldUserIDList {
+		var exist bool
+		for n := len(userIDList) - 1; n >= 0; n-- {
+			if oldUserID == userIDList[n] {
+				exist = true
+				// 移除
+				if n == len(userIDList)-1 {
+					userIDList = userIDList[:n]
+				} else {
+					userIDList = append(userIDList[:n], userIDList[n+1:]...)
+				}
+				break
+			}
+		}
+		if !exist {
+			delUserIDList = append(delUserIDList, oldUserID)
+		}
+	}
+
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// 批量添加用户部门
+		if len(newUserIDList) > 0 {
+			var userDepartmentList []model.UserDepartment
+			for _, userID := range newUserIDList {
+				userDepartmentList = append(userDepartmentList, model.UserDepartment{
+					ID:           util.SnowflakeId(),
+					DepartmentID: departmentID,
+					UserID:       userID,
+				})
+			}
+			err = tx.Create(&userDepartmentList).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		// 批量删除用户部门
+		if len(delUserIDList) > 0 {
+			err = tx.Where(&model.UserDepartment{
+				DepartmentID: departmentID,
+			}).Where("user_id in (?)", delUserIDList).
+				Delete(&model.UserDepartment{}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
 		return
 	}
 	success = true

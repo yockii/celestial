@@ -73,7 +73,23 @@ func (c *departmentController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	success, err := service.DepartmentService.Update(instance)
+	// 获取旧数据
+	old, err := service.DepartmentService.Instance(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if old == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeModuleNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	var success bool
+	success, err = service.DepartmentService.Update(instance, old)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -147,7 +163,7 @@ func (c *departmentController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.DepartmentService.PaginateBetweenTimes(&instance.Department, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	total, list, err := service.DepartmentService.PaginateBetweenTimes(&instance.Department, instance.OnlyParent, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -191,76 +207,8 @@ func (c *departmentController) Instance(ctx *fiber.Ctx) error {
 	})
 }
 
-func (c *departmentController) UpdateName(ctx *fiber.Ctx) error {
-	instance := new(model.Department)
-	if err := ctx.BodyParser(instance); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-
-	// 处理必填
-	if instance.ID == 0 {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " id",
-		})
-	}
-
-	duplicate, success, err := service.DepartmentService.UpdateName(instance)
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
-		})
-	}
-	if duplicate {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDuplicated,
-			Msg:  server.ResponseMsgDuplicated,
-		})
-	}
-
-	return ctx.JSON(&server.CommonResponse{
-		Data: success,
-	})
-}
-
-func (c *departmentController) ChangeParent(ctx *fiber.Ctx) error {
-	instance := new(model.Department)
-	if err := ctx.BodyParser(instance); err != nil {
-		logger.Errorln(err)
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamParseError,
-			Msg:  server.ResponseMsgParamParseError,
-		})
-	}
-
-	// 处理必填
-	if instance.ID == 0 {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " id",
-		})
-	}
-
-	success, err := service.DepartmentService.ChangeParent(instance)
-	if err != nil {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
-		})
-	}
-
-	return ctx.JSON(&server.CommonResponse{
-		Data: success,
-	})
-}
-
 func (c *departmentController) AddUser(ctx *fiber.Ctx) error {
-	instance := new(model.UserDepartment)
+	instance := new(domain.AddDepartmentUsersRequest)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
@@ -276,14 +224,14 @@ func (c *departmentController) AddUser(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " department id",
 		})
 	}
-	if instance.UserID == 0 {
+	if len(instance.UserIDs) == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " user id",
 		})
 	}
 
-	success, err := service.DepartmentService.AddUser(instance)
+	success, err := service.DepartmentService.AddUsers(instance.DepartmentID, instance.UserIDs)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,

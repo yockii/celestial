@@ -150,7 +150,7 @@ func userRemoved(corpId string, uids []string) error {
 
 func userUpdated(corpId string, uids []string) error {
 	for _, uid := range uids {
-		_, err := service.DingtalkService.SyncDingUser(corpId, uid, true)
+		_, err := service.DingtalkService.SyncDingUser(corpId, uid)
 		if err != nil {
 			return err
 		}

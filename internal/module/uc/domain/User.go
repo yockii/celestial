@@ -8,6 +8,7 @@ import (
 
 type UserListRequest struct {
 	model.User
+	DepartmentID        uint64                `json:"departmentId,string"`
 	CreateTimeCondition *server.TimeCondition `json:"createTimeCondition"`
 	UpdateTimeCondition *server.TimeCondition `json:"updateTimeCondition"`
 	OrderBy             string                `json:"orderBy"`
