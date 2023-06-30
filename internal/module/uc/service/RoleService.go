@@ -25,7 +25,7 @@ func (s *roleService) Add(instance *model.Role) (duplicated bool, success bool, 
 		return
 	}
 	var c int64
-	err = database.DB.Model(&model.Role{}).Where(&model.Role{Name: instance.Name}).Count(&c).Error
+	err = database.DB.Model(&model.Role{}).Where(&model.Role{Type: instance.Type, Name: instance.Name}).Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
