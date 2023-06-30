@@ -188,10 +188,23 @@ func (s *dingtalkService) SyncDingUserByThirdSource(source *model.ThirdSource, s
 				}
 				dept.ID = util.SnowflakeId()
 
-				if err = database.DB.Create(&dept).Error; err != nil {
-					logger.Error(err)
+				if err = database.DB.Transaction(func(tx *gorm.DB) error {
+					if err = tx.Create(&dept).Error; err != nil {
+						logger.Error(err)
+						return err
+					}
+					if dept.ParentID != 0 {
+						err = tx.Model(&model.Department{ID: dept.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error
+						if err != nil {
+							logger.Errorln(err)
+							return err
+						}
+					}
+					return nil
+				}); err != nil {
 					return nil, err
 				}
+
 			} else {
 				logger.Error(err)
 				return nil, err
@@ -353,10 +366,23 @@ func (s *dingtalkService) SyncDingDept(corpId string, deptId string, withChildre
 			}
 			dept.ID = util.SnowflakeId()
 
-			if err = database.DB.Create(&dept).Error; err != nil {
-				logger.Error(err)
+			if err = database.DB.Transaction(func(tx *gorm.DB) error {
+				if err = tx.Create(&dept).Error; err != nil {
+					logger.Error(err)
+					return err
+				}
+				if dept.ParentID != 0 {
+					err = tx.Model(&model.Department{ID: dept.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				}
+				return nil
+			}); err != nil {
 				return nil, err
 			}
+
 		} else {
 			logger.Error(err)
 			return nil, err
@@ -422,10 +448,26 @@ func (s *dingtalkService) SyncChildrenDepartmentsWithStaff(source *model.ThirdSo
 				}
 				d.ID = util.SnowflakeId()
 				d.ExternalJson = dept.OriginalJson
-				if err = database.DB.Create(d).Error; err != nil {
-					logger.Errorln(err)
+
+				if err = database.DB.Transaction(func(tx *gorm.DB) error {
+					if err = tx.Create(d).Error; err != nil {
+						logger.Errorln(err)
+						return err
+					}
+					// 如果存在父级，则更新父级的子数量
+					if d.ParentID != 0 {
+						err = tx.Model(&model.Department{ID: d.ParentID}).Update("child_count", gorm.Expr("child_count + ?", 1)).Error
+						if err != nil {
+							logger.Errorln(err)
+							return err
+						}
+					}
+
+					return nil
+				}); err != nil {
 					return err
 				}
+
 			} else {
 				logger.Errorln(err)
 				return err
