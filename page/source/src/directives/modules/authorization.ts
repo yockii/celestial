@@ -18,7 +18,15 @@ const resourceCode: Directive = {
   },
   updated(el, binding) {
     const { value } = binding
-    if (!useUserStore().hasResourceCode(value)) {
+    const userStore = useUserStore()
+    // 判断value是否数组
+    if (Array.isArray(value)) {
+      if (!value.some((item) => userStore.hasResourceCode(item))) {
+        el.parentNode?.removeChild(el)
+      }
+      return
+    }
+    if (!userStore.hasResourceCode(value)) {
       el.parentNode?.removeChild(el)
     }
   }
