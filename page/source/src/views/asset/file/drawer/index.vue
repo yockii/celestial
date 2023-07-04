@@ -180,7 +180,7 @@ onMounted(() => {
             :default-upload="false"
             multiple
             directory-dnd
-            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,image/*,.csv,text/plain,audio/*"
+            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,image/*,.csv,text/plain,audio/*,application/zip,application/x-*-compressed"
             :max="1"
             :headers="{
               authorization: 'Bearer ' + userStore.token
