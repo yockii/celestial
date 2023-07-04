@@ -495,6 +495,8 @@ github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVS
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
 github.com/yockii/ruomu-core v0.0.0-20230629075339-77ff33ba33a5 h1:gMwZirDs+FElAujTCuiEY9koc5KAs9Hh1jWsADh/MT4=
 github.com/yockii/ruomu-core v0.0.0-20230629075339-77ff33ba33a5/go.mod h1:fuodApJqT2dLoFg2F7IQllBf0ya4t7UZxDIIadl1LEA=
+github.com/yockii/ruomu-core v0.0.0-20230704030644-8d1f97816080 h1:kAzEp4VPs84XGDJ3d8n9XwY5y2MFfylyWTZrDPGhi5Y=
+github.com/yockii/ruomu-core v0.0.0-20230704030644-8d1f97816080/go.mod h1:fuodApJqT2dLoFg2F7IQllBf0ya4t7UZxDIIadl1LEA=
 github.com/yockii/snowflake_ext v0.1.0 h1:OGd10s8xeUuNf7e2QvnS2+zqyzo5n9dLkVft5Qn8jT0=
 github.com/yockii/snowflake_ext v0.1.0/go.mod h1:QKkFgINVDidfwYv3F5gAA+K4dfbOtcnzeHessrV5boc=
 github.com/yosssi/ace v0.0.5/go.mod h1:ALfIzm2vT7t5ZE7uoIZqF3TQ7SAOyupFZnkrF5id+K0=

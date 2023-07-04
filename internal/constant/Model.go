@@ -1,3 +1,5 @@
 package constant
 
-var Models []interface{}
+var Models []interface {
+	TableComment() string
+}

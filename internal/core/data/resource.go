@@ -4,14 +4,36 @@ import (
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/uc/model"
+	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/util"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func InitData() {
+	// 自动建表
+	//_ = database.AutoMigrate(constant.Models...) // 不采用直接自动建表的方式，而是主动循环，才能创建表注释
+	if config.GetString("database.driver") == "mysql" {
+		migrator := database.DB.Migrator()
+		for _, m := range constant.Models {
+			if !migrator.HasTable(m) {
+				if err := database.DB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='"+m.TableComment()+"';").AutoMigrate(m); err != nil {
+					logger.Errorln(err)
+				}
+			} else {
+				_ = migrator.AutoMigrate(m)
+			}
+		}
+	} else {
+		migrator := database.DB.Migrator()
+		var mList []interface{}
+		for _, m := range constant.Models {
+			mList = append(mList, m)
+		}
+		_ = migrator.AutoMigrate(mList...)
+	}
+
 	// 初始化一些数据
-	_ = database.AutoMigrate(constant.Models...)
 	// 初始化一个admin用户
 	adminUser := &model.User{
 		Username: "admin",
