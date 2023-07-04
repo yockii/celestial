@@ -40,7 +40,7 @@ func (s *assetCategoryService) Add(instance *model.AssetCategory) (duplicated bo
 	// 全路径设置
 	if instance.ParentID != 0 {
 		var parent model.AssetCategory
-		if err = database.DB.Select("full_path").Model(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
+		if err = database.DB.Where(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
 			logger.Errorln(err)
 			return
 		}
@@ -86,7 +86,7 @@ func (s *assetCategoryService) Update(instance *model.AssetCategory) (success bo
 		// 更新fullPath
 		if instance.ParentID != 0 {
 			var parent model.AssetCategory
-			if err = database.DB.Select("full_path").Model(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
+			if err = database.DB.Select("full_path").Where(&model.AssetCategory{ID: instance.ParentID}).First(&parent).Error; err != nil {
 				logger.Errorln(err)
 				return
 			}
@@ -143,7 +143,7 @@ func (s *assetCategoryService) Delete(id uint64) (success bool, err error) {
 	// 事务处理，删除资源的同时，更新父级的子级数量
 	if err = database.DB.Transaction(func(tx *gorm.DB) error {
 		var parentID uint64
-		if err = tx.Model(&model.AssetCategory{ID: id}).Select("parent_id").Scan(&parentID).Error; err != nil {
+		if err = tx.Where(&model.AssetCategory{ID: id}).Select("parent_id").Scan(&parentID).Error; err != nil {
 			logger.Errorln(err)
 			return err
 		}
