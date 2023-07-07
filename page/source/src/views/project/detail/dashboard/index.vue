@@ -98,7 +98,7 @@ onMounted(() => {
 <template>
   <n-grid :cols="1" y-gap="16">
     <n-gi>
-      <n-grid :cols="3">
+      <n-grid :cols="3" x-gap="16">
         <n-gi>
           <n-card embedded size="small" class="h-120px">
             <n-text tag="div" class="text-1.2em op-90 font-500 mb-10px">{{ project?.name }}</n-text>
