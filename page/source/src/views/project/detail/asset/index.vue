@@ -42,7 +42,7 @@ const tagSelected = (type: number) => {
 }
 
 const condition = ref<ProjectAssetCondition>({
-  projectId: "",
+  projectId: project.value.id,
   type: 0,
   status: 0
 })
