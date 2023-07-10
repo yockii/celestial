@@ -6,7 +6,8 @@ import { NButton, NButtonGroup, NIcon, NTooltip, PaginationProps } from "naive-u
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import Drawer from "./drawer/index.vue"
-import { Download, Edit } from "@vicons/carbon"
+import { Download, Edit, LicenseThirdParty } from "@vicons/carbon"
+import permissionDrawer from "@/components/asset/permissionDrawer.vue"
 
 const userStore = useUserStore()
 const assetCategoryList = ref<AssetCategory[]>([])
@@ -100,7 +101,7 @@ const columns = [
     key: "action",
     render: (row: File) => {
       const btnGroup: VNode[] = []
-      if (userStore.hasResourceCode("asset:file:download")) {
+      if (userStore.hasResourceCode("asset:file:download") && row.permission && row.permission >= 3) {
         btnGroup.push(
           h(
             NTooltip,
@@ -135,7 +136,7 @@ const columns = [
           )
         )
       }
-      if (userStore.hasResourceCode("asset:file:update")) {
+      if (userStore.hasResourceCode("asset:file:update") && row.permission && row.permission >= 2) {
         btnGroup.push(
           h(
             NTooltip,
@@ -160,6 +161,34 @@ const columns = [
           )
         )
       }
+
+      // 分配权限
+      if (row.permission && row.permission === 4) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "分配权限",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    onClick: () => {
+                      handleAssignPermission(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: LicenseThirdParty })
+                  }
+                )
+            }
+          )
+        )
+      }
+
       return h(NButtonGroup, {}, () => btnGroup)
     }
   }
@@ -207,6 +236,11 @@ const handleEditFile = (row: File) => {
   currentData.value = Object.assign({}, row)
   drawerActive.value = true
 }
+const handleAssignPermission = (row: File) => {
+  currentData.value = Object.assign({}, row)
+  permissionDrawerActive.value = true
+}
+const permissionDrawerActive = ref(false)
 
 onMounted(() => {
   getAssetCategoryList({
@@ -273,4 +307,5 @@ onBeforeUpdate(() => {
   </n-grid>
 
   <drawer v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
+  <permission-drawer v-model:drawer-active="permissionDrawerActive" :data="currentData" />
 </template>

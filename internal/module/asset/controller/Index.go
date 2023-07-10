@@ -30,6 +30,8 @@ func InitRouter() {
 		assetFile.Get("/list", middleware.NeedAuthorization(constant.ResourceFileList), AssetFileController.List)
 		assetFile.Get("/instance", middleware.NeedAuthorization(constant.ResourceFileInstance), AssetFileController.Instance)
 		assetFile.Get("/download", middleware.NeedAuthorization(constant.ResourceFileDownload), AssetFileController.Download)
+		assetFile.Get("/filePermissionUsers", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.FilePermissionUsers)
+		assetFile.Post("/updateFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.UpdateFileUserPermission)
 
 		// 对于禁用put和delete方法时的处理
 		assetFile.Post("/delete", middleware.NeedAuthorization(constant.ResourceFileDelete), AssetFileController.Delete)

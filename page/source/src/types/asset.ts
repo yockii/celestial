@@ -55,6 +55,7 @@ export type File = {
   creatorId?: string
   createTime?: number
   creator?: User
+  permission?: number
 }
 
 export type FileCondition = Condition & {
@@ -62,4 +63,12 @@ export type FileCondition = Condition & {
   categoryId?: string
   name?: string
   suffix?: string
+}
+
+export type FileUser = {
+  id?: string
+  fileId: string
+  userId?: string
+  permission?: number
+  realName?: string
 }

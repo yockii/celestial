@@ -259,7 +259,16 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 		tcList["create_time"] = instance.CreateTimeCondition
 	}
 
-	total, list, err := service.AssetFileService.PaginateBetweenTimes(&instance.File, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	total, list, err := service.AssetFileService.PaginateDomainListBetweenTimes(&instance.File, uid, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	//total, list, err := service.AssetFileService.PaginateBetweenTimes(&instance.File, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
@@ -271,9 +280,10 @@ func (c *assetFileController) List(ctx *fiber.Ctx) error {
 	{
 		var wg sync.WaitGroup
 		for _, item := range list {
-			fwu := &domain.AssetFileWithCreator{
-				File: *item,
-			}
+			//fwu := &domain.AssetFileWithCreator{
+			//	File: *item,
+			//}
+			fwu := item
 			resultList = append(resultList, fwu)
 			wg.Add(1)
 			go func(result *domain.AssetFileWithCreator) {
@@ -354,4 +364,68 @@ func (c *assetFileController) Download(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.SendStream(fileReader)
+}
+
+func (c *assetFileController) FilePermissionUsers(ctx *fiber.Ctx) error {
+	filePermission := new(domain.FilePermissionUser)
+	if err := ctx.QueryParser(filePermission); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	list, err := service.AssetFileService.GetPermissionUsers(filePermission)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}
+
+func (c *assetFileController) UpdateFileUserPermission(ctx *fiber.Ctx) error {
+	filePermission := new(model.FilePermission)
+	if err := ctx.BodyParser(filePermission); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotExists,
+			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+	// 校验uid是否有fileId的管理权限
+	has, err := service.AssetFileService.CheckPermission(filePermission.FileID, uid, model.FilePermissionManage)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	if !has {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch,
+		})
+	}
+	// 更新权限
+	err = service.AssetFileService.UpdateFileUserPermission(filePermission)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: true,
+	})
 }

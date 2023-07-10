@@ -1,6 +1,6 @@
 import { request } from "../../request"
 import { Paginate } from "@/types/common"
-import { File, FileCondition } from "@/types/asset"
+import { File, FileCondition, FileUser } from "@/types/asset"
 
 /**
  * 获取资产文件详情
@@ -47,4 +47,22 @@ export const downloadAssetFile = (id: string) => {
     params: { id },
     responseType: "blob"
   })
+}
+
+/**
+ * 获取资产文件的用户权限列表
+ * @param params 查询条件
+ */
+export const getAssetFileUserList = (params: { fileId: string; permission?: number; realName?: string }) => {
+  return request.get<FileUser[]>("/assetFile/filePermissionUsers", {
+    params
+  })
+}
+
+/**
+ * 修改资产文件的用户权限
+ * @param fileUser 资产文件用户权限
+ */
+export const updateAssetFileUser = (fileUser: FileUser) => {
+  return request.post<FileUser>("/assetFile/updateFileUserPermission", fileUser)
 }

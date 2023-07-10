@@ -338,6 +338,11 @@ const routes: Array<RouteRecordRaw> = [
         }
       }
     ]
+  },
+  {
+    path: "/editor",
+    name: "Editor",
+    component: () => import("@/views/docEditor/index.vue")
   }
 ]
 

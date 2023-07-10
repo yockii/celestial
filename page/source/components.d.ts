@@ -67,6 +67,7 @@ declare module '@vue/runtime-core' {
     NUpload: typeof import('naive-ui')['NUpload']
     NUploadDragger: typeof import('naive-ui')['NUploadDragger']
     NWatermark: typeof import('naive-ui')['NWatermark']
+    PermissionDrawer: typeof import('./src/components/asset/permissionDrawer.vue')['default']
     RichableTextArea: typeof import('./src/components/RichableTextArea.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -15,5 +15,11 @@ type AssetFileListRequest struct {
 
 type AssetFileWithCreator struct {
 	model.File
-	Creator *ucModel.User `json:"creator"`
+	Permission uint8         `json:"permission"`
+	Creator    *ucModel.User `json:"creator"`
+}
+
+type FilePermissionUser struct {
+	model.FilePermission
+	RealName string `json:"realName"`
 }

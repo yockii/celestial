@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { addProjectMembers } from "@/service/api"
-import { Role } from "@/types/user"
+import { Role, User } from "@/types/user"
 import { Project, ProjectMember } from "@/types/project"
 import { computed } from "vue"
 import { UserFollow, IdManagement } from "@vicons/carbon"
@@ -88,13 +88,13 @@ const selectedRoleStyle = computed(() => {
 
 // 人员选择
 const userActive = ref<boolean>(false)
-const roleUserSelect = (userId: string, checked: boolean) => {
+const roleUserSelect = (user: User, checked: boolean) => {
   if (checked) {
     // 添加
-    memberIdsInRole.value.push(userId)
+    memberIdsInRole.value.push(user.id)
   } else {
     // 删除
-    const index = memberIdsInRole.value.findIndex((m) => m === userId)
+    const index = memberIdsInRole.value.findIndex((m) => m === user.id)
     if (index !== -1) {
       memberIdsInRole.value.splice(index, 1)
     }

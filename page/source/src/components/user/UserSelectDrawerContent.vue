@@ -24,7 +24,8 @@ const userChecked = computed(() => {
   return (userId: string) => props.selectedUserIds.includes(userId)
 })
 const checkUser = (userId: string, checked: boolean) => {
-  emits("userSelectedChanged", userId, checked)
+  const user = userList.value.find((item) => item.id === userId)
+  emits("userSelectedChanged", user, checked)
 }
 </script>
 

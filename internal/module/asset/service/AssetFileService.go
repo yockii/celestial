@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/provider"
 	"github.com/yockii/ruomu-core/database"
@@ -75,8 +76,24 @@ func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicat
 	}
 	instance.CategoryPath = category.FullPath
 
-	if err = database.DB.Create(instance).Error; err != nil {
-		logger.Errorln(err)
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Create(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 设置创建者管理权限
+		assetFilePermission := &model.FilePermission{
+			ID:         util.SnowflakeId(),
+			FileID:     instance.ID,
+			UserID:     instance.CreatorID,
+			Permission: 4,
+		}
+		if err = tx.Create(assetFilePermission).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true
@@ -197,6 +214,70 @@ func (s *assetFileService) PaginateBetweenTimes(condition *model.File, limit int
 	return
 }
 
+// PaginateDomainListBetweenTimes 带时间范围的分页查询 domain
+func (s *assetFileService) PaginateDomainListBetweenTimes(condition *model.File, uid uint64, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*domain.AssetFileWithCreator, err error) {
+	tx := database.DB.Model(&model.File{})
+	if limit > -1 {
+		tx = tx.Limit(limit)
+	}
+	if offset > -1 {
+		tx = tx.Offset(offset)
+	}
+	if orderBy != "" {
+		tx = tx.Order(orderBy)
+	}
+
+	// 处理时间字段，在某段时间之间
+	for tc, tr := range tcList {
+		if tc != "" {
+			if !tr.Start.IsZero() && !tr.End.IsZero() {
+				tx = tx.Where(tc+" between ? and ?", time.Time(tr.Start).UnixMilli(), time.Time(tr.End).UnixMilli())
+			} else if tr.Start.IsZero() && !tr.End.IsZero() {
+				tx = tx.Where(tc+" <= ?", time.Time(tr.End).UnixMilli())
+			} else if !tr.Start.IsZero() && tr.End.IsZero() {
+				tx = tx.Where(tc+" > ?", time.Time(tr.Start).UnixMilli())
+			}
+		}
+	}
+
+	if condition != nil {
+		if condition.Name != "" {
+			tx = tx.Where("name like ?", "%"+condition.Name+"%")
+		}
+		if condition.Suffix != "" {
+			tx = tx.Where("suffix like ?", "%"+condition.Suffix+"%")
+		}
+		if condition.CategoryID != 0 {
+			// 使用CategoryPath来查询
+			category := new(model.AssetCategory)
+			if err = database.DB.Model(&model.AssetCategory{}).Where(&model.AssetCategory{ID: condition.CategoryID}).First(&category).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					err = errors.New("category not found")
+				}
+				logger.Errorln(err)
+				return
+			}
+			tx = tx.Where("category_path like ?", category.FullPath+"%")
+		}
+	}
+
+	tx = tx.Where(&model.File{
+		ID:        condition.ID,
+		CreatorID: condition.CreatorID,
+	})
+
+	//tx = tx.Joins("t_file_permission", map[string]interface{}{})
+	tx = tx.Joins("join t_file_permission on file_id=t_file.id and user_id=? and permission > 0", uid)
+	tx = tx.Select("t_file.*, t_file_permission.permission as permission")
+
+	err = tx.Find(&list).Offset(-1).Limit(-1).Count(&total).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
 // Instance 获取资源实例
 func (s *assetFileService) Instance(id uint64) (instance *model.File, err error) {
 	if id == 0 {
@@ -245,4 +326,76 @@ func (s *assetFileService) Download(id uint64) (reader io.ReadCloser, err error)
 		}
 	}
 	return s.osManager.GetObject(instance.ObjName)
+}
+
+func (s *assetFileService) GetPermissionUsers(condition *domain.FilePermissionUser) ([]*domain.FilePermissionUser, error) {
+	tx := database.DB.Model(&model.FilePermission{})
+	realName := condition.RealName
+	condition.RealName = ""
+	tx = tx.Where(&model.FilePermission{
+		FileID:     condition.FileID,
+		Permission: condition.Permission,
+	})
+	tx = tx.Select("t_file_permission.*, t_user.real_name as real_name")
+	if realName != "" {
+		tx = tx.Joins("join t_user on user_id=t_user.id and real_name like ?", "%"+realName+"%")
+	} else {
+		tx = tx.Joins("join t_user on user_id=t_user.id")
+	}
+	var list []*domain.FilePermissionUser
+	err := tx.Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return nil, err
+	}
+	return list, nil
+}
+
+func (s *assetFileService) UpdateFileUserPermission(permission *model.FilePermission) error {
+	// 检查是否存在
+	instance := &model.FilePermission{FileID: permission.FileID, UserID: permission.UserID}
+	if err := database.DB.Where(instance).First(instance).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// 不存在则创建
+			err = database.DB.Create(&model.FilePermission{
+				ID:         util.SnowflakeId(),
+				FileID:     permission.FileID,
+				UserID:     permission.UserID,
+				Permission: permission.Permission,
+			}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			return nil
+		} else {
+			logger.Errorln(err)
+			return err
+		}
+	}
+	// 更新permission
+	err := database.DB.Where(&model.FilePermission{ID: instance.ID}).Updates(&model.FilePermission{Permission: permission.Permission}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return err
+	}
+	return nil
+}
+
+func (s *assetFileService) CheckPermission(fileID uint64, uid uint64, permission uint8) (bool, error) {
+	instance := &model.FilePermission{
+		FileID: fileID,
+		UserID: uid,
+	}
+	if err := database.DB.Where(instance).First(instance).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		logger.Errorln(err)
+		return false, err
+	}
+	if instance.Permission >= permission {
+		return true, nil
+	}
+	return false, nil
 }

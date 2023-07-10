@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	FilePermissionReadOnly = 1
+	FilePermissionEditable = 2
+	FilePermissionDownload = 3
+	FilePermissionManage   = 4
+)
+
 type File struct {
 	ID           uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	CategoryID   uint64         `json:"categoryId,omitempty,string" gorm:"index;comment:分类ID"`
@@ -43,6 +50,31 @@ func (af *File) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// FilePermission 文件权限
+type FilePermission struct {
+	ID         uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	FileID     uint64 `json:"assetId,omitempty,string" gorm:"index;comment:资产ID"`
+	UserID     uint64 `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
+	Permission uint8  `json:"permission,omitempty" gorm:"comment:权限 1-可读(在线预览) 2-可编辑 3-可下载 4-可管理(编辑/下载/删除)"`
+	CreateTime int64  `json:"createTime" gorm:"autoCreateTime:milli"`
+	UpdateTime int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
+}
+
+func (*FilePermission) TableComment() string {
+	return `资产文件表`
+}
+
+func (af *FilePermission) UnmarshalJSON(b []byte) error {
+	j := gjson.ParseBytes(b)
+	af.ID = j.Get("id").Uint()
+	af.FileID = j.Get("fileId").Uint()
+	af.UserID = j.Get("userId").Uint()
+	af.Permission = uint8(j.Get("permission").Uint())
+	af.CreateTime = j.Get("createTime").Int()
+	af.UpdateTime = j.Get("updateTime").Int()
+	return nil
+}
+
 func init() {
-	constant.Models = append(constant.Models, &File{})
+	constant.Models = append(constant.Models, &File{}, &FilePermission{})
 }
