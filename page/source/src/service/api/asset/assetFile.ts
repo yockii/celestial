@@ -66,3 +66,13 @@ export const getAssetFileUserList = (params: { fileId: string; permission?: numb
 export const updateAssetFileUser = (fileUser: FileUser) => {
   return request.post<FileUser>("/assetFile/updateFileUserPermission", fileUser)
 }
+
+/**
+ * 删除资产文件的用户权限
+ * @param id 资产文件用户权限ID
+ */
+export const deleteAssetFileUser = (id: string) => {
+  return request.delete<FileUser>("/assetFile/removeFileUserPermission", {
+    params: { id }
+  })
+}

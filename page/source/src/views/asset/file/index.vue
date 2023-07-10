@@ -307,5 +307,10 @@ onBeforeUpdate(() => {
   </n-grid>
 
   <drawer v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
-  <permission-drawer v-model:drawer-active="permissionDrawerActive" :data="currentData" />
+  <permission-drawer
+    v-model:drawer-active="permissionDrawerActive"
+    :fileId="currentData.id"
+    :fileName="currentData.name"
+    :creatorId="currentData.creatorId || ''"
+  />
 </template>

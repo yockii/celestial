@@ -7,7 +7,8 @@ import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import { downloadAssetFile, getAssetFile, getProjectAssetList, deleteProjectAsset } from "@/service/api"
-import { Delete, Download, Edit } from "@vicons/carbon"
+import { Delete, Download, Edit, LicenseThirdParty } from "@vicons/carbon"
+import permissionDrawer from "@/components/asset/permissionDrawer.vue"
 
 const message = useMessage()
 const projectStore = useProjectStore()
@@ -163,7 +164,7 @@ const columns = [
     key: "action",
     render: (row: ProjectAsset) => {
       const btnGroup: VNode[] = []
-      if (projectStore.hasResourceCode("asset:file:download")) {
+      if (projectStore.hasResourceCode("asset:file:download") && row.permission && row.permission >= 3) {
         btnGroup.push(
           h(
             NTooltip,
@@ -202,7 +203,7 @@ const columns = [
           )
         )
       }
-      if (projectStore.hasResourceCode("project:detail:asset:edit")) {
+      if (projectStore.hasResourceCode("project:detail:asset:edit") && row.permission && row.permission >= 2) {
         btnGroup.push(
           h(
             NTooltip,
@@ -227,7 +228,7 @@ const columns = [
           )
         )
       }
-      if (projectStore.hasResourceCode("project:detail:asset:delete")) {
+      if (projectStore.hasResourceCode("project:detail:asset:delete") && row.permission && row.permission >= 4) {
         btnGroup.push(
           h(
             NPopconfirm,
@@ -254,6 +255,30 @@ const columns = [
                           default: () => h(NIcon, { component: Delete })
                         }
                       )
+                  }
+                )
+            }
+          )
+        )
+
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "分配权限",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    onClick: () => {
+                      handleAssignPermission(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: LicenseThirdParty })
                   }
                 )
             }
@@ -350,6 +375,13 @@ const handleDeleteData = (id: string) => {
   })
 }
 
+// 分配权限
+const permissionDrawerActive = ref(false)
+const handleAssignPermission = (row: ProjectAsset) => {
+  currentData.value = Object.assign({}, row)
+  permissionDrawerActive.value = true
+}
+
 onMounted(() => {
   refresh()
 })
@@ -387,4 +419,10 @@ onMounted(() => {
   </n-grid>
 
   <drawer v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
+  <permission-drawer
+    v-model:drawer-active="permissionDrawerActive"
+    :fileId="currentData.fileId"
+    :fileName="currentData.name"
+    :creatorId="currentData.creatorId || ''"
+  />
 </template>

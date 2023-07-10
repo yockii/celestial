@@ -16,7 +16,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.14.4
 	github.com/tjfoc/gmsm v1.4.1
-	github.com/yockii/ruomu-core v0.0.0-20230704030644-8d1f97816080
+	github.com/yockii/ruomu-core v0.0.0-20230710100836-8c4bbbd189df
 	golang.org/x/crypto v0.10.0
 	gorm.io/gorm v1.25.1
 )

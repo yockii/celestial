@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
@@ -89,7 +90,7 @@ func (s *projectAssetService) Delete(id uint64) (success bool, err error) {
 }
 
 // PaginateBetweenTimes 带时间范围的分页查询
-func (s *projectAssetService) PaginateBetweenTimes(condition *model.ProjectAsset, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*model.ProjectAsset, err error) {
+func (s *projectAssetService) PaginateBetweenTimes(condition *model.ProjectAsset, uid uint64, limit int, offset int, orderBy string, tcList map[string]*server.TimeCondition) (total int64, list []*domain.ProjectAsset, err error) {
 	tx := database.DB.Model(&model.ProjectAsset{})
 	if limit > -1 {
 		tx = tx.Limit(limit)
@@ -120,12 +121,16 @@ func (s *projectAssetService) PaginateBetweenTimes(condition *model.ProjectAsset
 		}
 	}
 
-	err = tx.Find(&list, &model.ProjectAsset{
-		Type:         condition.Type,
-		ProjectID:    condition.ProjectID,
-		CreatorID:    condition.CreatorID,
-		VerifyUserID: condition.VerifyUserID,
-	}).Offset(-1).Limit(-1).Count(&total).Error
+	tx = tx.Select("t_project_asset.*, t_file_permission.permission as permission").
+		Where(&model.ProjectAsset{
+			Type:         condition.Type,
+			ProjectID:    condition.ProjectID,
+			CreatorID:    condition.CreatorID,
+			VerifyUserID: condition.VerifyUserID,
+		}).
+		Joins("join t_file_permission on t_file_permission.file_id=t_project_asset.file_id and user_id=? and permission>0", uid)
+
+	err = tx.Find(&list).Offset(-1).Limit(-1).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/store/user"
 import { File, FileUser } from "@/types/asset"
-import { getAssetFileUserList, updateAssetFileUser } from "@/service/api"
+import { getAssetFileUserList, updateAssetFileUser, deleteAssetFileUser } from "@/service/api"
 import { SearchOutlined, PlusOutlined } from "@vicons/material"
 import { ChevronDown } from "@vicons/carbon"
 import { User } from "@/types/user"
@@ -11,25 +11,27 @@ const userStore = useUserStore()
 const emit = defineEmits(["update:drawerActive"])
 const props = defineProps<{
   drawerActive: boolean
-  data: File
+  fileId: string
+  fileName: string
+  creatorId: string
 }>()
 
 const fileUsers = ref<FileUser[]>([])
 const creator = computed(() => {
   if (!fileUsers.value) return null
-  return fileUsers.value.find((item) => item.userId === props.data.creatorId)
+  return fileUsers.value.find((item) => item.userId === props.creatorId)
 })
 const userWithoutCreator = computed(() => {
   if (!fileUsers.value) return []
-  return fileUsers.value.filter((item) => item.userId !== props.data.creatorId)
+  return fileUsers.value.filter((item) => item.userId !== props.creatorId)
 })
 const condition = ref<FileUser>({
-  fileId: props.data.id
+  fileId: props.fileId
 })
 const loading = ref(false)
 const refresh = () => {
   if (loading.value) return
-  if (props.data.id) {
+  if (props.fileId) {
     loading.value = true
     getAssetFileUserList(condition.value)
       .then((res) => {
@@ -44,25 +46,41 @@ const options = ref([
   { label: "只读", key: 1 },
   { label: "可编辑", key: 2 },
   { label: "可下载", key: 3 },
-  { label: "可管理", key: 4 }
+  { label: "可管理", key: 4 },
+  { type: "divider" },
+  { label: "移除权限", key: 0, props: { style: { color: "red" } } }
 ])
 const valueToLabel = (value: number) => {
   return options.value.find((item) => item.key === value)?.label || "无权限"
 }
 const handleSelect = (userId: string, value: number) => {
+  if (userId === "") {
+    return
+  }
   const fileUser = fileUsers.value.find((item) => item.userId === userId)
   if (fileUser && fileUser.permission !== value) {
-    updateAssetFileUser({ fileId: props.data.id, userId, permission: value }).then((res) => {
-      if (res) {
-        message.success("更新成功")
-        fileUser.permission = value
+    if (value > 0) {
+      updateAssetFileUser({ fileId: props.fileId, userId, permission: value }).then((res) => {
+        if (res) {
+          message.success("更新成功")
+          fileUser.permission = value
+        }
+      })
+    } else {
+      if (fileUser.id) {
+        deleteAssetFileUser(fileUser.id).then((res) => {
+          if (res) {
+            message.success("更新成功")
+            fileUsers.value = fileUsers.value.filter((item) => item.id !== fileUser.id)
+          }
+        })
       }
-    })
+    }
   }
 }
 
 watch(
-  () => props.data.id,
+  () => props.fileId,
   (v) => {
     if (v) {
       condition.value.fileId = v
@@ -93,7 +111,7 @@ const confirmUsers = () => {
   if (newUsers.length) {
     const newFileUsers = newUsers.map((user) => {
       return {
-        fileId: props.data.id,
+        fileId: props.fileId,
         userId: user.id,
         realName: user.realName,
         permission: 0
@@ -107,7 +125,7 @@ const confirmUsers = () => {
 
 <template>
   <n-drawer :show="drawerActive" :width="502" @update:show="(show:boolean) => emit('update:drawerActive', show)">
-    <n-drawer-content :title="'配置' + data.name + '权限'">
+    <n-drawer-content :title="'配置' + fileName + '权限'">
       <n-space vertical :size="32">
         <n-space justify="space-between">
           <n-input v-model:value="condition.realName" placeholder="请输入姓名搜索" @keydown.enter="refresh()">
@@ -137,9 +155,9 @@ const confirmUsers = () => {
           </n-space>
           <n-space v-for="pu in userWithoutCreator" :key="pu.id" justify="space-between">
             <n-text>{{ pu.realName }}</n-text>
-            <n-dropdown trigger="hover" :options="options" @select="(v:number) => handleSelect(pu.userId, v)">
+            <n-dropdown trigger="click" :options="options" @select="(v:number) => handleSelect(pu.userId || '', v)">
               <n-text class="cursor-pointer"
-                >{{ valueToLabel(pu.permission) }}<n-icon><ChevronDown /></n-icon
+                >{{ valueToLabel(pu.permission || 0) }}<n-icon><ChevronDown /></n-icon
               ></n-text>
             </n-dropdown>
           </n-space>

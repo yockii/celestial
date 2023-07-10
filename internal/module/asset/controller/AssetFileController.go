@@ -429,3 +429,37 @@ func (c *assetFileController) UpdateFileUserPermission(ctx *fiber.Ctx) error {
 		Data: true,
 	})
 }
+
+func (c *assetFileController) RemoveFileUserPermission(ctx *fiber.Ctx) error {
+	instance := new(model.FilePermission)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	// 处理必填
+	if instance.ID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " id",
+		})
+	}
+
+	success, err := service.AssetFileService.DeleteFilePermission(instance.ID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	if success {
+		_ = ants.Submit(data.DeleteDocumentsAntsWrapper(instance.ID))
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: success,
+	})
+}

@@ -8,7 +8,10 @@ import (
 	"github.com/yockii/celestial/internal/module/project/domain"
 	"github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/project/service"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
+	ucService "github.com/yockii/celestial/internal/module/uc/service"
 	"github.com/yockii/ruomu-core/server"
+	"sync"
 )
 
 var ProjectAssetController = new(projectAssetController)
@@ -202,13 +205,41 @@ func (c *projectAssetController) List(ctx *fiber.Ctx) error {
 		tcList["update_time"] = instance.UpdateTimeCondition
 	}
 
-	total, list, err := service.ProjectAssetService.PaginateBetweenTimes(&instance.ProjectAsset, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
+	uid, err := helper.GetCurrentUserID(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " uid",
+		})
+	}
+
+	total, list, err := service.ProjectAssetService.PaginateBetweenTimes(&instance.ProjectAsset, uid, paginate.Limit, paginate.Offset, instance.OrderBy, tcList)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+	var wg sync.WaitGroup
+	for _, asset := range list {
+		pa := asset
+		wg.Add(1)
+		go func(f *domain.ProjectAsset) {
+			defer wg.Done()
+			// 获取creator信息
+			user, err := ucService.UserService.Instance(&ucModel.User{ID: f.CreatorID})
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+			f.Creator = &ucModel.User{
+				ID:       user.ID,
+				Username: user.Username,
+				RealName: user.RealName,
+			}
+		}(pa)
+	}
+	wg.Wait()
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,

@@ -32,10 +32,12 @@ func InitRouter() {
 		assetFile.Get("/download", middleware.NeedAuthorization(constant.ResourceFileDownload), AssetFileController.Download)
 		assetFile.Get("/filePermissionUsers", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.FilePermissionUsers)
 		assetFile.Post("/updateFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.UpdateFileUserPermission)
+		assetFile.Delete("/removeFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.RemoveFileUserPermission)
 
 		// 对于禁用put和delete方法时的处理
 		assetFile.Post("/delete", middleware.NeedAuthorization(constant.ResourceFileDelete), AssetFileController.Delete)
 		assetFile.Post("/update", middleware.NeedAuthorization(constant.ResourceFileUpdate), AssetFileController.Update)
+		assetFile.Post("/removeFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.RemoveFileUserPermission)
 	}
 
 	// 对象存储配置

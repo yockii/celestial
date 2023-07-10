@@ -399,3 +399,17 @@ func (s *assetFileService) CheckPermission(fileID uint64, uid uint64, permission
 	}
 	return false, nil
 }
+
+func (s *assetFileService) DeleteFilePermission(id uint64) (success bool, err error) {
+	if id == 0 {
+		err = errors.New("id is required")
+		return
+	}
+	err = database.DB.Where(&model.FilePermission{ID: id}).Delete(&model.FilePermission{}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	success = true
+	return
+}

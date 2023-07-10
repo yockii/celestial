@@ -1,4 +1,5 @@
 import { Condition } from "./common"
+import { User } from "./user"
 
 export type ProjectMember = {
   userId: string
@@ -210,6 +211,9 @@ export type ProjectAsset = {
   status: number
   remark?: string
   createTime?: number
+  creator?: User
+  permission?: number
+  creatorId?: string
 }
 
 export type ProjectAssetCondition = Condition & {
