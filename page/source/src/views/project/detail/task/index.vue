@@ -19,7 +19,7 @@ const condition = ref<ProjectTaskCondition>({
 
 const listComp = ref<typeof List>()
 
-const { modules, moduleTree } = storeToRefs(projectStore)
+const { moduleTree } = storeToRefs(projectStore)
 const treeSelected = (keys: string[], modules: ProjectModule[]) => {
   if (modules.length > 0) {
     condition.value.fullPath = modules[0].fullPath
@@ -90,8 +90,9 @@ const loadModules = () => {
     offset: -1,
     limit: -1
   }).then((res) => {
-    if (res) {
-      modules.value = res.items || []
+    if (res && res.items) {
+      projectStore.setProjectModules(project.value.id, res.items)
+      // modules.value = res.items || []
     }
   })
 }

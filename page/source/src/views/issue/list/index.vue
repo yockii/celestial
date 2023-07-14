@@ -4,7 +4,6 @@ import dayjs from "dayjs"
 import {
   DataTableFilterState,
   DataTableSortState,
-  FormInst,
   NButton,
   NButtonGroup,
   NGrid,
@@ -18,7 +17,6 @@ import {
   PaginationProps
 } from "naive-ui"
 import {
-  addProjectIssue,
   assignProjectIssue,
   closeProjectIssue,
   deleteProjectIssue,
@@ -28,7 +26,6 @@ import {
   rejectProjectIssue,
   reopenProjectIssue,
   startProjectIssue,
-  updateProjectIssue,
   verifyProjectIssue
 } from "@/service/api"
 import { storeToRefs } from "pinia"
@@ -614,26 +611,26 @@ const handleSorterChange = (sorter: DataTableSortState) => {
 // 抽屉部分，新建、编辑内容
 const instance = ref<ProjectIssue>({ endTime: 0, id: "", title: "", projectId: "", startTime: 0, status: 0 })
 const drawerActive = ref(false)
-const isUpdate = computed(() => !!instance.value?.id)
-const drawerTitle = computed(() => (isUpdate.value ? "编辑缺陷" : "新建缺陷"))
-const resetInstance = (origin: ProjectIssue | undefined = undefined) => {
-  if (origin) {
-    instance.value = JSON.parse(JSON.stringify(origin))
-  } else {
-    instance.value = { endTime: 0, id: "", title: "", projectId: project.value.id, startTime: 0, status: 0 }
-  }
-}
-const newInstance = () => {
-  resetInstance()
-  drawerActive.value = true
-}
-const planRules = {
-  title: [
-    { required: true, message: "请输入缺陷名称", trigger: "blur" },
-    { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
-  ],
-  type: [{ type: "number", required: true, message: "请选择缺陷类型", trigger: ["blur", "change"] }]
-}
+// const isUpdate = computed(() => !!instance.value?.id)
+// const drawerTitle = computed(() => (isUpdate.value ? "编辑缺陷" : "新建缺陷"))
+// const resetInstance = (origin: ProjectIssue | undefined = undefined) => {
+//   if (origin) {
+//     instance.value = JSON.parse(JSON.stringify(origin))
+//   } else {
+//     instance.value = { endTime: 0, id: "", title: "", projectId: project.value.id, startTime: 0, status: 0 }
+//   }
+// }
+// const newInstance = () => {
+//   resetInstance()
+//   drawerActive.value = true
+// }
+// const planRules = {
+//   title: [
+//     { required: true, message: "请输入缺陷名称", trigger: "blur" },
+//     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" }
+//   ],
+//   type: [{ type: "number", required: true, message: "请选择缺陷类型", trigger: ["blur", "change"] }]
+// }
 const handleEditData = (row: ProjectIssue) => {
   instance.value = row
   drawerActive.value = true
@@ -700,32 +697,32 @@ const handleCloseData = (row: ProjectIssue) => {
     }
   })
 }
-const formRef = ref<FormInst>()
+// const formRef = ref<FormInst>()
 const message = useMessage()
-const submit = (e: MouseEvent) => {
-  e.preventDefault()
-  formRef.value?.validate((errors) => {
-    if (!errors) {
-      if (isUpdate.value) {
-        updateProjectIssue(instance.value).then((res) => {
-          if (res) {
-            message.success("保存成功")
-            drawerActive.value = false
-            refresh()
-          }
-        })
-      } else {
-        addProjectIssue(instance.value).then((res) => {
-          if (res) {
-            message.success("保存成功")
-            drawerActive.value = false
-            refresh()
-          }
-        })
-      }
-    }
-  })
-}
+// const submit = (e: MouseEvent) => {
+//   e.preventDefault()
+//   formRef.value?.validate((errors) => {
+//     if (!errors) {
+//       if (isUpdate.value) {
+//         updateProjectIssue(instance.value).then((res) => {
+//           if (res) {
+//             message.success("保存成功")
+//             drawerActive.value = false
+//             refresh()
+//           }
+//         })
+//       } else {
+//         addProjectIssue(instance.value).then((res) => {
+//           if (res) {
+//             message.success("保存成功")
+//             drawerActive.value = false
+//             refresh()
+//           }
+//         })
+//       }
+//     }
+//   })
+// }
 
 defineExpose({
   projectSelected: (id: string) => {

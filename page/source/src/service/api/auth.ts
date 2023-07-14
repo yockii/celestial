@@ -8,7 +8,7 @@ import { LoginResponse } from "@/types/user"
  * @param password - 密码(需要加密)
  */
 export function login(username: string, password: string) {
-  return new Promise<LoginResponse>((resolve, reject) => {
+  return new Promise<LoginResponse>((resolve) => {
     getPublicKey().then((res) => {
       const encryptedPassword = "04" + sm2.doEncrypt(password, res)
       resolve(

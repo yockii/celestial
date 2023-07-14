@@ -7,14 +7,12 @@ import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
 import { FormInst, NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
-import { storeToRefs } from "pinia"
 
 const router = useRouter()
 const route = useRoute()
 const id = route.params.id as string
 const tab = computed(() => route.meta.title as string)
 const projectStore = useProjectStore()
-const { project, modules, resourceCodes } = storeToRefs(projectStore)
 
 // 项目设置 ////////////////
 const showSettings = ref<boolean>(false)
@@ -40,7 +38,7 @@ const projectRules = {
   ]
 }
 const resetUpdateProject = () => {
-  copiedProject.value = JSON.parse(JSON.stringify(project.value))
+  copiedProject.value = JSON.parse(JSON.stringify(projectStore.project))
 }
 const formRef = ref<FormInst>()
 const handleCommitProject = (e: MouseEvent) => {
@@ -50,7 +48,7 @@ const handleCommitProject = (e: MouseEvent) => {
       if (copiedProject.value) {
         updateProject(copiedProject.value as Project).then((res) => {
           if (res) {
-            project.value = copiedProject.value
+            projectStore.addProject(copiedProject.value)
             showSettings.value = false
           }
         })
@@ -62,9 +60,9 @@ const handleCommitProject = (e: MouseEvent) => {
 // 删除项目 ////////////////////////////
 const deleteProjectName = ref<string>("")
 const doDeleteProject = () => {
-  if (project.value && project.value?.name === deleteProjectName.value) {
+  if (projectStore.project && projectStore.project?.name === deleteProjectName.value) {
     deleteProjectName.value = ""
-    deleteProject(project.value?.id as string).then((res) => {
+    deleteProject(projectStore.project?.id as string).then((res) => {
       if (res) {
         useMessage().success("项目删除成功")
         router.back()
@@ -138,10 +136,10 @@ onMounted(() => {
             </n-icon>
           </router-link>
           <n-button text icon-placement="right" class="text-1.2em ml-16px">
-            {{ project?.name }}
+            {{ projectStore.project?.name }}
           </n-button>
         </n-gi>
-        <template v-if="project?.id">
+        <template v-if="projectStore.project?.id">
           <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" :value="tab" type="line" justify-content="space-between" @update:value="handleChangeTab">
               <n-tab name="项目总览" v-if="projectStore.hasResourceCode('project:detail')"></n-tab>
@@ -173,7 +171,7 @@ onMounted(() => {
       </n-grid>
     </n-layout-header>
     <n-layout-content content-style="margin: 16px;">
-      <template v-if="project?.id">
+      <template v-if="projectStore.project?.id">
         <router-view v-slot="{ Component, route }">
           <keep-alive>
             <component :is="Component" :key="route.fullPath" />
@@ -215,7 +213,7 @@ onMounted(() => {
               </n-tooltip>
             </template>
             <n-grid :cols="1" y-gap="16">
-              <n-gi>请输入项目名称&lt;{{ project?.name }}&gt;以确认删除</n-gi>
+              <n-gi>请输入项目名称&lt;{{ projectStore.project?.name }}&gt;以确认删除</n-gi>
               <n-gi><n-input size="small" v-model:value="deleteProjectName" /></n-gi>
             </n-grid>
           </n-popconfirm>

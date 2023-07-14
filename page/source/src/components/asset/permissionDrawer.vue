@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { useUserStore } from "@/store/user"
-import { File, FileUser } from "@/types/asset"
+import { FileUser } from "@/types/asset"
 import { getAssetFileUserList, updateAssetFileUser, deleteAssetFileUser } from "@/service/api"
 import { SearchOutlined, PlusOutlined } from "@vicons/material"
 import { ChevronDown } from "@vicons/carbon"
 import { User } from "@/types/user"
 const message = useMessage()
-const userStore = useUserStore()
 
 const emit = defineEmits(["update:drawerActive"])
 const props = defineProps<{
