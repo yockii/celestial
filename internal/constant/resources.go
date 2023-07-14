@@ -2,6 +2,11 @@ package constant
 
 const NeedLogin = "user"
 
+// 特殊权限
+const (
+	ResourceAllProjectDetail = "allProjectDetail"
+)
+
 // 首页
 const (
 	ResourceHome = "home"

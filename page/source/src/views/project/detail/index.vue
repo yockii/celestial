@@ -147,16 +147,16 @@ onMounted(() => {
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" :value="tab" type="line" justify-content="space-between" @update:value="handleChangeTab">
-              <n-tab name="项目总览" v-project-resource-code="'project:detail'"></n-tab>
-              <n-tab name="项目计划" v-project-resource-code="'project:detail:plan'"></n-tab>
-              <n-tab name="功能模块" v-project-resource-code="'project:detail:module'"></n-tab>
-              <n-tab name="项目需求" v-project-resource-code="'project:detail:requirement'"></n-tab>
-              <n-tab name="工作任务" v-project-resource-code="'project:detail:task'"></n-tab>
-              <n-tab name="项目测试" v-project-resource-code="'project:detail:test'"></n-tab>
-              <n-tab name="项目缺陷" v-project-resource-code="'project:detail:issue'"></n-tab>
-              <n-tab name="项目变更" v-project-resource-code="'project:detail:change'"></n-tab>
-              <n-tab name="项目风险" v-project-resource-code="'project:detail:risk'"></n-tab>
-              <n-tab name="项目资产" v-project-resource-code="'project:detail:asset'"></n-tab>
+              <n-tab name="项目总览" v-project-resource-code="['project:detail', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目计划" v-project-resource-code="['project:detail:plan', 'allProjectDetail']"></n-tab>
+              <n-tab name="功能模块" v-project-resource-code="['project:detail:module', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目需求" v-project-resource-code="['project:detail:requirement', 'allProjectDetail']"></n-tab>
+              <n-tab name="工作任务" v-project-resource-code="['project:detail:task', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目测试" v-project-resource-code="['project:detail:test', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目缺陷" v-project-resource-code="['project:detail:issue', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目变更" v-project-resource-code="['project:detail:change', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目风险" v-project-resource-code="['project:detail:risk', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目资产" v-project-resource-code="['project:detail:asset', 'allProjectDetail']"></n-tab>
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">

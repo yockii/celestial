@@ -81,6 +81,16 @@ func InitData() {
 	// 初始化用户中心的资源
 	var resources []*model.Resource
 
+	// 特殊权限
+	{
+		resources = append(resources,
+			&model.Resource{
+				ResourceName: "所有项目详情",
+				ResourceCode: constant.ResourceAllProjectDetail,
+				Type:         1,
+			})
+	}
+
 	// 首页
 	{
 		resources = append(resources,

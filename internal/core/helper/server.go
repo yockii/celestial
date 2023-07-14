@@ -180,7 +180,9 @@ func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, err
 			args := []interface{}{roleResourceKey}
 			for _, resourceCode := range resourceCodesInRole {
 				args = append(args, resourceCode)
-				if _, ok := codeMap[resourceCode]; ok {
+				if resourceCode == constant.ResourceAllProjectDetail {
+					hasAuth = true
+				} else if _, ok := codeMap[resourceCode]; ok {
 					hasAuth = true
 				} else {
 					for _, code := range codes {
@@ -196,7 +198,9 @@ func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, err
 		_, _ = conn.Do("EXPIRE", roleResourceKey, 3*24*60*60)
 		if !dBCodeOp {
 			for _, resourceCode := range resourceCodesInRole {
-				if _, ok := codeMap[resourceCode]; ok {
+				if resourceCode == constant.ResourceAllProjectDetail {
+					hasAuth = true
+				} else if _, ok := codeMap[resourceCode]; ok {
 					hasAuth = true
 					break
 				} else {
