@@ -49,10 +49,10 @@ onMounted(() => {
       </n-button-group>
     </template>
     <template v-else>
-      <span v-show="!isEdit">
+      <span>
         {{ data === 0 ? "无" : dayjs(data).format("YYYY-MM-DD") }}
       </span>
-      <n-tooltip v-show="!isEdit">
+      <n-tooltip>
         <template #trigger>
           <n-button type="small" text @click="isEdit = true">
             <template #icon>

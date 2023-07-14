@@ -613,9 +613,9 @@ onMounted(() => {
 })
 
 const route = useRoute()
-onBeforeUpdate(() => {
-  reload()
-})
+// onBeforeUpdate(() => {
+//   reload()
+// })
 </script>
 
 <template>
@@ -632,7 +632,7 @@ onBeforeUpdate(() => {
             </template>
           </n-button>
         </n-gi>
-        <n-gi v-project-resource-code="'project:detail:module'">
+        <n-gi v-if="projectStore.hasResourceCode('project:detail:module')">
           <n-tree :data="moduleTree" key-field="id" label-field="name" children-field="children" :on-update:selected-keys="treeSelected" selectable />
         </n-gi>
       </n-grid>
@@ -642,7 +642,9 @@ onBeforeUpdate(() => {
         <n-gi>
           <n-space justify="space-between">
             <span></span>
-            <n-button type="primary" @click="handleAddProjectRequirement" v-project-resource-code="'project:detail:requirement:add'">新增需求</n-button>
+            <n-button type="primary" @click="handleAddProjectRequirement" v-if="projectStore.hasResourceCode('project:detail:requirement:add')"
+              >新增需求</n-button
+            >
           </n-space>
         </n-gi>
         <n-gi>

@@ -667,12 +667,11 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 		for _, role := range roles {
 			roleIds = append(roleIds, role.ID)
 			_, _ = conn.Do("SADD", userRolesKey, role.ID)
-			if userDataPerm == 0 || role.DataPermission < userDataPerm {
-				userDataPerm = role.DataPermission
-			}
+			_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, role.ID, role.DataPermission)
 		}
 	}
 	_, _ = conn.Do("EXPIRE", userRolesKey, 3*24*60*60)
+	_, _ = conn.Do("EXPIRE", constant.RedisKeyRoleDataPerm, 3*24*60*60)
 
 	// 获取用户资源编码列表
 	resourceCodes := make(map[string]struct{})
@@ -681,6 +680,12 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 		if roleId == constant.SuperAdminRoleId {
 			isSuperAdmin = true
 			break
+		}
+
+		// 获取角色数据权限
+		roleDataPerm, _ := redis.Int(conn.Do("HGET", constant.RedisKeyRoleDataPerm, roleId))
+		if userDataPerm == 0 || roleDataPerm < userDataPerm {
+			userDataPerm = roleDataPerm
 		}
 
 		roleResourcesKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)

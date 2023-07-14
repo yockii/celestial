@@ -5,9 +5,11 @@ import { FormInst, FormItemRule, UploadFileInfo } from "naive-ui"
 import { ArchiveOutline } from "@vicons/ionicons5"
 import { useUserStore } from "@/store/user"
 import { AssetCategory } from "@/types/asset"
+import { useProjectStore } from "@/store/project"
 
 const message = useMessage()
 const userStore = useUserStore()
+const projectStore = useProjectStore()
 
 const emit = defineEmits(["update:drawerActive", "update:data", "refresh"])
 const props = defineProps<{
@@ -230,7 +232,7 @@ onMounted(() => {
           size="small"
           type="primary"
           @click="handleCommitData"
-          v-project-resource-code="['project:detail:requirement:add', 'project:detail:requirement:update']"
+          v-if="projectStore.hasResourceCodes(['project:detail:requirement:add', 'project:detail:requirement:update'])"
           >提交</n-button
         >
       </template>

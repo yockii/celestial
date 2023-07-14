@@ -154,10 +154,10 @@ const route = useRoute()
               <template #checked>仅显示主任务</template>
               <template #unchecked>显示所有任务</template>
             </n-switch>
-            <n-button type="primary" @click="handleAddProjectTask()" v-project-resource-code="'project:detail:task:add'">新增任务</n-button>
+            <n-button type="primary" @click="handleAddProjectTask()" v-if="projectStore.hasResourceCode('project:detail:task:add')">新增任务</n-button>
           </n-space>
         </n-gi>
-        <n-gi v-project-resource-code="'project:detail:task:list'">
+        <n-gi v-if="projectStore.hasResourceCode('project:detail:task:list')">
           <list
             ref="listComp"
             :condition="condition"

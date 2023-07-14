@@ -5,15 +5,6 @@ import { Project } from "@/types/project"
 import { deleteProject, getProjectDetail, getProjectResourceCode, updateProject } from "@/service/api"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
-// import Dashboard from "./dashboard/index.vue"
-// import Plan from "./plan/index.vue"
-// import Module from "./module/index.vue"
-// import Requirement from "./requirement/index.vue"
-// import Task from "./task/index.vue"
-// import Test from "./test/index.vue"
-// import Issue from "./issue/index.vue"
-// import Risk from "./risk/index.vue"
-// import Asset from "./asset/index.vue"
 import { FormInst, NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
@@ -118,14 +109,20 @@ const handleChangeTab = (value: string | number) => {
 }
 
 onMounted(() => {
-  project.value = { id: "", name: "", code: "", description: "", stageId: "" }
-  modules.value = []
+  // project.value = { id: "", name: "", code: "", description: "", stageId: "" }
+  // modules.value = []
 
   getProjectDetail(id).then((res) => {
-    project.value = res
+    // project.value = res
+    if (res) {
+      projectStore.addProject(res)
+    }
   })
   getProjectResourceCode(id).then((res) => {
-    resourceCodes.value = res || []
+    // resourceCodes.value = res || []
+    if (res) {
+      projectStore.setProjectResourceCodes(id, res)
+    }
   })
 })
 </script>
@@ -147,22 +144,22 @@ onMounted(() => {
         <template v-if="project?.id">
           <n-gi :span="16" :offset="2">
             <n-tabs id="project-tabs" :value="tab" type="line" justify-content="space-between" @update:value="handleChangeTab">
-              <n-tab name="项目总览" v-project-resource-code="['project:detail', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目计划" v-project-resource-code="['project:detail:plan', 'allProjectDetail']"></n-tab>
-              <n-tab name="功能模块" v-project-resource-code="['project:detail:module', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目需求" v-project-resource-code="['project:detail:requirement', 'allProjectDetail']"></n-tab>
-              <n-tab name="工作任务" v-project-resource-code="['project:detail:task', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目测试" v-project-resource-code="['project:detail:test', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目缺陷" v-project-resource-code="['project:detail:issue', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目变更" v-project-resource-code="['project:detail:change', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目风险" v-project-resource-code="['project:detail:risk', 'allProjectDetail']"></n-tab>
-              <n-tab name="项目资产" v-project-resource-code="['project:detail:asset', 'allProjectDetail']"></n-tab>
+              <n-tab name="项目总览" v-if="projectStore.hasResourceCode('project:detail')"></n-tab>
+              <n-tab name="项目计划" v-if="projectStore.hasResourceCode('project:detail:plan')"></n-tab>
+              <n-tab name="功能模块" v-if="projectStore.hasResourceCode('project:detail:module')"></n-tab>
+              <n-tab name="项目需求" v-if="projectStore.hasResourceCode('project:detail:requirement')"></n-tab>
+              <n-tab name="工作任务" v-if="projectStore.hasResourceCode('project:detail:task')"></n-tab>
+              <n-tab name="项目测试" v-if="projectStore.hasResourceCode('project:detail:test')"></n-tab>
+              <n-tab name="项目缺陷" v-if="projectStore.hasResourceCode('project:detail:issue')"></n-tab>
+              <n-tab name="项目变更" v-if="projectStore.hasResourceCode('project:detail:change')"></n-tab>
+              <n-tab name="项目风险" v-if="projectStore.hasResourceCode('project:detail:risk')"></n-tab>
+              <n-tab name="项目资产" v-if="projectStore.hasResourceCode('project:detail:asset')"></n-tab>
             </n-tabs>
           </n-gi>
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
             <n-tooltip v-if="tab == '项目总览'">
               <template #trigger>
-                <n-button size="small" type="primary" v-project-resource-code="'project:add'" @click="showProjectSettings">
+                <n-button size="small" type="primary" v-if="projectStore.hasResourceCode('project:add')" @click="showProjectSettings">
                   <n-icon :component="SettingsServices" />
                 </n-button>
               </template>
@@ -177,9 +174,9 @@ onMounted(() => {
     </n-layout-header>
     <n-layout-content content-style="margin: 16px;">
       <template v-if="project?.id">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <keep-alive>
-            <component :is="Component" />
+            <component :is="Component" :key="route.fullPath" />
           </keep-alive>
         </router-view>
       </template>
@@ -201,7 +198,7 @@ onMounted(() => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" @click="resetUpdateProject">重置</n-button>
-        <n-button type="primary" @click="handleCommitProject" v-project-resource-code="'project:update'">提交</n-button>
+        <n-button type="primary" @click="handleCommitProject" v-if="projectStore.hasResourceCode('project:update')">提交</n-button>
       </template>
       <template #header>
         <div class="w-350px flex flex-justify-between">
@@ -210,7 +207,7 @@ onMounted(() => {
             <template #trigger>
               <n-tooltip>
                 <template #trigger>
-                  <n-button type="error" size="tiny" v-project-resource-code="'project:delete'">
+                  <n-button type="error" size="tiny" v-if="projectStore.hasResourceCode('project:delete')">
                     <n-icon :component="Delete" />
                   </n-button>
                 </template>

@@ -446,7 +446,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:risk:add'">新建风险</n-button>
+        <n-button type="primary" @click="newInstance" v-if="projectStore.hasResourceCode('project:detail:risk:add')">新建风险</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -475,7 +475,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-project-resource-code="['project:detail:risk:add', 'project:detail:risk:update']"
+          v-if="projectStore.hasResourceCodes(['project:detail:risk:add', 'project:detail:risk:update'])"
           >提交</n-button
         >
       </template>

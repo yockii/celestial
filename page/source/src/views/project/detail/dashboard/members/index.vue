@@ -7,6 +7,7 @@ import { UserFollow, IdManagement } from "@vicons/carbon"
 import { rgbToHex } from "@/utils/Render"
 import UserSelectDrawerContent from "@/components/user/UserSelectDrawerContent.vue"
 import { NButton } from "naive-ui"
+import { useProjectStore } from "@/store/project"
 
 const emits = defineEmits(["projectMemberChanged"])
 const props = defineProps<{
@@ -14,6 +15,7 @@ const props = defineProps<{
   members: ProjectMember[]
   roles: Role[]
 }>()
+const projectStore = useProjectStore()
 
 const charger = computed(() => {
   // 负责人，找出角色ID为0的
@@ -124,7 +126,7 @@ onMounted(() => {
   <n-grid :cols="2" class="mb-16px">
     <n-gi class="text-1.2em op-90 font-500">项目组</n-gi>
     <n-gi class="flex flex-justify-end">
-      <n-tooltip v-project-resource-code="['project:detail:member:add', 'project:detail:member:delete']">
+      <n-tooltip v-if="projectStore.hasResourceCodes(['project:detail:member:add', 'project:detail:member:delete'])">
         <template #trigger>
           <n-button size="small" @click="manageActive = true">
             <template #icon>

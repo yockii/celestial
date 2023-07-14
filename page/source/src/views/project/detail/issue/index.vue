@@ -745,7 +745,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:issue:add'">新建缺陷</n-button>
+        <n-button type="primary" @click="newInstance" v-if="projectStore.hasResourceCode('project:detail:issue:add')">新建缺陷</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -774,7 +774,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-project-resource-code="['project:detail:issue:add', 'project:detail:issue:update']"
+          v-if="projectStore.hasResourceCodes(['project:detail:issue:add', 'project:detail:issue:update'])"
           >提交</n-button
         >
       </template>

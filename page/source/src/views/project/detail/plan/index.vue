@@ -443,7 +443,7 @@ onBeforeUpdate(() => {
     <n-gi>
       <n-space justify="space-between">
         <span></span>
-        <n-button type="primary" @click="newInstance" v-project-resource-code="'project:detail:plan:add'">新建计划</n-button>
+        <n-button type="primary" @click="newInstance" v-if="projectStore.hasResourceCode('project:detail:plan:add')">新建计划</n-button>
       </n-space>
     </n-gi>
     <n-gi>
@@ -472,7 +472,7 @@ onBeforeUpdate(() => {
           type="primary"
           size="small"
           @click="submit"
-          v-project-resource-code="['project:detail:plan:add', 'project:detail:plan:update']"
+          v-if="projectStore.hasResourceCodes(['project:detail:plan:add', 'project:detail:plan:update'])"
           >提交</n-button
         >
       </template>

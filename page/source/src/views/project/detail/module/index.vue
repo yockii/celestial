@@ -11,7 +11,7 @@ import { PlaylistAdd } from "@vicons/tabler"
 
 const message = useMessage()
 const projectStore = useProjectStore()
-const { project } = storeToRefs(useProjectStore())
+const { project, modules } = storeToRefs(useProjectStore())
 
 type CombinedModule = {
   lv1Column: string
@@ -24,11 +24,10 @@ type CombinedModule = {
   lv4Module?: ProjectModule
   [key: string]: unknown
 }
-const { modules: list } = storeToRefs(projectStore)
 // const list: Ref<ProjectModule[]> = ref([])
 const data: ComputedRef<CombinedModule[]> = computed(() => {
   const combinedModules: CombinedModule[] = []
-  const lv1Modules = list.value.filter((item) => !item.parentId || item.parentId === "")
+  const lv1Modules = modules.value.filter((item) => !item.parentId || item.parentId === "")
 
   for (let i = 0; i < lv1Modules.length; i++) {
     let module = lv1Modules[i]
@@ -36,17 +35,17 @@ const data: ComputedRef<CombinedModule[]> = computed(() => {
       continue
     }
     // 查找所有该模块的子模块
-    const subModules = list.value.filter((m) => m.parentId === module.id)
+    const subModules = modules.value.filter((m) => m.parentId === module.id)
     if (subModules.length > 0) {
       for (let j = 0; j < subModules.length; j++) {
         let subModule = subModules[j]
         // 查找所有该模块的子模块
-        const subSubModules = list.value.filter((m) => m.parentId === subModule.id)
+        const subSubModules = modules.value.filter((m) => m.parentId === subModule.id)
         if (subSubModules.length > 0) {
           for (let k = 0; k < subSubModules.length; k++) {
             let subSubModule = subSubModules[k]
             // 查找所有该模块的子模块
-            const subSubSubModules = list.value.filter((m) => m.parentId === subSubModule.id)
+            const subSubSubModules = modules.value.filter((m) => m.parentId === subSubModule.id)
             if (subSubSubModules.length > 0) {
               for (let l = 0; l < subSubSubModules.length; l++) {
                 let subSubSubModule = subSubSubModules[l]
@@ -104,7 +103,7 @@ type ModuleOption = {
 }
 const moduleOptions = computed(() => {
   const options: ModuleOption[] = []
-  const lv1Modules = list.value.filter((item) => !item.parentId || item.parentId === "")
+  const lv1Modules = modules.value.filter((item) => !item.parentId || item.parentId === "")
   for (let i = 0; i < lv1Modules.length; i++) {
     const lv1Module = lv1Modules[i]
     const option: ModuleOption = {
@@ -112,7 +111,7 @@ const moduleOptions = computed(() => {
       label: lv1Module.name,
       children: []
     }
-    const lv2Modules = list.value.filter((item) => item.parentId === lv1Module.id)
+    const lv2Modules = modules.value.filter((item) => item.parentId === lv1Module.id)
     for (let j = 0; j < lv2Modules.length; j++) {
       const lv2Module = lv2Modules[j]
       const lv2Option: ModuleOption = {
@@ -120,7 +119,7 @@ const moduleOptions = computed(() => {
         label: lv2Module.name,
         children: []
       }
-      const lv3Modules = list.value.filter((item) => item.parentId === lv2Module.id)
+      const lv3Modules = modules.value.filter((item) => item.parentId === lv2Module.id)
       const lv3Options = lv3Modules.map((item) => {
         return {
           value: item.id,
@@ -524,7 +523,10 @@ const refresh = () => {
   loading.value = true
   getProjectModuleList(condition.value)
     .then((res) => {
-      list.value = res.items || []
+      // modules.value = res.items || []
+      if (res && res.items && res.items.length > 0) {
+        projectStore.setProjectModules(condition.value.projectId, res.items)
+      }
     })
     .finally(() => {
       loading.value = false
@@ -608,7 +610,7 @@ const markedModuleId = computed(() => {
 
 // 加载动作
 const reload = () => {
-  if (list.value.length === 0) {
+  if (modules.value.length === 0) {
     refresh()
   }
 }
@@ -624,7 +626,7 @@ onBeforeUpdate(() => {
 <template>
   <n-grid :cols="1" y-gap="12">
     <n-gi class="flex flex-justify-end">
-      <n-button type="primary" @click="handleNewModule" v-project-resource-code="'project:detail:module:add'">新增模块</n-button>
+      <n-button type="primary" @click="handleNewModule" v-if="projectStore.hasResourceCode('project:detail:module:add')">新增模块</n-button>
     </n-gi>
     <n-gi>
       <n-data-table :columns="columns" :data="data" :single-line="false" />

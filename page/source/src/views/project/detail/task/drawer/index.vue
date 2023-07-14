@@ -273,7 +273,11 @@ const parentTaskChanged = (parentId: string) => {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCurrentData">重置</n-button>
-        <n-button size="small" type="primary" @click="handleCommitData" v-project-resource-code="['project:detail:task:add', 'project:detail:task:update']"
+        <n-button
+          size="small"
+          type="primary"
+          @click="handleCommitData"
+          v-if="projectStore.hasResourceCodes(['project:detail:task:add', 'project:detail:task:update'])"
           >提交</n-button
         >
       </template>
