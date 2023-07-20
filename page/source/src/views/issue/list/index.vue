@@ -7,7 +7,6 @@ import {
   NButton,
   NButtonGroup,
   NGrid,
-  NGridItem,
   NIcon,
   NInput,
   NInputNumber,
@@ -31,40 +30,52 @@ import {
 import { storeToRefs } from "pinia"
 import { useProjectStore } from "@/store/project"
 import { useUserStore } from "@/store/user"
-import { Delete, Edit } from "@vicons/carbon"
+import { Delete, Edit, ContentView } from "@vicons/carbon"
 import { AssignmentIndOutlined, CancelOutlined, CheckCircleFilled, PlayCircleFilled } from "@vicons/material"
 import { CloseCircleFilled, ReloadOutlined } from "@vicons/antd"
+import IssueDetailDrawer from "@/components/project/issue/IssueDetailDrawer.vue"
 
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
 const userStore = useUserStore()
 
-const expandColumn = reactive({
-  key: "expand",
-  type: "expand",
-  expandable: () => projectStore.hasResourceCode("project:detail:plan:instance"),
-  renderExpand: (row: ProjectIssue) => {
-    if (!row.content || !row.issueCause || !row.solveMethod) {
-      getProjectIssue(row.id).then((res) => {
-        row.content = res.content
-        row.issueCause = res.issueCause
-        row.solveMethod = res.solveMethod
-      })
-    }
-    return h(
-      NGrid,
-      {
-        cols: 1,
-        yGap: 8
-      },
-      () => [
-        h(NGridItem, {}, { default: () => row.content }),
-        h(NGridItem, {}, { default: () => "问题原因：" + (row.issueCause || "") }),
-        h(NGridItem, {}, { default: () => "解决方法：" + (row.solveMethod || "") })
-      ]
-    )
-  }
-})
+// const expandColumn = reactive({
+//   key: "expand",
+//   type: "expand",
+//   expandable: () => projectStore.hasResourceCode("project:detail:plan:instance"),
+//   renderExpand: (row: ProjectIssue) => {
+//     if (!row.content || !row.issueCause || !row.solveMethod) {
+//       getProjectIssue(row.id).then((res) => {
+//         row.content = res.content
+//         row.issueCause = res.issueCause
+//         row.solveMethod = res.solveMethod
+//       })
+//     }
+//     return h(
+//       NGrid,
+//       {
+//         cols: 1,
+//         yGap: 8
+//       },
+//       () => [
+//         // h(NGridItem, {}, { default: () => row.content }),
+//         h(
+//           NGridItem,
+//           {},
+//           {
+//             default: () => {
+//               const div = document.createElement("div")
+//               Vditor.preview(div, row.content || "")
+//               return div
+//             }
+//           }
+//         ),
+//         h(NGridItem, {}, { default: () => "问题原因：" + (row.issueCause || "") }),
+//         h(NGridItem, {}, { default: () => "解决方法：" + (row.solveMethod || "") })
+//       ]
+//     )
+//   }
+// })
 const startTimeColumn = reactive({
   title: "开始解决时间",
   key: "startTime",
@@ -202,6 +213,38 @@ const operationColumn = reactive({
   key: "operation",
   render: (row: ProjectIssue) => {
     const btnGroup: VNode[] = []
+
+    // 查看详情抽屉
+    btnGroup.push(
+      h(
+        NTooltip,
+        {},
+        {
+          default: () => "查看详情",
+
+          trigger: () =>
+            h(
+              NButton,
+              {
+                size: "small",
+                secondary: true,
+                onClick: () => {
+                  getProjectIssue(row.id).then((res) => {
+                    if (res) {
+                      instance.value = res
+                      issueDetailDrawerActive.value = true
+                    }
+                  })
+                }
+              },
+              {
+                default: () => h(NIcon, { component: ContentView })
+              }
+            )
+        }
+      )
+    )
+
     if (
       row.status !== 9 &&
       row.status !== 5 &&
@@ -533,7 +576,7 @@ const operationColumn = reactive({
   }
 })
 const columns = [
-  expandColumn,
+  // expandColumn,
   {
     title: "标题",
     key: "title"
@@ -724,6 +767,9 @@ const message = useMessage()
 //   })
 // }
 
+// 详情抽屉
+const issueDetailDrawerActive = ref(false)
+
 defineExpose({
   projectSelected: (id: string) => {
     condition.value.projectId = id || ""
@@ -754,4 +800,5 @@ onMounted(() => {
       />
     </n-gi>
   </n-grid>
+  <issue-detail-drawer v-if="issueDetailDrawerActive" v-model:drawerActive="issueDetailDrawerActive" :issue="instance" />
 </template>

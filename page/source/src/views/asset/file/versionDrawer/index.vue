@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { File, FileVersion, FileVersionCondition } from "@/types/asset"
-import { NButton, NIcon, NTooltip, PaginationProps } from "naive-ui"
+import { NButtonGroup, NButton, NIcon, NTooltip, PaginationProps } from "naive-ui"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { WordCloud } from "@vicons/carbon"
 import { getAssetFileVersionList } from "@/service/api"
@@ -76,7 +76,7 @@ const columns = [
           )
         )
       }
-      return btnGroup
+      return h(NButtonGroup, {}, () => btnGroup)
     }
   }
 ]

@@ -123,6 +123,9 @@ func (s *projectIssueService) PaginateBetweenTimes(condition *model.ProjectIssue
 		}
 	}
 
+	// 排除大字段
+	tx = tx.Omit("content", "issue_cause", "solve_method")
+
 	err = tx.Find(&list, &model.ProjectIssue{
 		ID:         condition.ID,
 		Type:       condition.Type,
