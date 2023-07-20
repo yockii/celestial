@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useAppStore } from "@/store/app"
+import { useUserStore } from "@/store/user"
 import { Edit } from "@vicons/carbon"
 import { storeToRefs } from "pinia"
 import Vditor from "vditor"
 import "vditor/dist/index.css"
 const appStore = useAppStore()
+const userStore = useUserStore()
 const { theme } = storeToRefs(appStore)
 const props = defineProps<{
   value: string
@@ -40,6 +42,41 @@ const initVditor = () => {
     placeholder: props.placeholder || "请输入内容",
     after: () => {
       vditor.value?.setValue(props.value)
+    },
+    upload: {
+      url: "/api/v1/file",
+      headers: {
+        Authorization: `Bearer ${userStore.token}`
+      },
+      format: (files: File[], responseText: string): string => {
+        const response = JSON.parse(responseText)
+        const resultJson: { [key: string]: any } = {}
+        if (response.code === 0) {
+          const succMap: { [key: string]: string } = {}
+          for (const key in response.data.success) {
+            succMap[key] = window.location.origin + "/api/v1/file?objName=" + response.data.success[key]
+          }
+
+          resultJson["msg"] = ""
+          resultJson["code"] = 0
+          resultJson["data"] = {
+            errFiles: response.data.failed,
+            succMap
+          }
+        } else {
+          const errFiles = []
+          for (const f of files) {
+            errFiles.push(f.name)
+          }
+          resultJson["msg"] = response.msg
+          resultJson["code"] = response.code
+          resultJson["data"] = {
+            errFiles
+          }
+        }
+
+        return JSON.stringify(resultJson)
+      }
     }
   })
 }

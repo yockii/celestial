@@ -37,6 +37,7 @@ import { useUserStore } from "@/store/user"
 import { Delete, Edit } from "@vicons/carbon"
 import { AssignmentIndOutlined, CancelOutlined, CheckCircleFilled, PlayCircleFilled } from "@vicons/material"
 import { CloseCircleFilled, ReloadOutlined } from "@vicons/antd"
+import RichableTextArea from "@/components/RichableTextArea.vue"
 
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -609,7 +610,7 @@ const handleSorterChange = (sorter: DataTableSortState) => {
 }
 
 // 抽屉部分，新建、编辑内容
-const instance = ref<ProjectIssue>({ endTime: 0, id: "", title: "", projectId: "", startTime: 0, status: 0 })
+const instance = ref<ProjectIssue>({ endTime: 0, id: "", title: "", projectId: "", startTime: 0, status: 0, content: "" })
 const drawerActive = ref(false)
 const isUpdate = computed(() => !!instance.value?.id)
 const drawerTitle = computed(() => (isUpdate.value ? "编辑缺陷" : "新建缺陷"))
@@ -617,7 +618,7 @@ const resetInstance = (origin: ProjectIssue | undefined = undefined) => {
   if (origin) {
     instance.value = JSON.parse(JSON.stringify(origin))
   } else {
-    instance.value = { endTime: 0, id: "", title: "", projectId: project.value.id, startTime: 0, status: 0 }
+    instance.value = { endTime: 0, id: "", title: "", projectId: project.value.id, startTime: 0, status: 0, content: "" }
   }
 }
 const newInstance = () => {
@@ -804,7 +805,8 @@ onBeforeUpdate(() => {
           </n-gi>
           <n-gi :span="4">
             <n-form-item label="缺陷描述：">
-              <n-input type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" v-model:value="instance.content" placeholder="请输入缺陷描述" />
+              <!-- <n-input type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" v-model:value="instance.content" placeholder="请输入缺陷描述" /> -->
+              <richable-text-area v-model:value="instance.content" label="缺陷描述" placeholder="请输入缺陷描述" />
             </n-form-item>
           </n-gi>
           <n-gi :span="4">

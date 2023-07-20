@@ -7,6 +7,13 @@ import (
 )
 
 func InitRouter() {
+
+	// 文件上传
+	{
+		server.Post("/api/v1/file", middleware.NeedAuthorization(constant.NeedLogin), AssetFileController.Upload)
+		server.Get("/api/v1/file", AssetFileController.DownloadByObjName)
+	}
+
 	// 资产分类
 	{
 		assetCategory := server.Group("/api/v1/assetCategory")
@@ -31,6 +38,7 @@ func InitRouter() {
 		assetFile.Get("/instance", middleware.NeedAuthorization(constant.ResourceFileInstance), AssetFileController.Instance)
 		assetFile.Get("/download", middleware.NeedAuthorization(constant.ResourceFileDownload), AssetFileController.Download)
 		assetFile.Get("/filePermissionUsers", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.FilePermissionUsers)
+		assetFile.Get("/versionList", middleware.NeedAuthorization(constant.ResourceFileList), AssetFileController.VersionList)
 		assetFile.Post("/updateFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.UpdateFileUserPermission)
 		assetFile.Delete("/removeFileUserPermission", middleware.NeedAuthorization(constant.ResourceFileAdd), AssetFileController.RemoveFileUserPermission)
 
