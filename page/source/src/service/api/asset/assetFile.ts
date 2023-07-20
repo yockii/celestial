@@ -1,6 +1,6 @@
 import { request } from "../../request"
 import { Paginate } from "@/types/common"
-import { File, FileCondition, FileUser } from "@/types/asset"
+import { File, FileCondition, FileUser, FileVersion, FileVersionCondition } from "@/types/asset"
 
 /**
  * 获取资产文件详情
@@ -74,5 +74,15 @@ export const updateAssetFileUser = (fileUser: FileUser) => {
 export const deleteAssetFileUser = (id: string) => {
   return request.delete<FileUser>("/assetFile/removeFileUserPermission", {
     params: { id }
+  })
+}
+
+/**
+ * 获取资产文件的版本记录
+ * @param fileId 资产文件ID
+ */
+export const getAssetFileVersionList = (condition: FileVersionCondition) => {
+  return request.get<Paginate<FileVersion>>("/assetFile/versionList", {
+    params: condition
   })
 }

@@ -72,3 +72,16 @@ export type FileUser = {
   permission?: number
   realName?: string
 }
+
+export type FileVersion = {
+  id: string
+  fileId: string
+  size: number
+  createTime?: number
+  creatorId?: string
+  creator?: User
+}
+
+export type FileVersionCondition = Condition & {
+  fileId: string
+}

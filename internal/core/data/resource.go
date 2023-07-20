@@ -1044,6 +1044,39 @@ func InitData() {
 				Type:         1,
 			})
 		}
+		// 会议室
+		{
+			resources = append(resources, &model.Resource{
+				ResourceName: "会议室",
+				ResourceCode: constant.ResourceMeetingRoom,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "添加会议室",
+				ResourceCode: constant.ResourceMeetingRoomAdd,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "删除会议室",
+				ResourceCode: constant.ResourceMeetingRoomDelete,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "更新会议室",
+				ResourceCode: constant.ResourceMeetingRoomUpdate,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "会议室列表",
+				ResourceCode: constant.ResourceMeetingRoomList,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "会议室详情",
+				ResourceCode: constant.ResourceMeetingRoomInstance,
+				Type:         1,
+			})
+		}
 	}
 
 	for _, resource := range resources {

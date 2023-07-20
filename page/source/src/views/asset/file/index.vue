@@ -6,9 +6,11 @@ import { NButton, NButtonGroup, NIcon, NTooltip, PaginationProps } from "naive-u
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import Drawer from "./drawer/index.vue"
-import { Download, Edit, LicenseThirdParty } from "@vicons/carbon"
-import permissionDrawer from "@/components/asset/permissionDrawer.vue"
+import { Download, Edit, LicenseThirdParty, Version, WordCloud } from "@vicons/carbon"
+import PermissionDrawer from "@/components/asset/permissionDrawer.vue"
+import VersionDrawer from "./versionDrawer/index.vue"
 
+const router = useRouter()
 const userStore = useUserStore()
 const assetCategoryList = ref<AssetCategory[]>([])
 const treeSelected = (keys: string[]) => {
@@ -136,19 +138,47 @@ const columns = [
           )
         )
       }
-      if (userStore.hasResourceCode("asset:file:update") && row.permission && row.permission >= 2) {
+
+      if (row.permission && row.permission >= 1) {
+        // 可查看版本列表
         btnGroup.push(
           h(
             NTooltip,
             {},
             {
-              default: () => "编辑",
+              default: () => "版本列表",
               trigger: () =>
                 h(
                   NButton,
                   {
                     size: "small",
                     type: "primary",
+                    onClick: () => {
+                      handleVersionList(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Version })
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      if (userStore.hasResourceCode("asset:file:update") && row.permission && row.permission >= 2) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "修改信息",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "info",
                     onClick: () => {
                       handleEditFile(row)
                     }
@@ -175,13 +205,42 @@ const columns = [
                   NButton,
                   {
                     size: "small",
-                    type: "primary",
+                    type: "warning",
                     onClick: () => {
                       handleAssignPermission(row)
                     }
                   },
                   {
                     default: () => h(NIcon, { component: LicenseThirdParty })
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      if (row.permission && row.permission >= 3) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "在线编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "tertiary",
+                    onClick: () => {
+                      const { href } = router.resolve({
+                        path: `/editor/${row.id}`
+                      })
+                      window.open(href, "_blank")
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: WordCloud })
                   }
                 )
             }
@@ -217,6 +276,9 @@ const refresh = () => {
     })
 }
 
+// 版本抽屉
+const versionDrawerActive = ref(false)
+
 // 抽屉
 const drawerActive = ref(false)
 const currentData = ref<File>({
@@ -235,6 +297,10 @@ const handleAddFile = () => {
 const handleEditFile = (row: File) => {
   currentData.value = Object.assign({}, row)
   drawerActive.value = true
+}
+const handleVersionList = (row: File) => {
+  currentData.value = Object.assign({}, row)
+  versionDrawerActive.value = true
 }
 const handleAssignPermission = (row: File) => {
   currentData.value = Object.assign({}, row)
@@ -306,11 +372,13 @@ onBeforeUpdate(() => {
     </n-gi>
   </n-grid>
 
-  <drawer v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
+  <drawer v-if="drawerActive" v-model:drawer-active="drawerActive" v-model:data="currentData" @refresh="refresh" />
   <permission-drawer
+    v-if="permissionDrawerActive"
     v-model:drawer-active="permissionDrawerActive"
     :fileId="currentData.id"
     :fileName="currentData.name"
     :creatorId="currentData.creatorId || ''"
   />
+  <version-drawer v-if="versionDrawerActive" v-model:drawer-active="versionDrawerActive" :data="currentData" />
 </template>

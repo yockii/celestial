@@ -6,6 +6,8 @@ export type Result<T> = {
 
 export type Paginate<T> = {
   total: number
+  offset: number
+  limit: number
   items: T[]
 }
 

@@ -340,7 +340,7 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: "/editor",
+    path: "/editor/:id/:versionId?",
     name: "Editor",
     component: () => import("@/views/docEditor/index.vue")
   }

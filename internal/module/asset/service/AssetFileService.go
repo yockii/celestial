@@ -25,6 +25,22 @@ type assetFileService struct {
 	locker    sync.Locker
 }
 
+func (s *assetFileService) Upload(suffix string, reader io.Reader) (objName string, err error) {
+	if s.osManager == nil {
+		// 初始化新的osManager
+		if err = s.initOsManager(); err != nil {
+			return
+		}
+	}
+	// 上传文件
+	now := time.Now().Format("20060102")
+	objName = fmt.Sprintf("%s/%d.%s", now, util.SnowflakeId(), suffix)
+	if err = s.osManager.PutObject(objName, reader); err != nil {
+		return
+	}
+	return
+}
+
 // Add 添加资源
 func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicated bool, success bool, err error) {
 	if instance.Name == "" || instance.CategoryID == 0 {
@@ -81,6 +97,20 @@ func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicat
 			logger.Errorln(err)
 			return err
 		}
+
+		// 添加文件版本信息
+		if err = tx.Create(&model.FileVersion{
+			ID:          util.SnowflakeId(),
+			FileID:      instance.ID,
+			OssConfigID: s.osManager.GetOssConfigID(),
+			Size:        instance.Size,
+			ObjName:     objName,
+			CreatorID:   instance.CreatorID,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
 		// 设置创建者管理权限
 		assetFilePermission := &model.FilePermission{
 			ID:         util.SnowflakeId(),
@@ -92,6 +122,56 @@ func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicat
 			logger.Errorln(err)
 			return err
 		}
+		return nil
+	}); err != nil {
+		return
+	}
+	success = true
+	return
+}
+
+// AddNewVersion 添加资源新版本, 其中instance必须有：id、size、creatorID、suffix
+func (s *assetFileService) AddNewVersion(instance *model.File, reader io.Reader) (success bool, err error) {
+	if instance.ID == 0 {
+		err = errors.New("ID is required ")
+		return
+	}
+	if s.osManager == nil {
+		// 初始化新的osManager
+		if err = s.initOsManager(); err != nil {
+			return
+		}
+	}
+
+	// 上传文件
+	now := time.Now().Format("20060102")
+	objName := fmt.Sprintf("%s/%d.%s", now, instance.ID, instance.Suffix)
+	if err = s.osManager.PutObject(objName, reader); err != nil {
+		return false, err
+	}
+
+	instance.OssConfigID = s.osManager.GetOssConfigID()
+	instance.ObjName = objName
+
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Where(&model.File{ID: instance.ID}).Updates(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		// 添加文件版本信息
+		if err = tx.Create(&model.FileVersion{
+			ID:          util.SnowflakeId(),
+			FileID:      instance.ID,
+			OssConfigID: s.osManager.GetOssConfigID(),
+			Size:        instance.Size,
+			ObjName:     objName,
+			CreatorID:   instance.CreatorID,
+		}).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
 		return nil
 	}); err != nil {
 		return
@@ -328,6 +408,32 @@ func (s *assetFileService) Download(id uint64) (reader io.ReadCloser, err error)
 	return s.osManager.GetObject(instance.ObjName)
 }
 
+func (s *assetFileService) DownloadByObjName(objName string) (reader io.ReadCloser, err error) {
+	if s.osManager == nil {
+		// 初始化新的osManager
+		if err = s.initOsManager(); err != nil {
+			return
+		}
+	}
+	return s.osManager.GetObject(objName)
+}
+
+func (s *assetFileService) DownloadVersion(id uint64) (reader io.ReadCloser, err error) {
+	versionedFile := new(model.FileVersion)
+	if err = database.DB.Where(&model.FileVersion{ID: id}).First(versionedFile).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+
+	if s.osManager == nil {
+		// 初始化新的osManager
+		if err = s.initOsManager(); err != nil {
+			return
+		}
+	}
+	return s.osManager.GetObject(versionedFile.ObjName)
+}
+
 func (s *assetFileService) GetPermissionUsers(condition *domain.FilePermissionUser) ([]*domain.FilePermissionUser, error) {
 	tx := database.DB.Model(&model.FilePermission{})
 	realName := condition.RealName
@@ -411,5 +517,55 @@ func (s *assetFileService) DeleteFilePermission(id uint64) (success bool, err er
 		return
 	}
 	success = true
+	return
+}
+
+func (s *assetFileService) LatestVersion(fileID uint64) (*model.FileVersion, error) {
+	version := &model.FileVersion{}
+	err := database.DB.Where(&model.FileVersion{FileID: fileID}).Order("create_time desc").First(version).Error
+	if err != nil {
+		logger.Errorln(err)
+		return nil, err
+	}
+	return version, nil
+}
+
+func (s *assetFileService) GetFileVersion(condition *model.FileVersion) (*model.FileVersion, error) {
+	if condition.ID == 0 && condition.FileID == 0 {
+		return nil, errors.New("id or file_id is required")
+	}
+	version := &model.FileVersion{}
+	err := database.DB.Where(condition).Order("create_time desc").First(version).Error
+	if err != nil {
+		logger.Errorln(err)
+		return nil, err
+	}
+	return version, nil
+}
+
+func (s *assetFileService) VersionList(condition *model.FileVersion, limit int, offset int, orderBy string) (total int64, list []*model.FileVersion, err error) {
+	if condition.FileID == 0 {
+		err = errors.New("file_id is required")
+		return
+	}
+	tx := database.DB.Model(&model.FileVersion{})
+	if limit > -1 {
+		tx = tx.Limit(limit)
+	}
+	if offset > -1 {
+		tx = tx.Offset(offset)
+	}
+	if orderBy != "" {
+		tx = tx.Order(orderBy)
+	} else {
+		tx = tx.Order("create_time desc")
+	}
+	tx = tx.Where(condition)
+
+	err = tx.Limit(limit).Offset(offset).Find(&list).Offset(-1).Limit(-1).Count(&total).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
 	return
 }

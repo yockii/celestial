@@ -21,3 +21,6 @@ level="info"
 host="http://localhost:7700"
 apiKey="aaabbbcccdddeeefff"
 index="celestial"
+
+[onlyoffice]
+secret="beE7Tsnr4NEZL5ZhFB3ZMCcEcxVWMD8j"

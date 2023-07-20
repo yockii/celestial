@@ -7,7 +7,9 @@ import (
 	assetController "github.com/yockii/celestial/internal/module/asset/controller"
 	logController "github.com/yockii/celestial/internal/module/log/controller"
 	luceneController "github.com/yockii/celestial/internal/module/lucene/controller"
+	meetingRoomController "github.com/yockii/celestial/internal/module/meeting/controller"
 	"github.com/yockii/celestial/internal/module/message"
+	onlyofficeController "github.com/yockii/celestial/internal/module/onlyoffice/controller"
 	projectController "github.com/yockii/celestial/internal/module/project/controller"
 	taskController "github.com/yockii/celestial/internal/module/task/controller"
 	testController "github.com/yockii/celestial/internal/module/test/controller"
@@ -59,6 +61,10 @@ func main() {
 	logController.InitRouter()
 	// 资产管理模块
 	assetController.InitRouter()
+	// OnlyOffice在线文档编辑模块
+	onlyofficeController.InitRouter()
+	// 会议室管理
+	meetingRoomController.InitRouter()
 
 	for {
 		err := server.Start()

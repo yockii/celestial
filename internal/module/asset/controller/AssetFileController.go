@@ -24,6 +24,75 @@ var AssetFileController = new(assetFileController)
 
 type assetFileController struct{}
 
+func (c *assetFileController) Upload(ctx *fiber.Ctx) error {
+	success := make(map[string]string)
+	var failed []string
+	if form, err := ctx.MultipartForm(); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	} else {
+		if fhList, ok := form.File["file[]"]; !ok {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeParamNotEnough,
+				Msg:  server.ResponseMsgParamNotEnough + " file",
+			})
+		} else {
+			for _, fileHeader := range fhList {
+				var file multipart.File
+				file, err = fileHeader.Open()
+				if err != nil {
+					logger.Errorln(err)
+					return ctx.JSON(&server.CommonResponse{
+						Code: server.ResponseCodeParamParseError,
+						Msg:  server.ResponseMsgParamParseError,
+					})
+				}
+
+				defer func(file multipart.File) {
+					_ = file.Close()
+				}(file)
+
+				fileName := fileHeader.Filename
+				suffix := fileName[strings.LastIndex(fileName, ".")+1:]
+
+				objName := ""
+				objName, err = service.AssetFileService.Upload(suffix, file)
+				if err != nil {
+					failed = append(failed, fileName)
+				} else {
+					success[fileName] = objName
+				}
+			}
+		}
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: domain.UploadResponse{
+			Success: success,
+			Failed:  failed,
+		},
+	})
+}
+func (c *assetFileController) DownloadByObjName(ctx *fiber.Ctx) error {
+	objName := ctx.Query("objName")
+	if objName == "" {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " objName",
+		})
+	}
+	file, err := service.AssetFileService.DownloadByObjName(objName)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.SendStream(file)
+}
+
 func (c *assetFileController) Add(ctx *fiber.Ctx) error {
 	if form, err := ctx.MultipartForm(); err != nil {
 		logger.Errorln(err)
@@ -461,5 +530,74 @@ func (c *assetFileController) RemoveFileUserPermission(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
+	})
+}
+
+func (c *assetFileController) VersionList(ctx *fiber.Ctx) error {
+	condition := new(model.FileVersion)
+	if err := ctx.QueryParser(condition); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	if condition.FileID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " file_id",
+		})
+	}
+
+	limit, offset, orderBy, err := server.ParsePaginationInfoFromQuery(ctx)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + err.Error(),
+		})
+	}
+
+	total, list, err := service.AssetFileService.VersionList(condition, limit, offset, orderBy)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	var resultList []*domain.FileVersionWithCreator
+	{
+		var wg sync.WaitGroup
+		for _, item := range list {
+			fwu := &domain.FileVersionWithCreator{
+				FileVersion: *item,
+			}
+			resultList = append(resultList, fwu)
+			wg.Add(1)
+			go func(result *domain.FileVersionWithCreator) {
+				defer wg.Done()
+				user, err := ucService.UserService.Instance(&ucModel.User{ID: result.CreatorID})
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				result.Creator = &ucModel.User{
+					ID:       user.ID,
+					Username: user.Username,
+					RealName: user.RealName,
+				}
+			}(fwu)
+		}
+		wg.Wait()
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: &server.Paginate{
+			Total:  total,
+			Offset: offset,
+			Limit:  limit,
+			Items:  resultList,
+		},
 	})
 }

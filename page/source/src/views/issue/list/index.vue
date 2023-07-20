@@ -609,7 +609,7 @@ const handleSorterChange = (sorter: DataTableSortState) => {
 }
 
 // 抽屉部分，新建、编辑内容
-const instance = ref<ProjectIssue>({ endTime: 0, id: "", title: "", projectId: "", startTime: 0, status: 0 })
+const instance = ref<ProjectIssue>({ endTime: 0, id: "", title: "", projectId: "", startTime: 0, status: 0, content: "" })
 const drawerActive = ref(false)
 // const isUpdate = computed(() => !!instance.value?.id)
 // const drawerTitle = computed(() => (isUpdate.value ? "编辑缺陷" : "新建缺陷"))

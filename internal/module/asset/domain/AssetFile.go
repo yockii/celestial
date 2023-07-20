@@ -23,3 +23,13 @@ type FilePermissionUser struct {
 	model.FilePermission
 	RealName string `json:"realName"`
 }
+
+type FileVersionWithCreator struct {
+	model.FileVersion
+	Creator *ucModel.User `json:"creator"`
+}
+
+type UploadResponse struct {
+	Success map[string]string `json:"success,omitempty"`
+	Failed  []string          `json:"failed,omitempty"`
+}

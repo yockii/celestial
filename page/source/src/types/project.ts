@@ -300,7 +300,7 @@ export type ProjectIssue = {
   title: string
   type?: number
   level?: number
-  content?: string
+  content: string
   status?: number
   assigneeId?: string
   creatorId?: string
