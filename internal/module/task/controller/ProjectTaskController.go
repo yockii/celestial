@@ -515,7 +515,7 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 			code = constant.ResourceProjectTaskDone
 		}
 		var success bool
-		if _, success, err = helper.CheckResourceCodeInProject(ctx, condition.ProjectID, code); err != nil {
+		if _, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {
 			return err
 		} else if !success {
 			return nil
