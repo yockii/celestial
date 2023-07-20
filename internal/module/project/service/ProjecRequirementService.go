@@ -188,6 +188,41 @@ func (s *projectRequirementService) PaginateBetweenTimes(condition *model.Projec
 	return
 }
 
+// ListForTask 查询需求列表给任务使用，只查询status>=3的
+func (s *projectRequirementService) ListForTask(condition *model.ProjectRequirement) (list []*model.ProjectRequirement, err error) {
+	tx := database.DB.Model(&model.ProjectRequirement{})
+
+	if condition != nil {
+		if condition.Name != "" {
+			tx = tx.Where("name like ?", "%"+condition.Name+"%")
+		}
+		if condition.FullPath != "" {
+			tx = tx.Where("full_path like ?", condition.FullPath+"%")
+		}
+	}
+
+	tx = tx.Where("status >= ?", 3)
+
+	// 大字段不查询
+	tx.Omit("detail", "full_path")
+
+	err = tx.Find(&list, &model.ProjectRequirement{
+		ID:          condition.ID,
+		ProjectID:   condition.ProjectID,
+		StageID:     condition.StageID,
+		Type:        condition.Type,
+		Priority:    condition.Priority,
+		Source:      condition.Source,
+		OwnerID:     condition.OwnerID,
+		Feasibility: condition.Feasibility,
+	}).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
 // Instance 获取资源实例
 func (s *projectRequirementService) Instance(id uint64) (instance *model.ProjectRequirement, err error) {
 	if id == 0 {

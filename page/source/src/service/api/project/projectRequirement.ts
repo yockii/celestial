@@ -13,6 +13,16 @@ export function getProjectRequirementList(condition: ProjectRequirementCondition
 }
 
 /**
+ * 获取项目需求列表给任务使用
+ * @param condition - 查询条件
+ */
+export function getProjectRequirementListForTask(condition: ProjectRequirementCondition) {
+  return request.get<ProjectRequirement[]>("/projectRequirement/listForTask", {
+    params: condition
+  })
+}
+
+/**
  * 新增项目需求
  * @param projectRequirement - 项目需求信息
  */

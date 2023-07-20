@@ -376,6 +376,28 @@ func (c *projectRequirementController) List(ctx *fiber.Ctx) error {
 	})
 }
 
+func (c *projectRequirementController) ListForTask(ctx *fiber.Ctx) error {
+	instance := new(domain.ProjectRequirementListRequest)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	list, err := service.ProjectRequirementService.ListForTask(&instance.ProjectRequirement)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}
+
 func (c *projectRequirementController) Instance(ctx *fiber.Ctx) error {
 	condition := new(model.ProjectRequirement)
 	if err := ctx.QueryParser(condition); err != nil {

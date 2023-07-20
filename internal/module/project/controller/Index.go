@@ -95,6 +95,7 @@ func InitRouter() {
 		projectRequirement.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.Delete)
 		projectRequirement.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.Update)
 		projectRequirement.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRequirementList), ProjectRequirementController.List)
+		projectRequirement.Get("/listForTask", middleware.NeedAuthorization(constant.ResourceProjectRequirementList), ProjectRequirementController.ListForTask)
 		projectRequirement.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRequirementInstance), ProjectRequirementController.Instance)
 		// 3种状态修改
 		projectRequirement.Put("/designed", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.StatusDesigned)

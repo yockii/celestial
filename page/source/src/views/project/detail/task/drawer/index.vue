@@ -3,7 +3,7 @@ import { ProjectRequirement, ProjectTask } from "@/types/project"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import { useMessage, FormInst } from "naive-ui"
-import { addProjectTask, getProjectTaskList, updateProjectTask, getProjectRequirementList } from "@/service/api"
+import { addProjectTask, getProjectTaskList, updateProjectTask, getProjectRequirementListForTask } from "@/service/api"
 const message = useMessage()
 const projectStore = useProjectStore()
 const { project, modules, moduleTree, memberList } = storeToRefs(projectStore)
@@ -74,15 +74,12 @@ const loadRequirementList = (moduleId: string) => {
     const module = modules.value.find((item) => item.id === moduleId)
     if (module) {
       // 从接口获取需求列表
-      getProjectRequirementList({
+      getProjectRequirementListForTask({
         projectId: project.value.id,
-        fullPath: module.fullPath,
-        status: 3,
-        offset: -1,
-        limit: -1
+        fullPath: module.fullPath
       }).then((res) => {
         if (res) {
-          requirementList.value = res.items || []
+          requirementList.value = res || []
         }
       })
     }
