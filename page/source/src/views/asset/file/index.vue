@@ -219,7 +219,7 @@ const columns = [
         )
       }
 
-      if (row.permission && row.permission >= 3) {
+      if (row.permission && row.permission >= 2) {
         btnGroup.push(
           h(
             NTooltip,
