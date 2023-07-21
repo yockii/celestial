@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { CheckmarkCircle } from "@vicons/ionicons5"
+import { File } from "@/types/asset"
 import { ProjectAsset, ProjectAssetCondition } from "@/types/project"
 import dayjs from "dayjs"
 import { DataTableBaseColumn, DataTableFilterState, NButton, NButtonGroup, NIcon, NPopconfirm, NTooltip, PaginationProps } from "naive-ui"
@@ -7,9 +8,10 @@ import Drawer from "./drawer/index.vue"
 import { useProjectStore } from "@/store/project"
 import { storeToRefs } from "pinia"
 import { downloadAssetFile, getAssetFile, getProjectAssetList, deleteProjectAsset } from "@/service/api"
-import { Delete, Download, Edit, LicenseThirdParty } from "@vicons/carbon"
+import { Delete, Download, Edit, LicenseThirdParty, Version, WordCloud } from "@vicons/carbon"
 import permissionDrawer from "@/components/asset/permissionDrawer.vue"
 
+const router = useRouter()
 const message = useMessage()
 const projectStore = useProjectStore()
 const { project } = storeToRefs(projectStore)
@@ -203,6 +205,34 @@ const columns = [
           )
         )
       }
+
+      if (row.permission && row.permission >= 1) {
+        // 可查看版本列表
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "版本列表",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "primary",
+                    onClick: () => {
+                      handleVersionList(row)
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: Version })
+                  }
+                )
+            }
+          )
+        )
+      }
+
       if (projectStore.hasResourceCode("project:detail:asset:edit") && row.permission && row.permission >= 2) {
         btnGroup.push(
           h(
@@ -279,6 +309,35 @@ const columns = [
                   },
                   {
                     default: () => h(NIcon, { component: LicenseThirdParty })
+                  }
+                )
+            }
+          )
+        )
+      }
+
+      if (row.permission && row.permission >= 2) {
+        btnGroup.push(
+          h(
+            NTooltip,
+            {},
+            {
+              default: () => "在线编辑",
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                    type: "tertiary",
+                    onClick: () => {
+                      const { href } = router.resolve({
+                        path: `/editor/${row.fileId}`
+                      })
+                      window.open(href, "_blank")
+                    }
+                  },
+                  {
+                    default: () => h(NIcon, { component: WordCloud })
                   }
                 )
             }
@@ -363,6 +422,18 @@ const handleEditData = (row: ProjectAsset) => {
   currentData.value = Object.assign({}, row)
   drawerActive.value = true
 }
+const handleVersionList = (row: ProjectAsset) => {
+  getAssetFile(row.fileId).then((file) => {
+    if (file) {
+      currentFile.value = file
+      versionDrawerActive.value = true
+    }
+  })
+}
+
+// 版本抽屉
+const versionDrawerActive = ref(false)
+const currentFile = ref<File>({ id: "", name: "", categoryId: "" })
 
 // 删除资产
 const handleDeleteData = (id: string) => {
@@ -425,4 +496,5 @@ onMounted(() => {
     :fileName="currentData.name"
     :creatorId="currentData.creatorId || ''"
   />
+  <version-drawer v-if="versionDrawerActive" v-model:drawer-active="versionDrawerActive" :data="currentFile" />
 </template>
