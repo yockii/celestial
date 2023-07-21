@@ -17,6 +17,7 @@ import (
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
 	"gorm.io/gorm"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -58,7 +59,9 @@ func (c *onlyOfficeController) Callback(ctx *fiber.Ctx) error {
 				Error: 7,
 			})
 		}
-		defer resp.Body.Close()
+		defer func(Body io.ReadCloser) {
+			_ = Body.Close()
+		}(resp.Body)
 		// 保存文件
 		file.Size = resp.ContentLength
 		file.CreatorID = j.Get("users.0").Uint()
@@ -147,6 +150,16 @@ func (c *onlyOfficeController) GetConfig(ctx *fiber.Ctx) error {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDataNotExists,
 			Msg:  server.ResponseMsgDataNotExists,
+		})
+	}
+
+	// 检查file是否支持
+	switch file.Suffix {
+	case "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "rtf":
+	default:
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch + ", 只支持word/excel/ppt等文档",
 		})
 	}
 
