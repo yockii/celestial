@@ -255,9 +255,11 @@ const (
 	ResourceDepartmentInstance   = ResourceDepartment + ":instance"
 	ResourceDepartmentAddUser    = ResourceDepartment + ":addUser"
 	ResourceDepartmentRemoveUser = ResourceDepartment + ":removeUser"
+)
 
-	// 会议室
-	ResourceMeetingRoom         = ResourceSystem + ":meetingRoom"
+// 会议室
+const (
+	ResourceMeetingRoom         = "meetingRoom"
 	ResourceMeetingRoomAdd      = ResourceMeetingRoom + ":add"
 	ResourceMeetingRoomDelete   = ResourceMeetingRoom + ":delete"
 	ResourceMeetingRoomUpdate   = ResourceMeetingRoom + ":update"

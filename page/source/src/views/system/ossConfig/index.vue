@@ -105,7 +105,7 @@ const columns = [
           {
             size: "small",
             secondary: true,
-            disabled: !userStore.hasResourceCode("system:thirdSource:update"),
+            disabled: !userStore.hasResourceCode("system:ossConfig:update"),
             type: "primary",
             onClick: () => handleEditData(row)
           },
@@ -125,7 +125,7 @@ const columns = [
                 NButton,
                 {
                   size: "small",
-                  disabled: !userStore.hasResourceCode("system:thirdSource:delete"),
+                  disabled: !userStore.hasResourceCode("system:ossConfig:delete"),
                   type: "error"
                 },
                 {
@@ -345,7 +345,7 @@ const rules = {
       </n-form>
       <template #footer>
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
-        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:thirdSource:add', 'system:thirdSource:update']">提交</n-button>
+        <n-button type="primary" @click="handleCommitData" v-resource-code="['system:ossConfig:add', 'system:ossConfig:update']">提交</n-button>
       </template>
     </n-drawer-content>
   </n-drawer>

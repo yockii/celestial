@@ -340,6 +340,30 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: "/meetingRoom",
+    name: "MeetingRoom",
+    component: () => import("@/layout/Primary.vue"),
+    redirect: {
+      name: "MeetingRoomList"
+    },
+    meta: {
+      activeMenuKey: "MeetingRoom",
+      activeSubMenuKey: "MeetingRoomList"
+    },
+    children: [
+      {
+        path: "list",
+        name: "MeetingRoomList",
+        component: () => import("@/views/meetingRoom/list/index.vue"),
+        meta: {
+          label: () => "会议室管理",
+          activeMenuKey: "MeetingRoom",
+          activeSubMenuKey: "MeetingRoomList"
+        }
+      }
+    ]
+  },
+  {
     path: "/editor/:id/:versionId?",
     name: "Editor",
     component: () => import("@/views/docEditor/index.vue")

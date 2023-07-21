@@ -10,6 +10,7 @@ const condition = ref<UserCondition>({})
 const userList = ref<User[]>([])
 const listUser = () => {
   condition.value.offset = 0
+  condition.value.limit = 100
   getUserList(condition.value).then((res) => {
     userList.value = res.items || []
   })

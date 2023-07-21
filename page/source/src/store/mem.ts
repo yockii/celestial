@@ -14,6 +14,7 @@ import {
   LicenseGlobal,
   ObjectStorage
 } from "@vicons/carbon"
+import { MeetingRoomOutlined } from "@vicons/material"
 import { Organization28Regular } from "@vicons/fluent"
 import { ProjectOutlined } from "@vicons/antd"
 import { Files, TestPipe } from "@vicons/tabler"
@@ -80,6 +81,12 @@ export const useMemStore = defineStore("mem", {
             icon: renderIcon(TestPipe)
           }
         ]
+      },
+      {
+        label: renderLinkedLabel("会议室", "MeetingRoom", true),
+        key: "MeetingRoom",
+        code: "meetingRoom",
+        icon: renderIcon(MeetingRoomOutlined)
       },
       {
         label: renderLinkedLabel("系统", "User", true),
