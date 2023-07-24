@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios"
 import { useUserStore } from "@/store/user"
 import { createDiscreteApi, MessageReactive } from "naive-ui"
 import { Result } from "@/types/common"
+import { useAppStore } from "@/store/app"
 const { message } = createDiscreteApi(["message"])
 
 let messageReactive: MessageReactive | null = null
@@ -58,6 +59,7 @@ export class Request {
         if (token && token !== "") {
           config.headers.Authorization = "Bearer " + token
         }
+        config.headers.RequestTime = new Date().getTime()
         return config
       },
       (error: any) => {
@@ -67,6 +69,9 @@ export class Request {
 
     this.instance.interceptors.response.use(
       (response) => {
+        const requestTime = new Date().getTime() - response.config.headers.RequestTime
+        useAppStore().lastRequestTime = requestTime
+
         const data = response.data
         // eslint-disable-next-line no-prototype-builtins
         if (!data.hasOwnProperty("code")) {

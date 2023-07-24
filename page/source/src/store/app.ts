@@ -9,13 +9,15 @@ export const useAppStore = defineStore("app", {
     collapsed: boolean
     thirdSourceList: ThirdSourcePublic[]
     editorUrl: string
+    lastRequestTime: number
   } => ({
     theme: "",
     activeMenuKey: "Home",
     activeSubMenuKey: "Dashboard",
     collapsed: false,
     thirdSourceList: [],
-    editorUrl: ""
+    editorUrl: "",
+    lastRequestTime: 0
   }),
   getters: {},
   actions: {

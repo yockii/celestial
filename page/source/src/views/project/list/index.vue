@@ -22,9 +22,18 @@ const condition = ref<ProjectCondition>({
 const total = ref(0)
 const projectList = ref<Project[]>([])
 
-const refresh = () => {
+const refresh = (append = false) => {
+  if (!append) {
+    condition.value.offset = 0
+  } else {
+    condition.value.offset = projectList.value.length
+  }
   getProjectList(condition.value).then((res) => {
-    projectList.value = res.items || []
+    if (append) {
+      projectList.value = projectList.value.concat(res.items || [])
+    } else {
+      projectList.value = res.items || []
+    }
   })
 }
 const getStageName = (stageId: string) => {
@@ -194,6 +203,7 @@ const timeBefore = computed(() => (t: number) => dayjs(t).fromNow())
             </n-grid>
           </n-card>
         </n-gi>
+        <n-gi v-if="total > projectList.length" class="text-center cursor-pointer" @click="refresh(true)"> 加载更多... </n-gi>
       </n-grid>
     </n-gi>
     <n-gi :span="2">

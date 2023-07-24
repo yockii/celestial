@@ -21,16 +21,16 @@
         <RouterView />
       </n-layout-content>
     </n-layout>
-    <!--    <n-layout-footer position="absolute" style="height: 24px">-->
-    <!--      <FootInfo />-->
-    <!--    </n-layout-footer>-->
+    <n-layout-footer position="absolute" class="h-12px z-1 bg-inherit">
+      <FootInfo />
+    </n-layout-footer>
   </n-layout>
 </template>
 
 <script setup lang="ts">
 import HeadNav from "./components/HeadNav.vue"
 import Sider from "./components/Sider.vue"
-// import FootInfo from "./components/FootInfo.vue"
+import FootInfo from "./components/FootInfo.vue"
 import { useMemStore } from "@/store/mem"
 import { computed } from "vue"
 import { useAppStore } from "@/store/app"
