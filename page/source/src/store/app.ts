@@ -8,12 +8,14 @@ export const useAppStore = defineStore("app", {
     activeSubMenuKey: string
     collapsed: boolean
     thirdSourceList: ThirdSourcePublic[]
+    editorUrl: string
   } => ({
     theme: "",
     activeMenuKey: "Home",
     activeSubMenuKey: "Dashboard",
     collapsed: false,
-    thirdSourceList: []
+    thirdSourceList: [],
+    editorUrl: ""
   }),
   getters: {},
   actions: {

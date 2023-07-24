@@ -1,15 +1,17 @@
 <template>
   <div class="wscreen hscreen">
-    <DocumentEditor v-if="configReady" id="docEditor" :documentServerUrl="documentServerUrl" :config="config" :events_onDocumentReady="onDocumentReady" />
+    <DocumentEditor v-if="configReady" id="docEditor" :documentServerUrl="editorUrl" :config="config" :events_onDocumentReady="onDocumentReady" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { getFileConfig } from "@/service"
+import { getEditorUrl, getFileConfig } from "@/service"
+import { useAppStore } from "@/store/app"
 import { DocumentEditor, IConfig } from "@onlyoffice/document-editor-vue"
+import { storeToRefs } from "pinia"
 const route = useRoute()
-
-const documentServerUrl = import.meta.env.VITE_EDITOR_URI
+const appStore = useAppStore()
+const { editorUrl } = storeToRefs(appStore)
 
 const configReady = ref(false)
 
@@ -27,6 +29,12 @@ const onDocumentReady = (e: any) => {
 }
 
 onMounted(() => {
+  if (editorUrl.value === "") {
+    getEditorUrl().then((res) => {
+      editorUrl.value = res
+    })
+  }
+
   const fileId = route.params.id as string
   const versionId = route.params.versionId as string
   getFileConfig(fileId, versionId).then((res) => {

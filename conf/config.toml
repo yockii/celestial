@@ -23,4 +23,5 @@ apiKey="aaabbbcccdddeeefff"
 index="celestial"
 
 [onlyoffice]
-secret="IVeIGPyPCikZUd3BLwEJ3begXNj2oZ5I"
+secret=""
+editorUrl=""
