@@ -14,6 +14,7 @@
 ## 项目部署
 1. 安装Mysql和Redis，或直接采用云服务
 2. 安装meilisearch，作为本系统的全文检索服务
+3. 安装onlyoffice，作为本系统的在线文档服务，并获取jwt secret（后续配置入配置文件）
 2. 编译项目，包括前后端，将生成celestial程序和page文件夹
 3. 上传程序及page文件夹到服务器
 4. 安装nginx或其他反向代理服务，并将page文件夹作为静态文件目录首页

@@ -6,6 +6,8 @@ import dayjs from "dayjs"
 import { NButtonGroup, NButton, NPopconfirm, FormInst, useMessage, PaginationProps, NSwitch } from "naive-ui"
 import { addMeetingRoom, deleteMeetingRoom, getMeetingRoomDetail, getMeetingRoomList, updateMeetingRoom } from "@/service/api"
 import { useUserStore } from "@/store/user"
+import MeetingRoomReservation from "@/components/meetingRoomReservation/index.vue"
+
 const message = useMessage()
 const userStore = useUserStore()
 const condition = ref<MeetingRoomCondition>({
@@ -70,7 +72,11 @@ const statusColumn = {
     )
   }
 }
-const columns = [
+const columns: {
+  title: string
+  key: string
+  render?: unknown
+}[] = [
   {
     title: "会议室",
     key: "name"
@@ -80,35 +86,65 @@ const columns = [
     key: "position"
   },
   {
+    title: "设备",
+    key: "devices"
+  },
+  {
     title: "最大人数",
     key: "capacity"
   },
-  statusColumn,
   {
     title: "创建时间",
     key: "createTime",
     // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
     render: (row: MeetingRoom) => dayjs(row.createTime).fromNow()
-  },
-  {
-    title: "操作",
-    key: "operation",
-    // 返回VNode, 用于渲染操作按钮
-    render: (row: MeetingRoom) => {
-      return h(NButtonGroup, {}, () => [
+  }
+]
+if (userStore.hasResourceCode("meetingRoom:update")) {
+  columns.push(statusColumn)
+}
+columns.push({
+  title: "操作",
+  key: "operation",
+  // 返回VNode, 用于渲染操作按钮
+  render: (row: MeetingRoom) => {
+    const btnGroup: VNode[] = []
+
+    // 预约会议室
+    btnGroup.push(
+      h(
+        NButton,
+        {
+          size: "small",
+          secondary: true,
+          type: "info",
+          onClick: () => handleBookRoom(row)
+        },
+        {
+          default: () => "预约"
+        }
+      )
+    )
+
+    if (userStore.hasResourceCode("meetingRoom:update")) {
+      btnGroup.push(
         h(
           NButton,
           {
             size: "small",
             secondary: true,
-            disabled: !userStore.hasResourceCode("meetingRoom:update"),
             type: "primary",
             onClick: () => handleEditData(row)
           },
           {
             default: () => "编辑"
           }
-        ),
+        )
+      )
+    }
+
+    if (userStore.hasResourceCode("meetingRoom:delete")) {
+      btnGroup.push(
         h(
           NPopconfirm,
           {
@@ -121,7 +157,6 @@ const columns = [
                 NButton,
                 {
                   size: "small",
-                  disabled: !userStore.hasResourceCode("meetingRoom:delete"),
                   type: "error"
                 },
                 {
@@ -130,10 +165,12 @@ const columns = [
               )
           }
         )
-      ])
+      )
     }
+
+    return h(NButtonGroup, {}, () => btnGroup)
   }
-]
+})
 const handleEditData = (row: MeetingRoom) => {
   getMeetingRoomDetail(row.id).then((res) => {
     if (res) {
@@ -150,6 +187,16 @@ const handleDeleteData = (id: string) => {
     }
   })
 }
+// 预约
+const handleBookRoom = (row: MeetingRoom) => {
+  bookMeetingRoom.value = row
+  bookDrawerActive.value = true
+}
+// 预约抽屉
+const bookDrawerActive = ref(false)
+// 预约的会议室
+const bookMeetingRoom = ref<MeetingRoom>({ id: "", name: "", status: 0 })
+
 onMounted(() => {
   refresh()
 })
@@ -287,6 +334,14 @@ const rules = {
         <n-button class="mr-a" v-if="!isUpdate" @click="resetCheckedData">重置</n-button>
         <n-button type="primary" @click="handleCommitData" v-resource-code="['meetingRoom:add', 'meetingRoom:update']">提交</n-button>
       </template>
+    </n-drawer-content>
+  </n-drawer>
+
+  <n-drawer v-model:show="bookDrawerActive" placement="top" resizable :default-height="'100vh'">
+    <n-drawer-content :title="bookMeetingRoom.name" closable>
+      <div>
+        <meeting-room-reservation v-if="bookDrawerActive" :room="bookMeetingRoom" />
+      </div>
     </n-drawer-content>
   </n-drawer>
 </template>

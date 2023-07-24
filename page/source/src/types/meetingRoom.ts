@@ -18,3 +18,14 @@ export type MeetingRoomCondition = Condition & {
   devices?: string
   status?: number
 }
+
+export type MeetingRoomReservation = {
+  id: string
+  meetingRoomId: string
+  startTime: number
+  endTime: number
+  subject: string
+  participants?: string
+  bookerId?: string
+  createTime?: number
+}

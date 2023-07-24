@@ -265,4 +265,5 @@ const (
 	ResourceMeetingRoomUpdate   = ResourceMeetingRoom + ":update"
 	ResourceMeetingRoomList     = ResourceMeetingRoom + ":list"
 	ResourceMeetingRoomInstance = ResourceMeetingRoom + ":instance"
+	ResourceMeetingRoomReserve  = ResourceMeetingRoom + ":reserve"
 )

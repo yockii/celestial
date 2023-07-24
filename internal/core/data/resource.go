@@ -1076,6 +1076,11 @@ func InitData() {
 				ResourceCode: constant.ResourceMeetingRoomInstance,
 				Type:         1,
 			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "会议室预定",
+				ResourceCode: constant.ResourceMeetingRoomReserve,
+				Type:         1,
+			})
 		}
 	}
 
