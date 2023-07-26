@@ -7,11 +7,15 @@ import (
 )
 
 const (
-	ProjectTaskStatusCancel    = -1
-	ProjectTaskStatusNotStart  = 1
-	ProjectTaskStatusConfirmed = 2
-	ProjectTaskStatusDoing     = 3
-	ProjectTaskStatusDone      = 9
+	ProjectTaskStatusCancel     = -1
+	ProjectTaskStatusNotStart   = 1
+	ProjectTaskStatusConfirmed  = 2
+	ProjectTaskStatusDoing      = 3
+	ProjectTaskStatusDevDone    = 4
+	ProjectTaskStatusTestReject = 5
+	ProjectTaskStatusTesting    = 6
+	ProjectTaskStatusTestPass   = 7
+	ProjectTaskStatusDone       = 9
 )
 
 type ProjectTask struct {
@@ -32,7 +36,7 @@ type ProjectTask struct {
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
 	ChildrenCount    int            `json:"childrenCount,omitempty" gorm:"comment:子任务数量"`
-	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成"`
+	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 4-测试打回 5-开发完成提测 6-测试中 7-测试通过 9-已完成"`
 	CreatorID        uint64         `json:"creatorId,omitempty,string" gorm:"comment:创建人ID"`
 	FullPath         string         `json:"fullPath,omitempty" gorm:"size:1000;comment:全路径, 需求全路径 + / + 任务名"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`

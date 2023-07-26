@@ -506,24 +506,31 @@ func (s *projectTaskService) UpdateStatus(task *model.ProjectTask, status int) (
 
 	// 判断当前状态是否可变更为目标状态
 	var canChange bool
-	switch status {
+	switch oldStatus {
 	case model.ProjectTaskStatusCancel: // 已取消，可以变更为未开始
-		canChange = oldStatus == model.ProjectTaskStatusNotStart
+		canChange = status == model.ProjectTaskStatusNotStart
 	case model.ProjectTaskStatusNotStart: // 未开始，可以变更为已取消、已确认
-		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusConfirmed
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusConfirmed
 	case model.ProjectTaskStatusConfirmed: // 已确认，可以变更为进行中、已取消
-		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusDoing
-	case model.ProjectTaskStatusDoing: // 进行中，可以变更为已完成、已取消
-		canChange = oldStatus == model.ProjectTaskStatusCancel || oldStatus == model.ProjectTaskStatusDone
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDoing
+	case model.ProjectTaskStatusTestPass: // 测试通过，可以变更为已完成、已取消
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDone
 	case model.ProjectTaskStatusDone: // 已完成，可以变更为已取消
-		canChange = oldStatus == model.ProjectTaskStatusCancel
+		canChange = status == model.ProjectTaskStatusCancel
 	}
 
 	if !canChange {
 		return false, nil
 	}
 
-	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: task.ID}).Update("status", status).Error
+	updateMap := map[string]interface{}{
+		"status": status,
+	}
+	if status == model.ProjectTaskStatusDone {
+		updateMap["actual_End_time"] = time.Now().UnixMilli()
+	}
+
+	err = database.DB.Model(&model.ProjectTask{}).Where(&model.ProjectTask{ID: task.ID}).Updates(updateMap).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

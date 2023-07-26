@@ -74,7 +74,8 @@ const (
 	ResourceProjectTaskInstance = ResourceProjectTask + ":instance"
 	ResourceProjectTaskCancel   = ResourceProjectTask + ":cancel"
 	ResourceProjectTaskConfirm  = ResourceProjectTask + ":confirm"
-	ResourceProjectTaskStart    = ResourceProjectTask + ":start"
+	ResourceProjectTaskDev      = ResourceProjectTask + ":dev"
+	ResourceProjectTaskTest     = ResourceProjectTask + ":test"
 	ResourceProjectTaskDone     = ResourceProjectTask + ":done"
 	ResourceProjectTaskRestart  = ResourceProjectTask + ":restart"
 

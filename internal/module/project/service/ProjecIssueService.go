@@ -4,6 +4,7 @@ import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/module/project/model"
+	taskModel "github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -39,8 +40,35 @@ func (s *projectIssueService) Add(instance *model.ProjectIssue) (duplicated bool
 	instance.ID = util.SnowflakeId()
 	instance.Status = 1
 
-	if err = database.DB.Create(instance).Error; err != nil {
-		logger.Errorln(err)
+	if err = database.DB.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Create(instance).Error; err != nil {
+			logger.Errorln(err)
+			return err
+		}
+
+		// 如果存在关联任务，则项目任务及任务人员设置为打回
+		if instance.TaskID > 0 {
+			err = tx.Model(&taskModel.ProjectTask{}).Where(&taskModel.ProjectTask{ID: instance.TaskID}).Updates(&taskModel.ProjectTask{
+				Status: taskModel.ProjectTaskStatusTestReject,
+			}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+			err = tx.Model(&taskModel.ProjectTaskMember{}).Where(&taskModel.ProjectTaskMember{
+				TaskID: instance.TaskID,
+				UserID: instance.CreatorID,
+			}).Updates(&taskModel.ProjectTaskMember{
+				Status: taskModel.ProjectTaskStatusTestReject,
+			}).Error
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
 		return
 	}
 	success = true

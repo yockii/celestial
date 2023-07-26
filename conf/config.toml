@@ -14,6 +14,13 @@ port=3306
 prefix="t_"
 showSql=true
 
+[redis]
+host="localhost"
+port=6379
+password=""
+db=0
+app="celestial"
+
 [logger]
 level="info"
 

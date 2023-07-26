@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ProjectTask, ProjectTaskMember } from "@/types/project"
-import { finishProjectTask, confirmProjectTask } from "@/service/api"
+import { developDoneProjectTask, confirmProjectTask } from "@/service/api"
 import { useMessage } from "naive-ui"
 const message = useMessage()
 const props = defineProps<{
@@ -55,12 +55,12 @@ const handleCommitData = () => {
         emit("update:drawerActive", false)
       }
     })
-  } else if (taskMemberInfo.value.status === 3) {
+  } else if (taskMemberInfo.value.status === 3 || taskMemberInfo.value.status === 5) {
     if (actualDuration.value === 0) {
       message.error("使用工时不能为0")
       return
     }
-    finishProjectTask(props.task.id, realDuration.value).then((res) => {
+    developDoneProjectTask(props.task.id, realDuration.value).then((res) => {
       if (res) {
         message.success("提交成功")
         emit("refresh")
@@ -80,7 +80,7 @@ const handleCommitData = () => {
             <template #suffix>小时</template>
           </n-input-number>
         </n-form-item>
-        <n-form-item label="使用工时" v-if="taskMemberInfo.status === 3">
+        <n-form-item label="使用工时" v-if="taskMemberInfo.status === 3 || taskMemberInfo.status === 5">
           <n-input-number v-model:value="actualDuration" min="0">
             <template #suffix>小时</template>
           </n-input-number>

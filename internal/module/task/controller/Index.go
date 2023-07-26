@@ -21,7 +21,11 @@ func InitRouter() {
 		projectTask.Put("/cancel", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusCancel))
 		projectTask.Put("/confirm", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusConfirmed))
 		projectTask.Put("/start", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDoing))
-		projectTask.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDone))
+		projectTask.Put("/devDone", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDevDone))
+		projectTask.Put("/testReject", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTestReject))
+		projectTask.Put("/testing", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTesting))
+		projectTask.Put("/testPass", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTestPass))
+		projectTask.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusDone))
 		projectTask.Put("/restart", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusNotStart))
 		projectTask.Get("/listMine", middleware.NeedAuthorization(constant.ResourceProjectTaskList), ProjectTaskController.ListMine)
 
@@ -31,7 +35,11 @@ func InitRouter() {
 		projectTask.Post("/cancel", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusCancel))
 		projectTask.Post("/confirm", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusConfirmed))
 		projectTask.Post("/start", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDoing))
-		projectTask.Post("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDone))
+		projectTask.Post("/devDone", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDevDone))
+		projectTask.Post("/testReject", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTestReject))
+		projectTask.Post("/testing", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTesting))
+		projectTask.Post("/testPass", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTestPass))
+		projectTask.Post("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusDone))
 		projectTask.Post("/restart", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusNotStart))
 	}
 

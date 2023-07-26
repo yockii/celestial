@@ -48,7 +48,6 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 			}
 		},
 		SuccessHandler: func(c *fiber.Ctx) error {
-
 			jwtToken := c.Locals("jwt-subject").(*jwt.Token)
 			claims := jwtToken.Claims.(jwt.MapClaims)
 			uid := claims[constant.JwtClaimUserId].(string)

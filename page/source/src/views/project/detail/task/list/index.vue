@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { getProjectTask, getProjectTaskList, startProjectTask } from "@/service/api"
-import { ProjectTask, ProjectTaskCondition, ProjectTaskMember } from "@/types/project"
+import {
+  addProjectIssue,
+  getProjectTask,
+  finishProjectTask,
+  getProjectTaskList,
+  startProjectTask,
+  testPassProjectTask,
+  testingProjectTask
+} from "@/service/api"
+import { ProjectTask, ProjectTaskCondition, ProjectTaskMember, ProjectIssue } from "@/types/project"
 import {
   NAvatarGroup,
   NBadge,
@@ -15,18 +23,22 @@ import {
   NDropdown,
   NAvatar,
   NSpace,
-  NText
+  NText,
+  FormInst
 } from "naive-ui"
 import { ArrowsSplit } from "@vicons/tabler"
-import { Delete, Edit, ParentChild } from "@vicons/carbon"
+import { Delete, Edit, FaceDissatisfied, FaceSatisfied, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import { useProjectStore } from "@/store/project"
 import { BoxCheckmark20Regular, Checkmark20Regular, Info20Regular, Play20Regular } from "@vicons/fluent"
 import dayjs from "dayjs"
 import WorkTimeDrawer from "../workTimeDrawer/index.vue"
+import IssueForm from "@/components/project/issue/IssueForm.vue"
+
 const userStore = useUserStore()
 const projectStore = useProjectStore()
+const message = useMessage()
 
 const props = defineProps<{
   condition: ProjectTaskCondition
@@ -154,6 +166,18 @@ const statusColumn = reactive({
       case 3:
         msg = "进行中"
         break
+      case 4:
+        msg = "已提测"
+        break
+      case 5:
+        msg = "测试打回"
+        break
+      case 6:
+        msg = "测试中"
+        break
+      case 7:
+        msg = "测试通过"
+        break
       case 9:
         msg = "已完成"
         break
@@ -163,97 +187,223 @@ const statusColumn = reactive({
 
     const group: VNode[] = []
     group.push(h(NText, {}, () => msg))
+    const btnGroup: VNode[] = []
     if (hasMe) {
-      if (row.status === 1) {
-        if (!imConfirmed) {
-          // 显示确认按钮
-          group.push(
-            h(
-              NTooltip,
-              {},
-              {
-                default: () => "确认签收",
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: "small",
-                      type: "success",
-                      onClick: () => {
-                        currentTask.value = row
-                        const member = row.members?.find((m) => m.userId === userStore.user.id)
-                        if (member) {
-                          currentTaskMember.value = member
-                          showWorkTimeDrawer.value = true
+      if (projectStore.hasResourceCodes(["project:detail:task:dev", "project:detail:task:test"])) {
+        if (row.status === 1) {
+          if (!imConfirmed) {
+            // 显示确认按钮
+            btnGroup.push(
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "确认签收",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "success",
+                        onClick: () => {
+                          currentTask.value = row
+                          const member = row.members?.find((m) => m.userId === userStore.user.id)
+                          if (member) {
+                            currentTaskMember.value = member
+                            showWorkTimeDrawer.value = true
+                          }
                         }
+                      },
+                      {
+                        default: () => h(NIcon, { component: BoxCheckmark20Regular })
                       }
-                    },
-                    {
-                      default: () => h(NIcon, { component: BoxCheckmark20Regular })
-                    }
-                  )
-              }
+                    )
+                }
+              )
             )
-          )
+          }
         }
-      } else if (row.status === 2) {
-        // 都确认后，可以开始执行任务
-        group.push(
-          h(
-            NTooltip,
-            {},
-            {
-              default: () => "开始执行",
-              trigger: () =>
+        if (projectStore.hasResourceCode("project:detail:task:dev")) {
+          if (row.status === 2) {
+            // 都确认后，可以开始执行任务
+            btnGroup.push(
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "开始执行",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "success",
+                        onClick: () => {
+                          startProjectTask(row.id).then(() => {
+                            refresh()
+                          })
+                        }
+                      },
+                      {
+                        default: () => h(NIcon, { component: Play20Regular })
+                      }
+                    )
+                }
+              )
+            )
+          } else if (row.status === 3 || row.status === 5) {
+            // 进行中， 可能我已经开始任务或者还未开始任务
+            if (imConfirmed) {
+              btnGroup.push(
                 h(
-                  NButton,
+                  NTooltip,
+                  {},
                   {
-                    size: "small",
-                    type: "success",
-                    onClick: () => {
-                      startProjectTask(row.id).then(() => {
-                        refresh()
-                      })
-                    }
-                  },
-                  {
-                    default: () => h(NIcon, { component: Play20Regular })
+                    default: () => "开始执行",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "info",
+                          onClick: () => {
+                            startProjectTask(row.id).then((res) => {
+                              if (res) {
+                                message.success("开始执行成功")
+                                refresh()
+                              }
+                            })
+                          }
+                        },
+                        {
+                          default: () => h(NIcon, { component: Play20Regular })
+                        }
+                      )
                   }
                 )
+              )
+            } else if (imStarted || row.status === 5) {
+              // 可以完成任务，需要填报工时
+              btnGroup.push(
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "完成开发并提测",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "success",
+                          onClick: () => {
+                            // 需要填报工时
+                            currentTask.value = row
+                            const member = row.members?.find((m) => m.userId === userStore.user.id)
+                            if (member) {
+                              currentTaskMember.value = member
+                              showWorkTimeDrawer.value = true
+                            }
+                          }
+                        },
+                        {
+                          default: () => h(NIcon, { component: Checkmark20Regular })
+                        }
+                      )
+                  }
+                )
+              )
             }
-          )
-        )
-      } else if (row.status === 3) {
-        // 进行中， 可能我已经开始任务或者还未开始任务
-        if (imConfirmed) {
-          group.push(
-            h(
-              NTooltip,
-              {},
-              {
-                default: () => "开始执行",
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: "small",
-                      type: "success",
-                      onClick: () => {
-                        startProjectTask(row.id).then(() => {
-                          refresh()
-                        })
+          }
+        }
+        if (projectStore.hasResourceCode("project:detail:task:test")) {
+          if (row.status === 4) {
+            // 可以开始测试
+            btnGroup.push(
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "开始测试",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "success",
+                        onClick: () => {
+                          testingProjectTask(row.id).then(() => {
+                            refresh()
+                          })
+                        }
+                      },
+                      {
+                        default: () => h(NIcon, { component: Play20Regular })
                       }
-                    },
-                    {
-                      default: () => h(NIcon, { component: Play20Regular })
-                    }
-                  )
-              }
+                    )
+                }
+              )
             )
-          )
-        } else if (imStarted) {
-          // 可以完成任务，需要填报工时
-          group.push(
+          } else if (row.status === 6) {
+            // 测试中，可以拒绝或通过
+            btnGroup.push(
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "测试通过",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "success",
+                        onClick: () => {
+                          testPassProjectTask(row.id).then(() => {
+                            refresh()
+                          })
+                        }
+                      },
+                      {
+                        default: () => h(NIcon, { component: FaceSatisfied })
+                      }
+                    )
+                }
+              )
+            )
+            btnGroup.push(
+              h(
+                NTooltip,
+                {},
+                {
+                  default: () => "测试打回",
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: "small",
+                        type: "error",
+                        onClick: () => {
+                          issueInstance.value.title = ""
+                          issueInstance.value.projectId = row.projectId
+                          issueInstance.value.content = ""
+                          issueInstance.value.issueCause = ""
+                          issueInstance.value.taskId = row.id
+                          taskRejectDrawerActive.value = true
+                        }
+                      },
+                      {
+                        default: () => h(NIcon, { component: FaceDissatisfied })
+                      }
+                    )
+                }
+              )
+            )
+          }
+        }
+        if (projectStore.hasResourceCode("project:detail:task:done") && row.status === 7) {
+          // 测试通过，可以完成任务
+          btnGroup.push(
             h(
               NTooltip,
               {},
@@ -266,13 +416,12 @@ const statusColumn = reactive({
                       size: "small",
                       type: "success",
                       onClick: () => {
-                        // 需要填报工时
-                        currentTask.value = row
-                        const member = row.members?.find((m) => m.userId === userStore.user.id)
-                        if (member) {
-                          currentTaskMember.value = member
-                          showWorkTimeDrawer.value = true
-                        }
+                        finishProjectTask(row.id).then((res) => {
+                          if (res) {
+                            message.success("任务成功完成")
+                            refresh()
+                          }
+                        })
                       }
                     },
                     {
@@ -285,6 +434,15 @@ const statusColumn = reactive({
         }
       }
     }
+    group.push(
+      h(
+        NButtonGroup,
+        {
+          size: "small"
+        },
+        () => btnGroup
+      )
+    )
 
     return h(NSpace, { justify: "space-between" }, () => group)
   },
@@ -307,6 +465,22 @@ const statusColumn = reactive({
     {
       label: "进行中",
       value: 3
+    },
+    {
+      label: "已提测",
+      value: 4
+    },
+    {
+      label: "测试打回",
+      value: 5
+    },
+    {
+      label: "测试中",
+      value: 6
+    },
+    {
+      label: "测试通过",
+      value: 7
     },
     {
       label: "已完成",
@@ -671,6 +845,36 @@ const showWorkTimeDrawer = ref(false)
 const currentTask = ref<ProjectTask>({ id: "", projectId: "", name: "" })
 const currentTaskMember = ref<ProjectTaskMember>({ id: "", projectId: "", taskId: "", userId: "" })
 
+// 测试打回时需要建立缺陷，抽屉
+const taskRejectDrawerActive = ref(false)
+const issueInstance = ref<ProjectIssue>({
+  id: "",
+  projectId: props.condition.projectId,
+  title: "",
+  type: 1,
+  content: "",
+  issueCause: ""
+})
+const issueFormRef = ref<typeof IssueForm>()
+const submitNewIssue = (e: MouseEvent) => {
+  e.preventDefault()
+  const fi = issueFormRef.value?.formRef as FormInst
+  if (!fi) {
+    return
+  }
+  fi.validate((errors) => {
+    if (!errors) {
+      addProjectIssue(issueInstance.value).then((res) => {
+        if (res) {
+          message.success("保存成功")
+          taskRejectDrawerActive.value = false
+          refresh()
+        }
+      })
+    }
+  })
+}
+
 const refreshIfNoData = () => {
   if (list.value.length === 0) {
     refresh()
@@ -702,4 +906,21 @@ defineExpose({
   />
 
   <work-time-drawer v-model:drawer-active="showWorkTimeDrawer" :task="currentTask" :data="currentTaskMember" @refresh="refresh" />
+
+  <n-drawer v-model:show="taskRejectDrawerActive" :default-height="600" resizable placement="bottom">
+    <n-drawer-content>
+      <template #header>
+        <n-text>新增缺陷</n-text>
+        <n-button
+          class="absolute right-8px mt--4px"
+          type="primary"
+          size="small"
+          @click="submitNewIssue"
+          v-if="projectStore.hasResourceCodes(['project:detail:issue:add', 'project:detail:issue:update'])"
+          >提交</n-button
+        >
+      </template>
+      <issue-form ref="issueFormRef" v-model:value="issueInstance" />
+    </n-drawer-content>
+  </n-drawer>
 </template>

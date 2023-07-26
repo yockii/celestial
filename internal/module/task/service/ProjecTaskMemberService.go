@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	ucModel "github.com/yockii/celestial/internal/module/uc/model"
@@ -177,14 +178,26 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 	switch taskMember.Status {
 	case model.ProjectTaskStatusCancel: // 已取消，可以变更为未开始
 		canChange = status == model.ProjectTaskStatusNotStart
-	case 0: // 未知状态，可以变更为未开始
+	case 0: // 未知状态，视为未开始
 		fallthrough
 	case model.ProjectTaskStatusNotStart: // 未开始，可以变更为已取消、已确认
 		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusConfirmed
+		if !canChange && task.Status == model.ProjectTaskStatusDevDone { // 如果任务状态是提测，则可以进入测试中
+			canChange = status == model.ProjectTaskStatusTesting
+		}
 	case model.ProjectTaskStatusConfirmed: // 已确认，可以变更为进行中、已取消
 		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDoing
+		if !canChange && task.Status == model.ProjectTaskStatusDevDone { // 如果任务状态是提测，则可以进入测试中
+			canChange = status == model.ProjectTaskStatusTesting
+		}
 	case model.ProjectTaskStatusDoing: // 进行中，可以变更为已完成、已取消
-		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDone
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDevDone
+	case model.ProjectTaskStatusDevDone: // 开发完成提测，可以变更为测试中、已取消
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusTesting
+	case model.ProjectTaskStatusTestReject: // 测试打回，可以变更为已完成、已取消
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusDevDone
+	case model.ProjectTaskStatusTesting: // 测试中，可以变更为测试通过、测试打回、已取消
+		canChange = status == model.ProjectTaskStatusCancel || status == model.ProjectTaskStatusTestPass || status == model.ProjectTaskStatusTestReject
 	case model.ProjectTaskStatusDone: // 已完成，可以变更为已取消
 		canChange = status == model.ProjectTaskStatusCancel
 	}
@@ -243,13 +256,13 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 					return err
 				}
 			}
-		} else if status == model.ProjectTaskStatusDone {
+		} else if status == model.ProjectTaskStatusDevDone {
 			// 已完成，更新任务成员状态为已完成，且实际工时为actualDuration
 			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
 				ID: taskMember.ID,
-			}).Updates(&model.ProjectTaskMember{
-				Status:         status,
-				ActualDuration: actualDuration,
+			}).Updates(map[string]interface{}{
+				"status":          status,
+				"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
 			}).Error
 			if err != nil {
 				logger.Errorln(err)
@@ -258,23 +271,14 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 
 			//TODO 实际工时还需要填入工时表
 
-			// 再查看当前任务是否有其他成员状态不是已完成的，如果没有，则更新任务状态为已完成并加上新的实际工时，如果有，则只加上新的实际工时
-			var count int64
-			err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
-				TaskID: task.ID,
-			}).Where("status not in (?)", []int{
-				model.ProjectTaskStatusDone,
-				model.ProjectTaskStatusCancel,
-			}).Count(&count).Error
-			if err != nil {
-				logger.Errorln(err)
-				return err
-			}
-			if count > 0 {
-				// 有成员处于未完成状态，只更新任务实际工时
+			if task.Status == model.ProjectTaskStatusTestReject {
+				// 如果是测试打回，则只要有一人提测即可
+
+				// 所有人都完成了，更新任务状态为提测，并将实际工时加上actualDuration（使用表达式
 				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
 					ID: task.ID,
 				}).Updates(map[string]interface{}{
+					"status":          status,
 					"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
 				}).Error
 				if err != nil {
@@ -282,17 +286,55 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 					return err
 				}
 			} else {
-				// 所有人都完成了，更新任务状态为已完成，并将实际工时加上actualDuration（使用表达式
-				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
-					ID: task.ID,
-				}).Updates(map[string]interface{}{
-					"status":          status,
-					"actual_End_time": time.Now().UnixMilli(),
-					"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
-				}).Error
+				// 找出可以执行devDone的项目角色id列表
+				var roles []*ucModel.Role
+				err = tx.Model(&ucModel.Role{}).Select("id").Where(&ucModel.Role{Type: ucModel.RoleTypeProject}).
+					Where("id in (select role_id from t_role_resource where resource_code=?)", constant.ResourceProjectTaskDev).
+					Find(&roles).Error
 				if err != nil {
 					logger.Errorln(err)
 					return err
+				}
+				var roleIdList []uint64
+				for _, role := range roles {
+					roleIdList = append(roleIdList, role.ID)
+				}
+
+				// 再查看当前任务是否有其他成员状态不是已完成的，如果没有，则更新任务状态为已完成并加上新的实际工时，如果有，则只加上新的实际工时
+				var count int64
+				err = tx.Model(&model.ProjectTaskMember{}).Where(&model.ProjectTaskMember{
+					TaskID: task.ID,
+				}).Where("status not in (?)", []int{
+					model.ProjectTaskStatusDevDone,
+					model.ProjectTaskStatusCancel,
+				}).Where("role_id in (?)", roleIdList).Count(&count).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+				if count > 0 {
+					// 有成员处于未完成状态，只更新任务实际工时
+					err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+						ID: task.ID,
+					}).Updates(map[string]interface{}{
+						"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				} else {
+					// 所有人都完成了，更新任务状态为提测，并将实际工时加上actualDuration（使用表达式
+					err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+						ID: task.ID,
+					}).Updates(map[string]interface{}{
+						"status":          status,
+						"actual_duration": gorm.Expr("actual_duration + ?", actualDuration),
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
 				}
 			}
 		} else {
@@ -310,6 +352,16 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 				}).Updates(&model.ProjectTask{
 					Status:          status,
 					ActualStartTime: time.Now().UnixMilli(),
+				}).Error
+				if err != nil {
+					logger.Errorln(err)
+					return err
+				}
+			} else if (status == model.ProjectTaskStatusTesting || status == model.ProjectTaskStatusTestReject || status == model.ProjectTaskStatusTestPass) && task.Status != status {
+				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
+					ID: task.ID,
+				}).Updates(&model.ProjectTask{
+					Status: status,
 				}).Error
 				if err != nil {
 					logger.Errorln(err)

@@ -297,6 +297,7 @@ export type ProjectChangeCondition = Condition & {
 export type ProjectIssue = {
   id: string
   projectId: string
+  taskId?: string
   title: string
   type?: number
   level?: number
@@ -318,6 +319,7 @@ export type ProjectIssue = {
 export type ProjectIssueCondition = Condition & {
   id?: string
   projectId: string
+  taskId?: string
   type?: number
   level?: number
   status?: number

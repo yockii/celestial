@@ -93,14 +93,54 @@ export function startProjectTask(id: string) {
 }
 
 /**
- * 完成任务
+ * 开发完成
  * @param id - 项目任务id
  * @param actualDuration - 实际工时
  */
-export function finishProjectTask(id: string, actualDuration: number) {
-  return request.put<boolean>("/projectTask/done", {
+export function developDoneProjectTask(id: string, actualDuration: number) {
+  return request.put<boolean>("/projectTask/devDone", {
     id,
     actualDuration
+  })
+}
+
+/**
+ * 测试打回
+ * @param id - 项目任务id
+ */
+export function testRejectProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/testReject", {
+    id
+  })
+}
+
+/**
+ * 测试中
+ * @param id - 项目任务id
+ */
+export function testingProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/testing", {
+    id
+  })
+}
+
+/**
+ * 测试通过
+ * @param id - 项目任务id
+ */
+export function testPassProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/testPass", {
+    id
+  })
+}
+
+/**
+ * 完成任务
+ * @param id - 项目任务id
+ */
+export function finishProjectTask(id: string) {
+  return request.put<boolean>("/projectTask/done", {
+    id
   })
 }
 

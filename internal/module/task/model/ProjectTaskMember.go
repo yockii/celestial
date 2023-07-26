@@ -14,7 +14,7 @@ type ProjectTaskMember struct {
 	RoleID           uint64         `json:"roleId,omitempty,string" gorm:"index;comment:角色ID"`
 	EstimateDuration int64          `json:"estimateDuration,omitempty" gorm:"comment:预计工期,单位:秒"`
 	ActualDuration   int64          `json:"actualDuration,omitempty" gorm:"comment:实际工期,单位:秒"`
-	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 9-已完成"`
+	Status           int            `json:"status,omitempty" gorm:"comment:任务状态 -1-已取消 1-未开始 2-已确认 3-进行中 4-测试打回 5-开发完成提测 6-测试中 7-测试通过 9-已完成"`
 	CreateTime       int64          `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime       int64          `json:"updateTime" gorm:"autoUpdateTime:milli"`
 	DeleteTime       gorm.DeletedAt `json:"deleteTime" gorm:"index"`

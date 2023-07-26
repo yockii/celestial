@@ -1,7 +1,7 @@
 <template>
   <n-text tag="div" class="ui-logo">
     <svg-icon name="logo" :style="{ height: '26px', width: '40px', color: logoColor }" />
-    <span style="margin-left: 10px">项目管理</span>
+    <span style="margin-left: 10px"></span>
   </n-text>
   <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">

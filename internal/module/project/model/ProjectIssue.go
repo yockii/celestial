@@ -20,6 +20,7 @@ const (
 type ProjectIssue struct {
 	ID             uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	ProjectID      uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	TaskID         uint64         `json:"taskId,omitempty,string" gorm:"index;comment:关联的任务ID"`
 	Title          string         `json:"title,omitempty" gorm:"type:varchar(255);comment:问题标题"`
 	Type           uint8          `json:"type,omitempty" gorm:"comment:问题类型 1-代码错误 2-功能异常 3-界面优化 4-配置相关 5-安全相关 6-性能问题 9-其他问题"`
 	Level          uint8          `json:"level,omitempty" gorm:"comment:问题级别 1-一般 2-重要 3-紧急"`
@@ -47,6 +48,7 @@ func (pi *ProjectIssue) UnmarshalJSON(b []byte) error {
 	j := gjson.ParseBytes(b)
 	pi.ID = j.Get("id").Uint()
 	pi.ProjectID = j.Get("projectId").Uint()
+	pi.TaskID = j.Get("taskId").Uint()
 	pi.Title = j.Get("title").String()
 	pi.Type = uint8(j.Get("type").Uint())
 	pi.Level = uint8(j.Get("level").Uint())

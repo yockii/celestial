@@ -431,6 +431,14 @@ func (c *projectTaskController) addSearchDocument(id uint64) {
 			status = "已确认"
 		case 3:
 			status = "进行中"
+		case 4:
+			status = "开发完成提测中"
+		case 5:
+			status = "测试打回"
+		case 6:
+			status = "测试中"
+		case 7:
+			status = "测试通过"
 		case 9:
 			status = "已完成"
 		}
@@ -510,7 +518,15 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 		case model.ProjectTaskStatusConfirmed:
 			code = constant.ResourceProjectTaskConfirm
 		case model.ProjectTaskStatusDoing:
-			code = constant.ResourceProjectTaskStart
+			code = constant.ResourceProjectTaskDev
+		case model.ProjectTaskStatusDevDone:
+			code = constant.ResourceProjectTaskDev
+		case model.ProjectTaskStatusTestReject:
+			code = constant.ResourceProjectTaskTest
+		case model.ProjectTaskStatusTesting:
+			code = constant.ResourceProjectTaskTest
+		case model.ProjectTaskStatusTestPass:
+			code = constant.ResourceProjectTaskTest
 		case model.ProjectTaskStatusDone:
 			code = constant.ResourceProjectTaskDone
 		}
@@ -537,7 +553,7 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		condition := new(model.ProjectTask)
-		if err := ctx.QueryParser(condition); err != nil {
+		if err := ctx.BodyParser(condition); err != nil {
 			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeParamParseError,
@@ -572,6 +588,8 @@ func (c *projectTaskController) UpdateStatus(status int) fiber.Handler {
 			code = constant.ResourceProjectTaskCancel
 		case model.ProjectTaskStatusNotStart:
 			code = constant.ResourceProjectTaskRestart
+		case model.ProjectTaskStatusDone:
+			code = constant.ResourceProjectTaskDone
 		}
 		var success bool
 		if _, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {

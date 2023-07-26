@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     DatePickerInTable: typeof import('./src/components/DatePickerInTable.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IssueDetailDrawer: typeof import('./src/components/project/issue/IssueDetailDrawer.vue')['default']
+    IssueForm: typeof import('./src/components/project/issue/IssueForm.vue')['default']
     MeetingRoomReservation: typeof import('./src/components/meetingRoomReservation/index.vue')['default']
     MyProjectList: typeof import('./src/components/project/MyProjectList.vue')['default']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
