@@ -27,7 +27,7 @@ import {
   FormInst
 } from "naive-ui"
 import { ArrowsSplit } from "@vicons/tabler"
-import { Delete, Edit, FaceDissatisfied, FaceSatisfied, ParentChild } from "@vicons/carbon"
+import { Debug, Delete, Edit, FaceDissatisfied, FaceSatisfied, ParentChild } from "@vicons/carbon"
 import NameAvatar from "@/components/NameAvatar.vue"
 import { useUserStore } from "@/store/user"
 import { useProjectStore } from "@/store/project"
@@ -36,6 +36,7 @@ import dayjs from "dayjs"
 import WorkTimeDrawer from "../workTimeDrawer/index.vue"
 import IssueForm from "@/components/project/issue/IssueForm.vue"
 
+const router = useRouter()
 const userStore = useUserStore()
 const projectStore = useProjectStore()
 const message = useMessage()
@@ -111,17 +112,46 @@ const nameColumn = reactive({
   title: "任务名称",
   key: "name",
   render: (row: ProjectTask) => {
-    return h(
-      NBadge,
-      {
-        value: row.parentId ? "子" : "主",
-        offset: [10, 0],
-        type: row.parentId ? "info" : "success"
-      },
-      {
-        default: () => row.name
-      }
+    const group: VNode[] = []
+    group.push(
+      h(
+        NBadge,
+        {
+          value: row.parentId ? "子" : "主",
+          offset: [10, 0],
+          type: row.parentId ? "info" : "success"
+        },
+        {
+          default: () => row.name
+        }
+      )
     )
+    if (row.issue) {
+      group.push(
+        h(
+          NTooltip,
+          {},
+          {
+            default: () => "相关缺陷:" + row.issue?.title || "",
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: "small",
+                  type: row.issue?.status && row.issue.status >= 5 ? "default" : "error",
+                  onClick: () => {
+                    router.push(`/project/detail/${row.projectId}/issue?id=${row.issue?.id}`)
+                  }
+                },
+                {
+                  default: () => h(NIcon, { component: Debug })
+                }
+              )
+          }
+        )
+      )
+    }
+    return h(NSpace, { justify: "space-between" }, () => group)
   }
 })
 const statusColumn = reactive({
@@ -371,34 +401,58 @@ const statusColumn = reactive({
                 }
               )
             )
-            btnGroup.push(
-              h(
-                NTooltip,
-                {},
-                {
-                  default: () => "测试打回",
-                  trigger: () =>
-                    h(
-                      NButton,
-                      {
-                        size: "small",
-                        type: "error",
-                        onClick: () => {
-                          issueInstance.value.title = ""
-                          issueInstance.value.projectId = row.projectId
-                          issueInstance.value.content = ""
-                          issueInstance.value.issueCause = ""
-                          issueInstance.value.taskId = row.id
-                          taskRejectDrawerActive.value = true
+            if (!row.issue) {
+              btnGroup.push(
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "测试打回",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "error",
+                          onClick: () => {
+                            issueInstance.value.title = ""
+                            issueInstance.value.projectId = row.projectId
+                            issueInstance.value.content = ""
+                            issueInstance.value.issueCause = ""
+                            issueInstance.value.taskId = row.id
+                            taskRejectDrawerActive.value = true
+                          }
+                        },
+                        {
+                          default: () => h(NIcon, { component: FaceDissatisfied })
                         }
-                      },
-                      {
-                        default: () => h(NIcon, { component: FaceDissatisfied })
-                      }
-                    )
-                }
+                      )
+                  }
+                )
               )
-            )
+            } else {
+              btnGroup.push(
+                h(
+                  NTooltip,
+                  {},
+                  {
+                    default: () => "请到相关缺陷处进行操作",
+                    trigger: () =>
+                      h(
+                        NButton,
+                        {
+                          size: "small",
+                          type: "error",
+                          disabled: true
+                        },
+                        {
+                          default: () => h(NIcon, { component: FaceDissatisfied })
+                        }
+                      )
+                  }
+                )
+              )
+            }
           }
         }
         if (projectStore.hasResourceCode("project:detail:task:done") && row.status === 7) {

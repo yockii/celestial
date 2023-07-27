@@ -9,6 +9,8 @@ import (
 	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/core/helper"
 	"github.com/yockii/celestial/internal/core/mq"
+	projectModule "github.com/yockii/celestial/internal/module/project/model"
+	projectService "github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/celestial/internal/module/task/service"
@@ -303,6 +305,18 @@ func (c *projectTaskController) List(ctx *fiber.Ctx) error {
 					return
 				}
 				task.Members = members
+
+				// 查询缺陷
+				_, issues, err := projectService.ProjectIssueService.PaginateBetweenTimes(
+					&projectModule.ProjectIssue{TaskID: task.ID}, -1, -1, "", nil,
+				)
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				if len(issues) > 0 {
+					task.Issue = issues[0]
+				}
 			}(ptwm)
 		}
 
@@ -683,6 +697,18 @@ func (c *projectTaskController) ListMine(ctx *fiber.Ctx) error {
 					return
 				}
 				task.Members = members
+
+				// 查询缺陷
+				_, issues, err := projectService.ProjectIssueService.PaginateBetweenTimes(
+					&projectModule.ProjectIssue{TaskID: task.ID}, -1, -1, "", nil,
+				)
+				if err != nil {
+					logger.Errorln(err)
+					return
+				}
+				if len(issues) > 0 {
+					task.Issue = issues[0]
+				}
 			}(ptwm)
 		}
 

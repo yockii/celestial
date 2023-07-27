@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/tidwall/gjson"
+	projectModel "github.com/yockii/celestial/internal/module/project/model"
 	"github.com/yockii/celestial/internal/module/task/model"
 	"github.com/yockii/ruomu-core/server"
 )
@@ -32,6 +33,7 @@ type ProjectTaskWithMembers struct {
 	model.ProjectTask
 	Owner   *ProjectTaskMemberWithRealName   `json:"owner"`
 	Members []*ProjectTaskMemberWithRealName `json:"members"`
+	Issue   *projectModel.ProjectIssue       `json:"issue"`
 }
 
 func (ptwm *ProjectTaskWithMembers) UnmarshalJSON(b []byte) error {

@@ -173,6 +173,7 @@ export type ProjectTask = {
   children?: ProjectTask[]
   isLeaf?: boolean
   childrenCount?: number
+  issue?: ProjectIssue
 }
 
 export type ProjectTaskCondition = Condition & {
