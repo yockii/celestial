@@ -302,11 +302,6 @@ func InitData() {
 					Type:         2,
 				})
 				resources = append(resources, &model.Resource{
-					ResourceName: "任务成员确认项目任务",
-					ResourceCode: constant.ResourceProjectTaskConfirm,
-					Type:         2,
-				})
-				resources = append(resources, &model.Resource{
 					ResourceName: "任务开发",
 					ResourceCode: constant.ResourceProjectTaskDev,
 					Type:         2,

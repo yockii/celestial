@@ -157,9 +157,11 @@ onMounted(() => {
           <n-gi :span="2" :offset="2" class="flex flex-justify-end flex-items-center">
             <n-tooltip v-if="tab == '项目总览'">
               <template #trigger>
-                <n-button size="small" type="primary" v-if="projectStore.hasResourceCode('project:add')" @click="showProjectSettings">
-                  <n-icon :component="SettingsServices" />
-                </n-button>
+                <div>
+                  <n-button size="small" type="primary" v-if="projectStore.hasResourceCode('project:add')" @click="showProjectSettings">
+                    <n-icon :component="SettingsServices" />
+                  </n-button>
+                </div>
               </template>
               项目设置
             </n-tooltip>
@@ -201,11 +203,11 @@ onMounted(() => {
       <template #header>
         <div class="w-350px flex flex-justify-between">
           <n-text class="mt-4px">项目设置</n-text>
-          <n-popconfirm @positive-click="doDeleteProject" :show-icon="false">
+          <n-popconfirm @positive-click="doDeleteProject" :show-icon="false" v-if="projectStore.hasResourceCode('project:delete')">
             <template #trigger>
               <n-tooltip>
                 <template #trigger>
-                  <n-button type="error" size="tiny" v-if="projectStore.hasResourceCode('project:delete')">
+                  <n-button type="error" size="tiny">
                     <n-icon :component="Delete" />
                   </n-button>
                 </template>

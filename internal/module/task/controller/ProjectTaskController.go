@@ -527,25 +527,27 @@ func (c *projectTaskController) MemberUpdateStatus(status int) fiber.Handler {
 			})
 		}
 		// 判断权限
-		code := constant.ResourceProjectTaskConfirm
+		var success bool
 		switch status {
 		case model.ProjectTaskStatusConfirmed:
-			code = constant.ResourceProjectTaskConfirm
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskDev)
+			if !success {
+				_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskTest)
+			}
 		case model.ProjectTaskStatusDoing:
-			code = constant.ResourceProjectTaskDev
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskDev)
 		case model.ProjectTaskStatusDevDone:
-			code = constant.ResourceProjectTaskDev
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskDev)
 		case model.ProjectTaskStatusTestReject:
-			code = constant.ResourceProjectTaskTest
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskTest)
 		case model.ProjectTaskStatusTesting:
-			code = constant.ResourceProjectTaskTest
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskTest)
 		case model.ProjectTaskStatusTestPass:
-			code = constant.ResourceProjectTaskTest
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskTest)
 		case model.ProjectTaskStatusDone:
-			code = constant.ResourceProjectTaskDone
+			_, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, constant.ResourceProjectTaskDone)
 		}
-		var success bool
-		if _, success, err = helper.CheckResourceCodeInProject(ctx, oldTask.ProjectID, code); err != nil {
+		if err != nil {
 			return err
 		} else if !success {
 			return nil
