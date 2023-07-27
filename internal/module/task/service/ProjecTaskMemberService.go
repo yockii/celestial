@@ -4,6 +4,9 @@ import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/constant"
+	"github.com/yockii/celestial/internal/core/mq"
+	projectModule "github.com/yockii/celestial/internal/module/project/model"
+	"github.com/yockii/celestial/internal/module/project/service"
 	"github.com/yockii/celestial/internal/module/task/domain"
 	"github.com/yockii/celestial/internal/module/task/model"
 	ucModel "github.com/yockii/celestial/internal/module/uc/model"
@@ -272,9 +275,7 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 			//TODO 实际工时还需要填入工时表
 
 			if task.Status == model.ProjectTaskStatusTestReject {
-				// 如果是测试打回，则只要有一人提测即可
-
-				// 所有人都完成了，更新任务状态为提测，并将实际工时加上actualDuration（使用表达式
+				// 如果是测试打回，则只要有一人提测即可，更新任务状态为提测，并将实际工时加上actualDuration（使用表达式
 				err = tx.Model(&model.ProjectTask{}).Where(&model.ProjectTask{
 					ID: task.ID,
 				}).Updates(map[string]interface{}{
@@ -284,6 +285,42 @@ func (s *projectTaskMemberService) UpdateStatus(task *model.ProjectTask, taskMem
 				if err != nil {
 					logger.Errorln(err)
 					return err
+				}
+				// 尝试将关联的issue状态更新为待验证，并指派给issue的创建人
+				pi := &projectModule.ProjectIssue{
+					TaskID: task.ID,
+				}
+				err = tx.Where(pi).First(pi).Error
+				if err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						err = nil
+					} else {
+						logger.Errorln(err)
+						return err
+					}
+				} else {
+					// 指派
+					err = tx.Model(&projectModule.ProjectIssue{}).Where(&projectModule.ProjectIssue{
+						ID: pi.ID,
+					}).Updates(&projectModule.ProjectIssue{
+						AssigneeID: pi.CreatorID,
+						Status:     projectModule.ProjectIssueStatusVerifying,
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+					// 还要通知
+					service.ProjectIssueService.AddSearchDocument(pi.ID)
+					// 通知队列做后续处理
+					mq.Publish(mq.TopicIssueAssigned, &mq.Message{
+						Topic: mq.TopicIssueAssigned,
+						Data: &mq.IssueAssignedMessage{
+							IssueId:    pi.ID,
+							AssigneeId: pi.AssigneeID,
+							OperatorId: taskMember.UserID,
+						},
+					})
 				}
 			} else {
 				// 找出可以执行devDone的项目角色id列表

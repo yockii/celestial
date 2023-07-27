@@ -2,9 +2,13 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/core/data"
 	"github.com/yockii/celestial/internal/module/project/model"
 	taskModel "github.com/yockii/celestial/internal/module/task/model"
+	"github.com/yockii/celestial/pkg/search"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -238,40 +242,116 @@ func (s *projectIssueService) UpdateStatus(instance *model.ProjectIssue, status 
 	}
 
 	if canChange {
-		tx := database.DB.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: instance.ID})
-		if status == model.ProjectIssueStatusReject {
-			err = tx.Updates(&model.ProjectIssue{
-				Status:         status,
-				RejectedReason: instance.RejectedReason,
-			}).Error
-		} else if status == model.ProjectIssueStatusVerifying {
-			err = tx.Updates(map[string]interface{}{
-				"status":         status,
-				"end_time":       time.Now().UnixMilli(),
-				"solve_duration": gorm.Expr("solve_duration + ?", instance.SolveDuration),
-			}).Error
-		} else if status == model.ProjectIssueStatusProcessing {
-			err = tx.Updates(&model.ProjectIssue{
-				Status: status,
-				// 开始解决时间
-				StartTime: time.Now().UnixMilli(),
-			}).Error
-		} else if status == model.ProjectIssueStatusResolved {
-			err = tx.Updates(&model.ProjectIssue{
-				Status: status,
-				// 解决确认时间
-				ResolvedTime: time.Now().UnixMilli(),
-			}).Error
-		} else {
-			err = tx.Updates(&model.ProjectIssue{
-				Status: status,
-			}).Error
-		}
+		err = database.DB.Transaction(func(tx *gorm.DB) error {
+			{
+				issueTx := tx.Model(&model.ProjectIssue{}).Where(&model.ProjectIssue{ID: instance.ID})
+				if status == model.ProjectIssueStatusReject {
+					err = issueTx.Updates(&model.ProjectIssue{
+						Status:         status,
+						RejectedReason: instance.RejectedReason,
+					}).Error
+				} else if status == model.ProjectIssueStatusVerifying {
+					err = issueTx.Updates(map[string]interface{}{
+						"status":         status,
+						"end_time":       time.Now().UnixMilli(),
+						"solve_duration": gorm.Expr("solve_duration + ?", instance.SolveDuration),
+					}).Error
+				} else if status == model.ProjectIssueStatusProcessing {
+					err = issueTx.Updates(&model.ProjectIssue{
+						Status: status,
+						// 开始解决时间
+						StartTime: time.Now().UnixMilli(),
+					}).Error
+				} else if status == model.ProjectIssueStatusResolved {
+					err = issueTx.Updates(&model.ProjectIssue{
+						Status: status,
+						// 解决确认时间
+						ResolvedTime: time.Now().UnixMilli(),
+					}).Error
+				} else {
+					err = issueTx.Updates(&model.ProjectIssue{
+						Status: status,
+					}).Error
+				}
+			}
+			if err != nil {
+				logger.Errorln(err)
+				return err
+			}
+
+			if instance.TaskID != 0 {
+				if status == model.ProjectIssueStatusResolved {
+					// 有关联的任务，尝试将该关联任务置为通过测试
+					err = tx.Model(&taskModel.ProjectTask{}).Where(&taskModel.ProjectTask{
+						ID:     instance.TaskID,
+						Status: taskModel.ProjectTaskStatusDevDone,
+					}).Updates(&taskModel.ProjectTask{
+						Status: taskModel.ProjectTaskStatusTestPass,
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+					err = tx.Model(&taskModel.ProjectTaskMember{}).Where(&taskModel.ProjectTaskMember{
+						TaskID: instance.TaskID,
+					}).Updates(&taskModel.ProjectTaskMember{
+						Status: taskModel.ProjectTaskStatusTestPass,
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				} else if status == model.ProjectIssueStatusReject {
+					err = tx.Model(&taskModel.ProjectTask{}).Where(&taskModel.ProjectTask{
+						ID:     instance.TaskID,
+						Status: taskModel.ProjectTaskStatusDevDone,
+					}).Updates(&taskModel.ProjectTask{
+						Status: taskModel.ProjectTaskStatusTestReject,
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+					err = tx.Model(&taskModel.ProjectTaskMember{}).Where(&taskModel.ProjectTaskMember{
+						TaskID: instance.TaskID,
+					}).Updates(&taskModel.ProjectTaskMember{
+						Status: taskModel.ProjectTaskStatusTestReject,
+					}).Error
+					if err != nil {
+						logger.Errorln(err)
+						return err
+					}
+				}
+			}
+
+			return nil
+		})
 		if err != nil {
-			logger.Errorln(err)
 			return
 		}
 		success = true
 	}
 	return
+}
+
+func (*projectIssueService) AddSearchDocument(id uint64) {
+	_ = ants.Submit(func(id uint64) func() {
+		d, e := ProjectIssueService.Instance(id)
+		if e != nil {
+			logger.Errorln(e)
+			return func() {}
+		}
+		return data.AddDocumentAntsWrapper(&search.Document{
+			ID:    d.ID,
+			Title: d.Title,
+			Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
+				d.Content,
+				d.IssueCause,
+				d.SolveMethod,
+			),
+			Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", d.ProjectID, d.ID),
+			CreateTime: d.CreateTime,
+			UpdateTime: d.UpdateTime,
+		}, d.CreatorID, d.AssigneeID)
+	}(id))
 }

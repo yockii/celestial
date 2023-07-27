@@ -341,7 +341,7 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 	}
 
 	if success {
-		c.addSearchDocument(instance.ID)
+		service.ProjectIssueService.AddSearchDocument(instance.ID)
 		// 通知队列做后续处理
 		mq.Publish(mq.TopicIssueAssigned, &mq.Message{
 			Topic: mq.TopicIssueAssigned,
@@ -356,28 +356,6 @@ func (c *projectIssueController) Assign(ctx *fiber.Ctx) error {
 	return ctx.JSON(&server.CommonResponse{
 		Data: success,
 	})
-}
-
-func (c *projectIssueController) addSearchDocument(id uint64) {
-	_ = ants.Submit(func(id uint64) func() {
-		d, e := service.ProjectIssueService.Instance(id)
-		if e != nil {
-			logger.Errorln(e)
-			return func() {}
-		}
-		return data.AddDocumentAntsWrapper(&search.Document{
-			ID:    d.ID,
-			Title: d.Title,
-			Content: fmt.Sprintf("%s\n原因:%s\n解决方式:%s",
-				d.Content,
-				d.IssueCause,
-				d.SolveMethod,
-			),
-			Route:      fmt.Sprintf("/project/detail/%d/issue?id=%d", d.ProjectID, d.ID),
-			CreateTime: d.CreateTime,
-			UpdateTime: d.UpdateTime,
-		}, d.CreatorID, d.AssigneeID)
-	}(id))
 }
 
 func (c *projectIssueController) UpdateStatus(statusList ...int8) fiber.Handler {
@@ -461,7 +439,7 @@ func (c *projectIssueController) UpdateStatus(statusList ...int8) fiber.Handler 
 		}
 
 		if success {
-			c.addSearchDocument(instance.ID)
+			service.ProjectIssueService.AddSearchDocument(instance.ID)
 		}
 
 		return ctx.JSON(&server.CommonResponse{
