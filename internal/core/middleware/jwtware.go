@@ -141,13 +141,13 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 							_, _ = conn.Do("SADD", roleResourceKey, rc)
 							if _, ok := codeMap[rc]; ok {
 								hasAuth = true
-							} else {
-								for _, code := range codes {
-									if strings.HasPrefix(code, rc+":") {
-										hasAuth = true
-										break
-									}
-								}
+								//} else {
+								//	for _, code := range codes {
+								//		if strings.HasPrefix(code, rc+":") {
+								//			hasAuth = true
+								//			break
+								//		}
+								//	}
 							}
 						}
 					}
@@ -160,13 +160,13 @@ func NeedAuthorization(codes ...string) fiber.Handler {
 						if _, ok := codeMap[rc]; ok {
 							hasAuth = true
 							break
-						} else {
-							for _, code := range codes {
-								if strings.HasPrefix(code, rc+":") {
-									hasAuth = true
-									break
-								}
-							}
+							//} else {
+							//	for _, code := range codes {
+							//		if strings.HasPrefix(code, rc+":") {
+							//			hasAuth = true
+							//			break
+							//		}
+							//	}
 						}
 					}
 				}

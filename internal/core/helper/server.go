@@ -14,7 +14,6 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"strconv"
-	"strings"
 )
 
 func GetCurrentUserID(ctx *fiber.Ctx) (uint64, error) {
@@ -184,13 +183,13 @@ func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, err
 					hasAuth = true
 				} else if _, ok := codeMap[resourceCode]; ok {
 					hasAuth = true
-				} else {
-					for _, code := range codes {
-						if strings.HasPrefix(code, resourceCode+":") {
-							hasAuth = true
-							break
-						}
-					}
+					//} else {
+					//	for _, code := range codes {
+					//		if strings.HasPrefix(code, resourceCode+":") {
+					//			hasAuth = true
+					//			break
+					//		}
+					//	}
 				}
 			}
 			_, _ = conn.Do("SADD", args...)
@@ -203,13 +202,13 @@ func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, err
 				} else if _, ok := codeMap[resourceCode]; ok {
 					hasAuth = true
 					break
-				} else {
-					for _, code := range codes {
-						if strings.HasPrefix(code, resourceCode+":") {
-							hasAuth = true
-							break
-						}
-					}
+					//} else {
+					//	for _, code := range codes {
+					//		if strings.HasPrefix(code, resourceCode+":") {
+					//			hasAuth = true
+					//			break
+					//		}
+					//	}
 				}
 			}
 		}

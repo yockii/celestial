@@ -23,6 +23,10 @@ const isDateDisabled = (timestamp: number) => {
   return false
 }
 const canBook = (y: number, m: number, d: number) => {
+  if (!userStore.hasResourceCode("meetingRoom:reserve")) {
+    return false
+  }
+
   let judgeDate = dayjs().startOf("date")
   judgeDate = judgeDate
     .year(y)
