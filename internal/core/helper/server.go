@@ -135,6 +135,12 @@ func GetUserRoleIdsInProject(uid, projectID uint64) (roleIDs []uint64, err error
 }
 
 func HasResourceCodeInProject(uid, projectID uint64, codes ...string) (bool, error) {
+	if has, _, err := HasResourceCode(uid, constant.ResourceAllProjectDetail); err != nil {
+		return false, err
+	} else if has {
+		return true, nil
+	}
+
 	roleIDs, err := GetUserRoleIdsInProject(uid, projectID)
 	if err != nil {
 		return false, err
@@ -248,5 +254,118 @@ func CheckResourceCodeInProject(ctx *fiber.Ctx, projectID uint64, codes ...strin
 		return
 	}
 	success = true
+	return
+}
+
+func HasResourceCode(uid uint64, codes ...string) (hasAuth bool, userDataPerm int, err error) {
+	conn := cache.Get()
+	defer func(conn redis.Conn) {
+		_ = conn.Close()
+	}(conn)
+
+	// 判断是否有权限 1、读取用户的权限信息 2、判断是否有权限
+	// 获取用户角色
+	userRolesKey := fmt.Sprintf("%s:%d", constant.RedisKeyUserRoles, uid)
+	roleIds, _ := redis.Uint64s(conn.Do("SMEMBERS", userRolesKey))
+
+	if len(roleIds) == 0 {
+		var roles []*ucModel.Role
+		roles, err = service.UserService.Roles(uid, ucModel.RoleTypeNormal, ucModel.RoleTypeSuperAdmin) // 只加载普通角色
+		if err != nil {
+			return
+		}
+		for _, role := range roles {
+			// 缓存用户的角色
+			_, _ = conn.Do("SADD", userRolesKey, role.ID)
+			// 缓存角色的数据权限
+			_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, role.ID, role.DataPermission)
+
+			if role.Type == ucModel.RoleTypeSuperAdmin {
+				hasAuth = true
+				userDataPerm = 1
+			} else if userDataPerm == 0 || role.DataPermission < userDataPerm {
+				userDataPerm = role.DataPermission
+			}
+		}
+	}
+	_, _ = conn.Do("EXPIRE", userRolesKey, 3*24*60*60)
+	_, _ = conn.Do("EXPIRE", constant.RedisKeyRoleDataPerm, 3*24*60*60)
+
+	codeMap := make(map[string]struct{})
+	for _, code := range codes {
+		codeMap[code] = struct{}{}
+	}
+	if _, ok := codeMap[constant.NeedLogin]; ok {
+		hasAuth = true
+	}
+	for _, roleId := range roleIds {
+		if roleId == constant.SuperAdminRoleId {
+			hasAuth = true
+			userDataPerm = 1
+			break
+		} else {
+			// 获取角色缓存的数据权限
+			roleDataPerm, _ := redis.Int(conn.Do("HGET", constant.RedisKeyRoleDataPerm, roleId))
+			if roleDataPerm == 0 {
+				// 如果没有，重新获取角色信息并缓存数据权限
+				var role *ucModel.Role
+				role, err = service.RoleService.Instance(&ucModel.Role{ID: roleId})
+				if err != nil {
+					return
+				}
+				roleDataPerm = role.DataPermission
+				_, _ = conn.Do("HSET", constant.RedisKeyRoleDataPerm, roleId, roleDataPerm)
+			}
+			if userDataPerm == 0 || roleDataPerm < userDataPerm {
+				userDataPerm = roleDataPerm
+			}
+
+			roleResourceKey := fmt.Sprintf("%s:%d", constant.RedisKeyRoleResourceCode, roleId)
+			cachedCodes, _ := redis.Strings(conn.Do("SMEMBERS", roleResourceKey))
+			if len(cachedCodes) == 0 {
+				// 缓存没有，那么就去数据库取出来放进去
+				cachedCodes, err = service.RoleService.ResourceCodes(roleId)
+				if err != nil {
+					return
+				}
+				for _, resourceCode := range cachedCodes {
+					rc := resourceCode
+					_, _ = conn.Do("SADD", roleResourceKey, rc)
+					if _, ok := codeMap[rc]; ok {
+						hasAuth = true
+						//} else {
+						//	for _, code := range codes {
+						//		if strings.HasPrefix(code, rc+":") {
+						//			hasAuth = true
+						//			break
+						//		}
+						//	}
+					}
+				}
+			}
+			_, _ = conn.Do("EXPIRE", roleResourceKey, 3*24*60*60)
+			if hasAuth {
+				break
+			}
+			for _, resourceCode := range cachedCodes {
+				rc := resourceCode
+				if _, ok := codeMap[rc]; ok {
+					hasAuth = true
+					break
+					//} else {
+					//	for _, code := range codes {
+					//		if strings.HasPrefix(code, rc+":") {
+					//			hasAuth = true
+					//			break
+					//		}
+					//	}
+				}
+			}
+		}
+		if hasAuth {
+			break
+		}
+	}
+
 	return
 }

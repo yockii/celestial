@@ -461,6 +461,7 @@ func (c *userController) AssignRole(ctx *fiber.Ctx) error {
 		if err != nil {
 			logger.Errorln(err)
 		}
+
 		// 删除即可，等待中间件重新加载
 	}
 

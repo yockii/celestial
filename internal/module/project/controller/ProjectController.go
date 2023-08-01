@@ -408,7 +408,8 @@ func (_ *projectController) MemberResourceCode(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDataNotExists + err.Error(),
 		})
 	}
-	if len(roleIDs) == 0 {
+	hasPermission, err := helper.HasResourceCodeInProject(uid, instance.ID, "")
+	if len(roleIDs) == 0 && !hasPermission {
 		// 无权限
 		return ctx.JSON(&server.CommonResponse{
 			Data: []struct{}{},

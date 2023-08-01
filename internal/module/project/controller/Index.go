@@ -29,9 +29,9 @@ func InitRouter() {
 		project.Post("/add", middleware.NeedAuthorization(constant.ResourceProjectAdd), ProjectController.Add)
 		project.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.Delete)
 		project.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.Update)
-		project.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectList), ProjectController.List)
-		project.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectController.Instance)
-		project.Get("/statisticsByStage", middleware.NeedAuthorization(constant.ResourceProjectList), ProjectController.StatisticsByStage)
+		project.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectList, constant.ResourceAllProjectDetail), ProjectController.List)
+		project.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectInstance, constant.ResourceAllProjectDetail), ProjectController.Instance)
+		project.Get("/statisticsByStage", middleware.NeedAuthorization(constant.ResourceProjectList, constant.ResourceAllProjectDetail), ProjectController.StatisticsByStage)
 		project.Get("/resourceCode", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.MemberResourceCode)
 		project.Get("/myProjectList", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.MyProjectList)
 
@@ -47,8 +47,8 @@ func InitRouter() {
 		projectMember.Post("/batchAdd", middleware.NeedAuthorization(constant.NeedLogin), ProjectMemberController.BatchAdd)
 		projectMember.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectMemberController.Delete)
 		projectMember.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectMemberController.Update)
-		projectMember.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.List)
-		projectMember.Get("/listByProject", middleware.NeedAuthorization(constant.ResourceProjectMemberList), ProjectMemberController.ListLiteByProjectId)
+		projectMember.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectMemberList, constant.ResourceAllProjectDetail), ProjectMemberController.List)
+		projectMember.Get("/listByProject", middleware.NeedAuthorization(constant.ResourceProjectMemberList, constant.ResourceAllProjectDetail), ProjectMemberController.ListLiteByProjectId)
 		//projectMember.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectMemberInstance), ProjectMemberController.Instance)
 
 		// 对于禁用put和delete方法时的处理
@@ -62,9 +62,9 @@ func InitRouter() {
 		projectPlan.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectPlanController.Add)
 		projectPlan.Delete("/delete", middleware.NeedAuthorization(constant.ResourceProjectPlanDelete), ProjectPlanController.Delete)
 		projectPlan.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectPlanController.Update)
-		projectPlan.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectPlanList), ProjectPlanController.List)
-		projectPlan.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance), ProjectPlanController.Instance)
-		projectPlan.Get("/executing", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance), ProjectPlanController.ExecutingPlanByProject)
+		projectPlan.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectPlanList, constant.ResourceAllProjectDetail), ProjectPlanController.List)
+		projectPlan.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance, constant.ResourceAllProjectDetail), ProjectPlanController.Instance)
+		projectPlan.Get("/executing", middleware.NeedAuthorization(constant.ResourceProjectPlanInstance, constant.ResourceAllProjectDetail), ProjectPlanController.ExecutingPlanByProject)
 
 		// 对于禁用put和delete方法时的处理
 		projectPlan.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectPlanController.Delete)
@@ -77,7 +77,7 @@ func InitRouter() {
 		projectModule.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectModuleController.Add)
 		projectModule.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectModuleController.Delete)
 		projectModule.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectModuleController.Update)
-		projectModule.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectModuleList), ProjectModuleController.List)
+		projectModule.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectModuleList, constant.ResourceAllProjectDetail), ProjectModuleController.List)
 		//projectModule.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectModuleInstance), ProjectModuleController.Instance)
 		// 评审状态修改
 		projectModule.Put("/review", middleware.NeedAuthorization(constant.NeedLogin), ProjectModuleController.Review)
@@ -94,9 +94,9 @@ func InitRouter() {
 		projectRequirement.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.Add)
 		projectRequirement.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.Delete)
 		projectRequirement.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.Update)
-		projectRequirement.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRequirementList), ProjectRequirementController.List)
-		projectRequirement.Get("/listForTask", middleware.NeedAuthorization(constant.ResourceProjectRequirementList), ProjectRequirementController.ListForTask)
-		projectRequirement.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRequirementInstance), ProjectRequirementController.Instance)
+		projectRequirement.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRequirementList, constant.ResourceAllProjectDetail), ProjectRequirementController.List)
+		projectRequirement.Get("/listForTask", middleware.NeedAuthorization(constant.ResourceProjectRequirementList, constant.ResourceAllProjectDetail), ProjectRequirementController.ListForTask)
+		projectRequirement.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRequirementInstance, constant.ResourceAllProjectDetail), ProjectRequirementController.Instance)
 		// 3种状态修改
 		projectRequirement.Put("/designed", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.StatusDesigned)
 		projectRequirement.Put("/review", middleware.NeedAuthorization(constant.NeedLogin), ProjectRequirementController.StatusReview)
@@ -116,8 +116,8 @@ func InitRouter() {
 		projectChange.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectChangeController.Add)
 		projectChange.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectChangeController.Delete)
 		projectChange.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectChangeController.Update)
-		projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList), ProjectChangeController.List)
-		projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance), ProjectChangeController.Instance)
+		projectChange.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectChangeList, constant.ResourceAllProjectDetail), ProjectChangeController.List)
+		projectChange.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectChangeInstance, constant.ResourceAllProjectDetail), ProjectChangeController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectChange.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectChangeController.Delete)
@@ -130,8 +130,8 @@ func InitRouter() {
 		projectIssue.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.Add)
 		projectIssue.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.Delete)
 		projectIssue.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.Update)
-		projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList), ProjectIssueController.List)
-		projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance), ProjectIssueController.Instance)
+		projectIssue.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectIssueList, constant.ResourceAllProjectDetail), ProjectIssueController.List)
+		projectIssue.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectIssueInstance, constant.ResourceAllProjectDetail), ProjectIssueController.Instance)
 		projectIssue.Put("/assign", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.Assign)
 		projectIssue.Put("/start", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusProcessing))
 		projectIssue.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectIssueController.UpdateStatus(model.ProjectIssueStatusVerifying))
@@ -158,9 +158,9 @@ func InitRouter() {
 		projectRisk.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectRiskController.Add)
 		projectRisk.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectRiskController.Delete)
 		projectRisk.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectRiskController.Update)
-		projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList), ProjectRiskController.List)
-		projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance), ProjectRiskController.Instance)
-		projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance), ProjectRiskController.CalculateRiskByProject)
+		projectRisk.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectRiskList, constant.ResourceAllProjectDetail), ProjectRiskController.List)
+		projectRisk.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectRiskInstance, constant.ResourceAllProjectDetail), ProjectRiskController.Instance)
+		projectRisk.Get("/coefficient", middleware.NeedAuthorization(constant.ResourceProjectInstance, constant.ResourceAllProjectDetail), ProjectRiskController.CalculateRiskByProject)
 
 		// 对于禁用put和delete方法时的处理
 		projectRisk.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectRiskController.Delete)
@@ -173,8 +173,8 @@ func InitRouter() {
 		projectAsset.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectAssetController.Add)
 		projectAsset.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectAssetController.Delete)
 		projectAsset.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectAssetController.Update)
-		projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList), ProjectAssetController.List)
-		projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance), ProjectAssetController.Instance)
+		projectAsset.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectAssetList, constant.ResourceAllProjectDetail), ProjectAssetController.List)
+		projectAsset.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectAssetInstance, constant.ResourceAllProjectDetail), ProjectAssetController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectAsset.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectAssetController.Delete)

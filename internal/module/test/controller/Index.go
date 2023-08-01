@@ -14,8 +14,8 @@ func InitRouter() {
 		projectTest.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestController.Delete)
 		projectTest.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestController.Update)
 		projectTest.Put("/close", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestController.Close)
-		projectTest.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestList), ProjectTestController.List)
-		projectTest.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestInstance), ProjectTestController.Instance)
+		projectTest.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestList, constant.ResourceAllProjectDetail), ProjectTestController.List)
+		projectTest.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestInstance, constant.ResourceAllProjectDetail), ProjectTestController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectTest.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestController.Delete)
@@ -29,9 +29,9 @@ func InitRouter() {
 		projectTest.Post("/batchAdd", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseController.BatchAdd)
 		projectTest.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseController.Delete)
 		projectTest.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseController.Update)
-		projectTest.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseList), ProjectTestCaseController.List)
-		projectTest.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseInstance), ProjectTestCaseController.Instance)
-		projectTest.Get("/listWithItems", middleware.NeedAuthorization(constant.ResourceProjectTestCaseList), ProjectTestCaseController.ListWithItems)
+		projectTest.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseList, constant.ResourceAllProjectDetail), ProjectTestCaseController.List)
+		projectTest.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseInstance, constant.ResourceAllProjectDetail), ProjectTestCaseController.Instance)
+		projectTest.Get("/listWithItems", middleware.NeedAuthorization(constant.ResourceProjectTestCaseList, constant.ResourceAllProjectDetail), ProjectTestCaseController.ListWithItems)
 
 		// 对于禁用put和delete方法时的处理
 		projectTest.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseController.Delete)
@@ -46,8 +46,8 @@ func InitRouter() {
 		projectTestCase.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemController.Delete)
 		projectTestCase.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemController.Update)
 		projectTestCase.Put("/updateStatus", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemController.UpdateStatus)
-		projectTestCase.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemList), ProjectTestCaseItemController.List)
-		projectTestCase.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemInstance), ProjectTestCaseItemController.Instance)
+		projectTestCase.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemList, constant.ResourceAllProjectDetail), ProjectTestCaseItemController.List)
+		projectTestCase.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemInstance, constant.ResourceAllProjectDetail), ProjectTestCaseItemController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectTestCase.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemController.Delete)
@@ -60,8 +60,8 @@ func InitRouter() {
 		projectTestCaseStep.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemStepController.Add)
 		projectTestCaseStep.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemStepController.Delete)
 		projectTestCaseStep.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemStepController.Update)
-		projectTestCaseStep.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemStepList), ProjectTestCaseItemStepController.List)
-		projectTestCaseStep.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemStepInstance), ProjectTestCaseItemStepController.Instance)
+		projectTestCaseStep.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemStepList, constant.ResourceAllProjectDetail), ProjectTestCaseItemStepController.List)
+		projectTestCaseStep.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTestCaseItemStepInstance, constant.ResourceAllProjectDetail), ProjectTestCaseItemStepController.Instance)
 
 		// 对于禁用put和delete方法时的处理
 		projectTestCaseStep.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTestCaseItemStepController.Delete)
