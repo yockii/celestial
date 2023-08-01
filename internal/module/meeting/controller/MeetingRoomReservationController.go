@@ -66,6 +66,23 @@ func (c *meetingRoomReservationController) Reserve(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if meetingRoom, err := service.MeetingRoomService.Instance(reservation.MeetingRoomID); err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase,
+		})
+	} else if meetingRoom == nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch + ", 会议室不存在",
+		})
+	} else if meetingRoom.Status != model.MeetingRoomStatusEnabled {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch + ", 会议室已被禁用",
+		})
+	}
+
 	if uid, err := helper.GetCurrentUserID(ctx); err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamParseError,

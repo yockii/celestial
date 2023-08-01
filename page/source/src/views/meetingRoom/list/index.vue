@@ -111,20 +111,22 @@ columns.push({
     const btnGroup: VNode[] = []
 
     // 预约会议室
-    btnGroup.push(
-      h(
-        NButton,
-        {
-          size: "small",
-          secondary: true,
-          type: "info",
-          onClick: () => handleBookRoom(row)
-        },
-        {
-          default: () => "预约"
-        }
+    if (row.status === 1) {
+      btnGroup.push(
+        h(
+          NButton,
+          {
+            size: "small",
+            secondary: true,
+            type: "info",
+            onClick: () => handleBookRoom(row)
+          },
+          {
+            default: () => "预约"
+          }
+        )
       )
-    )
+    }
 
     if (userStore.hasResourceCode("meetingRoom:update")) {
       btnGroup.push(
