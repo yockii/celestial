@@ -12,7 +12,8 @@ import {
   UserMultiple,
   CategoryNewEach,
   LicenseGlobal,
-  ObjectStorage
+  ObjectStorage,
+  TimePlot
 } from "@vicons/carbon"
 import { MeetingRoomOutlined } from "@vicons/material"
 import { Organization28Regular } from "@vicons/fluent"
@@ -81,6 +82,12 @@ export const useMemStore = defineStore("mem", {
             icon: renderIcon(TestPipe)
           }
         ]
+      },
+      {
+        label: renderLinkedLabel("工时", "WorkTime", true),
+        key: "WorkTime",
+        code: "workTime",
+        icon: renderIcon(TimePlot)
       },
       {
         label: renderLinkedLabel("会议室", "MeetingRoom", true),

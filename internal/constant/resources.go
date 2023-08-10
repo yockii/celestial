@@ -52,11 +52,11 @@ const (
 	ResourceProjectModuleReview = ResourceProjectModule + ":review"
 
 	// 项目需求
-	ResourceProjectRequirement         = ResourceProjectInstance + ":requirement"
-	ResourceProjectRequirementAdd      = ResourceProjectRequirement + ":add"
-	ResourceProjectRequirementDelete   = ResourceProjectRequirement + ":delete"
-	ResourceProjectRequirementUpdate   = ResourceProjectRequirement + ":update"
-	ResourceProjectRequirementList     = ResourceProjectRequirement + ":list"
+	ResourceProjectRequirement       = ResourceProjectInstance + ":requirement"
+	ResourceProjectRequirementAdd    = ResourceProjectRequirement + ":add"
+	ResourceProjectRequirementDelete = ResourceProjectRequirement + ":delete"
+	ResourceProjectRequirementUpdate = ResourceProjectRequirement + ":update"
+	//ResourceProjectRequirementList     = ResourceProjectRequirement + ":list"
 	ResourceProjectRequirementInstance = ResourceProjectRequirement + ":instance"
 	// 设计完毕
 	ResourceProjectRequirementStatusDesign = ResourceProjectRequirement + ":statusDesign"
@@ -266,4 +266,14 @@ const (
 	ResourceMeetingRoomList     = ResourceMeetingRoom + ":list"
 	ResourceMeetingRoomInstance = ResourceMeetingRoom + ":instance"
 	ResourceMeetingRoomReserve  = ResourceMeetingRoom + ":reserve"
+)
+
+// 工时
+const (
+	ResourceWorkTime           = "workTime"
+	ResourceWorkTimeAdd        = NeedLogin
+	ResourceWorkTimeList       = ResourceWorkTime + ":list"
+	ResourceWorkTimeUpdate     = ResourceWorkTime + ":update"
+	ResourceWorkTimeDelete     = ResourceWorkTime + ":delete"
+	ResourceWorkTimeStatistics = ResourceWorkTime + ":statistics"
 )

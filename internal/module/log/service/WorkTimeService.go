@@ -16,16 +16,43 @@ type workTimeService struct{}
 
 // Add 添加资源
 func (s *workTimeService) Add(instance *model.WorkTime) (duplicated bool, success bool, err error) {
-	if instance.TargetID == 0 || instance.TargetType == 0 {
-		err = errors.New("assetName and projectId is required")
+	if instance.ProjectID == 0 || instance.UserID == 0 || instance.StartDate == 0 || instance.EndDate == 0 || instance.WorkTime <= 0 {
+		err = errors.New("projectId / userId / start / end is required")
 		return
 	}
+
+	// 判断开始结束时间是否合法
+	now := time.Now()
+	endTs := now.UnixMilli()
+	if now.Hour() >= 17 {
+		tomorrow := time.Now().AddDate(0, 0, 1)
+		endTs = time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, time.Local).UnixMilli() - 1
+	}
+	if instance.StartDate > instance.EndDate || instance.StartDate > endTs || instance.EndDate > endTs {
+		err = errors.New("start / end time is invalid")
+		return
+	}
+
+	// 判断工时是否合法
+	if instance.WorkTime*1000 >= instance.EndDate-instance.StartDate {
+		err = errors.New("work time is invalid")
+		return
+	}
+
+	// 判断开始结束时间段内是否已存在记录
 	var c int64
-	err = database.DB.Model(&model.WorkTime{}).Where(&model.WorkTime{
-		TargetID:   instance.TargetID,
-		TargetType: instance.TargetType,
-		UserID:     instance.UserID,
-	}).Count(&c).Error
+	err = database.DB.Model(&model.WorkTime{}).
+		Where(&model.WorkTime{
+			ProjectID: instance.ProjectID,
+			UserID:    instance.UserID,
+		}).
+		Where(
+			database.DB.Where("start_date > ? and start_date < ?", instance.StartDate, instance.EndDate).
+				Or("end_date > ? and end_date < ?", instance.StartDate, instance.EndDate).
+				Or("start_date <= ? and end_date >= ?", instance.StartDate, instance.EndDate).
+				Or("start_date >= ? and end_date <= ?", instance.StartDate, instance.EndDate),
+		).
+		Count(&c).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -53,8 +80,7 @@ func (s *workTimeService) Update(instance *model.WorkTime) (success bool, err er
 	}
 
 	err = database.DB.Where(&model.WorkTime{ID: instance.ID}).Updates(&model.WorkTime{
-		TargetID:     instance.TargetID,
-		TargetType:   instance.TargetType,
+		ProjectID:    instance.ProjectID,
 		WorkTime:     instance.WorkTime,
 		WorkContent:  instance.WorkContent,
 		ReviewerID:   instance.ReviewerID,
@@ -118,8 +144,7 @@ func (s *workTimeService) PaginateBetweenTimes(condition *model.WorkTime, limit 
 	}
 
 	err = tx.Find(&list, &model.WorkTime{
-		TargetID:   condition.TargetID,
-		TargetType: condition.TargetType,
+		ProjectID:  condition.ProjectID,
 		UserID:     condition.UserID,
 		ReviewerID: condition.ReviewerID,
 		Status:     condition.Status,

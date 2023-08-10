@@ -364,6 +364,30 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: "/workTime",
+    name: "WorkTime",
+    component: () => import("@/layout/Primary.vue"),
+    redirect: {
+      name: "WorkTimeFilling"
+    },
+    meta: {
+      activeMenuKey: "WorkTime",
+      activeSubMenuKey: "WorkTimeFilling"
+    },
+    children: [
+      {
+        path: "filling",
+        name: "WorkTimeFilling",
+        component: () => import("@/views/workTime/index.vue"),
+        meta: {
+          label: () => "工时填报",
+          activeMenuKey: "WorkTime",
+          activeSubMenuKey: "WorkTimeFilling"
+        }
+      }
+    ]
+  },
+  {
     path: "/editor/:id/:versionId?",
     name: "Editor",
     component: () => import("@/views/docEditor/index.vue")
