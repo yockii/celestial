@@ -80,6 +80,8 @@ const statusColumn = reactive({
         return "正常"
       case 2:
         return "禁用"
+      case -9:
+        return "离职"
       default:
         return "未知"
     }
@@ -95,6 +97,10 @@ const statusColumn = reactive({
     {
       label: "禁用",
       value: 2
+    },
+    {
+      label: "离职",
+      value: -9
     }
   ]
 })
@@ -487,6 +493,10 @@ const handleAssignRole = (row: User) => {
                   {
                     label: '禁用',
                     value: 2
+                  },
+                  {
+                    label: '离职',
+                    value: -9
                   }
                 ]"
               >

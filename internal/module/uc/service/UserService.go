@@ -192,6 +192,12 @@ func (s *userService) PaginateBetweenTimes(condition *model.User, limit int, off
 		tx = tx.Where("real_name like ?", "%"+condition.RealName+"%")
 		condition.RealName = ""
 	}
+
+	// 不查询离职的人
+	if condition.Status == 0 {
+		tx = tx.Where("status != ?", model.UserStatusLeaved)
+	}
+
 	err = tx.Omit("password").Find(&list, condition).Limit(-1).Offset(-1).Count(&total).Error
 	if err != nil {
 		return 0, nil, err
