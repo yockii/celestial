@@ -343,6 +343,12 @@ func (_ *projectController) Instance(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ID, constant.ResourceProjectInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
+
 	instance, err := service.ProjectService.Instance(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{

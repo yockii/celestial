@@ -247,6 +247,19 @@ func (c *projectRiskController) List(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project id",
+		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectRisk); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
+
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {
 		logger.Errorln(err)
@@ -299,6 +312,7 @@ func (c *projectRiskController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
+
 	dept, err := service.ProjectRiskService.Instance(condition.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -306,6 +320,13 @@ func (c *projectRiskController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, dept.ProjectID, constant.ResourceProjectInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
+
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
 	})
@@ -326,6 +347,12 @@ func (c *projectRiskController) CalculateRiskByProject(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " projectId",
 		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, condition.ProjectID, constant.ResourceProjectInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
 	}
 	riskScore, maxRiskInfo, err := service.ProjectRiskService.CalculateRiskByProject(condition.ProjectID)
 	if err != nil {

@@ -228,7 +228,18 @@ func (c *projectTestCaseController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project_id",
+		})
+	}
 
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseList); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {
 		logger.Errorln(err)
@@ -288,6 +299,12 @@ func (c *projectTestCaseController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, dept.ProjectID, constant.ResourceProjectTestCaseInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
 	})
@@ -301,6 +318,19 @@ func (c *projectTestCaseController) ListWithItems(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamParseError,
 			Msg:  server.ResponseMsgParamParseError,
 		})
+	}
+
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project_id",
+		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTestCaseList); err != nil {
+		return err
+	} else if !success {
+		return nil
 	}
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {

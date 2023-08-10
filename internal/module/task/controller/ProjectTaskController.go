@@ -254,7 +254,18 @@ func (c *projectTaskController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project_id",
+		})
+	}
 
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectTask); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {
 		logger.Errorln(err)
@@ -377,6 +388,12 @@ func (c *projectTaskController) TaskDurationByProject(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " projectId",
 		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, condition.ProjectID, constant.ResourceProjectInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
 	}
 
 	tcList := make(map[string]*server.TimeCondition)

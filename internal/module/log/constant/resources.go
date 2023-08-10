@@ -1,4 +1,4 @@
-package constant
+package _constant
 
 // 日志
 const (

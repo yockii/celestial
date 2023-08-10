@@ -15,9 +15,9 @@ func InitRouter() {
 		projectTask.Post("/add", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.Add)
 		projectTask.Delete("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.Delete)
 		projectTask.Put("/update", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.Update)
-		projectTask.Get("/list", middleware.NeedAuthorization(constant.ResourceProjectTaskList, constant.ResourceAllProjectDetail), ProjectTaskController.List)
+		projectTask.Get("/list", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.List)
 		projectTask.Get("/instance", middleware.NeedAuthorization(constant.ResourceProjectTaskInstance, constant.ResourceAllProjectDetail), ProjectTaskController.Instance)
-		projectTask.Get("/statisticsByProject", middleware.NeedAuthorization(constant.ResourceProjectInstance, constant.ResourceAllProjectDetail), ProjectTaskController.TaskDurationByProject)
+		projectTask.Get("/statisticsByProject", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.TaskDurationByProject)
 		projectTask.Put("/cancel", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusCancel))
 		projectTask.Put("/confirm", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusConfirmed))
 		projectTask.Put("/start", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusDoing))
@@ -27,7 +27,7 @@ func InitRouter() {
 		projectTask.Put("/testPass", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.MemberUpdateStatus(model.ProjectTaskStatusTestPass))
 		projectTask.Put("/done", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusDone))
 		projectTask.Put("/restart", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.UpdateStatus(model.ProjectTaskStatusNotStart))
-		projectTask.Get("/listMine", middleware.NeedAuthorization(constant.ResourceProjectTaskList, constant.ResourceAllProjectDetail), ProjectTaskController.ListMine)
+		projectTask.Get("/listMine", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.ListMine)
 
 		// 对于禁用put和delete方法时的处理
 		projectTask.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectTaskController.Delete)

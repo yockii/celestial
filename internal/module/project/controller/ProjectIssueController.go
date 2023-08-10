@@ -226,6 +226,18 @@ func (c *projectIssueController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project_id",
+		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectIssue); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {
@@ -285,6 +297,12 @@ func (c *projectIssueController) Instance(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, dept.ProjectID, constant.ResourceProjectIssueInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,

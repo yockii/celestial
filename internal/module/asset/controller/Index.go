@@ -20,7 +20,7 @@ func InitRouter() {
 		assetCategory.Post("/add", middleware.NeedAuthorization(constant.ResourceAssetCategory), AssetCategoryController.Add)
 		assetCategory.Delete("/delete", middleware.NeedAuthorization(constant.ResourceAssetCategoryDelete), AssetCategoryController.Delete)
 		assetCategory.Put("/update", middleware.NeedAuthorization(constant.ResourceAssetCategoryUpdate), AssetCategoryController.Update)
-		assetCategory.Get("/list", middleware.NeedAuthorization(constant.ResourceAssetCategoryList, constant.ResourceProjectAsset), AssetCategoryController.List)
+		assetCategory.Get("/list", middleware.NeedAuthorization(constant.NeedLogin), AssetCategoryController.List)
 		assetCategory.Get("/instance", middleware.NeedAuthorization(constant.ResourceAssetCategoryInstance), AssetCategoryController.Instance)
 
 		// 对于禁用put和delete方法时的处理

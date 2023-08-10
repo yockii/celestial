@@ -215,7 +215,18 @@ func (c *projectPlanController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
+	if instance.ProjectID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " project_id",
+		})
+	}
 
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, instance.ProjectID, constant.ResourceProjectPlan); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 	paginate := new(server.Paginate)
 	if err := ctx.QueryParser(paginate); err != nil {
 		logger.Errorln(err)
@@ -275,6 +286,12 @@ func (c *projectPlanController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, dept.ProjectID, constant.ResourceProjectPlanInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
+	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
 	})
@@ -295,6 +312,12 @@ func (c *projectPlanController) ExecutingPlanByProject(ctx *fiber.Ctx) error {
 			Code: server.ResponseCodeParamNotEnough,
 			Msg:  server.ResponseMsgParamNotEnough + " projectId",
 		})
+	}
+
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, condition.ProjectID, constant.ResourceProjectPlanInstance); err != nil {
+		return err
+	} else if !success {
+		return nil
 	}
 	condition.Status = model.ProjectPlanStatusStarted
 	plan, err := service.ProjectPlanService.Instance(condition)

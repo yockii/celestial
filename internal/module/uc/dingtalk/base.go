@@ -2,7 +2,6 @@ package dingtalk
 
 import (
 	logger "github.com/sirupsen/logrus"
-	"github.com/yockii/celestial/internal/module/uc/constant"
 	"github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/cache"
 	"io"
@@ -10,6 +9,8 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+
+	coreConstant "github.com/yockii/celestial/internal/constant"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/tidwall/gjson"
@@ -83,7 +84,7 @@ func (c *client) getAccessToken() error {
 	defer func(redisConn redis.Conn) {
 		_ = redisConn.Close()
 	}(redisConn)
-	key := constant.RedisKeyDingtalkAccessToken + ":" + strconv.FormatUint(c.sourceId, 10)
+	key := coreConstant.RedisKeyDingtalkAccessToken + ":" + strconv.FormatUint(c.sourceId, 10)
 	token, _ := redis.String(redisConn.Do("GET", key))
 	if token != "" {
 		ttl, _ := redis.Int(redisConn.Do("TTL", key))
