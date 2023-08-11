@@ -333,3 +333,15 @@ func (s *projectService) MyProjects(uid uint64, condition *model.Project) (list 
 	}
 	return
 }
+
+func (s *projectService) ListAllForWorkTimeStatistics() (list []*model.Project, err error) {
+	err = database.DB.Model(&model.Project{}).
+		Omit("description").
+		Where("parent_id = ?", 0).
+		Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}

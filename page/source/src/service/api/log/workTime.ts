@@ -1,4 +1,4 @@
-import { WorkTime, WorkTimeCondition } from "@/types/log"
+import { WorkTime, WorkTimeCondition, WorkTimeStatisticsCondition } from "@/types/log"
 import { request } from "../../request"
 import { Paginate } from "@/types/common"
 
@@ -40,4 +40,10 @@ export function getWorkTimeList(condition: WorkTimeCondition) {
 
 /**
  * 获取工时统计信息
+ * @param condition
  */
+export function getWorkTimeStatistics(condition: WorkTimeStatisticsCondition) {
+  return request.get<WorkTime[]>("/workTime/statistics", {
+    params: condition
+  })
+}

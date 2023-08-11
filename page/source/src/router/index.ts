@@ -384,6 +384,16 @@ const routes: Array<RouteRecordRaw> = [
           activeMenuKey: "WorkTime",
           activeSubMenuKey: "WorkTimeFilling"
         }
+      },
+      {
+        path: "statistics",
+        name: "WorkTimeStatistics",
+        component: () => import("@/views/workTime/statistics/index.vue"),
+        meta: {
+          label: () => "工时统计",
+          activeMenuKey: "WorkTime",
+          activeSubMenuKey: "WorkTimeStatistics"
+        }
       }
     ]
   },

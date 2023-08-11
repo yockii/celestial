@@ -22,6 +22,7 @@ func InitRouter() {
 		workTime.Put("/update", middleware.NeedAuthorization(constant.ResourceWorkTimeUpdate), WorkTimeController.Update)
 		workTime.Get("/list", middleware.NeedAuthorization(constant.ResourceWorkTime), WorkTimeController.List)
 		//workTime.Get("/instance", middleware.NeedAuthorization(constant.ResourceWorkTimeInstance), WorkTimeController.Instance)
+		workTime.Get("/statistics", middleware.NeedAuthorization(constant.ResourceWorkTimeStatistics), WorkTimeController.Statistics)
 
 		// 对于禁用put和delete方法时的处理
 		workTime.Post("/delete", middleware.NeedAuthorization(constant.ResourceWorkTimeDelete), WorkTimeController.Delete)

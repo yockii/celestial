@@ -98,3 +98,10 @@ export function getMyProjectList(condition: ProjectCondition) {
     params: condition
   })
 }
+
+/**
+ * 工时统计获取所有项目列表
+ */
+export function getAllProjectListForWorkTimeStatistics() {
+  return request.get<Project[]>("/project/listAllForWorkTimeStatistics")
+}

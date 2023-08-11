@@ -6,7 +6,10 @@
     <n-gi :span="7">
       <n-grid :cols="4" x-gap="16" y-gap="8">
         <n-gi :span="4">
-          <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
+          <n-space justify="space-between">
+            <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
+            <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small" @click="showStatistics()">查看统计</n-button>
+          </n-space>
         </n-gi>
         <n-gi v-for="workTime in workTimeList" :key="workTime.id">
           <n-card size="small" :title="dayjs(workTime.startDate).format('YYYY-MM-DD') + ' → ' + dayjs(workTime.endDate).format('YYYY-MM-DD')">
@@ -42,11 +45,13 @@
         <n-form-item label="工作内容简述">
           <n-input type="textarea" v-model:value="instance.workContent" />
         </n-form-item>
-        <n-form-item>
-          <n-button type="primary" @click="addDrawer = false">取消</n-button>
-          <n-button type="primary" @click="submitWorkTime()">确定</n-button>
-        </n-form-item>
       </n-form>
+      <template #footer>
+        <n-space justify="space-between">
+          <n-button type="error" @click="addDrawer = false">取消</n-button>
+          <n-button type="primary" @click="submitWorkTime()">确定</n-button>
+        </n-space>
+      </template>
     </n-drawer-content>
   </n-drawer>
 </template>
@@ -56,8 +61,10 @@ import MyProjectList from "@/components/project/MyProjectList.vue"
 import { WorkTime, WorkTimeCondition } from "@/types/log"
 import { addWorkTime, deleteWorkTime, getWorkTimeList, updateWorkTime } from "@/service"
 import dayjs from "dayjs"
+import { useUserStore } from "@/store/user"
 
 const message = useMessage()
+const userStore = useUserStore()
 
 const selectedProjectId = ref("")
 const handleSelectedProjectIdUpdate = (id: string | undefined) => {
@@ -181,6 +188,14 @@ const handleDeleteWorkTime = (id: string) => {
       message.success("删除成功")
       refreshWorkTimeList()
     }
+  })
+}
+
+const router = useRouter()
+// 查看工时统计
+const showStatistics = () => {
+  router.push({
+    name: "WorkTimeStatistics"
   })
 }
 </script>

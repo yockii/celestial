@@ -3,7 +3,10 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/module/log/domain"
 	"github.com/yockii/celestial/internal/module/log/model"
+	projectModel "github.com/yockii/celestial/internal/module/project/model"
+	ucModel "github.com/yockii/celestial/internal/module/uc/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
 	"github.com/yockii/ruomu-core/util"
@@ -62,6 +65,12 @@ func (s *workTimeService) Add(instance *model.WorkTime) (duplicated bool, succes
 		return
 	}
 
+	instance.TopProjectID, err = s.findTopProjectID(instance.ProjectID)
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+
 	instance.ID = util.SnowflakeId()
 
 	if err = database.DB.Create(instance).Error; err != nil {
@@ -70,6 +79,18 @@ func (s *workTimeService) Add(instance *model.WorkTime) (duplicated bool, succes
 	}
 	success = true
 	return
+}
+
+func (s *workTimeService) findTopProjectID(projectID uint64) (parentID uint64, err error) {
+	project := &projectModel.Project{ID: projectID}
+	if err = database.DB.Model(project).Where(project).First(project).Error; err != nil {
+		logger.Errorln(err)
+		return
+	}
+	if project.ParentID == 0 {
+		return projectID, nil
+	}
+	return s.findTopProjectID(project.ParentID)
 }
 
 // Update 更新资源基本信息
@@ -166,6 +187,73 @@ func (s *workTimeService) Instance(id uint64) (instance *model.WorkTime, err err
 	if err = database.DB.Where(&model.WorkTime{ID: id}).First(instance).Error; err != nil {
 		logger.Errorln(err)
 		return
+	}
+	return
+}
+
+func (s *workTimeService) Statistics(condition *domain.WorkTimeStatisticsRequest) (result []*domain.WorkTimeStatisticsResponse, err error) {
+	tx := database.DB.Model(&model.WorkTime{})
+
+	var department *ucModel.Department
+	if condition != nil {
+		if condition.DepartmentID != 0 {
+			department = &ucModel.Department{ID: condition.DepartmentID}
+			if err = database.DB.Model(department).Where(department).First(department).Error; err != nil {
+				logger.Errorln(err)
+				return
+			}
+			tx = tx.Where(
+				"user_id in (?)",
+				database.DB.Model(&ucModel.UserDepartment{}).Select("user_id").Where("department_path like ?", department.FullPath+"%"),
+			)
+		}
+		if condition.DateCondition == nil || condition.DateCondition.Start == 0 || condition.DateCondition.End == 0 {
+			err = errors.New("date condition is required")
+			return
+		}
+		tx = tx.Where("not ((start_date <= ? and end_date <= ?) or (start_date >= ? and end_date >= ?))",
+			condition.DateCondition.Start, condition.DateCondition.Start,
+			condition.DateCondition.End, condition.DateCondition.End,
+		)
+	}
+
+	var list []*model.WorkTime
+	err = tx.Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+
+	// 取出所有需要的用户
+	var users []*ucModel.User
+	tx = database.DB.Model(&ucModel.User{})
+	if department != nil {
+		tx = tx.Where("id in (?)",
+			database.DB.Model(&ucModel.UserDepartment{}).Select("user_id").Where("department_path like ?", department.FullPath+"%"),
+		)
+	}
+	err = tx.Find(&users).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+
+	// 匹配list中的userID，构造result返回
+	for _, wt := range list {
+		var user *ucModel.User
+		for _, u := range users {
+			if u.ID == wt.UserID {
+				user = u
+				break
+			}
+		}
+		if user == nil {
+			continue
+		}
+		result = append(result, &domain.WorkTimeStatisticsResponse{
+			WorkTime: *wt,
+			Name:     user.RealName,
+		})
 	}
 	return
 }

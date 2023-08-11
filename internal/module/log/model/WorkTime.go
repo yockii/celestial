@@ -9,6 +9,7 @@ type WorkTime struct {
 	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
 	UserID       uint64 `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
 	ProjectID    uint64 `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	TopProjectID uint64 `json:"topProjectId,omitempty,string" gorm:"index;comment:顶级项目ID"`
 	WorkTime     int64  `json:"workTime,omitempty" gorm:"comment:工时,单位:秒"`
 	StartDate    int64  `json:"startDate,omitempty" gorm:"comment:开始日期"`
 	EndDate      int64  `json:"endDate,omitempty" gorm:"comment:结束日期"`
@@ -29,6 +30,7 @@ func (wt *WorkTime) UnmarshalJSON(b []byte) error {
 	wt.ID = j.Get("id").Uint()
 	wt.UserID = j.Get("userId").Uint()
 	wt.ProjectID = j.Get("projectId").Uint()
+	wt.TopProjectID = j.Get("topProjectId").Uint()
 	wt.WorkTime = j.Get("workTime").Int()
 	wt.StartDate = j.Get("startDate").Int()
 	wt.EndDate = j.Get("endDate").Int()

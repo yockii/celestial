@@ -236,3 +236,25 @@ func (c *workTimeController) Instance(ctx *fiber.Ctx) error {
 		Data: dept,
 	})
 }
+
+func (c *workTimeController) Statistics(ctx *fiber.Ctx) error {
+	instance := new(domain.WorkTimeStatisticsRequest)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+
+	list, err := service.WorkTimeService.Statistics(instance)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}
