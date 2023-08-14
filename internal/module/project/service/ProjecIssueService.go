@@ -158,6 +158,12 @@ func (s *projectIssueService) PaginateBetweenTimes(condition *model.ProjectIssue
 	// 排除大字段
 	tx = tx.Omit("content", "issue_cause", "solve_method")
 
+	if condition.AssigneeID != 0 && condition.AssigneeID == condition.CreatorID {
+		tx = tx.Where("assignee_id = ? or creator_id = ?", condition.AssigneeID, condition.CreatorID)
+		condition.AssigneeID = 0
+		condition.CreatorID = 0
+	}
+
 	err = tx.Find(&list, &model.ProjectIssue{
 		ID:         condition.ID,
 		TaskID:     condition.TaskID,

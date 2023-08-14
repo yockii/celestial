@@ -38,7 +38,7 @@ func main() {
 
 	// 初始化搜索引擎
 	if err := search.InitMeiliSearch(config.GetString("meilisearch.host"), config.GetString("meilisearch.apiKey"), config.GetString("meilisearch.index")); err != nil {
-		logger.Warnln(err)
+		logger.Warnln("初始化全文检索失败! ", err)
 	}
 
 	// 初始化数据

@@ -76,12 +76,11 @@ func (s *projectService) Update(instance, oldInstance *model.Project) (success b
 	}
 
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
-		err = tx.Where(&model.Project{ID: instance.ID}).Updates(&model.Project{
+		err = tx.Where(&model.Project{ID: instance.ID}).Select("name", "parent_id", "code", "description").Updates(&model.Project{
 			Name:        instance.Name,
+			ParentID:    instance.ParentID,
 			Code:        instance.Code,
 			Description: instance.Description,
-			OwnerID:     instance.OwnerID,
-			StageID:     instance.StageID,
 		}).Error
 		if err != nil {
 			logger.Errorln(err)
@@ -339,6 +338,21 @@ func (s *projectService) ListAllForWorkTimeStatistics() (list []*model.Project, 
 		Omit("description").
 		Where("parent_id = ?", 0).
 		Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	return
+}
+
+func (s *projectService) ListTop(name string) (list []*model.Project, err error) {
+	tx := database.DB.Model(&model.Project{}).
+		Omit("description").
+		Where("parent_id = ?", 0)
+	if name != "" {
+		tx = tx.Where("name like ?", "%"+name+"%")
+	}
+	err = tx.Find(&list).Error
 	if err != nil {
 		logger.Errorln(err)
 		return

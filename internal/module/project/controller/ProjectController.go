@@ -512,3 +512,17 @@ func (_ *projectController) listAllForWorkTimeStatistics(ctx *fiber.Ctx) error {
 		Data: list,
 	})
 }
+
+func (_ *projectController) TopList(ctx *fiber.Ctx) error {
+	list, err := service.ProjectService.ListTop(ctx.Query("name"))
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+
+	return ctx.JSON(&server.CommonResponse{
+		Data: list,
+	})
+}

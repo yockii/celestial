@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router"
 import { ref, onMounted } from "vue"
 import { Project } from "@/types/project"
-import { deleteProject, getProjectDetail, getProjectResourceCode, updateProject } from "@/service/api"
+import { deleteProject, getProjectDetail, getProjectResourceCode, updateProject, getTopProjects } from "@/service/api"
 import { KeyboardBackspaceOutlined } from "@vicons/material"
 import { SettingsServices, Delete } from "@vicons/carbon"
 import { FormInst, NButton } from "naive-ui"
@@ -55,6 +55,22 @@ const handleCommitProject = (e: MouseEvent) => {
       }
     }
   })
+}
+
+// 顶级项目筛选
+const loadingTopProjects = ref<boolean>(false)
+const topProjects = ref<Project[]>([])
+const handleSearchTopProject = (query: string) => {
+  loadingTopProjects.value = true
+  getTopProjects(query)
+    .then((res) => {
+      if (res) {
+        topProjects.value = res || []
+      }
+    })
+    .finally(() => {
+      loadingTopProjects.value = false
+    })
 }
 
 // 删除项目 ////////////////////////////
@@ -188,6 +204,20 @@ onMounted(() => {
       <n-form ref="formRef" :model="copiedProject" :rules="projectRules" label-width="100px" label-placement="left">
         <n-form-item label="项目名称" path="name">
           <n-input v-model:value="copiedProject!.name" placeholder="请输入项目名称" />
+        </n-form-item>
+        <n-form-item label="主项目">
+          <n-select
+            v-model:value="copiedProject!.parentId"
+            placeholder="请选择主项目"
+            filterable
+            clearable
+            remote
+            label-field="name"
+            value-field="id"
+            :loading="loadingTopProjects"
+            :options="topProjects"
+            @search="handleSearchTopProject"
+          />
         </n-form-item>
         <n-form-item label="项目代码" path="code">
           <n-input v-model:value="copiedProject!.code" placeholder="请输入项目代码" />

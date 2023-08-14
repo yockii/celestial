@@ -99,6 +99,10 @@ export function getMyProjectList(condition: ProjectCondition) {
   })
 }
 
+export function getTopProjects(query: string) {
+  return request.get<Project[]>(`/project/topList?name=${query}`)
+}
+
 /**
  * 工时统计获取所有项目列表
  */

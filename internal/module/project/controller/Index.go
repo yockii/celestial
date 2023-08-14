@@ -35,6 +35,7 @@ func InitRouter() {
 		project.Get("/resourceCode", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.MemberResourceCode)
 		project.Get("/myProjectList", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.MyProjectList)
 		project.Get("/listAllForWorkTimeStatistics", middleware.NeedAuthorization(constant.ResourceWorkTimeStatistics), ProjectController.listAllForWorkTimeStatistics)
+		project.Get("/topList", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.TopList)
 
 		// 对于禁用put和delete方法时的处理
 		project.Post("/delete", middleware.NeedAuthorization(constant.NeedLogin), ProjectController.Delete)
