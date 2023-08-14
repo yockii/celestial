@@ -1,6 +1,7 @@
 package job
 
 import (
+	"fmt"
 	logger "github.com/sirupsen/logrus"
 	logModel "github.com/yockii/celestial/internal/module/log/model"
 	"github.com/yockii/celestial/internal/module/uc/dingtalk"
@@ -19,10 +20,20 @@ func init() {
 	}
 }
 
+func getThisMondayTimestamp(now time.Time) time.Time {
+	offset := int(time.Monday - now.Weekday())
+	if offset > 0 {
+		offset = -6
+	}
+	weekMonday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset)
+	fmt.Println(weekMonday.Format(time.DateTime))
+	return weekMonday
+}
+
 func CheckWorkTime() {
 	// 检查本周工时
 	now := time.Now()
-	monday := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	monday := getThisMondayTimestamp(now)
 	// 查询所有结束时间大于monday的工时记录
 	var workTimeList []*logModel.WorkTime
 	err := database.DB.Where("end_date > ?", monday.UnixMilli()).Find(&workTimeList).Error
