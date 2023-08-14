@@ -15,7 +15,10 @@ import {
   DataTableSortState,
   NIcon,
   NTooltip,
-  NInput
+  NInput,
+  NCheckbox,
+  DataTableColumn,
+  DataTableBaseColumn
 } from "naive-ui"
 import RoleDrawer from "./roleDrawer/index.vue"
 import { useUserStore } from "@/store/user"
@@ -43,6 +46,7 @@ const refresh = () => {
       paginationReactive.itemCount = res.total
       paginationReactive.pageCount = Math.ceil(res.total / (condition.value.limit || 10))
       paginationReactive.page = Math.ceil((condition.value.offset || 0) / (condition.value.limit || 10)) + 1
+
       statusColumn.filterOptionValues = [condition.value.status || 0]
     })
     .finally(() => {
@@ -71,7 +75,7 @@ const handlePageSizeChange = (pageSize: number) => {
   condition.value.limit = pageSize
   refresh()
 }
-const statusColumn = reactive({
+const statusColumn = reactive<DataTableBaseColumn<User>>({
   title: "状态",
   key: "status",
   render: (row: User) => {
@@ -104,37 +108,75 @@ const statusColumn = reactive({
     }
   ]
 })
-const createTimeColumn = reactive({
+const extTypeColumn = reactive<DataTableColumn<User>>({
+  title: "扩展",
+  key: "extType",
+  render: (row: User) => {
+    // 可勾选，实时更新，-1-无任何扩展 1-工时需填报
+    const extType = row.extType || -1
+    return h(
+      NCheckbox,
+      {
+        checked: extType === 1,
+        "onUpdate:checked": (checked: boolean) => {
+          if (checked) {
+            row.extType = 1
+          } else {
+            row.extType = -1
+          }
+          updateUser({
+            id: row.id,
+            extType: row.extType
+          }).then((res) => {
+            if (res) {
+              message.success("更新成功")
+            } else {
+              message.error("更新失败")
+            }
+          })
+        }
+      },
+      {
+        default: () => "填报工时"
+      }
+    )
+  }
+})
+const createTimeColumn = reactive<DataTableColumn<User>>({
   title: "创建时间",
   key: "createTime",
   // 时间戳转换为 yyyy-MM-dd HH:mm:ss的形式
-  render: (row: User) => dayjs(row.createTime).fromNow(),
+  render: (row: User) => h("div", {}, dayjs(row.createTime).fromNow()),
   // 排序
   sorter: true,
   sortOrder: false
 })
-const columns = [
-  {
-    title: "用户名",
-    key: "username"
-  },
-  {
-    title: "姓名",
-    key: "realName"
-  },
-  {
-    title: "邮箱",
-    key: "email"
-  },
-  {
-    title: "手机号",
-    key: "mobile",
-    // 中间四位隐藏
-    render: (row: User) => row.mobile?.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2")
-  },
-  statusColumn,
-  createTimeColumn,
-  {
+const columns = computed(() => {
+  const result: DataTableColumn<User>[] = [
+    {
+      title: "用户名",
+      key: "username"
+    },
+    {
+      title: "姓名",
+      key: "realName"
+    },
+    {
+      title: "邮箱",
+      key: "email"
+    },
+    {
+      title: "手机号",
+      key: "mobile",
+      // 中间四位隐藏
+      render: (row: User) => h("div", {}, row.mobile?.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2"))
+    },
+    statusColumn
+  ]
+  if (userStore.hasResourceCode("system:user:edit")) {
+    result.push(extTypeColumn)
+  }
+  result.push(createTimeColumn, {
     title: "操作",
     key: "operation",
     // 返回VNode, 用于渲染操作按钮
@@ -300,8 +342,11 @@ const columns = [
 
       return h(NButtonGroup, {}, () => btnGroup)
     }
-  }
-]
+  })
+
+  return result
+})
+
 const handleFiltersChange = (filters: DataTableFilterState) => {
   if (!loading.value) {
     const filterValues = filters.status || []
@@ -315,7 +360,7 @@ const handleSorterChange = (sorter: DataTableSortState) => {
   if (!loading.value) {
     const { columnKey, order } = sorter
     if (columnKey === "createTime") {
-      createTimeColumn.sortOrder = order === "ascend"
+      // createTimeColumn.sortOrder = order === "ascend"
       condition.value.orderBy = "create_time " + (order === "ascend" ? "asc" : "desc")
       refresh()
     }

@@ -416,6 +416,8 @@ github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5 h1:mZHayPoR0lNmnH
 github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5/go.mod h1:GEXHk5HgEKCvEIIrSpFI3ozzG5xOKA2DVlEX/gGnewM=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
+github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
+github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.6.1 h1:/FiVV8dS/e+YqF2JvO3yXRFbBLTIuSDkuC7aBOAvL+k=
@@ -493,10 +495,6 @@ github.com/valyala/fasthttp v1.47.0 h1:y7moDoxYzMooFpT5aHgNgVOQDrS3qlkfiP9mDtGGK
 github.com/valyala/fasthttp v1.47.0/go.mod h1:k2zXd82h/7UZc3VOdJ2WaUqt1uZ/XpXAfE9i+HBC3lA=
 github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVSA8=
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
-github.com/yockii/ruomu-core v0.0.0-20230629075339-77ff33ba33a5 h1:gMwZirDs+FElAujTCuiEY9koc5KAs9Hh1jWsADh/MT4=
-github.com/yockii/ruomu-core v0.0.0-20230629075339-77ff33ba33a5/go.mod h1:fuodApJqT2dLoFg2F7IQllBf0ya4t7UZxDIIadl1LEA=
-github.com/yockii/ruomu-core v0.0.0-20230704030644-8d1f97816080 h1:kAzEp4VPs84XGDJ3d8n9XwY5y2MFfylyWTZrDPGhi5Y=
-github.com/yockii/ruomu-core v0.0.0-20230704030644-8d1f97816080/go.mod h1:fuodApJqT2dLoFg2F7IQllBf0ya4t7UZxDIIadl1LEA=
 github.com/yockii/ruomu-core v0.0.0-20230710100836-8c4bbbd189df h1:83vQQ6VCUzOAd2aBt+EmHgDJFqgzgjG2EfoakJ8klWI=
 github.com/yockii/ruomu-core v0.0.0-20230710100836-8c4bbbd189df/go.mod h1:fuodApJqT2dLoFg2F7IQllBf0ya4t7UZxDIIadl1LEA=
 github.com/yockii/snowflake_ext v0.1.0 h1:OGd10s8xeUuNf7e2QvnS2+zqyzo5n9dLkVft5Qn8jT0=

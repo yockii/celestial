@@ -116,6 +116,7 @@ func (s *userService) Update(instance *model.User) (success bool, err error) {
 		Status:   instance.Status,
 		Email:    instance.Email,
 		Mobile:   instance.Mobile,
+		ExtType:  instance.ExtType,
 	}).Error
 	if err != nil {
 		logger.Errorln(err)

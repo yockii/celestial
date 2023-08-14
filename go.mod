@@ -12,6 +12,7 @@ require (
 	github.com/meilisearch/meilisearch-go v0.25.0
 	github.com/minio/minio-go/v7 v7.0.56
 	github.com/panjf2000/ants/v2 v2.7.5
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/gjson v1.14.4

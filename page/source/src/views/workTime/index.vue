@@ -119,7 +119,7 @@ const isRangeDateDisabled = (ts: number, type: "start" | "end", range: [number, 
     return ts > Date.now()
   }
   if (type === "end" && range) {
-    const result = ts > Date.now() || ts < range[0] || ts > dayjs(range[0]).day(7).valueOf()
+    const result = ts > Date.now()
     return result
   }
   return false

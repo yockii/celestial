@@ -46,7 +46,7 @@ type ThirdUser struct {
 	SourceID   uint64 `json:"sourceId,omitempty,string" gorm:"comment:第三方来源ID"`
 	UserID     uint64 `json:"userId,omitempty,string" gorm:"comment:关联的用户ID"`
 	SourceCode string `json:"sourceCode,omitempty" gorm:"size:50;comment:第三方来源代码"` // 第三方来源代码
-	OpenID     string `json:"openId,omitempty" gorm:"size:50;comment:第三方openId"`   // 第三方openId
+	OpenID     string `json:"openId,omitempty" gorm:"size:50;comment:第三方openId"`   // 第三方openId，即dingtalk的staffId
 	UnionID    string `json:"unionId,omitempty" gorm:"size:50;comment:第三方unionId"` // 第三方unionId
 	Info       string `json:"info,omitempty" gorm:"size:1000;comment:第三方用户json信息"` // 第三方用户信息
 	Status     int    `json:"status,omitempty" gorm:"comment:状态 1-正常"`

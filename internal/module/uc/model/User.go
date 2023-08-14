@@ -18,6 +18,7 @@ type User struct {
 	Email      string `json:"email,omitempty" gorm:"size:50;comment:邮箱"`
 	Mobile     string `json:"mobile,omitempty" gorm:"size:50;comment:手机号"`
 	Status     int    `json:"status,omitempty" gorm:"comment:状态 1-正常"`
+	ExtType    int    `json:"extType,omitempty" gorm:"comment:扩展类型 -1-无任何扩展类型 1-需要工时填报"`
 	CreateTime int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }
@@ -35,6 +36,7 @@ func (u *User) UnmarshalJSON(b []byte) error {
 	u.Email = j.Get("email").String()
 	u.Mobile = j.Get("mobile").String()
 	u.Status = int(j.Get("status").Int())
+	u.ExtType = int(j.Get("extType").Int())
 
 	return nil
 }
