@@ -21,6 +21,7 @@ const condition = ref<ProjectCondition>({
 })
 const total = ref(0)
 const projectList = ref<Project[]>([])
+const listTotal = ref(0)
 
 const refresh = (append = false) => {
   if (!append) {
@@ -29,6 +30,7 @@ const refresh = (append = false) => {
     condition.value.offset = projectList.value.length
   }
   getProjectList(condition.value).then((res) => {
+    listTotal.value = res.total || 0
     if (append) {
       projectList.value = projectList.value.concat(res.items || [])
     } else {
@@ -203,7 +205,7 @@ const timeBefore = computed(() => (t: number) => dayjs(t).fromNow())
             </n-grid>
           </n-card>
         </n-gi>
-        <n-gi v-if="total > projectList.length" class="text-center cursor-pointer" @click="refresh(true)"> 加载更多... </n-gi>
+        <n-gi v-if="listTotal > projectList.length" class="text-center cursor-pointer" @click="refresh(true)"> 加载更多... </n-gi>
       </n-grid>
     </n-gi>
     <n-gi :span="2">
