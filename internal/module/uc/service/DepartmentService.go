@@ -95,6 +95,7 @@ func (s *departmentService) Update(instance, oldInstance *model.Department) (suc
 	err = database.DB.Transaction(func(tx *gorm.DB) error {
 		err = tx.Model(&model.Department{ID: instance.ID}).Updates(&model.Department{
 			Name:         instance.Name,
+			ParentID:     instance.ParentID,
 			ExternalID:   instance.ExternalID,
 			ExternalJson: instance.ExternalJson,
 			OrderNum:     instance.OrderNum,

@@ -43,6 +43,18 @@ func (*userController) Register(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " username or password",
 		})
 	}
+
+	// 解析密码
+	if pwd, err := crypto.Sm2Decrypt(instance.Password); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError + "密码不准确",
+		})
+	} else {
+		instance.Password = pwd
+	}
+
 	isStrong := util.PasswordStrengthCheck(8, 50, 4, instance.Password)
 	if !isStrong {
 		return ctx.JSON(&server.CommonResponse{
@@ -490,6 +502,9 @@ func (c *userController) UpdateSelf(ctx *fiber.Ctx) error {
 		})
 	}
 	instance.ID = uid
+	// 不允许自己更新自己的扩展类型和状态
+	instance.ExtType = 0
+	instance.Status = 0
 	success, err := service.UserService.Update(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{

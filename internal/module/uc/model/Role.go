@@ -20,7 +20,7 @@ const (
 
 const (
 	RoleStatusNormal  = 1
-	RoleStatusDisable = 2
+	RoleStatusDisable = -1
 )
 
 type Role struct {
@@ -31,7 +31,7 @@ type Role struct {
 	DataPermission int    `json:"dataPermission,omitempty" gorm:"comment:数据权限 1-全部数据权限 2-本部门及以下数据权限 3-仅本人数据权限"`
 	Style          string `json:"style,omitempty" gorm:"size:500;comment:角色样式"`
 	DefaultRole    int    `json:"defaultRole" gorm:"comment:默认角色 1-是 其他否"`
-	Status         int    `json:"status,omitempty" gorm:"comment:状态 1-启用 2-禁用"`
+	Status         int    `json:"status,omitempty" gorm:"comment:状态 1-启用 -1-禁用"`
 	CreateTime     int64  `json:"createTime" gorm:"autoCreateTime:milli"`
 	UpdateTime     int64  `json:"updateTime" gorm:"autoUpdateTime:milli"`
 }

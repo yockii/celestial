@@ -134,6 +134,8 @@ func (s *projectIssueService) PaginateBetweenTimes(condition *model.ProjectIssue
 	}
 	if orderBy != "" {
 		tx = tx.Order(orderBy)
+	} else {
+		tx = tx.Order("update_time desc")
 	}
 
 	// 处理时间字段，在某段时间之间
