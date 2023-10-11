@@ -18,7 +18,7 @@ require (
 	github.com/tidwall/gjson v1.14.4
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/yockii/ruomu-core v0.0.0-20230710100836-8c4bbbd189df
-	golang.org/x/crypto v0.10.0
+	golang.org/x/crypto v0.14.0
 	gorm.io/gorm v1.25.1
 )
 
@@ -74,9 +74,9 @@ require (
 	github.com/valyala/fasthttp v1.47.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/yockii/snowflake_ext v0.1.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
