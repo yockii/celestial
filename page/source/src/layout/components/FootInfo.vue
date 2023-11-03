@@ -1,7 +1,7 @@
 <template>
   <div class="h-12px line-height-12px b-t">
     <n-space class="text-1" justify="space-between">
-      <div class="scale-60" @click="readyForEruda">版本: v0.2.0.0724</div>
+      <div class="scale-60" @click="readyForEruda">版本: v0.2.1.1103</div>
       <div class="scale-60">© 2023-2028</div>
       <div class="scale-60">请求耗时: {{ lastRequestTime }}ms</div>
     </n-space>

@@ -173,7 +173,7 @@ const columns = computed(() => {
     },
     statusColumn
   ]
-  if (userStore.hasResourceCode("system:user:edit")) {
+  if (userStore.hasResourceCode("system:user:update")) {
     result.push(extTypeColumn)
   }
   result.push(createTimeColumn, {
@@ -213,7 +213,7 @@ const columns = computed(() => {
           )
         )
       }
-      if (userStore.hasResourceCode("system:user:edit")) {
+      if (userStore.hasResourceCode("system:user:update")) {
         btnGroup.push(
           h(
             NTooltip,
@@ -226,7 +226,7 @@ const columns = computed(() => {
                   {
                     size: "small",
                     secondary: true,
-                    disabled: !userStore.hasResourceCode("system:user:edit"),
+                    disabled: !userStore.hasResourceCode("system:user:update"),
                     type: "primary",
                     onClick: () => handleEditData(row)
                   },
