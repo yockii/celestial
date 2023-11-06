@@ -20,6 +20,8 @@ import (
 
 	_ "github.com/yockii/celestial/initial"
 	"github.com/yockii/ruomu-core/database"
+
+	_ "github.com/yockii/celestial/internal/job"
 )
 
 func main() {
