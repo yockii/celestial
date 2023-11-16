@@ -15,6 +15,7 @@ import (
 	testController "github.com/yockii/celestial/internal/module/test/controller"
 	ucController "github.com/yockii/celestial/internal/module/uc/controller"
 	"github.com/yockii/celestial/pkg/search"
+	"github.com/yockii/celestial/pkg/task"
 	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
 
@@ -45,6 +46,9 @@ func main() {
 
 	// 初始化数据
 	data.InitData()
+
+	task.Start()
+	defer task.Stop()
 
 	// 订阅消息
 	message.InitDingtalkMessageAdapter()
