@@ -45,7 +45,8 @@ export const updateAssetFile = (file: File) => {
 export const downloadAssetFile = (id: string) => {
   return request.get<Blob>("/assetFile/download", {
     params: { id },
-    responseType: "blob"
+    responseType: "blob",
+    timeout: 10 * 60 * 1000
   })
 }
 
