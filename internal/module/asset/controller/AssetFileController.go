@@ -424,12 +424,57 @@ func (c *assetFileController) Download(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamNotEnough + " id",
 		})
 	}
-	fileReader, err := service.AssetFileService.Download(instance.ID)
+	f, fileReader, err := service.AssetFileService.Download(instance.ID)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
+	}
+
+	switch f.Suffix {
+	case "pdf":
+		ctx.Set("Content-Type", "application/pdf")
+	case "doc":
+		ctx.Set("Content-Type", "application/msword")
+	case "docx":
+		ctx.Set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+	case "xls":
+		ctx.Set("Content-Type", "application/vnd.ms-excel")
+	case "xlsx":
+		ctx.Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	case "ppt":
+		ctx.Set("Content-Type", "application/vnd.ms-powerpoint")
+	case "pptx":
+		ctx.Set("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+	case "txt":
+		ctx.Set("Content-Type", "text/plain")
+	case "jpg":
+		ctx.Set("Content-Type", "image/jpeg")
+	case "png":
+		ctx.Set("Content-Type", "image/png")
+	case "gif":
+		ctx.Set("Content-Type", "image/gif")
+	case "bmp":
+		ctx.Set("Content-Type", "image/bmp")
+	case "mp4":
+		ctx.Set("Content-Type", "video/mp4")
+	case "mp3":
+		ctx.Set("Content-Type", "audio/mp3")
+	case "wav":
+		ctx.Set("Content-Type", "audio/wav")
+	case "zip":
+		ctx.Set("Content-Type", "application/zip")
+	case "rar":
+		ctx.Set("Content-Type", "application/x-rar-compressed")
+	case "7z":
+		ctx.Set("Content-Type", "application/x-7z-compressed")
+	case "tar":
+		ctx.Set("Content-Type", "application/x-tar")
+	case "gz":
+		ctx.Set("Content-Type", "application/x-gzip")
+	case "bz2":
+		ctx.Set("Content-Type", "application/x-bzip2")
 	}
 
 	return ctx.SendStream(fileReader)

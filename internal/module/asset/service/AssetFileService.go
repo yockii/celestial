@@ -404,10 +404,10 @@ func (s *assetFileService) initOsManager() (err error) {
 	return nil
 }
 
-func (s *assetFileService) Download(id uint64) (reader io.ReadCloser, err error) {
-	instance, err := s.Instance(id)
+func (s *assetFileService) Download(id uint64) (instance *model.File, reader io.ReadCloser, err error) {
+	instance, err = s.Instance(id)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if s.osManager == nil {
 		// 初始化新的osManager
@@ -415,7 +415,8 @@ func (s *assetFileService) Download(id uint64) (reader io.ReadCloser, err error)
 			return
 		}
 	}
-	return s.osManager.GetObject(instance.ObjName)
+	reader, err = s.osManager.GetObject(instance.ObjName)
+	return
 }
 
 func (s *assetFileService) DownloadByObjName(objName string) (reader io.ReadCloser, err error) {
