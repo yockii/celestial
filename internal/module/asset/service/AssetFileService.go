@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/provider"
@@ -122,6 +123,15 @@ func (s *assetFileService) Add(instance *model.File, reader io.Reader) (duplicat
 			logger.Errorln(err)
 			return err
 		}
+
+		// 给admin用户一个管理权限
+		_ = tx.Create(&model.FilePermission{
+			ID:         util.SnowflakeId(),
+			FileID:     instance.ID,
+			UserID:     constant.AdminUserID,
+			Permission: 4,
+		})
+
 		return nil
 	}); err != nil {
 		return

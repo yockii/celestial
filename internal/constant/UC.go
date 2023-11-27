@@ -5,3 +5,5 @@ const (
 )
 
 const SuperAdminRoleId = 1
+
+var AdminUserID uint64

@@ -50,6 +50,8 @@ func InitData() {
 		}
 	}
 
+	constant.AdminUserID = adminUser.ID
+
 	// 初始化一个超级管理员角色
 	superAdminRole := &model.Role{
 		ID:             constant.SuperAdminRoleId,
