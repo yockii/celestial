@@ -8,6 +8,9 @@
         <n-gi :span="4">
           <n-space justify="space-between">
             <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
+            <div class="flex" v-show="condition.projectId !== ''">
+              开始时间范围：<n-date-picker v-model:value="conditionStartDateCondition" type="daterange" :is-date-disabled="isRangeDateDisabled" />
+            </div>
             <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small" @click="showStatistics()">查看统计</n-button>
           </n-space>
         </n-gi>
@@ -37,7 +40,7 @@
     <n-drawer-content :title="instance.id === '' ? '新增工时' : '修改工时'">
       <n-form label-placement="top" :model="instance">
         <n-form-item label="记录周期" required>
-          <n-date-picker v-model:value="instanceDateRange" type="daterange" :is-date-disabled="isRangeDateDisabled" />
+          <n-date-picker v-model:value="instanceDateRange" type="daterange" :is-date-disabled="isRangeDateDisabled" :disabled="instance.id !== ''" />
         </n-form-item>
         <n-form-item label="工作时长" required>
           <n-input-number v-model:value="instance.workTime" />
@@ -77,7 +80,25 @@ const condition = ref<WorkTimeCondition>({
   offset: -1,
   limit: -1,
   projectId: "",
-  startDateCondition: {}
+  startDateCondition: {
+    // 本周一
+    start: dayjs().startOf("week").format("YYYY-MM-DD HH:mm:ss"),
+    // 当天
+    end: dayjs().endOf("day").format("YYYY-MM-DD HH:mm:ss")
+  }
+})
+
+const conditionStartDateCondition = computed({
+  get: () => {
+    return [dayjs(condition.value.startDateCondition?.start).valueOf(), dayjs(condition.value.startDateCondition?.end).valueOf()]
+  },
+  set: (val) => {
+    condition.value.startDateCondition = {
+      start: dayjs(val[0]).format("YYYY-MM-DD HH:mm:ss"),
+      end: dayjs(val[1]).format("YYYY-MM-DD HH:mm:ss")
+    }
+    refreshWorkTimeList()
+  }
 })
 
 const workTimeList = ref<WorkTime[]>([])

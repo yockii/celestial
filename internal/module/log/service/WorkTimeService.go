@@ -169,7 +169,7 @@ func (s *workTimeService) PaginateBetweenTimes(condition *model.WorkTime, limit 
 		UserID:     condition.UserID,
 		ReviewerID: condition.ReviewerID,
 		Status:     condition.Status,
-	}).Offset(-1).Limit(-1).Count(&total).Error
+	}).Count(&total).Error
 	if err != nil {
 		logger.Errorln(err)
 		return
