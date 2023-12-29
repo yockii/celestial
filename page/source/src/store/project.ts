@@ -130,10 +130,10 @@ export const useProjectStore = defineStore(
     }
   },
   {
-    persist: {
-      key: "project",
-      storage: sessionStorage
-    }
+    // persist: {
+    //   key: "project",
+    //   storage: sessionStorage
+    // }
   }
 )
 

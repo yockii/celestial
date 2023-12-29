@@ -1,7 +1,8 @@
 <template>
   <n-grid :cols="8" x-gap="16">
     <n-gi :span="1">
-      <MyProjectList :selected-project-id="selectedProjectId" @update:selected-project-id="handleSelectedProjectIdUpdate" />
+      <MyProjectList :selected-project-id="selectedProjectId"
+        @update:selected-project-id="handleSelectedProjectIdUpdate" />
     </n-gi>
     <n-gi :span="7">
       <n-grid :cols="4" x-gap="16" y-gap="8">
@@ -9,13 +10,16 @@
           <n-space justify="space-between">
             <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
             <div class="flex" v-show="condition.projectId !== ''">
-              开始时间范围：<n-date-picker v-model:value="conditionStartDateCondition" type="daterange" :is-date-disabled="isRangeDateDisabled" />
+              开始时间范围：<n-date-picker v-model:value="conditionStartDateCondition" type="daterange"
+                :is-date-disabled="isRangeDateDisabled" />
             </div>
-            <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small" @click="showStatistics()">查看统计</n-button>
+            <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small"
+              @click="showStatistics()">查看统计</n-button>
           </n-space>
         </n-gi>
         <n-gi v-for="workTime in workTimeList" :key="workTime.id">
-          <n-card size="small" :title="dayjs(workTime.startDate).format('YYYY-MM-DD') + ' → ' + dayjs(workTime.endDate).format('YYYY-MM-DD')">
+          <n-card size="small"
+            :title="dayjs(workTime.startDate).format('YYYY-MM-DD') + ' → ' + dayjs(workTime.endDate).format('YYYY-MM-DD')">
             <div>工作时长： {{ workTime.workTime.toFixed(2) }} 小时</div>
             <template #action>
               <div class="flex justify-end">
@@ -40,7 +44,8 @@
     <n-drawer-content :title="instance.id === '' ? '新增工时' : '修改工时'">
       <n-form label-placement="top" :model="instance">
         <n-form-item label="记录周期" required>
-          <n-date-picker v-model:value="instanceDateRange" type="daterange" :is-date-disabled="isRangeDateDisabled" :disabled="instance.id !== ''" />
+          <n-date-picker v-model:value="instanceDateRange" type="daterange" :is-date-disabled="isRangeDateDisabled"
+            :disabled="instance.id !== ''" />
         </n-form-item>
         <n-form-item label="工作时长" required>
           <n-input-number v-model:value="instance.workTime" />
@@ -108,7 +113,14 @@ const refreshWorkTimeList = () => {
     return
   }
   workTimeList.value = []
-  getWorkTimeList(condition.value).then((res) => {
+  // 要修改一下condition中的 startDateCondition.start (-1)，因为查询时使用了between，不包含当天0点
+  // 将condition.value 赋值给一个新的变量，否则会导致condition.value.startDateCondition.start被修改
+  const conditionCopy = Object.assign({}, condition.value)
+  if (conditionCopy.startDateCondition && conditionCopy.startDateCondition.start) {
+    // 减去1毫秒再重新赋值为format("YYYY-MM-DD HH:mm:ss")
+    conditionCopy.startDateCondition.start = dayjs(conditionCopy.startDateCondition.start).add(-1, "millisecond").format("YYYY-MM-DD HH:mm:ss")
+  }
+  getWorkTimeList(conditionCopy).then((res) => {
     if (res) {
       workTimeList.value = res.items.map((item) => {
         item.workTime = item.workTime / 3600
