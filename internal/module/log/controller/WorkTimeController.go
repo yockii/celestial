@@ -258,3 +258,32 @@ func (c *workTimeController) Statistics(ctx *fiber.Ctx) error {
 		Data: list,
 	})
 }
+
+func (c *workTimeController) Mine(ctx *fiber.Ctx) error {
+	instance := new(domain.WorkTimeListRequest)
+	if err := ctx.QueryParser(instance); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	userID, _ := helper.GetCurrentUserID(ctx)
+	if userID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough + " userId",
+		})
+	}
+
+	data, err := service.WorkTimeService.StatisticsMine(userID, instance.StartDateCondition)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: data,
+	})
+}

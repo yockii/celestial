@@ -9,9 +9,10 @@
         <n-gi :span="4">
           <n-space justify="space-between">
             <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
-            <div class="flex" v-show="condition.projectId !== ''">
+            <div class="flex gap-10">
               开始时间范围：<n-date-picker v-model:value="conditionStartDateCondition" type="daterange"
                 :is-date-disabled="isRangeDateDisabled" />
+              <n-button type="primary" size="small" @click="getMyTotalWorktime()">我的总工时(该时间范围)</n-button>
             </div>
             <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small"
               @click="showStatistics()">查看统计</n-button>
@@ -50,7 +51,7 @@
         <n-form-item label="工作时长" required>
           <n-input-number v-model:value="instance.workTime" />
         </n-form-item>
-        <n-form-item label="工作内容简述">
+        <n-form-item label="工作内容简述" required>
           <n-input type="textarea" v-model:value="instance.workContent" />
         </n-form-item>
       </n-form>
@@ -67,12 +68,24 @@
 <script setup lang="ts">
 import MyProjectList from "@/components/project/MyProjectList.vue"
 import { WorkTime, WorkTimeCondition } from "@/types/log"
-import { addWorkTime, deleteWorkTime, getWorkTimeList, updateWorkTime } from "@/service"
+import { addWorkTime, deleteWorkTime, getWorkTimeList, updateWorkTime, getMyWorkTimeStatistics } from "@/service"
 import dayjs from "dayjs"
 import { useUserStore } from "@/store/user"
 
 const message = useMessage()
 const userStore = useUserStore()
+
+// 我的总工时
+const getMyTotalWorktime = () => {
+  getMyWorkTimeStatistics(condition.value).then((res) => {
+    if (res) {
+      message.success(`我的总工时：${(res / 3600).toFixed(2)}小时`)
+    } else if (res === 0) {
+      // 工时为null，没有工时记录
+      message.info("没有工时记录")
+    }
+  })
+}
 
 const selectedProjectId = ref("")
 const handleSelectedProjectIdUpdate = (id: string | undefined) => {
@@ -186,6 +199,11 @@ const submitWorkTime = () => {
   }
   if (submitData.workTime <= 0) {
     message.error("工作时长必须大于0")
+    return
+  }
+  // 工作内容描述必填
+  if (submitData.workContent === "") {
+    message.error("工作内容描述必填")
     return
   }
 

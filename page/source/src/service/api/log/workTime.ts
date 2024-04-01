@@ -47,3 +47,13 @@ export function getWorkTimeStatistics(condition: WorkTimeStatisticsCondition) {
     params: condition
   })
 }
+
+/**
+ * 获取我的工时统计信息
+ * @param condition
+ */
+export function getMyWorkTimeStatistics(condition: WorkTimeCondition) {
+  return request.get<number>("/workTime/mine", {
+    params: condition
+  })
+}

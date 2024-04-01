@@ -20,16 +20,8 @@
             <n-date-picker v-model:value="dateRange" type="daterange" />
           </n-form-item>
           <n-form-item label="选择部门：">
-            <n-cascader
-              v-model:value="deptId"
-              :options="topDepartments"
-              show-path
-              remote
-              :on-load="handleLoadChildren"
-              value-field="id"
-              label-field="name"
-              children-field="children"
-            />
+            <n-cascader v-model:value="deptId" :options="topDepartments" show-path remote :on-load="handleLoadChildren"
+              value-field="id" label-field="name" children-field="children" />
           </n-form-item>
           <n-form-item>
             <n-button type="info" @click="search()">查询</n-button>
@@ -212,7 +204,7 @@ const data = computed(() => {
         wt = (item.workTime * days) / totalDays
       }
 
-      user[item.projectId] = (wt + (user[item.projectId] as number) * 3600) / 3600
+      user[item.projectId] = ((wt + (user[item.projectId] as number) * 3600) / 3600).toFixed(2)
     }
   })
   return data

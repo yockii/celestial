@@ -257,3 +257,47 @@ func (s *workTimeService) Statistics(condition *domain.WorkTimeStatisticsRequest
 	}
 	return
 }
+
+func (s *workTimeService) StatisticsMine(userID uint64, tr *server.TimeCondition) (int64, error) {
+	tx := database.DB.Model(&model.WorkTime{}).Where("user_id = ?", userID)
+
+	start := time.Time(tr.Start).UnixMilli()
+	end := time.Time(tr.End).UnixMilli()
+	tx = tx.Where("not ((start_date <= ? and end_date <= ?) or (start_date >= ? and end_date >= ?))",
+		start, start,
+		end, end,
+	)
+
+	// 取出所有记录，计算总工时，计算时注意如果开始时间结束时间没有落在时间段内，需要进行计算，按比例计入总数
+	var list []*model.WorkTime
+	err := tx.Find(&list).Error
+	if err != nil {
+		logger.Errorln(err)
+		return 0, err
+	}
+
+	var total int64
+	for _, wt := range list {
+		// 如果wt的开始时间和结束时间都再start和end之间，直接加入
+		if wt.StartDate >= start && wt.EndDate <= end {
+			total += wt.WorkTime
+			continue
+		}
+		// 如果wt的开始时间和结束时间都在start和end之外
+		if wt.StartDate < start && wt.EndDate > end {
+			total += wt.WorkTime * (end - start) / (wt.EndDate - wt.StartDate)
+			continue
+		}
+		// 如果wt的开始时间在start和end之间，结束时间在end之外
+		if wt.StartDate >= start && wt.EndDate > end {
+			total += wt.WorkTime * (end - wt.StartDate) / (wt.EndDate - wt.StartDate)
+			continue
+		}
+		// 如果wt的开始时间在start之外，结束时间在start和end之间
+		if wt.StartDate < start && wt.EndDate > start && wt.EndDate <= end {
+			total += wt.WorkTime * (wt.EndDate - start) / (wt.EndDate - wt.StartDate)
+			continue
+		}
+	}
+	return total, nil
+}
