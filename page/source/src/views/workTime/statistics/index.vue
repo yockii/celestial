@@ -31,6 +31,10 @@
       </n-space>
     </n-gi>
     <n-gi>
+      <n-space>
+        <n-text>统计数据总和：</n-text>
+        <n-text>{{ (workTimeList.reduce((prev, cur) => prev + cur.workTime, 0) / 3600).toFixed(2) }}小时</n-text>
+      </n-space>
       <n-data-table :data="data" :single-line="false" :columns="columns" />
     </n-gi>
   </n-grid>
@@ -61,6 +65,7 @@ import { Project } from "@/types/project"
 import { Department } from "@/types/user"
 import { WorkTime, WorkTimeStatisticsCondition } from "@/types/log"
 import { getDepartmentList, getWorkTimeStatistics } from "@/service/api"
+import { VNodeChild } from "vue"
 
 const dateRange = ref([dayjs().add(-1, "month").startOf("month").valueOf(), dayjs().add(-1, "month").endOf("month").valueOf()])
 const deptId = ref("")
@@ -89,13 +94,20 @@ const columns = computed(() => {
     title: string
     titleAlign?: string
     key?: string
-    children?: Col[]
+    children?: Col[],
+    render?: (rowData: WorkTimeData) => VNodeChild
   }
   const cols: Col[] = [
     {
       title: "姓名",
       titleAlign: "center",
       key: "name"
+    },
+    {
+      title: "总计",
+      titleAlign: "center",
+      key: "total",
+      render: (rowData) => rowData.total ? (rowData.total / 3600).toFixed(2) : '0'
     }
   ]
 
@@ -126,7 +138,8 @@ const columns = computed(() => {
         self.children.push({
           title: item.name,
           titleAlign: "center",
-          key: item.id
+          key: item.id,
+          render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
     } else if (item.type === 2) {
@@ -135,7 +148,8 @@ const columns = computed(() => {
         share.children.push({
           title: item.name,
           titleAlign: "center",
-          key: item.id
+          key: item.id,
+          render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
     } else if (item.type === 3) {
@@ -144,7 +158,8 @@ const columns = computed(() => {
         cost.children.push({
           title: item.name,
           titleAlign: "center",
-          key: item.id
+          key: item.id,
+          render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
     }
@@ -173,6 +188,7 @@ const getWorkTimeDataList = () => {
 }
 type WorkTimeData = {
   name?: string
+  total?: number
   [key: string]: number | string | undefined
 }
 const data = computed(() => {
@@ -182,7 +198,8 @@ const data = computed(() => {
     let user = data.find((d) => d.name === item.name)
     if (!user) {
       user = {
-        name: item.name || ""
+        name: item.name || "",
+        total: item.workTime
       }
       data.push(user)
     }
@@ -204,7 +221,8 @@ const data = computed(() => {
         wt = (item.workTime * days) / totalDays
       }
 
-      user[item.projectId] = ((wt + (user[item.projectId] as number) * 3600) / 3600).toFixed(2)
+      user[item.projectId] = wt + (user[item.projectId] as number)
+      user.total = user.total ? user.total + wt : wt
     }
   })
   return data
