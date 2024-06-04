@@ -35,7 +35,8 @@
         <n-text>统计数据总和：</n-text>
         <n-text>{{ (workTimeList.reduce((prev, cur) => prev + cur.workTime, 0) / 3600).toFixed(2) }}小时</n-text>
       </n-space>
-      <n-data-table :data="data" :single-line="false" :columns="columns" />
+      <n-data-table :data="data" :single-line="false" :columns="columns" :scroll-x="tableScrollX"
+        :max-height="tableMaxHeight" />
     </n-gi>
   </n-grid>
 
@@ -88,25 +89,39 @@ type ProjectWithType = Project & {
 }
 const projectList = ref<ProjectWithType[]>([])
 
+const tableScrollX = computed(() => {
+  return 80 + 80 + projectList.value.filter(item => item.type > 0).reduce((prev, cur) => prev + cur.name.length * 14 + 25, 0)
+})
+
+const tableMaxHeight = computed(() => {
+  return window.innerHeight - 320
+})
+
 // 表格数据处理
 const columns = computed(() => {
   type Col = {
     title: string
     titleAlign?: string
+    width?: number
     key?: string
-    children?: Col[],
+    children?: Col[]
+    fixed?: string
     render?: (rowData: WorkTimeData) => VNodeChild
   }
   const cols: Col[] = [
     {
       title: "姓名",
       titleAlign: "center",
-      key: "name"
+      key: "name",
+      width: 80,
+      fixed: 'left'
     },
     {
       title: "总计",
       titleAlign: "center",
       key: "total",
+      width: 80,
+      fixed: 'left',
       render: (rowData) => rowData.total ? (rowData.total / 3600).toFixed(2) : '0'
     }
   ]
@@ -139,6 +154,7 @@ const columns = computed(() => {
           title: item.name,
           titleAlign: "center",
           key: item.id,
+          width: item.name.length * 14 + 25,
           render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
@@ -149,6 +165,7 @@ const columns = computed(() => {
           title: item.name,
           titleAlign: "center",
           key: item.id,
+          width: item.name.length * 14 + 25,
           render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
@@ -159,6 +176,7 @@ const columns = computed(() => {
           title: item.name,
           titleAlign: "center",
           key: item.id,
+          width: item.name.length * 14 + 25,
           render: (rowData) => rowData[item.id] ? ((rowData[item.id] as number) / 3600).toFixed(2) : ''
         })
       }
