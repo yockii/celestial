@@ -3,22 +3,24 @@ package model
 import (
 	"github.com/tidwall/gjson"
 	"github.com/yockii/celestial/internal/constant"
+	"gorm.io/gorm"
 )
 
 type WorkTime struct {
-	ID           uint64 `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
-	UserID       uint64 `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
-	ProjectID    uint64 `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
-	TopProjectID uint64 `json:"topProjectId,omitempty,string" gorm:"index;comment:顶级项目ID"`
-	WorkTime     int64  `json:"workTime,omitempty" gorm:"comment:工时,单位:秒"`
-	StartDate    int64  `json:"startDate,omitempty" gorm:"comment:开始日期"`
-	EndDate      int64  `json:"endDate,omitempty" gorm:"comment:结束日期"`
-	WorkContent  string `json:"workContent,omitempty" gorm:"size:500;comment:工作内容"`
-	ReviewerID   uint64 `json:"reviewerID,omitempty,string" gorm:"index;comment:审核人ID"`
-	ReviewTime   int64  `json:"reviewTime,omitempty" gorm:"comment:审核时间"`
-	Status       int    `json:"status,omitempty" gorm:"comment:状态 0-未提交 1-已提交 2-已审核 3-已驳回 4-已取消"`
-	RejectReason string `json:"rejectReason,omitempty" gorm:"size:500;comment:驳回原因"`
-	CreateTime   int64  `json:"createTime" gorm:"autoCreateTime:milli"`
+	ID           uint64         `json:"id,omitempty,string" gorm:"primaryKey;autoIncrement:false"`
+	UserID       uint64         `json:"userId,omitempty,string" gorm:"index;comment:用户ID"`
+	ProjectID    uint64         `json:"projectId,omitempty,string" gorm:"index;comment:项目ID"`
+	TopProjectID uint64         `json:"topProjectId,omitempty,string" gorm:"index;comment:顶级项目ID"`
+	WorkTime     int64          `json:"workTime,omitempty" gorm:"comment:工时,单位:秒"`
+	StartDate    int64          `json:"startDate,omitempty" gorm:"comment:开始日期"`
+	EndDate      int64          `json:"endDate,omitempty" gorm:"comment:结束日期"`
+	WorkContent  string         `json:"workContent,omitempty" gorm:"size:500;comment:工作内容"`
+	ReviewerID   uint64         `json:"reviewerID,omitempty,string" gorm:"index;comment:审核人ID"`
+	ReviewTime   int64          `json:"reviewTime,omitempty" gorm:"comment:审核时间"`
+	Status       int            `json:"status,omitempty" gorm:"comment:状态 0-未提交 1-已提交 2-已审核 3-已驳回 4-已取消"`
+	RejectReason string         `json:"rejectReason,omitempty" gorm:"size:500;comment:驳回原因"`
+	CreateTime   int64          `json:"createTime" gorm:"autoCreateTime:milli"`
+	DeleteAt     gorm.DeletedAt `json:"deleteAt,omitempty" gorm:"index"`
 }
 
 func (_ *WorkTime) TableComment() string {
