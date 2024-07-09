@@ -24,9 +24,9 @@ jobs:
         with:
           node-version: '>=18.15.0'
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 'latest'
           run_install: false
       - name: Install Dependency  # 安装依赖
         run: pnpm install
