@@ -20,7 +20,8 @@
     "sm-crypto": "^0.3.13",
     "vditor": "^3.10.7",
     "vue": "^3.5.12",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "vue-tsc": "^2.1.6"
   },
   "devDependencies": {
     "@types/node": "^18.19.59",
@@ -52,7 +53,6 @@
     "vfonts": "^0.0.3",
     "vite": "^4.5.5",
     "vite-plugin-eslint": "^1.8.1",
-    "vue-tsc": "^1.8.27",
     "webpack": "^5.95.0"
   }
 }
