@@ -12,7 +12,6 @@ import "vfonts/FiraCode.css" // 等宽字体
 import "uno.css"
 import "animate.css"
 
-import "virtual:svg-icons-register"
 import svgIcon from "./components/SvgIcon.vue"
 import dayjs from "dayjs"
 import "dayjs/locale/zh-cn"
