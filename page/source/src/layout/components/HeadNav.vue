@@ -5,7 +5,7 @@
   </n-text>
   <n-menu v-model:value="appStore.activeMenuKey" mode="horizontal" :options="menuOptions" />
   <div class="nav-end">
-    <n-space>
+    <div class="flex min-w-300px justify-end gap-16px">
       <n-dropdown trigger="hover" :options="historyList" key-field="url" show-arrow @select="gotoHistory" :render-option="renderHistory">
         <n-text class="cursor-pointer">
           <n-icon>
@@ -25,9 +25,10 @@
           </n-icon>
         </template>
       </n-switch>
-      <span> {{ welcome }}, <user-dropdown :name="realName || '未登录'" />!</span>
-    </n-space>
+      <div class="cursor-pointer"> {{ welcome }}, <user-dropdown :name="realName || '未登录'" />!</div>
+    </div>
   </div>
+  <assist />
 </template>
 
 <script setup lang="ts">

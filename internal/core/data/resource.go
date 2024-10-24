@@ -1130,6 +1130,15 @@ func InitData() {
 		}
 	}
 
+	// AI
+	{
+		resources = append(resources, &model.Resource{
+			ResourceName: "AI智能查询",
+			ResourceCode: constant.ResourceAI,
+			Type:         1,
+		})
+	}
+
 	for _, resource := range resources {
 		//没有就添加资源
 		if err := database.DB.Where(resource).Attrs(&model.Resource{

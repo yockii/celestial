@@ -8,6 +8,8 @@ import (
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/tools/sqldatabase"
+	_ "github.com/tmc/langchaingo/tools/sqldatabase/mysql"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/core/middleware"
 	"github.com/yockii/ruomu-core/config"
 	"github.com/yockii/ruomu-core/server"
@@ -18,14 +20,14 @@ const (
 )
 
 func InitRouter() {
-	server.Get("/api/v1/aiSearch", middleware.NeedAuthorization("user"), controller.Generate)
+	server.Get("/api/v1/ai/dataSearch", middleware.NeedAuthorization(constant.ResourceAI), controller.Generate)
 }
 
 func init() {
 	client, err := openai.New(
-		openai.WithToken(openaiToken),
-		openai.WithBaseURL(openaiBaseURL),
-		openai.WithModel(modelName),
+		openai.WithToken(config.GetString("openai.openaiToken")),
+		openai.WithBaseURL(config.GetString("openai.openaiBaseURL")),
+		openai.WithModel(config.GetString("openai.modelName")),
 	)
 	if err != nil {
 		logrus.Fatal(err)
@@ -36,7 +38,7 @@ func init() {
 		config.GetString("database.readonlyPassword"),
 		config.GetString("database.host"),
 		config.GetInt("database.port"),
-		config.GetString("database.name"),
+		config.GetString("database.db"),
 	), nil)
 	if err != nil {
 		logrus.Fatal(err)
@@ -56,17 +58,17 @@ type aiController struct {
 }
 
 func (c *aiController) Generate(ctx *fiber.Ctx) error {
-	query := ctx.Query("query")
-	if query == "" {
+	question := ctx.Query("question")
+	if question == "" {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " query",
+			Msg:  server.ResponseMsgParamNotEnough + " question",
 		})
 	}
 
 	sqlDatabaseChain := chains.NewSQLDatabaseChain(c.client, 100, c.db)
 	input := map[string]any{
-		"query": query,
+		"query": question,
 	}
 	result, err := chains.Predict(context.Background(), sqlDatabaseChain, input)
 	if err != nil {

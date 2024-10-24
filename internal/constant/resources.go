@@ -277,3 +277,8 @@ const (
 	ResourceWorkTimeDelete     = ResourceWorkTime + ":delete"
 	ResourceWorkTimeStatistics = ResourceWorkTime + ":statistics"
 )
+
+// AI
+const (
+	ResourceAI = "ai"
+)

@@ -43,6 +43,30 @@ func (c *workTimeController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// 判断填报的数据周期范围，周一到周日的数据，最晚应在下周一9点前填报完成，超时不允许填报
+	now := time.Now()
+	if now.UnixMilli() > 1730422800000 {
+		var earliestAllowedTime time.Time
+		// 判断now是否周一9点前
+		if now.Weekday() == time.Monday && now.Hour() < 9 {
+			// 允许填报上周工作
+			earliestAllowedTime = time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, time.Local)
+			// 最晚允许的时间是周天0点
+		} else {
+			// 最早允许当周周一0点
+			weekStart := now.AddDate(0, 0, -int(now.Weekday()))
+			earliestAllowedTime = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, time.Local)
+		}
+		latestAllowedTime := earliestAllowedTime.AddDate(0, 0, 7)
+
+		if !(instance.StartDate > earliestAllowedTime.UnixMilli() && instance.EndDate < latestAllowedTime.UnixMilli()) {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDataNotMatch,
+				Msg:  "填报时间必须在本周 周一至下周一9点前",
+			})
+		}
+	}
+
 	duplicated, success, err := service.WorkTimeService.Add(instance)
 	if err != nil {
 		return ctx.JSON(&server.CommonResponse{

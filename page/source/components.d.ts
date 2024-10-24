@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Assist: typeof import('./src/components/Assist.vue')['default']
     DatePickerInTable: typeof import('./src/components/DatePickerInTable.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IssueDetailDrawer: typeof import('./src/components/project/issue/IssueDetailDrawer.vue')['default']
@@ -33,6 +34,7 @@ declare module '@vue/runtime-core' {
     NDropdown: typeof import('naive-ui')['NDropdown']
     NEllipsis: typeof import('naive-ui')['NEllipsis']
     NEmpty: typeof import('naive-ui')['NEmpty']
+    NFloatButton: typeof import('naive-ui')['NFloatButton']
     NForm: typeof import('naive-ui')['NForm']
     NFormItem: typeof import('naive-ui')['NFormItem']
     NFormItemGi: typeof import('naive-ui')['NFormItemGi']
