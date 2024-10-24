@@ -13,6 +13,8 @@ db="celestial"
 port=3306
 prefix="t_"
 showSql=true
+readonlyUser="celetial-read"
+readonlyPassword="dtz&NGX@Q2Rj5s!P"
 
 [redis]
 host="localhost"

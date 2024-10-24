@@ -4,6 +4,7 @@ import (
 	"github.com/panjf2000/ants/v2"
 	logger "github.com/sirupsen/logrus"
 	"github.com/yockii/celestial/internal/core/data"
+	aiController "github.com/yockii/celestial/internal/module/ai/controller"
 	assetController "github.com/yockii/celestial/internal/module/asset/controller"
 	logController "github.com/yockii/celestial/internal/module/log/controller"
 	luceneController "github.com/yockii/celestial/internal/module/lucene/controller"
@@ -71,6 +72,8 @@ func main() {
 	onlyofficeController.InitRouter()
 	// 会议室管理
 	meetingRoomController.InitRouter()
+	// AI
+	aiController.InitRouter()
 
 	for {
 		err := server.Start()
