@@ -399,14 +399,14 @@ const pagination = reactive({
   page: 1,
   pageSize: 10,
   onChange: (page: number) => {
-    if (remote) {
+    if (remote.value) {
       condition.value.offset = (page - 1) * (condition.value.limit || 10)
     } else {
       pagination.page = page
     }
   },
   onUpdatePageSize: (pageSize: number) => {
-    if (remote) {
+    if (remote.value) {
       condition.value.limit = pageSize
     } else {
       pagination.page = 1
