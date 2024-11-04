@@ -11,7 +11,7 @@
             <n-button type="primary" size="small" @click="openAddDrawer()">新增</n-button>
             <div class="flex gap-10">
               开始时间范围：<n-date-picker v-model:value="conditionStartDateCondition" type="daterange"
-                :is-date-disabled="isRangeDateDisabled" />
+                 />
               <n-button type="primary" size="small" @click="getMyTotalWorktime()">我的总工时(该时间范围)</n-button>
             </div>
             <n-button type="info" v-if="userStore.hasResourceCode('workTime:statistics')" size="small"
@@ -20,8 +20,13 @@
         </n-gi>
         <n-gi v-for="workTime in workTimeList" :key="workTime.id">
           <n-card size="small"
-            :title="dayjs(workTime.startDate).format('YYYY-MM-DD') + ' → ' + dayjs(workTime.endDate).format('YYYY-MM-DD')">
-            <div>工作时长： {{ workTime.workTime.toFixed(2) }} 小时</div>
+            :title="dayjs(workTime.startDate).format('YYYY-MM-DD HH:mm:ss') + ' → ' + dayjs(workTime.endDate).format('YYYY-MM-DD HH:mm:ss')">
+            <n-tooltip max-width="400">
+              <template #trigger>
+                <div class="cursor-pointer">工作时长： {{ workTime.workTime.toFixed(2) }} 小时</div>
+              </template>
+              <div>{{ workTime.workContent }}</div>
+            </n-tooltip>
             <template #action>
               <div class="flex justify-end">
                 <n-button-group>
@@ -45,7 +50,7 @@
     <n-drawer-content :title="instance.id === '' ? '新增工时' : '修改工时'">
       <n-form label-placement="top" :model="instance">
         <n-form-item label="记录周期" required>
-          <n-date-picker v-model:value="instanceDateRange" type="daterange" :is-date-disabled="isRangeDateDisabled"
+          <n-date-picker v-model:value="instanceDateRange" type="datetimerange" :is-date-disabled="isRangeDateDisabled"
             :disabled="instance.id !== ''" />
         </n-form-item>
         <n-form-item label="工作时长" required>
@@ -161,11 +166,23 @@ const instanceDateRange = computed({
   }
 })
 const isRangeDateDisabled = (ts: number, type: "start" | "end", range: [number, number] | null) => {
+  // 周一-周日，只能填报当周的。
+  // 当前时间
+  const now = dayjs()
+  let earliestPermitTime = 0
+  // 如果当前是周一9点前
+  if (now.hour() < 9 && now.day() === 1) {
+    // 获取上周一0点
+    earliestPermitTime = dayjs().subtract(1, "week").startOf("week").valueOf()
+  } else { // 其他时间，只能填报本周一0点开始
+    earliestPermitTime = dayjs().startOf("week").valueOf()
+  }
+
   if (type === "start") {
-    return ts > Date.now()
+    return ts > Date.now() || ts < earliestPermitTime
   }
   if (type === "end" && range) {
-    const result = ts > Date.now()
+    const result = ts > Date.now() || ts <= range[0]
     return result
   }
   return false
@@ -178,7 +195,8 @@ const openAddDrawer = (data: WorkTime | undefined = undefined) => {
     instance.value = {
       id: "",
       projectId: selectedProjectId.value,
-      startDate: Date.now() - 86400000,
+      // 当天0点
+      startDate: dayjs().startOf("date").valueOf(),
       endDate: Date.now(),
       workTime: 0
     }
@@ -206,11 +224,16 @@ const submitWorkTime = () => {
     message.error("工作内容描述必填")
     return
   }
+  // 结束时间不能小于等于开始时间
+  if (submitData.endDate <= submitData.startDate) {
+    message.error("结束时间不能小于等于开始时间")
+    return
+  }
 
   submitData.workTime = submitData.workTime * 3600
-  if (submitData.endDate % 1000 === 0) {
-    submitData.endDate = submitData.endDate + 86400000 - 1
-  }
+  // if (submitData.endDate % 1000 === 0) {
+  //   submitData.endDate = submitData.endDate + 86400000 - 1
+  // }
   if (submitData.id === "") {
     // 新增
     addWorkTime(submitData).then((res) => {

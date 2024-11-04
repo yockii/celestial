@@ -30,7 +30,7 @@ func init() {
 		openai.WithModel(config.GetString("openai.modelName")),
 	)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Warnln(err)
 		return
 	}
 	db, err := sqldatabase.NewSQLDatabaseWithDSN("mysql", fmt.Sprintf(mysqlConnStringFmt,

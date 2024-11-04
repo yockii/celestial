@@ -64,7 +64,7 @@ func (c *workTimeController) Add(ctx *fiber.Ctx) error {
 	}
 	latestAllowedTime := earliestAllowedTime.AddDate(0, 0, 7).Add(time.Hour * 9)
 
-	if !(instance.StartDate > earliestAllowedTime.UnixMilli() && instance.EndDate < latestAllowedTime.UnixMilli()) {
+	if !(instance.StartDate >= earliestAllowedTime.UnixMilli() && instance.EndDate <= latestAllowedTime.UnixMilli()) {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDataNotMatch,
 			Msg:  "填报时间必须在本周 周一至下周一9点前",
