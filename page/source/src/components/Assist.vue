@@ -4,6 +4,7 @@ import {ScreenSearchDesktopFilled} from '@vicons/material'
 import {SendAlt, SendAltFilled} from "@vicons/carbon"
 import {Robot} from "@vicons/tabler"
 import {getAiData} from "@/service";
+import { MdPreview } from 'md-editor-v3';
 
 const projectStore = useProjectStore()
 const showModal = ref(false)
@@ -69,7 +70,10 @@ const send = async () => {
             <div class="flex-1 flex" :class="c.isMe ? 'justify-end' : 'justify-start'">
               <!-- 模拟对话框 -->
               <div class="content" :class="c.isMe ? 'my-content' : 'robot-content'">
-                <div class="ma-8px" :class="c.isMe ? 'mr-16px' : 'ml-24px'">{{ c.content }}</div>
+                <div class="ma-8px" :class="c.isMe ? 'mr-16px' : 'ml-24px'">
+<!--                  {{ c.content }}-->
+                  <md-preview :model-value="c.content" />
+                </div>
               </div>
             </div>
             <div class="min-w-40px">
