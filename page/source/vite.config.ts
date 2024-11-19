@@ -8,6 +8,7 @@ import { NaiveUiResolver } from "unplugin-vue-components/resolvers"
 import Unocss from "unocss/vite"
 import presetUno from "@unocss/preset-uno"
 import { presetAttributify } from "unocss"
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,6 +39,12 @@ export default defineConfig({
     }),
     Unocss({
       presets: [presetUno(), presetAttributify()]
+    }),
+    createSvgIconsPlugin({
+      // Specify the icon folder to be cached
+      iconDirs: [path.resolve(process.cwd(), "src/assets")],
+      // Specify symbolId format
+      symbolId: "icon-[dir]-[name]"
     }),
   ],
   resolve: {
