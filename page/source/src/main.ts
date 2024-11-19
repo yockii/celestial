@@ -9,7 +9,7 @@ import "normalize.css/normalize.css" // 重置浏览器样式
 
 // import "vfonts/Lato.css"// 通用字体
 import "vfonts/FiraCode.css" // 等宽字体
-import "uno.css"
+import "virtual:uno.css"
 import "animate.css"
 
 import svgIcon from "./components/SvgIcon.vue"

@@ -18,7 +18,8 @@ export default defineConfig({
   plugins: [
     vue(),
     eslintPlugin({
-      include: ["src/**/*.{vue,js,ts,jsx,tsx}"]
+      exclude: ["/virtual:/**", "/node_modules/**"],
+      include: ["src/**/*.{vue,js,ts,jsx,tsx}"],
     }),
     AutoImport({
       imports: [
@@ -48,7 +49,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api/v1": {
-        target: "http://127.0.0.1:8080",
+        target: "http://127.0.0.1:8086",
         changeOrigin: true
         // rewrite: (path) => path.replace(/^\/api/, ''), // 一般我的接口用的是/api/v1/xxx，所以这里要不用去掉/api
       }
