@@ -3,11 +3,12 @@ import { addProjectMembers } from "@/service/api"
 import { Role, User } from "@/types/user"
 import { Project, ProjectMember } from "@/types/project"
 import { computed } from "vue"
-import { UserFollow, IdManagement } from "@vicons/carbon"
+import { UserFollow, IdManagement, StatusChange } from "@vicons/carbon"
 import { rgbToHex } from "@/utils/Render"
 import UserSelectDrawerContent from "@/components/user/UserSelectDrawerContent.vue"
 import { NButton } from "naive-ui"
 import { useProjectStore } from "@/store/project"
+import ChangeCharger from "@/views/project/detail/dashboard/members/changeCharger.vue";
 
 const emits = defineEmits(["projectMemberChanged"])
 const props = defineProps<{
@@ -116,6 +117,10 @@ const handleCommitRoleUsers = () => {
   })
 }
 
+const hasChangeChargerPermission = computed(() => {
+  return projectStore.canChangeCharger()
+})
+
 // 加载处理
 onMounted(() => {
   selectedRoleId.value = props.roles[0]?.id || ""
@@ -143,7 +148,11 @@ onMounted(() => {
   <n-grid :cols="5">
     <n-gi>
       <n-text tag="div" class="mb-4px">项目负责人： </n-text>
-      <n-text>{{ charger?.realName }}</n-text>
+      <n-text>
+        {{ charger?.realName }}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <change-charger v-if="hasChangeChargerPermission" :project="project" :members="members" />
+      </n-text>
     </n-gi>
     <n-gi :span="4">
       <n-text tag="div" class="mb-4px">项目组成员： </n-text>

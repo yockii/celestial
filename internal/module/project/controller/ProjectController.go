@@ -526,3 +526,42 @@ func (_ *projectController) TopList(ctx *fiber.Ctx) error {
 		Data: list,
 	})
 }
+
+func (_ *projectController) UpdateCharger(ctx *fiber.Ctx) error {
+	p0ru := new(domain.Project0RoleUser)
+	if err := ctx.BodyParser(p0ru); err != nil {
+		logger.Errorln(err)
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamParseError,
+			Msg:  server.ResponseMsgParamParseError,
+		})
+	}
+	if p0ru.ProjectID == 0 || p0ru.TargetUserID == 0 {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeParamNotEnough,
+			Msg:  server.ResponseMsgParamNotEnough,
+		})
+	}
+	if _, success, err := helper.CheckResourceCodeInProject(ctx, p0ru.ProjectID, constant.ResourceProjectMember); err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch,
+		})
+	} else if !success {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDataNotMatch,
+			Msg:  server.ResponseMsgDataNotMatch,
+		})
+	}
+
+	err := service.ProjectService.UpdateCharger(p0ru.ProjectID, p0ru.TargetUserID)
+	if err != nil {
+		return ctx.JSON(&server.CommonResponse{
+			Code: server.ResponseCodeDatabase,
+			Msg:  server.ResponseMsgDatabase + err.Error(),
+		})
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: true,
+	})
+}

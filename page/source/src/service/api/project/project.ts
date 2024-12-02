@@ -55,6 +55,13 @@ export function getProjectStageStatistics() {
   return request.get<ProjectStageStatistics[]>("/project/statisticsByStage")
 }
 
+export function changeCharger(projectId: string, targetUserId: string) {
+  return request.post<boolean>("/project/updateCharger", {
+    projectId,
+    targetUserId
+  })
+}
+
 /**
  * 批量添加项目成员
  * @param projectId - 项目id

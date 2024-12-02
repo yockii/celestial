@@ -34,15 +34,6 @@ export const useProjectStore = defineStore(
             return []
         })
 
-        const resourceCodes = computed<string[]>(() => {
-            const route = useRoute()
-            const projectId = route.params.id as string
-            if (projectResourceCodes.value[projectId]) {
-                return projectResourceCodes.value[projectId]
-            }
-            return []
-        })
-
         const moduleTree = computed<ProjectModule[]>(() => {
             const tree = modules.value.filter((module) => !module.parentId && module.status !== 1 && module.status !== -1)
             const findChildren = (parent: ProjectModule) => {
@@ -92,21 +83,38 @@ export const useProjectStore = defineStore(
             projectResourceCodes.value[projectId] = resourceCodes
         }
 
+        const canChangeCharger = (): boolean => {
+            const userStore = useUserStore()
+            const route = useRoute()
+            const projectId = route.params.id as string
+
+            return (
+                userStore.user.id === currentProject.value.ownerId ||
+                userStore.hasResourceCode("allProjectDetail")
+            )
+        }
+
         const hasResourceCode = (resourceCode: string): boolean => {
             const userStore = useUserStore()
+            const route = useRoute()
+            const projectId = route.params.id as string
+            const projectResources = projectResourceCodes.value[projectId]
             return (
                 userStore.user.id === currentProject.value.ownerId ||
                 userStore.hasResourceCode("allProjectDetail") ||
-                (resourceCodes.value && resourceCodes.value.includes(resourceCode))
+                (projectResources && projectResources.includes(resourceCode))
             )
         }
 
         const hasResourceCodes = (modresourceCodesule: string[]): boolean => {
             const userStore = useUserStore()
+            const route = useRoute()
+            const projectId = route.params.id as string
+            const projectResources = projectResourceCodes.value[projectId]
             return (
                 userStore.user.id === currentProject.value.ownerId ||
                 userStore.hasResourceCode("allProjectDetail") ||
-                (resourceCodes.value && modresourceCodesule.some((resourceCode) => resourceCodes.value.includes(resourceCode)))
+                (projectResources && modresourceCodesule.some((resourceCode) => projectResources.includes(resourceCode)))
             )
         }
 
@@ -117,6 +125,7 @@ export const useProjectStore = defineStore(
             moduleTree,
             memberList,
             isOwner,
+            canChangeCharger,
             addProject,
             setProjectModules,
             setProjectResourceCodes,

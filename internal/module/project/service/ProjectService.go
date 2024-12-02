@@ -359,3 +359,26 @@ func (s *projectService) ListTop(name string) (list []*model.Project, err error)
 	}
 	return
 }
+
+func (s *projectService) UpdateCharger(projectID uint64, userID uint64) error {
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		// 删除项目成员
+		err := tx.Where("project_id = ? and role_id = ?", projectID, 0).Delete(&model.ProjectMember{}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		// 添加userID
+		err = tx.Create(&model.ProjectMember{
+			ID:        util.SnowflakeId(),
+			ProjectID: projectID,
+			UserID:    userID,
+			RoleID:    0,
+		}).Error
+		if err != nil {
+			logger.Errorln(err)
+			return err
+		}
+		return nil
+	})
+}

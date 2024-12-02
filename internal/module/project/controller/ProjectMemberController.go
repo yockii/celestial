@@ -74,10 +74,10 @@ func (c *projectMemberController) BatchAdd(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgParamParseError,
 		})
 	}
-	if instance.ProjectID == 0 || len(instance.RoleIdList) == 0 || len(instance.UserIdList) == 0 {
+	if instance.ProjectID == 0 || len(instance.RoleIdList) == 0 {
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeParamNotEnough,
-			Msg:  server.ResponseMsgParamNotEnough + " project id/roleIdList/userIdList",
+			Msg:  server.ResponseMsgParamNotEnough + " project id/roleIdList",
 		})
 	}
 

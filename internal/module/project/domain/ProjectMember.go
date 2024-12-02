@@ -40,3 +40,8 @@ func (r *ProjectMemberBatchAddRequest) UnmarshalJSON(b []byte) error {
 	}
 	return nil
 }
+
+type Project0RoleUser struct {
+	ProjectID    uint64 `json:"projectId,string"`
+	TargetUserID uint64 `json:"targetUserId,string"`
+}
