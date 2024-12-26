@@ -276,6 +276,8 @@ const (
 	ResourceWorkTimeUpdate     = ResourceWorkTime + ":update"
 	ResourceWorkTimeDelete     = ResourceWorkTime + ":delete"
 	ResourceWorkTimeStatistics = ResourceWorkTime + ":statistics"
+
+	ResourceWorkTimeSupplementaryEnable = ResourceWorkTime + ":supplementaryEnable"
 )
 
 // AI

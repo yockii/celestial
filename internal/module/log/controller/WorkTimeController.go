@@ -43,32 +43,34 @@ func (c *workTimeController) Add(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// 判断填报的数据周期范围，周一到周日的数据，最晚应在下周一9点前填报完成，超时不允许填报
-	now := time.Now()
+	if !enableWorkTimeSupplementary {
+		// 判断填报的数据周期范围，周一到周日的数据，最晚应在下周一9点前填报完成，超时不允许填报
+		now := time.Now()
 
-	var earliestAllowedTime time.Time
-	// 判断now是否周一9点前
-	if now.Weekday() == time.Monday && now.Hour() < 9 {
-		// 允许填报上周工作
-		earliestAllowedTime = time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, time.Local)
-		// 最晚允许的时间是周天0点
-	} else {
-		// 最早允许当周周一0点
-		offset := int(time.Monday - now.Weekday())
-		if offset > 0 {
-			offset = -6
+		var earliestAllowedTime time.Time
+		// 判断now是否周一9点前
+		if now.Weekday() == time.Monday && now.Hour() < 9 {
+			// 允许填报上周工作
+			earliestAllowedTime = time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, time.Local)
+			// 最晚允许的时间是周天0点
+		} else {
+			// 最早允许当周周一0点
+			offset := int(time.Monday - now.Weekday())
+			if offset > 0 {
+				offset = -6
+			}
+
+			weekStart := now.AddDate(0, 0, offset)
+			earliestAllowedTime = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, time.Local)
 		}
+		latestAllowedTime := earliestAllowedTime.AddDate(0, 0, 7).Add(time.Hour * 9)
 
-		weekStart := now.AddDate(0, 0, offset)
-		earliestAllowedTime = time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, time.Local)
-	}
-	latestAllowedTime := earliestAllowedTime.AddDate(0, 0, 7).Add(time.Hour * 9)
-
-	if !(instance.StartDate >= earliestAllowedTime.UnixMilli() && instance.EndDate <= latestAllowedTime.UnixMilli()) {
-		return ctx.JSON(&server.CommonResponse{
-			Code: server.ResponseCodeDataNotMatch,
-			Msg:  "填报时间必须在本周 周一至下周一9点前",
-		})
+		if !(instance.StartDate >= earliestAllowedTime.UnixMilli() && instance.EndDate <= latestAllowedTime.UnixMilli()) {
+			return ctx.JSON(&server.CommonResponse{
+				Code: server.ResponseCodeDataNotMatch,
+				Msg:  "填报时间必须在本周 周一至下周一9点前",
+			})
+		}
 	}
 
 	duplicated, success, err := service.WorkTimeService.Add(instance)
@@ -313,5 +315,25 @@ func (c *workTimeController) Mine(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(&server.CommonResponse{
 		Data: data,
+	})
+}
+
+var enableWorkTimeSupplementary = false
+
+func (c *workTimeController) EnableSupplementary(ctx *fiber.Ctx) error {
+	enable := ctx.Query("enable", "false")
+	if enable == "true" {
+		enableWorkTimeSupplementary = true
+	} else {
+		enableWorkTimeSupplementary = false
+	}
+	return ctx.JSON(&server.CommonResponse{
+		Data: enableWorkTimeSupplementary,
+	})
+}
+
+func (c *workTimeController) SupplementaryStatus(ctx *fiber.Ctx) error {
+	return ctx.JSON(&server.CommonResponse{
+		Data: enableWorkTimeSupplementary,
 	})
 }

@@ -29,5 +29,8 @@ func InitRouter() {
 		// 对于禁用put和delete方法时的处理
 		workTime.Post("/delete", middleware.NeedAuthorization(constant.ResourceWorkTimeDelete), WorkTimeController.Delete)
 		workTime.Post("/update", middleware.NeedAuthorization(constant.ResourceWorkTimeUpdate), WorkTimeController.Update)
+
+		workTime.Get("/enableSupplementary", middleware.NeedAuthorization(constant.ResourceWorkTimeSupplementaryEnable), WorkTimeController.EnableSupplementary)
+		workTime.Get("/supplementaryStatus", middleware.NeedAuthorization(constant.ResourceWorkTimeSupplementaryEnable), WorkTimeController.SupplementaryStatus)
 	}
 }
