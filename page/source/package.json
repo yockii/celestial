@@ -11,7 +11,7 @@
   "dependencies": {
     "@onlyoffice/document-editor-vue": "^1.4.0",
     "@types/sm-crypto": "^0.3.4",
-    "axios": "^1.7.7",
+    "axios": "^1.12.0",
     "dayjs": "^1.11.13",
     "dingtalk-jsapi": "^3.0.41",
     "md-editor-v3": "^5.0.1",
