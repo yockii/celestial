@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha1"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
@@ -147,24 +148,12 @@ func (c *dingTalkCrypto) GetEncryptMsgDetail(msg, timestamp, nonce string) (stri
 	return string(outMsg), signature, nil
 }
 
+// sha1Sign 钉钉回调协议规定的签名算法：msg_signature = sha1(sort(token, timestamp, nonce, encrypt))。
+// SHA1 为钉钉协议硬性要求，不可更换为其它哈希算法（安全扫描工具标记此项可判定为误报）。
 func sha1Sign(s string) string {
-	// The pattern for generating a hash is `sha1.New()`,
-	// `sha1.Write(bytes)`, then `sha1.Sum([]byte{})`.
-	// Here we start with a new hash.
 	h := sha1.New()
-
-	// `Write` expects bytes. If you have a string `s`,
-	// use `[]byte(s)` to coerce it to bytes.
 	h.Write([]byte(s))
-
-	// This gets the finalized hash result as a byte
-	// slice. The argument to `Sum` can be used to append
-	// to an existing byte slice: it usually isn't needed.
 	bs := h.Sum(nil)
-
-	// SHA1 values are often printed in hex, for example
-	// in git commits. Use the `%x` format verb to convert
-	// a hash results to a hex string.
 	return fmt.Sprintf("%x", bs)
 }
 
@@ -179,9 +168,10 @@ func (c *dingTalkCrypto) CreateSignature(token, timestamp, nonce, msg string) st
 	return sha1Sign(strings.Join(params, ""))
 }
 
-// 验证数据签名
+// 验证数据签名（恒定时间比较，防时序侧信道）
 func (c *dingTalkCrypto) VerificationSignature(token, timestamp, nonce, msg, sigture string) bool {
-	return c.CreateSignature(token, timestamp, nonce, msg) == sigture
+	expect := c.CreateSignature(token, timestamp, nonce, msg)
+	return subtle.ConstantTimeCompare([]byte(expect), []byte(sigture)) == 1
 }
 
 // 解密补位
