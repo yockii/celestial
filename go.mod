@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
-	github.com/gofiber/fiber/v2 v2.52.11
+	github.com/gofiber/fiber/v2 v2.52.14
 	github.com/gofiber/jwt/v2 v2.2.7
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gomodule/redigo v1.9.2
@@ -91,7 +91,7 @@ require (
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
