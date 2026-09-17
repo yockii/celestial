@@ -57,10 +57,5 @@
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-svg-icons": "^2.0.1",
     "webpack": "^5.111.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "tar": ">=7.5.21"
-    }
   }
 }
