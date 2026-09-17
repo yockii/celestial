@@ -243,6 +243,11 @@ const (
 	ResourceOssConfigList     = ResourceOssConfig + ":list"
 	ResourceOssConfigInstance = ResourceOssConfig + ":instance"
 
+	// 系统配置
+	ResourceSysConfig        = ResourceSystem + ":sysConfig"
+	ResourceSysConfigList    = ResourceSysConfig + ":list"
+	ResourceSysConfigUpdate  = ResourceSysConfig + ":update"
+
 	// 资源列表
 	ResourceResourceList = ResourceSystem + ":resourceList"
 

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/asset/domain"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/celestial/internal/module/asset/service"
@@ -12,6 +13,15 @@ import (
 var OssConfigController = new(ossConfigController)
 
 type ossConfigController struct{}
+
+// maskSecret 脱敏密钥信息，防止密钥通过接口泄露
+func maskSecret(configs ...*model.OssConfig) {
+	for _, c := range configs {
+		if c != nil && c.SecretAccessKey != "" {
+			c.SecretAccessKey = constant.MaskedSecret
+		}
+	}
+}
 
 func (c *ossConfigController) Add(ctx *fiber.Ctx) error {
 	instance := new(model.OssConfig)
@@ -151,6 +161,7 @@ func (c *ossConfigController) List(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+	maskSecret(list...)
 	return ctx.JSON(&server.CommonResponse{
 		Data: &server.Paginate{
 			Total:  total,
@@ -183,6 +194,7 @@ func (c *ossConfigController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+	maskSecret(dept)
 	return ctx.JSON(&server.CommonResponse{
 		Data: dept,
 	})

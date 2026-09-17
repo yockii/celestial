@@ -336,6 +336,16 @@ const routes: Array<RouteRecordRaw> = [
           activeMenuKey: "System",
           activeSubMenuKey: "OssConfig"
         }
+      },
+      {
+        path: "sysConfig",
+        name: "SysConfig",
+        component: () => import("@/views/system/sysConfig/index.vue"),
+        meta: {
+          label: () => "安全设置",
+          activeMenuKey: "System",
+          activeSubMenuKey: "SysConfig"
+        }
       }
     ]
   },

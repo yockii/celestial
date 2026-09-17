@@ -8,6 +8,7 @@ import (
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/util"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 )
 
 func InitData() {
@@ -1090,6 +1091,24 @@ func InitData() {
 				Type:         1,
 			})
 		}
+		// 系统配置
+		{
+			resources = append(resources, &model.Resource{
+				ResourceName: "系统配置",
+				ResourceCode: constant.ResourceSysConfig,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "系统配置列表",
+				ResourceCode: constant.ResourceSysConfigList,
+				Type:         1,
+			})
+			resources = append(resources, &model.Resource{
+				ResourceName: "更新系统配置",
+				ResourceCode: constant.ResourceSysConfigUpdate,
+				Type:         1,
+			})
+		}
 		// 会议室
 		{
 			resources = append(resources, &model.Resource{
@@ -1145,6 +1164,28 @@ func InitData() {
 			ID: util.SnowflakeId(),
 		}).FirstOrCreate(resource).Error; err != nil {
 			logger.Errorln(err)
+		}
+	}
+
+	// 初始化系统配置：数据库中不存在的配置项，以配置文件中的值作为初始值
+	{
+		key := constant.SysConfigKeyUsernamePasswordEnabled
+		var c int64
+		if err := database.DB.Model(&model.SysConfig{}).Where(&model.SysConfig{Key: key}).Count(&c).Error; err != nil {
+			logger.Errorln(err)
+		} else if c == 0 {
+			value := "true"
+			if config.IsSet("login.usernamePasswordEnabled") {
+				value = strconv.FormatBool(config.GetBool("login.usernamePasswordEnabled"))
+			}
+			if err := database.DB.Create(&model.SysConfig{
+				ID:      util.SnowflakeId(),
+				Key:     key,
+				Value:   value,
+				Comment: "是否启用用户名密码登录/注册",
+			}).Error; err != nil {
+				logger.Errorln(err)
+			}
 		}
 	}
 }

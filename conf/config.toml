@@ -1,5 +1,19 @@
 userTokenExpire=86400
 
+# 登录安全配置
+# 是否启用用户名密码登录/注册。此值仅在首次初始化时写入数据库，之后以数据库
+# 配置为准（系统设置-安全设置中可实时修改），此处的值作为未初始化时的兜底
+[login]
+usernamePasswordEnabled=false
+
+# JWT签名密钥，务必设置为随机长字符串（不设置则使用内置默认值，存在被伪造token的风险）
+[jwt]
+secret=""
+
+# 初始admin账号密码，仅首次初始化数据库时使用；建议修改默认密码
+[admin]
+initPassword=""
+
 [server]
 baseUrl="http://127.0.0.1:3000"
 port=8080

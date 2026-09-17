@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios"
-import { useUserStore } from "@/store/user"
+import { hasTokenCookie, setTokenCookie, useUserStore } from "@/store/user"
 import { createDiscreteApi, MessageReactive } from "naive-ui"
 import { Result } from "@/types/common"
 import { useAppStore } from "@/store/app"
@@ -58,6 +58,10 @@ export class Request {
         const token = useUserStore().token
         if (token && token !== "") {
           config.headers.Authorization = "Bearer " + token
+          // 兼容升级前已登录的会话：cookie 缺失时补写，保证文件下载等请求可通过 cookie 鉴权
+          if (!hasTokenCookie()) {
+            setTokenCookie(token)
+          }
         }
         config.headers.RequestTime = new Date().getTime()
         return config
@@ -102,12 +106,20 @@ export class Request {
             noPopup = true
             this.stopRequest()
             break
-          case 403:
-            msg = "拒绝访问(403)"
-            renderUnAuthMsg(msg)
-            noPopup = true
-            this.stopRequest()
+          case 403: {
+            // 服务端主动返回的403（如用户名密码登录已关闭），直接展示具体原因
+            const serverMsg = error.response?.data?.msg
+            if (serverMsg) {
+              message.error(serverMsg)
+              noPopup = true
+            } else {
+              msg = "拒绝访问(403)"
+              renderUnAuthMsg(msg)
+              noPopup = true
+              this.stopRequest()
+            }
             break
+          }
           case 404:
             msg = "请求出错(404)"
             break

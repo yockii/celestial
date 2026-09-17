@@ -11,7 +11,8 @@ func InitRouter() {
 	// 文件上传
 	{
 		server.Post("/api/v1/file", middleware.NeedAuthorization(constant.NeedLogin), AssetFileController.Upload)
-		server.Get("/api/v1/file", AssetFileController.DownloadByObjName)
+		// 下载需要登录态：token 走 Authorization 头或 token cookie（兼容富文本中的 <img> 等无法携带请求头的场景）
+		server.Get("/api/v1/file", middleware.NeedAuthorization(constant.NeedLogin), AssetFileController.DownloadByObjName)
 	}
 
 	// 资产分类

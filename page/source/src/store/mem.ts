@@ -13,6 +13,7 @@ import {
   CategoryNewEach,
   LicenseGlobal,
   ObjectStorage,
+  Password,
   TimePlot
 } from "@vicons/carbon"
 import { MeetingRoomOutlined } from "@vicons/material"
@@ -142,6 +143,12 @@ export const useMemStore = defineStore("mem", {
             key: "OssConfig",
             code: "system:ossConfig",
             icon: renderIcon(ObjectStorage)
+          },
+          {
+            label: renderLinkedLabel("安全设置", "SysConfig"),
+            key: "SysConfig",
+            code: "system:sysConfig",
+            icon: renderIcon(Password)
           }
         ]
       }

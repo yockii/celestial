@@ -14,6 +14,7 @@ declare module 'vue' {
     IssueForm: typeof import('./src/components/project/issue/IssueForm.vue')['default']
     MeetingRoomReservation: typeof import('./src/components/meetingRoomReservation/index.vue')['default']
     MyProjectList: typeof import('./src/components/project/MyProjectList.vue')['default']
+    NAlert: typeof import('naive-ui')['NAlert']
     NameAvatar: typeof import('./src/components/NameAvatar.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NAvatarGroup: typeof import('naive-ui')['NAvatarGroup']

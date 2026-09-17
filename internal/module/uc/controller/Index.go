@@ -92,6 +92,16 @@ func InitRouter() {
 		//resource.Post("/delete", middleware.NeedAuthorization("resource:delete"), ResourceController.Delete)
 	}
 
+	// 系统配置
+	{
+		sysConfig := server.Group("/api/v1/sysConfig")
+		sysConfig.Get("/list", middleware.NeedAuthorization(constant.ResourceSysConfigList), SysConfigController.List)
+		sysConfig.Put("/update", middleware.NeedAuthorization(constant.ResourceSysConfigUpdate), SysConfigController.Update)
+
+		// 对于禁用put和delete方法时的处理
+		sysConfig.Post("/update", middleware.NeedAuthorization(constant.ResourceSysConfigUpdate), SysConfigController.Update)
+	}
+
 	// 三方登录源
 	{
 		thirdSource := server.Group("/api/v1/thirdSource")
@@ -115,9 +125,18 @@ func InitRouter() {
 
 }
 
+// LoginOptions 登录页初始化选项（公开接口返回）
+type LoginOptions struct {
+	PublicKey                string `json:"publicKey"`
+	UsernamePasswordEnabled  bool   `json:"usernamePasswordEnabled"`
+}
+
 func publicKey(ctx *fiber.Ctx) error {
 	return ctx.JSON(&server.CommonResponse{
-		Data: crypto.PublicKeyString(), // config.GetString("sm2.publicKey"),
+		Data: LoginOptions{
+			PublicKey:               crypto.PublicKeyString(),
+			UsernamePasswordEnabled: UsernamePasswordLoginEnabled(),
+		},
 	})
 }
 

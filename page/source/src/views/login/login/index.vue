@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { FormInst, FormItemInst, FormRules, useMessage } from "naive-ui"
 import { UserPlus } from "@vicons/tabler"
-import { login, loginInDingTalk } from "@/service"
+import { login, loginInDingTalk, getLoginOptions } from "@/service"
 import { useUserStore } from "@/store/user"
 import { useRouter } from "vue-router"
 import { storeToRefs } from "pinia"
@@ -101,6 +101,11 @@ const handleDingtalkLogin = (id: string) => {
 
 // 加载初始化
 onMounted(() => {
+  getLoginOptions().then((res) => {
+    if (res) {
+      usernamePasswordEnabled.value = res.usernamePasswordEnabled
+    }
+  })
   getThirdSourcePublic().then((res) => {
     if (res) {
       thirdSourceList.value = res
@@ -108,6 +113,9 @@ onMounted(() => {
     }
   })
 })
+
+// 是否启用账号密码登录（由服务端配置 login.usernamePasswordEnabled 控制）
+const usernamePasswordEnabled = ref(true)
 
 const dingtalkThirdSource = computed(() => {
   return thirdSourceList.value.find((item) => item.code === "dingtalk")
@@ -160,29 +168,32 @@ const loginInDingtalk = () => {
 
 <template>
   <n-form ref="formRef" :model="loginInfo" :rules="rules">
-    <n-form-item path="username" label="用户名">
-      <n-input v-model:value="loginInfo.username" placeholder="请输入用户名" @keydown.enter.prevent />
-    </n-form-item>
-    <n-form-item path="password" label="密码">
-      <n-input v-model:value="loginInfo.password" type="password" placeholder="请输入密码" @input="handlePasswordInput" @keydown.enter.prevent />
-    </n-form-item>
-    <n-grid :cols="2">
-      <n-grid-item>
-        <n-button text @click="handleRegisterClick" v-if="false">
-          <template #icon>
-            <n-icon>
-              <user-plus />
-            </n-icon>
-          </template>
-          注册新用户
-        </n-button>
-      </n-grid-item>
-      <n-grid-item>
-        <div style="display: flex; justify-content: flex-end">
-          <n-button :disabled="loginInfo.username === '' || loginInfo.password === ''" round type="primary" @click="handleLoginButtonClick"> 登录 </n-button>
-        </div>
-      </n-grid-item>
-    </n-grid>
+    <template v-if="usernamePasswordEnabled">
+      <n-form-item path="username" label="用户名">
+        <n-input v-model:value="loginInfo.username" placeholder="请输入用户名" @keydown.enter.prevent />
+      </n-form-item>
+      <n-form-item path="password" label="密码">
+        <n-input v-model:value="loginInfo.password" type="password" placeholder="请输入密码" @input="handlePasswordInput" @keydown.enter.prevent />
+      </n-form-item>
+      <n-grid :cols="2">
+        <n-grid-item>
+          <n-button text @click="handleRegisterClick" v-if="false">
+            <template #icon>
+              <n-icon>
+                <user-plus />
+              </n-icon>
+            </template>
+            注册新用户
+          </n-button>
+        </n-grid-item>
+        <n-grid-item>
+          <div style="display: flex; justify-content: flex-end">
+            <n-button :disabled="loginInfo.username === '' || loginInfo.password === ''" round type="primary" @click="handleLoginButtonClick"> 登录 </n-button>
+          </div>
+        </n-grid-item>
+      </n-grid>
+    </template>
+    <n-alert v-else type="info" :show-icon="false" style="margin-bottom: 12px"> 账号密码登录已关闭，请使用下方第三方账号登录 </n-alert>
     <n-grid :cols="3">
       <n-gi v-for="item in thirdSourceList" :key="item.id">
         <n-button type="primary" @click="() => handleDingtalkLogin(item.id)">

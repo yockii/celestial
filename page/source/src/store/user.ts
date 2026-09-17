@@ -3,6 +3,24 @@ import { User } from "@/types/user"
 import { RouteHistory } from "@/types/app"
 import { Project } from "@/types/project"
 
+// 后端 userTokenExpire 为 86400 秒，cookie 有效期与之保持一致
+const TOKEN_COOKIE_NAME = "token"
+const TOKEN_COOKIE_MAX_AGE = 86400
+
+// 登录态同步写入 cookie，供 <img>/<a> 等无法携带 Authorization 头的请求使用
+// （如富文本中的文件下载链接），后端 TokenLookup 同时支持 header 与 cookie
+export function setTokenCookie(token: string) {
+  document.cookie = `${TOKEN_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=${TOKEN_COOKIE_MAX_AGE}; SameSite=Lax`
+}
+
+export function clearTokenCookie() {
+  document.cookie = `${TOKEN_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`
+}
+
+export function hasTokenCookie() {
+  return document.cookie.split("; ").some((c) => c.startsWith(TOKEN_COOKIE_NAME + "="))
+}
+
 export const useUserStore = defineStore("user", {
   state: (): {
     user: User
@@ -35,6 +53,7 @@ export const useUserStore = defineStore("user", {
     },
     setToken(token: string) {
       this.token = token
+      setTokenCookie(token)
     },
     logout() {
       this.user = {
@@ -46,6 +65,7 @@ export const useUserStore = defineStore("user", {
       this.isSuperAdmin = false
       this.resourceCodes = []
       this.dataPermission = 0
+      clearTokenCookie()
     },
     hasResourceCode(resourceCode: string) {
       return this.isSuperAdmin || this.resourceCodes.includes(resourceCode)

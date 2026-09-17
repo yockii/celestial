@@ -2,6 +2,18 @@ import { request } from "../request"
 import { sm2 } from "sm-crypto"
 import { LoginResponse } from "@/types/user"
 
+export type LoginOptions = {
+  publicKey: string
+  usernamePasswordEnabled: boolean
+}
+
+/**
+ * 获取登录页选项（SM2公钥、是否启用账号密码登录）
+ */
+export function getLoginOptions() {
+  return request.get<LoginOptions>("/pk")
+}
+
 /**
  * 登录
  * @param username - 用户名
@@ -9,8 +21,8 @@ import { LoginResponse } from "@/types/user"
  */
 export function login(username: string, password: string) {
   return new Promise<LoginResponse>((resolve) => {
-    getPublicKey().then((res) => {
-      const encryptedPassword = "04" + sm2.doEncrypt(password, res)
+    getLoginOptions().then((res) => {
+      const encryptedPassword = "04" + sm2.doEncrypt(password, res.publicKey)
       resolve(
         request.post<LoginResponse>("/login", {
           username,
@@ -31,11 +43,4 @@ export function loginInDingTalk(thirdSourceId: string, code: string) {
     code,
     thirdSourceId
   })
-}
-
-/**
- * 获取公钥
- */
-export function getPublicKey() {
-  return request.get<string>("/pk")
 }

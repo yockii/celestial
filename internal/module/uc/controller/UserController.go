@@ -26,7 +26,29 @@ var UserController = new(userController)
 
 type userController struct{}
 
+// UsernamePasswordLoginEnabled 是否启用用户名密码登录/注册。
+// 优先读取数据库配置（运行时可改，实时生效），未在数据库配置时回退到
+// 配置文件 login.usernamePasswordEnabled，两者均未配置时默认启用。
+func UsernamePasswordLoginEnabled() bool {
+	enabled := true
+	if config.IsSet("login.usernamePasswordEnabled") {
+		enabled = config.GetBool("login.usernamePasswordEnabled")
+	}
+	return service.SysConfigService.GetBool(constant.SysConfigKeyUsernamePasswordEnabled, enabled)
+}
+
+// loginDisabled 用户名密码登录被关闭时，接口直接返回403
+func loginDisabled(ctx *fiber.Ctx) error {
+	return ctx.Status(fiber.StatusForbidden).JSON(&server.CommonResponse{
+		Code: server.ResponseCodeUnknownError,
+		Msg:  "用户名密码登录已关闭，请使用第三方账号登录",
+	})
+}
+
 func (*userController) Register(ctx *fiber.Ctx) error {
+	if !UsernamePasswordLoginEnabled() {
+		return loginDisabled(ctx)
+	}
 	instance := new(model.User)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
@@ -93,6 +115,9 @@ func (*userController) Register(ctx *fiber.Ctx) error {
 }
 
 func (c *userController) Login(ctx *fiber.Ctx) error {
+	if !UsernamePasswordLoginEnabled() {
+		return loginDisabled(ctx)
+	}
 	instance := new(model.User)
 	if err := ctx.BodyParser(instance); err != nil {
 		logger.Errorln(err)
@@ -325,6 +350,8 @@ func (c *userController) Instance(ctx *fiber.Ctx) error {
 			Msg:  server.ResponseMsgDatabase + err.Error(),
 		})
 	}
+	// 密码哈希不下发
+	user.Password = ""
 	return ctx.JSON(&server.CommonResponse{
 		Data: user,
 	})

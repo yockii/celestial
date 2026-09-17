@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	logger "github.com/sirupsen/logrus"
+	"github.com/yockii/celestial/internal/constant"
 	"github.com/yockii/celestial/internal/module/asset/model"
 	"github.com/yockii/ruomu-core/database"
 	"github.com/yockii/ruomu-core/server"
@@ -18,6 +19,10 @@ type ossConfigService struct{}
 
 // Add 添加资源
 func (s *ossConfigService) Add(instance *model.OssConfig) (duplicated bool, success bool, err error) {
+	// 新增时不允许提交掩码，视为未填写密钥
+	if instance.SecretAccessKey == constant.MaskedSecret {
+		instance.SecretAccessKey = ""
+	}
 	if instance.Name == "" || instance.Type == "" || instance.Endpoint == "" || instance.AccessKeyID == "" || instance.SecretAccessKey == "" || instance.Bucket == "" {
 		err = errors.New("Name/Type/Endpoint/AccessKeyID/SecretAccessKey/BucketName is required ")
 		return
@@ -54,6 +59,16 @@ func (s *ossConfigService) Update(instance *model.OssConfig) (success bool, err 
 	if instance.ID == 0 {
 		err = errors.New("id is required")
 		return
+	}
+
+	// 接口返回的密钥是掩码，原样提交时保持数据库中的密钥不变
+	if instance.SecretAccessKey == constant.MaskedSecret {
+		old := &model.OssConfig{}
+		if err = database.DB.Select("secret_access_key").Where(&model.OssConfig{ID: instance.ID}).First(old).Error; err != nil {
+			logger.Errorln(err)
+			return
+		}
+		instance.SecretAccessKey = old.SecretAccessKey
 	}
 
 	err = database.DB.Where(&model.OssConfig{ID: instance.ID}).Updates(&model.OssConfig{
