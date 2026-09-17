@@ -2,8 +2,6 @@ module github.com/yockii/celestial
 
 go 1.25.0
 
-toolchain go1.24.1
-
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/gofiber/fiber/v2 v2.52.11
@@ -21,7 +19,7 @@ require (
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/tmc/langchaingo v0.1.12
 	github.com/yockii/ruomu-core v0.0.0-20240401100534-2f8c071f6816
-	golang.org/x/crypto v0.45.0
+	golang.org/x/crypto v0.52.0
 	gorm.io/gorm v1.25.10
 )
 
@@ -93,10 +91,10 @@ require (
 	go.starlark.net v0.0.0-20230302034142-4b1e35fe2254 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
