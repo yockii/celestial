@@ -128,8 +128,18 @@ func (c *client) GetUserAccessToken(code string) (accessToken string, err error)
 		return
 	}
 	resJson := gjson.ParseBytes(res)
-	// TODO 错误处理
+	// 换取失败时必须显式报错，否则空token会在后续接口上表现为"缺少参数 x-acs-dingtalk-access-token"，掩盖真实原因
+	if resp.StatusCode != 200 || resJson.Get("code").Exists() {
+		err = fmt.Errorf("获取用户accessToken失败，错误码：%s，错误信息：%s",
+			resJson.Get("code").String(), resJson.Get("message").String())
+		logger.Errorln(err)
+		return "", err
+	}
 	accessToken = resJson.Get("accessToken").String()
+	if accessToken == "" {
+		err = fmt.Errorf("获取用户accessToken失败：响应中无accessToken")
+		logger.Errorln(err)
+	}
 	return
 }
 
