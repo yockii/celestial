@@ -27,8 +27,8 @@ importers:
         specifier: ^3.2.9
         version: 3.2.9
       md-editor-v3:
-        specifier: ^5.8.5
-        version: 5.8.5(vue@3.5.42(typescript@5.9.3))
+        specifier: ^6.5.4
+        version: 6.5.4(vue@3.5.42(typescript@5.9.3))
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -221,8 +221,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/standalone@7.29.8':
-    resolution: {integrity: sha512-XgbPNz+u6JzB7cKGnPDoS1U24J5td8yp3HFWbT/6f4/ASZ0PqaQGIvts1o5v5AI+f6i3jdVB/L/o2CYLCv101A==}
+  '@babel/standalone@7.29.9':
+    resolution: {integrity: sha512-Oztlw9huD3bdgX6HmYqCSBamOtH05qbbF5TGfD2cbetKsqMo/2U9WB24U02qGDqMzmY0wY2bnLhbFAjXW3dWYg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.29.7':
@@ -937,6 +937,11 @@ packages:
   '@lezer/yaml@1.0.4':
     resolution: {integrity: sha512-2lrrHqxalACEbxIbsjhqGpSW8kWpUKuY6RHgnSAFZa6qK62wvnPxA8hGOwOoDbwHcOFs5M4o27mjGu+P7TvBmw==}
 
+  '@lucide/vue@1.47.0':
+    resolution: {integrity: sha512-S0/UX9zra4Z8xmqrA1MH5GiSKA8daAPFwkmORt/u+gUHAkYZoeOcr+DH3scZeyE9bdLWScGK+MJoDYi8rIU5Jg==}
+    peerDependencies:
+      vue: '>=3.0.1'
+
   '@marijn/find-cluster-break@1.0.4':
     resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
 
@@ -1396,6 +1401,9 @@ packages:
 
   '@vavt/copy2clipboard@1.0.3':
     resolution: {integrity: sha512-HtG48r2FBYp9eRvGB3QGmtRBH1zzRRAVvFbGgFstOwz4/DDaNiX0uZc3YVKPydqgOav26pibr9MtoCaWxn7aeA==}
+
+  '@vavt/markdown-theme@5.0.2':
+    resolution: {integrity: sha512-cGYEV2VIUmhT9p8Wua9yXh7sKN1f3cbztTFHlkYyH9SzbpiKUnQrcbDts/0fP6cmvZPOe9SWWsDujmyuHepJdQ==}
 
   '@vavt/util@2.1.2':
     resolution: {integrity: sha512-L3UbSJthJwr3wq0x93O5TrCepimrmVZaIl2ciZbeL18G5++gBhJXNhcH7RcVk/6rr3SavWOvwhig0mqRLoR7dw==}
@@ -2771,18 +2779,8 @@ packages:
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
-  lru-cache@11.5.2:
-    resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
-    engines: {node: 20 || >=22}
-
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lucide-vue-next@0.453.0:
-    resolution: {integrity: sha512-5zmv83vxAs9SVoe22veDBi8Dw0Fh2F+oTngWgKnKOkrZVbZjceXLQ3tescV2boB0zlaf9R2Sd9RuUP2766xvsQ==}
-    deprecated: Package deprecated. Please use @lucide/vue instead.
-    peerDependencies:
-      vue: '>=3.0.1'
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -2815,8 +2813,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.8.5:
-    resolution: {integrity: sha512-NsqAmmAx/ykA1AcwxcHH4Hkn4VAPkqMX7Hd6Lv4FcwQoMQ70wWmJfs/mokyPGkqr4oYqqn8LRMBTqFNfoP0O0A==}
+  md-editor-v3@6.5.4:
+    resolution: {integrity: sha512-oemxSjh4Da+rFseLYWBlknSfe60eHjHUybj548BZwQZysgtA1u9g+i1drQdbuvEStTN9qZv5rgyEQH71MH/PjA==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -3488,8 +3486,8 @@ packages:
   strip-literal@2.1.1:
     resolution: {integrity: sha512-631UJ6O00eNGfMiWG78ck80dfBab8X6IVFB51jZK5Icd7XAs60Z5y7QdSd/wGIklnWvRbUNloVzhOKKmutxQ6Q==}
 
-  style-mod@4.1.3:
-    resolution: {integrity: sha512-i/n8VsZydrugj3Iuzll8+x/00GH2vnYsk1eomD8QiRrSAeW6ItbCQDtfXCeJHd0iwiNagqjQkvpvREEPtW3IoQ==}
+  style-mod@4.1.4:
+    resolution: {integrity: sha512-XXWIQt633/EpAFx8aZDOTjBzrCaGmhvEQlQo6MVPfa2OzO2cWo+4hV9h+6UkHYlXGfy+ODXKUdP7Pthmcu5ATw==}
 
   supports-color@2.0.0:
     resolution: {integrity: sha512-KKNVtd6pCYgPIKU4cp2733HWYCpplQhddZLBUryaAHou723x+FRzQ5Df824Fj+IyyuiQTRoub4SnIFfIcrp70g==}
@@ -4016,7 +4014,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.8
 
-  '@babel/standalone@7.29.8':
+  '@babel/standalone@7.29.9':
     optional: true
 
   '@babel/template@7.29.7':
@@ -4266,7 +4264,7 @@ snapshots:
       '@lezer/common': 1.5.2
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
-      style-mod: 4.1.3
+      style-mod: 4.1.4
 
   '@codemirror/legacy-modes@6.5.4':
     dependencies:
@@ -4292,7 +4290,7 @@ snapshots:
     dependencies:
       '@codemirror/state': 6.7.5
       crelt: 1.0.7
-      style-mod: 4.1.3
+      style-mod: 4.1.4
       w3c-keyname: 2.2.8
 
   '@css-render/plugin-bem@0.15.14(css-render@0.15.14)':
@@ -4734,6 +4732,10 @@ snapshots:
       '@lezer/common': 1.5.2
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
+
+  '@lucide/vue@1.47.0(vue@3.5.42(typescript@5.9.3))':
+    dependencies:
+      vue: 3.5.42(typescript@5.9.3)
 
   '@marijn/find-cluster-break@1.0.4': {}
 
@@ -5245,6 +5247,8 @@ snapshots:
       - vue
 
   '@vavt/copy2clipboard@1.0.3': {}
+
+  '@vavt/markdown-theme@5.0.2': {}
 
   '@vavt/util@2.1.2': {}
 
@@ -6856,16 +6860,10 @@ snapshots:
 
   lodash@4.18.1: {}
 
-  lru-cache@11.5.2: {}
-
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
     optional: true
-
-  lucide-vue-next@0.453.0(vue@3.5.42(typescript@5.9.3)):
-    dependencies:
-      vue: 3.5.42(typescript@5.9.3)
 
   magic-string@0.30.21:
     dependencies:
@@ -6896,7 +6894,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  md-editor-v3@5.8.5(vue@3.5.42(typescript@5.9.3)):
+  md-editor-v3@6.5.4(vue@3.5.42(typescript@5.9.3)):
     dependencies:
       '@codemirror/autocomplete': 6.20.3
       '@codemirror/commands': 6.11.1
@@ -6907,12 +6905,12 @@ snapshots:
       '@codemirror/state': 6.7.5
       '@codemirror/view': 6.43.12
       '@lezer/highlight': 1.2.3
+      '@lucide/vue': 1.47.0(vue@3.5.42(typescript@5.9.3))
       '@types/markdown-it': 14.2.0
       '@vavt/copy2clipboard': 1.0.3
+      '@vavt/markdown-theme': 5.0.2
       '@vavt/util': 2.1.2
       codemirror: 6.0.2
-      lru-cache: 11.5.2
-      lucide-vue-next: 0.453.0(vue@3.5.42(typescript@5.9.3))
       markdown-it: 14.3.2
       markdown-it-image-figures: 2.1.1(markdown-it@14.3.2)
       markdown-it-sub: 2.0.0
@@ -7623,7 +7621,7 @@ snapshots:
     dependencies:
       js-tokens: 9.0.1
 
-  style-mod@4.1.3: {}
+  style-mod@4.1.4: {}
 
   supports-color@2.0.0: {}
 
@@ -7937,7 +7935,7 @@ snapshots:
   untyped@1.5.2:
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/standalone': 7.29.8
+      '@babel/standalone': 7.29.9
       '@babel/types': 7.29.8
       citty: 0.1.6
       defu: 6.1.7
