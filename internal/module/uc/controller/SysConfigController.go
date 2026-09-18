@@ -20,9 +20,10 @@ var updatableSysConfigs = map[string]string{
 func (c *sysConfigController) List(ctx *fiber.Ctx) error {
 	list, err := service.SysConfigService.List()
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{
@@ -53,9 +54,10 @@ func (c *sysConfigController) Update(ctx *fiber.Ctx) error {
 		})
 	}
 	if err := service.SysConfigService.Set(instance.Key, instance.Value, comment); err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -88,9 +89,10 @@ func (*userController) Register(ctx *fiber.Ctx) error {
 	// 创建用户
 	duplicated, success, err := service.UserService.Add(instance)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 
@@ -156,9 +158,10 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 
 	user, notMatch, err := service.UserService.LoginWithUsernameAndPassword(instance.Username, instance.Password)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	if notMatch {
@@ -188,9 +191,10 @@ func (c *userController) GetUserRoleIds(ctx *fiber.Ctx) error {
 	// 获取用户对应的权限和角色
 	roles, err := service.UserService.Roles(uid)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	var roleIds []string
@@ -235,7 +239,7 @@ func (c *userController) Add(ctx *fiber.Ctx) error {
 		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	if duplicated {
@@ -274,9 +278,10 @@ func (c *userController) UpdateUser(ctx *fiber.Ctx) error {
 
 	success, err := service.UserService.Update(instance)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{
@@ -304,9 +309,10 @@ func (c *userController) Delete(ctx *fiber.Ctx) error {
 	success, err := service.UserService.Delete(instance.ID)
 
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 
@@ -345,9 +351,10 @@ func (c *userController) Instance(ctx *fiber.Ctx) error {
 	}
 	user, err := service.UserService.Instance(instance)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	// 密码哈希不下发
@@ -391,9 +398,10 @@ func (c *userController) List(ctx *fiber.Ctx) error {
 		// 获取部门信息
 		department, err := service.DepartmentService.Instance(instance.DepartmentID)
 		if err != nil {
+			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
-				Msg:  server.ResponseMsgDatabase + err.Error(),
+				Msg:  server.ResponseMsgDatabase,
 			})
 		}
 		departmentPath = department.FullPath
@@ -401,9 +409,10 @@ func (c *userController) List(ctx *fiber.Ctx) error {
 
 	total, list, err := service.UserService.PaginateBetweenTimes(&instance.User, paginate.Limit, paginate.Offset, instance.OrderBy, tcList, departmentPath)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 
@@ -447,8 +456,9 @@ func generateJwtToken(userId, tenantId string) (string, error) {
 
 	_, err := conn.Do("SETEX", sessionKey, config.GetInt("userTokenExpire"), userId)
 	if err != nil {
-		logger.Errorln(err)
-		return "", err
+		// 登录会话写入失败绝大多数情况是Redis不可用，详细错误仅记录日志
+		logger.Errorln("写入登录会话失败:", err)
+		return "", errors.New("写入登录会话失败")
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	claims[constant.JwtClaimUserId] = userId
@@ -457,8 +467,8 @@ func generateJwtToken(userId, tenantId string) (string, error) {
 
 	t, err := token.SignedString([]byte(constant.JwtSecret))
 	if err != nil {
-		logger.Errorln(err)
-		return "", err
+		logger.Errorln("生成登录凭证失败:", err)
+		return "", errors.New("生成登录凭证失败")
 	}
 	return t, nil
 }
@@ -483,9 +493,10 @@ func (c *userController) AssignRole(ctx *fiber.Ctx) error {
 
 	success, err := service.UserService.DispatchRoles(instance.UserID, instance.RoleIDList)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 
@@ -534,9 +545,10 @@ func (c *userController) UpdateSelf(ctx *fiber.Ctx) error {
 	instance.Status = 0
 	success, err := service.UserService.Update(instance)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{
@@ -560,9 +572,10 @@ func (c *userController) LoginByDingtalkCode(ctx *fiber.Ctx) error {
 		})
 	}
 	if thirdSource, err := service.ThirdSourceService.Instance(&model.ThirdSource{ID: req.ThirdSourceID}); err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	} else if thirdSource == nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -573,9 +586,10 @@ func (c *userController) LoginByDingtalkCode(ctx *fiber.Ctx) error {
 		var user *model.User
 		user, err = service.DingtalkService.SyncDingUserByThirdSourceOutsideDingtalk(thirdSource, req.Code)
 		if err != nil {
+			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
-				Code: server.ResponseCodeDatabase,
-				Msg:  server.ResponseMsgDatabase + err.Error(),
+				Code: server.ResponseCodeUnknownError,
+				Msg:  "钉钉登录失败，请稍后重试",
 			})
 		}
 		return c.generateLoginResponse(user, ctx)
@@ -598,9 +612,10 @@ func (c *userController) LoginInDingtalk(ctx *fiber.Ctx) error {
 		})
 	}
 	if thirdSource, err := service.ThirdSourceService.Instance(&model.ThirdSource{ID: req.ThirdSourceID}); err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	} else if thirdSource == nil {
 		return ctx.JSON(&server.CommonResponse{
@@ -614,15 +629,16 @@ func (c *userController) LoginInDingtalk(ctx *fiber.Ctx) error {
 			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeUnknownError,
-				Msg:  server.ResponseMsgUnknownError + err.Error(),
+				Msg:  "钉钉登录失败，请稍后重试",
 			})
 		}
 		var user *model.User
 		user, err = service.DingtalkService.SyncDingUserByThirdSource(thirdSource, staffId)
 		if err != nil {
+			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
-				Code: server.ResponseCodeDatabase,
-				Msg:  server.ResponseMsgDatabase + err.Error(),
+				Code: server.ResponseCodeUnknownError,
+				Msg:  "钉钉登录失败，请稍后重试",
 			})
 		}
 
@@ -633,9 +649,10 @@ func (c *userController) LoginInDingtalk(ctx *fiber.Ctx) error {
 func (c *userController) generateLoginResponse(user *model.User, ctx *fiber.Ctx) error {
 	jwtToken, err := generateJwtToken(strconv.FormatUint(user.ID, 10), "")
 	if err != nil {
+		// err内容为面向用户的明确提示（如"写入登录会话失败"），详情已记录后台日志
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeGeneration,
-			Msg:  server.ResponseMsgGeneration + err.Error(),
+			Msg:  err.Error(),
 		})
 	}
 	user.Password = ""
@@ -665,9 +682,10 @@ func (c *userController) UserRoleIdList(ctx *fiber.Ctx) error {
 	}
 	roleList, err := service.UserService.Roles(userId)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	var roleIdList []string
@@ -683,9 +701,10 @@ func (c *userController) UserRoleIdList(ctx *fiber.Ctx) error {
 func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 	uid, err := helper.GetCurrentUserID(ctx)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeUnknownError,
-			Msg:  server.ResponseMsgUnknownError + err.Error(),
+			Msg:  server.ResponseMsgUnknownError,
 		})
 	}
 	conn := cache.Get()
@@ -702,9 +721,10 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 		var roles []*model.Role
 		roles, err = service.UserService.Roles(uid)
 		if err != nil {
+			logger.Errorln(err)
 			return ctx.JSON(&server.CommonResponse{
 				Code: server.ResponseCodeDatabase,
-				Msg:  server.ResponseMsgDatabase + err.Error(),
+				Msg:  server.ResponseMsgDatabase,
 			})
 		}
 		for _, role := range roles {
@@ -737,9 +757,10 @@ func (c *userController) UserPermissions(ctx *fiber.Ctx) error {
 			// 缓存没有，那么就去数据库取出来放进去
 			codes, err = service.RoleService.ResourceCodes(roleId)
 			if err != nil {
+				logger.Errorln(err)
 				return ctx.JSON(&server.CommonResponse{
 					Code: server.ResponseCodeDatabase,
-					Msg:  server.ResponseMsgDatabase + err.Error(),
+					Msg:  server.ResponseMsgDatabase,
 				})
 			}
 			for _, resourceCode := range codes {
@@ -805,9 +826,10 @@ func (c *userController) ResetUserPassword(ctx *fiber.Ctx) error {
 	// 重置密码
 	success, err := service.UserService.UpdatePassword(instance)
 	if err != nil {
+		logger.Errorln(err)
 		return ctx.JSON(&server.CommonResponse{
 			Code: server.ResponseCodeDatabase,
-			Msg:  server.ResponseMsgDatabase + err.Error(),
+			Msg:  server.ResponseMsgDatabase,
 		})
 	}
 	return ctx.JSON(&server.CommonResponse{
